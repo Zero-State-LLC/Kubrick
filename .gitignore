@@ -29,3 +29,4 @@ references/usage/
 PR_BODY.md
 PR_BODY_HARDENING.md
 PUSH_INSTRUCTIONS.md
+.worktrees/

@@ -6,7 +6,7 @@
 
 <p align="center">
   <strong>Hermes-Native Symbolic Cinematic Engineering</strong><br>
-  <em>0.16.0 — First-Class Production Surfaces</em>
+  <em>0.17.0 — First-Class Production Surfaces</em>
 </p>
 
 <p align="center">
@@ -253,6 +253,17 @@ brief
 → compile receipt
 ```
 
+
+### Guided wizard (Hermes Desktop-friendly)
+
+```bash
+python3 scripts/kubrick.py do wizard --preset verify --json
+python3 scripts/kubrick.py do wizard --answers answers.json --print-only
+python3 scripts/kubrick.py do wizard --answers answers.json --run
+```
+
+See `docs/specs/2026-08-08-kubrick-hermes-wizard-design.md`.
+
 ## Operator Commands
 
 Primary surface:
@@ -423,7 +434,7 @@ CI (`.github/workflows/hermes-evals.yml`) runs Hermes evals, outcome governance,
 
 ## Version
 
-**0.16.0 — First-Class Production Surfaces**
+**0.17.0 — First-Class Production Surfaces**
 
 This release promotes design/script/image/video onto a shared production engine with validate→compile→receipt lifecycle, expanded surface actions, golden fixtures, and architecture docs. See the v0.16 release notes for verified gates and remaining post-release work.
 
@@ -434,3 +445,7 @@ See [CHANGELOG.md](CHANGELOG.md) for full release history.
 <p align="center">
   <em>Symbolism should alter the conditions under which a scene is interpreted—without requiring the audience to consciously identify it.</em>
 </p>
+
+See also: [docs/ROADMAP-v0.17.md](docs/ROADMAP-v0.17.md)
+
+See also: [docs/RELEASE-NOTES-v0.17.md](docs/RELEASE-NOTES-v0.17.md)

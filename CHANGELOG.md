@@ -1,5 +1,16 @@
 # Changelog — Kubrick
 
+## [0.17.0] — 2026-08-08
+
+### Added
+- Hermes **wizard** (`do wizard`): presets, `--answers`, print-only default, `--run`, `--json`.
+- Desktop-safe chat protocol and `schemas/wizard-answers.v1.schema.json`.
+- Recipe `wizard-verify`.
+
+### Notes
+- Shipped on top of org **0.16.0** (version **0.17.0**, not 0.15.0).
+
+
 Kubrick is the primary symbolic cinematic narrative engineering skill. It replaces the earlier scriptwriting skill as the recommended system for premise-to-production development with deep motif, geometric, cinematic, storyboard, and visual-fidelity encoding.
 
 ## [Unreleased]

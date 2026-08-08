@@ -1,0 +1,81 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "$id": "https://kubrick.local/schemas/wizard-answers.v1.schema.json",
+  "title": "Kubrick Wizard Answers v1",
+  "description": "Non-interactive answers for kubrick do wizard. Nesting (intent wizard) and action/field requirements are enforced in scripts/kubrick_wizard.py.",
+  "type": "object",
+  "additionalProperties": false,
+  "required": ["schema", "intent"],
+  "properties": {
+    "schema": {
+      "const": "kubrick-wizard-answers.v1"
+    },
+    "intent": {
+      "type": "string",
+      "enum": [
+        "compile",
+        "retrieve",
+        "ledger",
+        "design",
+        "storyboard",
+        "adapt",
+        "visual",
+        "learn",
+        "check",
+        "operate",
+        "mcp",
+        "bundle",
+        "wizard"
+      ]
+    },
+    "action": {
+      "type": ["string", "null"]
+    },
+    "brief": {
+      "type": ["string", "null"]
+    },
+    "ledger": {
+      "type": ["string", "null"]
+    },
+    "storyboard_plan": {
+      "type": ["string", "null"]
+    },
+    "provider": {
+      "type": ["string", "null"]
+    },
+    "mode": {
+      "type": ["string", "null"]
+    },
+    "out": {
+      "type": ["string", "null"]
+    },
+    "packet": {
+      "type": ["string", "null"]
+    },
+    "expected": {
+      "type": ["string", "null"]
+    },
+    "observation": {
+      "type": ["string", "null"]
+    },
+    "query": {
+      "type": ["string", "null"]
+    },
+    "project": {
+      "type": ["string", "null"]
+    },
+    "output": {
+      "type": ["string", "null"],
+      "description": "Adapt provider --output path"
+    },
+    "allow_mutate": {
+      "type": "boolean",
+      "description": "Must be a JSON boolean; string 'false' is invalid. Default false when omitted."
+    },
+    "extra_flags": {
+      "type": "array",
+      "items": {"type": "string"},
+      "description": "Optional token list appended after mapped flags"
+    }
+  }
+}

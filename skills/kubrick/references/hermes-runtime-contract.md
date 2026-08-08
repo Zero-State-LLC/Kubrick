@@ -161,3 +161,11 @@ Evolution and corpus modification are separate from ordinary runtime.
 When `hermes-continuity-forge` is connected, Kubrick may prepare and submit handoff artifacts. The companion owns authorization, leases, ingestion, and canonical receipts.
 
 When it is absent, Kubrick continues locally and labels outputs `PROPOSED`.
+
+## Wizard (guided operator path)
+
+Prefer `kubrick do wizard` when collecting flags for Hermes Desktop/chat:
+
+- Non-interactive: `--answers` JSON and/or `--preset` (print-only default; `--run` explicit).
+- Never interactive stdin from agent tools; never set `allow_mutate: true` without operator approval.
+- Spec: `docs/specs/2026-08-08-kubrick-hermes-wizard-design.md`

@@ -17,6 +17,7 @@ PY = sys.executable
 EXPECTED_INTENTS = {
     "compile", "retrieve", "ledger", "design", "script", "image", "video",
     "storyboard", "adapt", "visual", "learn", "check", "operate", "mcp", "bundle",
+    "wizard",
 }
 
 REQUIRED_LEGACY = {

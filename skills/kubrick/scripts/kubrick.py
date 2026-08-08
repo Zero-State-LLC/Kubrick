@@ -44,6 +44,21 @@ def _is_agent() -> bool:
     return os.environ.get("KUBRICK_AGENT") == "1" or not sys.stderr.isatty()
 
 
+def _is_wizard_argv(argv: list[str]) -> bool:
+    if not argv:
+        return False
+    if argv[0] == "wizard":
+        return True
+    return argv[0] == "do" and len(argv) >= 2 and argv[1] == "wizard"
+
+
+def _wizard_flags(argv: list[str]) -> list[str]:
+    if argv[0] == "wizard":
+        return argv[1:]
+    # do wizard [flags]
+    return argv[2:]
+
+
 def _dispatch_smoke(call: ir.IntentCall) -> None:
     """check smoke: validate manifest, skill, then pattern corpus (composite)."""
     for script in (
@@ -130,6 +145,13 @@ def main() -> None:
         except ir.RouterError as e:
             _abort_router(e)
 
+    # wizard special-case: plan/--run re-dispatch without nesting via ir.resolve
+    if _is_wizard_argv(argv):
+        import kubrick_wizard as wiz
+
+        raise SystemExit(wiz.main(_wizard_flags(argv)))
+
+    # do <intent> --help / -h → intent help (do not pass --help into scripts)
     if (
         len(argv) >= 2
         and argv[0] == "do"
