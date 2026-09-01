@@ -1,11 +1,10 @@
 ---
 name: kubrick
 description: Builds continuity-safe cinematic stories and visuals.
-version: 0.17.0
-author: Daniel Meyer (@scrimshawlife-ctrl) / Applied Alchemy Labs
+version: 0.17.1
+author: Daniel Meyer (scrimshawlife-ctrl), Hermes Agent
 license: MIT
 platforms: [linux, macos, windows]
-dependencies: []
 metadata:
   hermes:
     tags:
@@ -23,10 +22,11 @@ metadata:
 
 # Kubrick Skill
 
-Kubrick develops and revises screenplays, cinematic systems, storyboards, and
-provider-ready visual prompts while preserving dramatic causality and continuity.
-It does not answer film trivia, write unrelated prose, or perform general software
-engineering work.
+Kubrick is a standalone Hermes skill that develops and revises screenplays,
+cinematic systems, storyboards, and provider-ready visual prompts while
+preserving dramatic causality and continuity. It does not answer film trivia,
+write unrelated prose, or perform general software engineering. Hermes loads
+this directory directly and uses `SKILL.md` as the behavior contract.
 
 ## When to Use
 
@@ -41,79 +41,97 @@ Use Kubrick when the user wants to:
 - compare an expected frame with a human or model observation
 - compile creative evidence into a design specification
 
-Do not use Kubrick for film trivia, reviews, general cinema questions, generic prose,
-software engineering, packaging, DevOps, or visual tasks with no dramatic system.
+Do not use Kubrick for film trivia, reviews, general cinema questions, generic
+prose, software engineering, packaging, DevOps, or visual tasks with no dramatic
+system.
 
 ### When Not to Use
 
-Choose a narrower writing, research, coding, or image skill when the request does not
-need cinematic causality, motif state, visual continuity, or production handoff.
+Choose a narrower writing, research, coding, or image skill when the request
+does not need cinematic causality, motif state, visual continuity, or production
+handoff.
 
 ## Prerequisites
 
-Kubrick is a standalone Hermes skill. Hermes loads this directory directly and uses
-`SKILL.md` as its behavior contract. It is not installed as a Python package.
-
 - Python 3.10 or newer runs the bundled deterministic helpers.
-- Core creative and routing behavior works with the Python standard library.
+- Core creative and routing behavior uses the Python standard library.
 - PyYAML and jsonschema are optional and enable full YAML/schema validation.
 - Model APIs, vision APIs, Continuity Forge, and the bundled MCP server are optional.
 - No API key is required for local creative work.
 
-Resolve paths from the installed skill root. In examples below, set
-`HERMES_SKILL_DIR` to that directory. Write generated artifacts to a user-selected
-project directory or `out/`. Never write into `references/` during ordinary work.
-Hermes may expose the same location as `${HERMES_SKILL_DIR}` in shell commands.
+Hermes substitutes `${HERMES_SKILL_DIR}` with the installed skill directory.
+Write generated artifacts to a user-selected project directory or `out/`. Never
+write into `references/` during ordinary work.
 
-The OpenClaw edition is maintained separately on the `openclaw` branch. This file is
-the Hermes contract.
+The OpenClaw edition is maintained separately on the `openclaw` branch. This
+file is the Hermes contract.
 
 ## How to Run
 
-Most creative requests can be completed directly from this contract and the relevant
+Most creative requests can be completed from this contract and the relevant
 files in `references/`. Use the bundled router when deterministic retrieval,
 compilation, validation, adaptation, storyboard propagation, or QA adds value.
 
-```bash
-python3 "$HERMES_SKILL_DIR/scripts/kubrick.py" do <intent> [--action <action>] [flags]
+Call the Hermes `terminal` tool with the substituted skill path:
+
+```text
+terminal(command="python3 ${HERMES_SKILL_DIR}/scripts/kubrick.py do <intent> [--action <action>] [flags]", timeout=120)
 ```
 
-Common examples:
+Common invocations:
 
-```bash
-python3 "$HERMES_SKILL_DIR/scripts/kubrick.py" recipe storyboard-example
-python3 "$HERMES_SKILL_DIR/scripts/kubrick.py" do retrieve --brief path/to/brief.yaml
-python3 "$HERMES_SKILL_DIR/scripts/kubrick.py" do adapt --action provider --provider flux --packet packet.yaml --output adapted.yaml
-python3 "$HERMES_SKILL_DIR/scripts/kubrick.py" do visual --action closed-loop --expected expected.yaml --observation-input observed.yaml --out out/qa
-python3 "$HERMES_SKILL_DIR/scripts/kubrick.py" do check --action smoke
+```text
+terminal(command="python3 ${HERMES_SKILL_DIR}/scripts/kubrick.py recipe storyboard-example", timeout=120)
+terminal(command="python3 ${HERMES_SKILL_DIR}/scripts/kubrick.py do retrieve --brief path/to/brief.yaml", timeout=120)
+terminal(command="python3 ${HERMES_SKILL_DIR}/scripts/kubrick.py do adapt --action provider --provider flux --packet packet.yaml --output adapted.yaml", timeout=120)
+terminal(command="python3 ${HERMES_SKILL_DIR}/scripts/kubrick.py do visual --action closed-loop --expected expected.yaml --observation-input observed.yaml --out out/qa", timeout=180)
+terminal(command="python3 ${HERMES_SKILL_DIR}/scripts/kubrick.py do check --action smoke", timeout=120)
 ```
 
 Use `help <intent>`, `recipe <name>`, and `aliases` on the same entrypoint for
-discovery. Legacy command names remain soft aliases. The optional MCP server exposes
-one proposal-only tool, `kubrick_do`, through the same intent router.
+discovery. Legacy command names remain soft aliases. The optional MCP server
+exposes one proposal-only tool, `kubrick_do`, through the same intent router.
+
+When you produce a frame still, storyboard image, or other high-resolution
+visual, include the literal directive `[[as_document]]` in the same response so
+Hermes attaches the original file instead of a crushed preview.
+
+### Guided wizard
+
+When the operator is unsure which `do` intent to run, wants a guided production
+path, or you would freestyle flags:
+
+1. Collect missing fields in chat, one at a time. Do not use interactive stdin
+   from the agent `terminal` path.
+2. Write `kubrick-wizard-answers.v1` JSON with `write_file`.
+3. Preview: `terminal(command="python3 ${HERMES_SKILL_DIR}/scripts/kubrick.py do wizard --answers FILE --print-only", timeout=60)`
+4. On approval: add `--run`, or run the printed argv through `terminal`.
+5. Never set `allow_mutate: true` unless the user explicitly approved
+   ledger, evolution, or operate writes.
+
+Prefer the wizard when unsure; use `do <intent>` when flags are already known.
 
 ## Quick Reference
 
-| Intent | Purpose |
-|---|---|
-| `compile` | Turn a brief and optional ledger into cinematic artifacts |
-| `retrieve` | Rank executable patterns with exclusions and provenance |
-| `ledger` | Initialize, audit, mutate, or rehydrate project continuity |
-| `design` | First-class design.md lifecycle (create/improve/audit/reconcile/update/validate) |
-| `script` | First-class script development, diagnosis, and continuity handoff |
-| `image` | First-class still-image prompt engineering and QA |
-| `video` | First-class temporal shot/motion/sequence prompting and QA |
-| `storyboard` | Propagate or compare state across frames |
-| `adapt` | Build neutral packets and provider-specific syntax |
-| `visual` | Normalize, compare, correct, and govern visual QA |
-| `learn` | Record outcomes and produce proposal-only evolution |
-| `check` | Validate the skill, corpus, artifacts, hub sync, and repeatability |
-| `operate` | Run graph and ledger operators |
-| `mcp` | Serve the optional MCP adapter |
-| `bundle` | Build a Grok review bundle |
-| `wizard` | Guided plan/execute via answers JSON or interactive TTY |
+- `compile` — Turn a brief and optional ledger into cinematic artifacts
+- `retrieve` — Rank executable patterns with exclusions and provenance
+- `ledger` — Initialize, audit, mutate, or rehydrate project continuity
+- `design` — design.md lifecycle (create/improve/audit/reconcile/update/validate)
+- `script` — Script development, diagnosis, and continuity handoff
+- `image` — Still-image prompt engineering and QA
+- `video` — Temporal shot, motion, and sequence prompting and QA
+- `storyboard` — Propagate or compare state across frames
+- `adapt` — Build neutral packets and provider-specific syntax
+- `visual` — Normalize, compare, correct, and govern visual QA
+- `learn` — Record outcomes and produce proposal-only evolution
+- `check` — Validate the skill, corpus, artifacts, hub sync, and repeatability
+- `operate` — Run graph and ledger operators
+- `mcp` — Serve the optional MCP adapter
+- `bundle` — Build a Grok review bundle
+- `wizard` — Guided plan/execute via answers JSON or interactive TTY
 
-Task aliases: `create` → compile, `revise` → design improve, `inspect` → operate, `validate` → check smoke.
+Task aliases: `create` → compile, `revise` → design improve, `inspect` → operate,
+`validate` → check smoke.
 
 Providers: `none`, `generic`, `grok-imagine`, `flux`, `sd3`, and `midjourney`.
 
@@ -137,48 +155,66 @@ Reject:
 
 `named concept → decorative iconography → explanation → fixed meaning`
 
-The three channels are diegetic form, dramaturgical choice, and cinematic technique.
-A motif gains force by crossing channels without explanation.
+The three channels are diegetic form, dramaturgical choice, and cinematic
+technique. A motif gains force by crossing channels without explanation.
 
 ## Procedure
 
 1. **Classify the request.** Determine intent, scope, format, audience, production
    constraints, cultural context, canon status, and desired transformation.
+   Done when the request is one cinematic job, not film trivia or general writing.
 2. **Record observed facts.** Separate materially present evidence from inference.
-3. **Define dramatic pressure.** State what must change, who resists it, and why the
-   change matters. Hidden architecture never replaces causality.
-4. **Read local continuity first.** Use project ledgers and locked facts before corpus
-   retrieval. Preserve identity, chronology, ownership, material memory, and residue.
+   Done when every material claim is labeled observed, inferred, or speculative.
+3. **Define dramatic pressure.** State what must change, who resists it, and why
+   the change matters. Hidden architecture never replaces causality.
+   Done when the scene has a pressure statement the audience can feel.
+4. **Read local continuity first.** Use `read_file` on project ledgers and locked
+   facts before corpus retrieval. Preserve identity, chronology, ownership,
+   material memory, and residue.
+   Done when locked facts are listed before any new invention.
 5. **Retrieve only when useful.** Rank patterns by dramatic problem, state change,
-   exclusions, collisions, feasibility, mutation potential, provenance, and stable ID.
-   Default to one governing grammar, zero to two supporting patterns, and one to two
-   convergence sites.
+   exclusions, collisions, feasibility, mutation potential, provenance, and stable
+   ID. Default to one governing grammar, zero to two supporting patterns, and one
+   to two convergence sites.
+   Done when retrieval is skipped or the receipt names a stable pattern ID.
 6. **Build the private graph.** Use observed forms as nodes and pressure or
    transformation as edges. Keep geometry, function, and attributes disentangled
    until a declared convergence site.
+   Done when the graph has observable nodes and no unexplained named esoterica.
 7. **Translate to observable cinema.** Express the private graph through behavior,
-   blocking, objects, material, rhythm, sound, framing, movement, and light. Do not
-   expose pattern IDs, lexicon links, or named esoterica to the audience.
-8. **Propagate storyboard state.** Carry object, owner, light, material, convergence,
-   and residue state frame to frame. Reject unexplained disappearance or reset.
+   blocking, objects, material, rhythm, sound, framing, movement, and light. Do
+   not expose pattern IDs, lexicon links, or named esoterica to the audience.
+   Done when audience-facing text contains only observable constraints.
+8. **Propagate storyboard state.** Carry object, owner, light, material,
+   convergence, and residue state frame to frame. Reject unexplained
+   disappearance or reset. When you emit frame or storyboard images, include
+   `[[as_document]]` in that response.
+   Done when each frame transition is evidenced and image files are attached.
 9. **Adapt downstream.** Provider adapters may change syntax, not graph identity,
    ownership, required objects, geometry, state change, residue, continuity, or
-   negative constraints. Fail closed when a critical invariant cannot be represented.
-10. **Run visual QA.** Normalize observations, compare expected and observed state by
-    dimension, preserve passing dimensions, and correct only mismatches. Stop bounded
-    loops when progress stalls or a critical dimension regresses.
-11. **Emit the minimum useful artifacts.** Common artifacts include a motif registry,
-    motif lifecycle, graph, cinematic encoding, project ledger, retrieval receipt,
-    storyboard state, provider packet, visual differential, correction receipt,
-    revision delta, or production handoff.
-12. **Label evidence and authority.** Use `OBSERVED`, `INFERRED`, or `SPECULATIVE` at
-    the claim level where useful. Ordinary execution never promotes canon, increases
-    corpus confidence, or overwrites authoritative Forge state.
+   negative constraints. Fail closed when a critical invariant cannot be
+   represented.
+   Done when the preservation report has no critical semantic loss.
+10. **Run visual QA.** Normalize observations, compare expected and observed state
+    by dimension, preserve passing dimensions, and correct only mismatches. Stop
+    bounded loops when progress stalls or a critical dimension regresses.
+    Done when every compared dimension is pass, corrected, or `NOT_COMPUTABLE`.
+11. **Emit the minimum useful artifacts.** Common artifacts include a motif
+    registry, motif lifecycle, graph, cinematic encoding, project ledger,
+    retrieval receipt, storyboard state, provider packet, visual differential,
+    correction receipt, revision delta, or production handoff.
+    Done when each artifact has a path and a stated purpose.
+12. **Label evidence and authority.** Use `OBSERVED`, `INFERRED`, or `SPECULATIVE`
+    at the claim level where useful. Ordinary execution never promotes canon,
+    increases corpus confidence, or overwrites authoritative Forge state.
+    Done when outputs remain `PROPOSED` unless explicit authority was provided.
 13. **Return safe failure.** Weak evidence, schema drift, unresolved collisions,
-    missing boundaries, or contradictory continuity produce `NOT_COMPUTABLE` with a
-    structured reason and the smallest next action that could resolve it.
+    missing boundaries, or contradictory continuity produce `NOT_COMPUTABLE` with
+    a structured reason and the smallest next action that could resolve it.
+    Done when failure names the blocker instead of inventing evidence.
 
-For deeper rules, load only the reference needed for the task:
+For deeper rules, load only the reference needed for the task with `read_file` or
+`skill_view`:
 
 - `references/hermes-runtime-contract.md` for execution and authority
 - `references/anti-slop-patterns.md` for diagnostic gates
@@ -189,27 +225,6 @@ For deeper rules, load only the reference needed for the task:
 - `references/corpus-usage.md` for retrieval and cultural boundaries
 - `references/design-specification-compiler.md` for design compilation
 - `references/continuity-forge-integration.md` for optional handoff
-
-
-## Wizard (Hermes + Desktop)
-
-When the operator is unsure which `do` intent to run, wants a guided production path,
-or you would freestyle flags:
-
-1. Collect missing fields **in chat** (one at a time). Do **not** use interactive stdin from the agent tool path.
-2. Write `kubrick-wizard-answers.v1` JSON to a temp file.
-3. `python3 scripts/kubrick.py do wizard --answers FILE --print-only` (or `--json`).
-4. On approval: `do wizard --answers FILE --run` or run the printed argv.
-5. Never set `allow_mutate: true` unless the user explicitly approved ledger/evolution/operate writes.
-
-```bash
-python3 scripts/kubrick.py do wizard --preset verify --json
-python3 scripts/kubrick.py do wizard --preset storyboard-compile --answers answers.json --print-only
-python3 scripts/kubrick.py do wizard --answers answers.json --run
-python3 scripts/kubrick.py recipe wizard-verify
-```
-
-Prefer **wizard** when unsure; use `do <intent>` directly when flags are already known.
 
 ## Pitfalls
 
@@ -225,6 +240,10 @@ Prefer **wizard** when unsure; use `do <intent>` directly when flags are already
 - Do not treat optional dependencies, MCP, Forge, or provider APIs as prerequisites.
 - Do not mutate references, confidence, or canonical authority from creative commands.
 - Do not invent evidence to avoid `NOT_COMPUTABLE`.
+- Do not preview frame or storyboard images as crushed inline bubbles. Attach them
+  with `[[as_document]]`.
+- Platform note: the creative CLI is stdlib Python on linux, macos, and windows.
+  POSIX install uses `install.sh`; Windows install uses `install.ps1`.
 
 ## Verification
 
@@ -240,21 +259,18 @@ Before returning work, verify the requirements that apply:
 - Claims distinguish observed evidence from inference and speculation.
 - Outputs are proposal-only unless explicit authority was provided.
 - Failure states use stable diagnostics and `NOT_COMPUTABLE` instead of invention.
+- Frame and storyboard image responses include `[[as_document]]`.
 
-Run deterministic checks when scripts or artifacts were used:
+Run deterministic checks through `terminal` when scripts or artifacts were used:
 
-```bash
-python3 "$HERMES_SKILL_DIR/scripts/kubrick.py" do check --action smoke
-python3 "$HERMES_SKILL_DIR/scripts/kubrick.py" do check --action repeatability
-python3 "$HERMES_SKILL_DIR/scripts/kubrick.py" do check --action eval
+```text
+terminal(command="python3 ${HERMES_SKILL_DIR}/scripts/kubrick.py do check --action smoke", timeout=120)
+terminal(command="python3 ${HERMES_SKILL_DIR}/scripts/kubrick.py do check --action repeatability", timeout=180)
+terminal(command="python3 ${HERMES_SKILL_DIR}/scripts/kubrick.py do check --action eval", timeout=300)
 ```
 
 A valid delivery states what was produced, what was preserved, what was not
 computable, and which optional integration or human authority is required next.
 
-Current release context: `docs/ROADMAP-v0.16.md` and
-`docs/RELEASE-NOTES-v0.16.md`.
-
-See also: [docs/ROADMAP-v0.17.md](docs/ROADMAP-v0.17.md)
-
-See also: [docs/RELEASE-NOTES-v0.17.md](docs/RELEASE-NOTES-v0.17.md)
+Current release context: `docs/ROADMAP-v0.17.md` and
+`docs/RELEASE-NOTES-v0.17.md`.

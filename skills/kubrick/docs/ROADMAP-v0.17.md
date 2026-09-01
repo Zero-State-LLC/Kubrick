@@ -7,10 +7,11 @@
 - Cinematic project state helper and expanded v0.17 golden fixtures
 - Architecture and deliverables docs for v0.17
 - OpenClaw remote parity verified (`origin/openclaw` @ `db695bc`)
+- Hermes Agent v0.21.0 SKILL.md contract (v0.17.1)
 
 ## Next
 
 1. Apply CI workflow hardening once a token with `workflow` scope is available (`docs/ci/`).
-2. Land official Hermes optional-skills submission against v0.17.0.
+2. Land official Hermes optional-skills submission against v0.17.1.
 3. Port expanded goldens to the OpenClaw edition and keep editions aligned.
 4. Raise pytest-cov toward release gates; add adversarial surface goldens as needed.

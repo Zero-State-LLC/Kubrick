@@ -1,5 +1,19 @@
 # Changelog — Kubrick
 
+## [0.17.1] — 2026-09-01
+
+### Changed
+- Hermes Agent v0.21.0 `SKILL.md` contract: required frontmatter, body order,
+  `${HERMES_SKILL_DIR}` substitution, Hermes `terminal` framing, and
+  `[[as_document]]` for frame and storyboard images.
+- Author line is now `Daniel Meyer (scrimshawlife-ctrl), Hermes Agent`.
+- Description `Builds continuity-safe cinematic stories and visuals.` is
+  unchanged (52 characters, one sentence, period).
+
+### Notes
+- Creative CLI, router, and production-surface behavior are unchanged.
+- OpenClaw edition remains on the `openclaw` branch.
+
 ## [0.17.0] — 2026-08-08
 
 ### Added

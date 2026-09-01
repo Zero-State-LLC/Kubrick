@@ -1,6 +1,18 @@
-## Highlights
+# Kubrick v0.17.1 Release Notes
 
-- Hermes guided **wizard** (`do wizard`): presets, answers JSON, Desktop-safe print-only/`--run`.
+v0.17.1 aligns the Hermes skill contract with Hermes Agent v0.21.0
+(tag v2026.8.31, Pantheon). The 0.17.0 production-surface CLI is unchanged.
+
+## Patch notes
+
+- `SKILL.md` frontmatter includes name, description, version, author, license,
+  platforms, `metadata.hermes.tags`, and `metadata.hermes.related_skills: []`.
+- Body order is intro, When to Use, Prerequisites, How to Run, Quick Reference,
+  Procedure, Pitfalls, Verification.
+- Invoke `scripts/kubrick.py` through the Hermes `terminal` tool and
+  `${HERMES_SKILL_DIR}`.
+- Frame and storyboard images use the `[[as_document]]` attachment directive.
+- Author is `Daniel Meyer (scrimshawlife-ctrl), Hermes Agent`. License stays MIT.
 
 # Kubrick v0.17.0 Release Notes
 
