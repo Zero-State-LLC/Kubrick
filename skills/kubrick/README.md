@@ -6,7 +6,7 @@
 
 <p align="center">
   <strong>Hermes-Native Symbolic Cinematic Engineering</strong><br>
-  <em>0.17.0 — First-Class Production Surfaces</em>
+  <em>0.17.1 — First-Class Production Surfaces</em>
 </p>
 
 <p align="center">
@@ -434,9 +434,11 @@ CI (`.github/workflows/hermes-evals.yml`) runs Hermes evals, outcome governance,
 
 ## Version
 
-**0.17.0 — First-Class Production Surfaces**
+**0.17.1 — Hermes Agent v0.21 skill contract**
 
-This release promotes design/script/image/video onto a shared production engine with validate→compile→receipt lifecycle, expanded surface actions, golden fixtures, and architecture docs. See the v0.16 release notes for verified gates and remaining post-release work.
+This patch aligns `SKILL.md` with Hermes Agent v0.21.0 (tag v2026.8.31). The
+0.17.0 production-surface CLI is unchanged. See
+[docs/RELEASE-NOTES-v0.17.md](docs/RELEASE-NOTES-v0.17.md).
 
 See [CHANGELOG.md](CHANGELOG.md) for full release history.
 
@@ -449,3 +451,10 @@ See [CHANGELOG.md](CHANGELOG.md) for full release history.
 See also: [docs/ROADMAP-v0.17.md](docs/ROADMAP-v0.17.md)
 
 See also: [docs/RELEASE-NOTES-v0.17.md](docs/RELEASE-NOTES-v0.17.md)
+
+
+## License
+
+Copyright © 2026 Zero State LLC. All Rights Reserved. Licensed under the Zero State Proprietary License v1.0. See [`LICENSE`](LICENSE).
+
+Third-party components remain subject to their respective licenses.

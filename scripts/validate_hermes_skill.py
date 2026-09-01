@@ -16,7 +16,27 @@ SCRIPT_DIR = Path(__file__).resolve().parent
 SKILL_ROOT = SCRIPT_DIR.parent
 SKILL_FILE = SKILL_ROOT / "SKILL.md"
 
-REQUIRED_FRONTMATTER = {"name", "description", "version", "author", "license"}
+REQUIRED_FRONTMATTER = {
+    "name",
+    "description",
+    "version",
+    "author",
+    "license",
+    "platforms",
+}
+REQUIRED_BODY_HEADINGS = [
+    "# Kubrick Skill",
+    "## When to Use",
+    "## Prerequisites",
+    "## How to Run",
+    "## Quick Reference",
+    "## Procedure",
+    "## Pitfalls",
+    "## Verification",
+]
+EXPECTED_AUTHOR = "Daniel Meyer (scrimshawlife-ctrl), Hermes Agent"
+EXPECTED_DESCRIPTION = "Builds continuity-safe cinematic stories and visuals."
+MARKETING_WORDS = ("powerful", "comprehensive", "seamless", "advanced")
 REQUIRED_PATHS = [
     "SKILL.md",
     "kubrick.manifest.yaml",
@@ -107,23 +127,76 @@ def main() -> int:
         errors.append(f"Missing frontmatter fields: {', '.join(missing_fields)}")
     if frontmatter.get("name") != "kubrick":
         errors.append("Frontmatter name must be 'kubrick'")
+    description = (frontmatter.get("description") or "").strip()
+    if description != EXPECTED_DESCRIPTION:
+        errors.append(
+            "Frontmatter description must remain "
+            f"{EXPECTED_DESCRIPTION!r} (got {description!r})"
+        )
+    if len(description) > 60:
+        errors.append(f"Frontmatter description exceeds 60 characters ({len(description)})")
+    if description and not description.endswith("."):
+        errors.append("Frontmatter description must end with a period")
+    if any(word in description.lower() for word in MARKETING_WORDS):
+        errors.append("Frontmatter description contains a marketing word")
+    expected_version = (SKILL_ROOT / "VERSION").read_text(encoding="utf-8").strip()
+    if frontmatter.get("version") != expected_version:
+        errors.append(
+            "Frontmatter version must match VERSION "
+            f"(expected {expected_version!r}, got {frontmatter.get('version')!r})"
+        )
     author = (frontmatter.get("author") or "").strip()
     if not author:
         errors.append("Frontmatter author must be set to the skill author")
     elif author.lower() in FORBIDDEN_AUTHORS:
         errors.append(
             "Frontmatter author must identify the real contributor "
-            f"(got {author!r}; use e.g. 'Daniel Meyer / Applied Alchemy Labs')"
+            f"(got {author!r}; use {EXPECTED_AUTHOR!r})"
+        )
+    elif author != EXPECTED_AUTHOR:
+        errors.append(
+            "Frontmatter author must be "
+            f"{EXPECTED_AUTHOR!r} (got {author!r})"
         )
     license_value = (frontmatter.get("license") or "").strip().upper()
-    if license_value and license_value not in {"MIT", "APACHE-2.0", "BSD-2-CLAUSE", "BSD-3-CLAUSE", "ISC"}:
-        warnings.append(f"Unusual license value in frontmatter: {frontmatter.get('license')}")
+    if license_value != "MIT":
+        errors.append("Frontmatter license must be MIT")
+    if frontmatter.get("platforms") != "[linux, macos, windows]":
+        errors.append("Frontmatter platforms must be [linux, macos, windows]")
+    fm_block = skill_text.split("\n---\n", 1)[0]
+    if "related_skills: []" not in fm_block:
+        errors.append("metadata.hermes.related_skills must be an empty list")
+    if not re.search(r"^  hermes:\n    tags:", fm_block, re.MULTILINE):
+        errors.append("metadata.hermes.tags must be present")
+    if "blueprint:" in fm_block:
+        errors.append("Do not declare metadata.hermes.blueprint")
+    if "required_environment_variables:" in fm_block:
+        errors.append("Do not invent required_environment_variables")
+    heading_positions: list[int] = []
+    for heading in REQUIRED_BODY_HEADINGS:
+        index = skill_text.find(heading)
+        if index < 0:
+            errors.append(f"SKILL.md missing required heading: {heading}")
+        else:
+            heading_positions.append(index)
+    if len(heading_positions) == len(REQUIRED_BODY_HEADINGS) and heading_positions != sorted(
+        heading_positions
+    ):
+        errors.append("SKILL.md body headings are out of v0.21 contract order")
     if "When to Use" not in skill_text and "When to use" not in skill_text:
         errors.append("SKILL.md must include a When to Use section for skill selection")
     if "When Not to Use" not in skill_text and "When not to use" not in skill_text:
-        warnings.append("SKILL.md should include a When Not to Use section for negative activation tests")
+        warnings.append(
+            "SKILL.md should include a When Not to Use section for negative activation tests"
+        )
     if "${HERMES_SKILL_DIR}" not in skill_text:
-        warnings.append("SKILL.md should reference ${HERMES_SKILL_DIR} for installed-path script invocations")
+        errors.append(
+            "SKILL.md must reference ${HERMES_SKILL_DIR} for installed-path script invocations"
+        )
+    if "`terminal`" not in skill_text:
+        errors.append("SKILL.md must frame CLI invocations through the Hermes terminal tool")
+    if "[[as_document]]" not in skill_text:
+        errors.append("SKILL.md must instruct [[as_document]] for frame and storyboard images")
 
     for relative in REQUIRED_PATHS:
         path = SKILL_ROOT / relative
@@ -142,7 +215,9 @@ def main() -> int:
     for path in sorted((SKILL_ROOT / "scripts").glob("*.py")):
         errors.extend(validate_python(path))
 
-    runtime_text = (SKILL_ROOT / "references/hermes-runtime-contract.md").read_text(encoding="utf-8")
+    runtime_text = (SKILL_ROOT / "references/hermes-runtime-contract.md").read_text(
+        encoding="utf-8"
+    )
     if "Continuity Forge" not in runtime_text or "optional" not in runtime_text.lower():
         errors.append("Runtime contract must explicitly keep Continuity Forge optional")
     if "NOT_COMPUTABLE" not in skill_text:

@@ -31,13 +31,28 @@ def _scalar(field: str) -> str:
     return match.group(1).strip()
 
 
+_MARKETING_WORDS = ("powerful", "comprehensive", "seamless", "advanced")
+
+
 def test_frontmatter_matches_hermes_contract() -> None:
+    skill_bytes = (SKILL_DIR / "SKILL.md").read_bytes()
+    assert skill_bytes.startswith(b"---\n"), "frontmatter must start at byte 0"
     description = _scalar("description")
+    assert description == "Builds continuity-safe cinematic stories and visuals."
     assert len(description) <= 60
     assert description.endswith(".")
+    assert description.count(".") == 1
+    assert not any(word in description.lower() for word in _MARKETING_WORDS)
     assert _scalar("name") == "kubrick"
-    assert "Daniel Meyer" in _scalar("author")
+    assert _scalar("version") == (SKILL_DIR / "VERSION").read_text(encoding="utf-8").strip()
+    assert _scalar("author") == "Daniel Meyer (scrimshawlife-ctrl), Hermes Agent"
+    assert _scalar("license") == "MIT"
     assert _scalar("platforms") == "[linux, macos, windows]"
+    frontmatter = _frontmatter_text()
+    assert "related_skills: []" in frontmatter
+    assert re.search(r"^  hermes:\n    tags:", frontmatter, re.MULTILINE)
+    assert "blueprint:" not in frontmatter
+    assert "required_environment_variables:" not in frontmatter
 
 
 def test_skill_uses_modern_section_order() -> None:
@@ -54,6 +69,12 @@ def test_skill_uses_modern_section_order() -> None:
     ]
     positions = [text.index(heading) for heading in required]
     assert positions == sorted(positions)
+    assert "standalone Hermes skill" in text
+    assert "${HERMES_SKILL_DIR}" in text
+    assert "`terminal`" in text
+    assert "[[as_document]]" in text
+    assert "NOT_COMPUTABLE" in text
+    assert "When Not to Use" in text
 
 
 @pytest.mark.parametrize(
