@@ -14,6 +14,9 @@ python scripts/kubrick.py do check --action smoke
 Python **3.10+**. Runtime helpers are stdlib-first; PyYAML / jsonschema are
 optional for the validation profile.
 
+Coding agents follow [`AGENTS.md`](AGENTS.md) (`CLAUDE.md` is a thin pointer
+there). Non-trivial work starts with [`intent/`](intent/README.md).
+
 ## Workflow
 
 1. Branch from `main` (Hermes) or `openclaw` (OpenClaw edition only).
