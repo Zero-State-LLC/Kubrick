@@ -9,6 +9,8 @@ Current release: **0.16.0** (see root `VERSION`).
 | [`../README.md`](../README.md) | Everyone | Public overview, install, architecture |
 | [`../QUICKSTART.md`](../QUICKSTART.md) | Operators | Intent-first command workflows + recipes |
 | [`../SKILL.md`](../SKILL.md) | Hermes runtime | Canonical skill operating contract |
+| [`../AGENTS.md`](../AGENTS.md) | Agents | Multi-agent SDLC contract (`CLAUDE.md` is a thin pointer here) |
+| [`../intent/README.md`](../intent/README.md) | Agents | Intent template for non-trivial work; then spec.md / plan |
 | [`../CONTRIBUTING.md`](../CONTRIBUTING.md) | Contributors | Dev setup, hub sync, invariants |
 | [`HERMES-OFFICIAL-SUBMISSION.md`](HERMES-OFFICIAL-SUBMISSION.md) | Maintainers | Official optional-skills PR + community publish checklist |
 | [`OPENCLAW.md`](OPENCLAW.md) | OpenClaw users | OpenClaw Agent Skill edition (Prabu; branch `openclaw`) |

@@ -27,7 +27,7 @@
 
 It converts dramatic pressure into observable geometry, behavior, rhythm, material state, light, sound, convergence, and residue. Esoteric and archetypal source systems remain latent by default: audience-facing packets expose enforceable cinematic constraints rather than named occult concepts.
 
-Security and threat model: [`SECURITY.md`](SECURITY.md). Contributing: [`CONTRIBUTING.md`](CONTRIBUTING.md). Windows install: `install.ps1`.
+Security and threat model: [`SECURITY.md`](SECURITY.md). Contributing: [`CONTRIBUTING.md`](CONTRIBUTING.md). Agent contract: [`AGENTS.md`](AGENTS.md) (`CLAUDE.md` is a thin pointer there). Non-trivial work starts with [`intent/`](intent/README.md). Windows install: `install.ps1`.
 
 ## How to use
 
@@ -386,6 +386,8 @@ CI (`.github/workflows/hermes-evals.yml`) runs Hermes evals, outcome governance,
 | File | Purpose |
 |---|---|
 | [`SKILL.md`](SKILL.md) | Canonical Hermes operating contract |
+| [`AGENTS.md`](AGENTS.md) | Multi-agent SDLC contract (`CLAUDE.md` is a thin pointer here) |
+| [`intent/`](intent/README.md) | Intent template for non-trivial work; then spec.md / plan |
 | [`QUICKSTART.md`](QUICKSTART.md) | Installation and command routing |
 | [`CHANGELOG.md`](CHANGELOG.md) | Release history |
 | [`docs/ROADMAP-v0.16.md`](docs/ROADMAP-v0.16.md) | Current roadmap and next priorities |
