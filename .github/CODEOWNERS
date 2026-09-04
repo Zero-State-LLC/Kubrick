@@ -1,6 +1,1 @@
-# Default owners for Kubrick (Hermes + docs + CI).
-* @scrimshawlife-ctrl @Zero-State-LLC/partner-agents
-
-# OpenClaw edition lives on a dedicated branch; still notify main owner on shared paths.
-/docs/OPENCLAW.md @scrimshawlife-ctrl
-/docs/OPENCLAW-ALIGNMENT.md @scrimshawlife-ctrl
+* @Zero-State-LLC/partner-agents galadriel@agentmail.to
