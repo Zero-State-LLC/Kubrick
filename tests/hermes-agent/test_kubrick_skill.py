@@ -46,7 +46,8 @@ def test_frontmatter_matches_hermes_contract() -> None:
     assert _scalar("name") == "kubrick"
     assert _scalar("version") == (SKILL_DIR / "VERSION").read_text(encoding="utf-8").strip()
     assert _scalar("author") == "Daniel Meyer (scrimshawlife-ctrl), Hermes Agent"
-    assert _scalar("license") == "MIT"
+    assert "Zero State Proprietary License" in (SKILL_DIR / "LICENSE").read_text()
+    assert _scalar("license") == "LicenseRef-Zero-State-Proprietary-1.0"
     assert _scalar("platforms") == "[linux, macos, windows]"
     frontmatter = _frontmatter_text()
     assert "related_skills: []" in frontmatter

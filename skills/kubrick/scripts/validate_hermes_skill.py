@@ -158,9 +158,9 @@ def main() -> int:
             "Frontmatter author must be "
             f"{EXPECTED_AUTHOR!r} (got {author!r})"
         )
-    license_value = (frontmatter.get("license") or "").strip().upper()
-    if license_value != "MIT":
-        errors.append("Frontmatter license must be MIT")
+    license_value = (frontmatter.get("license") or "").strip()
+    if license_value != "LicenseRef-Zero-State-Proprietary-1.0":
+        errors.append("Frontmatter license must match the root LICENSE policy")
     if frontmatter.get("platforms") != "[linux, macos, windows]":
         errors.append("Frontmatter platforms must be [linux, macos, windows]")
     fm_block = skill_text.split("\n---\n", 1)[0]
