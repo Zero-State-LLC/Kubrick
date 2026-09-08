@@ -13,7 +13,7 @@
   <a href="https://github.com/scrimshawlife-ctrl/Kubrick/releases"><img src="https://img.shields.io/github/v/release/scrimshawlife-ctrl/Kubrick?color=5a6a8a&style=flat-square" alt="Latest Release"></a>
   <a href="https://github.com/scrimshawlife-ctrl/Kubrick"><img src="https://img.shields.io/github/stars/scrimshawlife-ctrl/Kubrick?style=flat-square" alt="GitHub Stars"></a>
   <a href="https://github.com/scrimshawlife-ctrl/Kubrick/issues"><img src="https://img.shields.io/github/issues/scrimshawlife-ctrl/Kubrick?style=flat-square" alt="Issues"></a>
-  <a href="LICENSE"><img src="https://img.shields.io/badge/license-MIT-1a1f2e?style=flat-square" alt="License"></a>
+  <a href="LICENSE"><img src="https://img.shields.io/badge/license-LicenseRef-Zero-State-Proprietary-1.0-1a1f2e?style=flat-square" alt="License"></a>
   <a href="#installation"><img src="https://img.shields.io/badge/Hermes-Standalone_Skill-8b5cf6?style=flat-square" alt="Hermes Standalone Skill"></a>
 </p>
 
@@ -460,3 +460,5 @@ See also: [docs/RELEASE-NOTES-v0.17.md](docs/RELEASE-NOTES-v0.17.md)
 Copyright © 2026 Zero State LLC. All Rights Reserved. Licensed under the Zero State Proprietary License v1.0. See [`LICENSE`](LICENSE).
 
 Third-party components remain subject to their respective licenses.
+
+Source, profile, and migration rules: `references/source-and-upgrades.md`.

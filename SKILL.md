@@ -3,7 +3,7 @@ name: kubrick
 description: Builds continuity-safe cinematic stories and visuals.
 version: 0.17.1
 author: Daniel Meyer (scrimshawlife-ctrl), Hermes Agent
-license: MIT
+license: LicenseRef-Zero-State-Proprietary-1.0
 platforms: [linux, macos, windows]
 metadata:
   hermes:
@@ -274,3 +274,5 @@ computable, and which optional integration or human authority is required next.
 
 Current release context: `docs/ROADMAP-v0.17.md` and
 `docs/RELEASE-NOTES-v0.17.md`.
+
+Source, profile, and migration rules: `references/source-and-upgrades.md`.

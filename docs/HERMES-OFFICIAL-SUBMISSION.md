@@ -22,7 +22,7 @@ Pursue both: community installability first, official PR for catalog trust.
 - [x] Deterministic CLI + fail-closed `NOT_COMPUTABLE` behavior
 - [x] Dependencies documented; platforms declared
 - [x] Supporting scripts via `${HERMES_SKILL_DIR}`
-- [x] Permissive MIT license + real author attribution
+- [x] Proprietary LicenseRef-Zero-State-Proprietary-1.0 license (not OSI-approved) + real author attribution
 - [x] Provenance notes in `SKILL.md`
 - [x] In-repo validators green on v0.16.0 (`skill` / `smoke` / `validate_hermes_skill` / release audit)
 - [x] Package dry-run path documented (`scripts/package_optional_skill.sh`)
@@ -35,7 +35,7 @@ Pursue both: community installability first, official PR for catalog trust.
 ```yaml
 name: kubrick
 author: Daniel Meyer / Applied Alchemy Labs
-license: MIT
+license: LicenseRef-Zero-State-Proprietary-1.0
 platforms: [linux, macos, windows]
 metadata.hermes.category: creative
 ```
