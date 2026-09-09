@@ -63,7 +63,7 @@ def test_missing_optional_dependency_is_exit_3() -> None:
     assert payload["context"]["package"] == "PyYAML"
 
 
-def test_not_computable_is_exit_4_and_embedded() -> bool:
+def _not_computable_is_exit_4_and_embedded() -> bool:
     try:
         import yaml
     except ImportError:
@@ -92,11 +92,19 @@ def test_not_computable_is_exit_4_and_embedded() -> bool:
     return True
 
 
+def test_not_computable_is_exit_4_and_embedded() -> None:
+    # pytest 9 warns on non-None test returns; keep the bool helper for script main().
+    if not _not_computable_is_exit_4_and_embedded():
+        import pytest
+
+        pytest.skip("PyYAML not installed")
+
+
 def main() -> None:
     test_router_failures_are_structured_exit_2()
     test_human_router_error_remains_readable()
     test_missing_optional_dependency_is_exit_3()
-    validation_case_ran = test_not_computable_is_exit_4_and_embedded()
+    validation_case_ran = _not_computable_is_exit_4_and_embedded()
     profile = "validation" if validation_case_ran else "stdlib"
     print(f"structured diagnostic failure matrix ({profile} profile): PASS")
 

@@ -2,6 +2,6 @@
 # Consumers may still use the looser ranges declared in pyproject.toml.
 PyYAML==6.0.2
 jsonschema==4.25.0
-pytest==8.4.1
+pytest==9.0.3
 ruff==0.12.7
 mypy==1.17.0
