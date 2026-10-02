@@ -142,9 +142,13 @@ copy_skill
 chmod +x "$STAGE/scripts/"*.py "$STAGE/scripts/"*.sh "$STAGE/install.sh" 2>/dev/null || true
 
 echo "Validating staged Kubrick skill..."
+if ! python3 -c "import yaml, jsonschema" >/dev/null 2>&1; then
+  python3 -m pip install -r "$STAGE/requirements.txt"
+fi
 python3 "$STAGE/scripts/validate_manifest.py"
 python3 "$STAGE/scripts/validate_hermes_skill.py"
 python3 "$STAGE/scripts/validate_pattern_corpus.py"
+python3 "$STAGE/scripts/audit_release_version.py" --strict
 find "$STAGE" -type d -name __pycache__ -prune -exec rm -rf {} + 2>/dev/null || true
 find "$STAGE" -type f -name '*.pyc' -delete 2>/dev/null || true
 
@@ -170,5 +174,5 @@ write_receipt "INSTALLED" "$BACKUP_PATH"
 
 echo "Kubrick installed successfully."
 echo "Location: ${DEST}"
-echo "Validated before activation: manifest, Hermes skill, pattern corpus"
+echo "Validated before activation: manifest, Hermes skill, pattern corpus, release version"
 echo "Standalone Hermes skill — Continuity Forge optional."

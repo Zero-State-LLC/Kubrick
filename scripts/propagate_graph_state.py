@@ -7,6 +7,7 @@ try:
     import yaml
 except ImportError:
     raise SystemExit("pyyaml required")
+from brief_constraints import optional_frame_fields
 
 def load(path):
     p=Path(path); return json.loads(p.read_text()) if p.suffix=='.json' else yaml.safe_load(p.read_text()) or {}
@@ -31,7 +32,9 @@ def propagate(graph, plan):
         required=spec.get('required_mutations',[])
         for item in required:
             if item not in json.dumps(spec,sort_keys=True): warnings.append(f'frame {ordinal} required mutation not evidenced: {item}')
-        frames.append({'frame_id':spec.get('frame_id',f'frame-{ordinal:03d}'),'ordinal':ordinal,'node_states':states,'motif_ownership':owners,'object_states':spec.get('object_states',{}),'light_states':spec.get('light_states',{}),'material_states':spec.get('material_states',{}),'residue':residue,'convergence_sites':spec.get('convergence_sites',[s.get('site_id') for s in graph.get('convergence_sites',[])]),'required_mutations':required,'prohibited_resets':resets})
+        frame={'frame_id':spec.get('frame_id',f'frame-{ordinal:03d}'),'ordinal':ordinal,'node_states':states,'motif_ownership':owners,'object_states':spec.get('object_states',{}),'light_states':spec.get('light_states',{}),'material_states':spec.get('material_states',{}),'residue':residue,'convergence_sites':spec.get('convergence_sites',[s.get('site_id') for s in graph.get('convergence_sites',[])]),'required_mutations':required,'prohibited_resets':resets}
+        frame.update(optional_frame_fields(spec))
+        frames.append(frame)
         if resets and not spec.get('allow_resets',False): errors.extend(f'frame {ordinal} prohibited reset: {r}' for r in resets)
         prior_states,prior_owners,prior_residue=states,owners,residue
     if len(frames)<2: errors.append('at least two frames are required')

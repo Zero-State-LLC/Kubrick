@@ -7,6 +7,7 @@ try:
     import yaml
 except ImportError:
     raise SystemExit("pyyaml required")
+from prompt_text import field_label
 
 FIELDS = {
     "state": "node_states", "ownership": "motif_ownership", "object": "object_states",
@@ -42,7 +43,7 @@ def compare(expected: dict, observation: dict) -> dict:
         score,items=map_score(frame.get(field,{}) or {},observed.get(field,{}) or {}); dimensions[dim]={"score":score,"status":status(score),"evidence":[str(x) for x in items]}
         for key,exp,obs in items:
             mismatches.append({"dimension":dim,"code":f"{field.upper()}_MISMATCH","expected":{key:exp},"observed":{key:obs},"severity":"high"})
-            change.append(f"set {field[:-1]} {key} to {exp}")
+            change.append(f"set {field_label(field)} {key} to {exp}")
     for dim,field in (("residue","residue"),("convergence","convergence_sites")):
         score,items=set_score(frame.get(field,[]),observed.get(field,[])); dimensions[dim]={"score":score,"status":status(score),"evidence":items}
         for item in items:

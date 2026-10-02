@@ -1,9 +1,12 @@
 [project]
 name = "kubrick-skill"
-version = "0.17.1"
+version = "0.18.0"
 description = "Development metadata for the standalone Kubrick Hermes skill"
 requires-python = ">=3.10"
-dependencies = []
+dependencies = [
+  "PyYAML>=6",
+  "jsonschema>=4",
+]
 
 [project.optional-dependencies]
 validation = ["PyYAML>=6", "jsonschema>=4"]
@@ -12,6 +15,7 @@ dev = [
   "ruff>=0.12",
   "mypy>=1.16",
   "PyYAML>=6",
+  "types-PyYAML>=6",
   "jsonschema>=4",
 ]
 

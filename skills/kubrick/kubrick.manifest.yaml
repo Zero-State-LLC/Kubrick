@@ -1,7 +1,7 @@
 {
   "manifest_version": 1,
   "name": "kubrick",
-  "version": "0.17.1",
+  "version": "0.18.0",
   "host": "hermes",
   "runtime_profiles": {
     "prose": {
@@ -514,7 +514,8 @@
     "flux",
     "sd3",
     "midjourney",
-    "grok-imagine"
+    "grok-imagine",
+    "keyframe"
   ],
   "artifact_types": [
     "cinematic-project-state",
@@ -565,6 +566,7 @@
     "schemas/diagnostic.schema.json",
     "schemas/forge-signal-bundle.schema.yaml",
     "schemas/image-prompt-packet.schema.json",
+    "schemas/keyframe-create-movie.schema.json",
     "schemas/media-reconciliation-report.schema.json",
     "schemas/model-adapter-packet.schema.yaml",
     "schemas/motif-structure-graph.schema.yaml",

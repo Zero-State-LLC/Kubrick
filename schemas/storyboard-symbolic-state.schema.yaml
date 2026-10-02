@@ -27,6 +27,18 @@ properties:
         convergence_sites: {type: array, items: {type: string}}
         required_mutations: {type: array, items: {type: string}}
         prohibited_resets: {type: array, items: {type: string}}
+        duration_seconds:
+          type: number
+          description: Optional shot length in seconds. Keyframe allows 3–60 inclusive.
+        title: {type: string, description: Optional Keyframe shot title.}
+        scene: {type: string, description: Optional Keyframe scene label.}
+        sound:
+          type: string
+          description: Optional Keyframe audio.sound. Omitted sound uses evidenced room presence.
+        speech_lines:
+          type: array
+          items: {type: string}
+          description: Optional dialogue lines. Speech is omitted when this list is empty.
   validation:
     type: object
     additionalProperties: false

@@ -25,6 +25,7 @@ COMPARE_ROOTS = [
     "README.md",
     "kubrick.manifest.yaml",
     "pyproject.toml",
+    "requirements.txt",
     "install.sh",
     "scripts",
     "schemas",

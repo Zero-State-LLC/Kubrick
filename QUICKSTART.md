@@ -16,7 +16,7 @@ The installer validates a staged copy before activation. Use `./install.sh --dry
 Install runtime validation dependencies when working from the repository:
 
 ```bash
-python -m pip install pyyaml jsonschema
+python3 -m pip install -r requirements.txt
 ```
 
 Validate:

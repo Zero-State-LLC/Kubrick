@@ -1328,49 +1328,9 @@ def image_adapt(packet_text: str | None, project_id: str, provider: str) -> dict
 
 
 def _shot_dict_to_adapter_packet(shot: dict[str, Any], provider: str = "generic") -> dict[str, Any]:
-    start = shot.get("start_state") or {}
-    end = shot.get("end_state") or {}
-    action = shot.get("action") or {}
-    camera = shot.get("camera") or {}
-    prompt = "; ".join(
-        str(x)
-        for x in (
-            start.get("observable") or start.get("summary"),
-            action.get("path_or_change") or action.get("verb"),
-            end.get("summary"),
-            camera.get("framing"),
-        )
-        if x and str(x) != "NOT_COMPUTABLE"
-    )
-    frame = {
-        "frame_id": shot.get("shot_id") or f"frame-{_digest(prompt)}",
-        "prompt": prompt or "NOT_COMPUTABLE",
-        "state_constraints": [
-            c
-            for c in (
-                action.get("path_or_change"),
-                end.get("summary"),
-                *(end.get("residue") or [])[:2],
-            )
-            if c and c != "NOT_COMPUTABLE"
-        ],
-        "continuity_from_previous": list(shot.get("continuity_invariants") or []),
-    }
-    return {
-        "source_graph_id": shot.get("source_state_id") or "surface",
-        "provider": provider,
-        "frames": [frame],
-        "shared_constraints": {
-            "negative_constraints": list(shot.get("negative_constraints") or []),
-        },
-        "validation": {"status": "VALID", "errors": []},
-        "private_state_policy": {
-            "graph_mutation_allowed": False,
-            "pattern_links_exposed": False,
-            "lexicon_links_exposed": False,
-        },
-        "duration_seconds": shot.get("duration_seconds"),
-    }
+    from video_packet_bridge import shot_dict_to_adapter_packet
+
+    return shot_dict_to_adapter_packet(shot, provider, _digest)
 
 
 def _parse_video_adapt_input(packet_text: str) -> tuple[dict[str, Any], float | None]:
@@ -1387,6 +1347,11 @@ def _parse_video_adapt_input(packet_text: str) -> tuple[dict[str, Any], float | 
         data = yaml.safe_load(text) or {}
     if not isinstance(data, dict):
         raise ValueError("packet root must be an object")
+
+    from storyboard_prompts import adapter_packet_from_document, is_storyboard
+
+    if is_storyboard(data):
+        return adapter_packet_from_document(data), None
 
     duration = None
     # Surface video receipt with result.shot
@@ -1449,66 +1414,16 @@ def video_prompt(
 
 
 def video_adapt(packet_text: str | None, project_id: str, provider: str) -> dict[str, Any]:
-    if not packet_text:
-        return {
-            "status": "NOT_COMPUTABLE",
-            "authority": "NOT_COMPUTABLE",
-            "surface": "video",
-            "action": "adapt",
-            "diagnostic": {"code": "INSUFFICIENT_EVIDENCE", "message": "--input packet is required"},
-        }
-    from provider_capabilities import capabilities_for, check_video_adapt, normalize_provider
+    from video_packet_bridge import compile_video_adapt
 
-    meta = _base_meta("video", "adapt", project_id, {"packet": packet_text, "provider": provider})
-    try:
-        adapter_packet, duration = _parse_video_adapt_input(packet_text)
-        cap_err = check_video_adapt(provider, duration=duration)
-        if cap_err:
-            meta["status"] = "NOT_COMPUTABLE"
-            meta["authority"] = "NOT_COMPUTABLE"
-            meta["diagnostic"] = cap_err
-            meta["result"] = {
-                "implementation_state": "DOMAIN",
-                "provider": normalize_provider(provider),
-                "capabilities": cap_err.get("capabilities") or capabilities_for(provider),
-            }
-            meta["artifact_type"] = "video-prompt-packet"
-            meta["not_computable"] = ["provider_capability"]
-            return meta
-
-        from adapt_provider import adapt
-
-        adapted = adapt(adapter_packet, provider)
-        report = adapted.get("preservation_report") or adapted.get("validation") or {}
-        status = "VALID"
-        if isinstance(report, dict):
-            status = report.get("status") or adapted.get("validation", {}).get("status") or "VALID"
-        meta["result"] = {
-            "implementation_state": "DOMAIN",
-            "provider": normalize_provider(provider),
-            "capabilities": capabilities_for(provider),
-            "adapted_packet": adapted,
-            "preservation_report": report if isinstance(report, dict) else {"status": status},
-            "duration_seconds": duration,
-        }
-        if status != "VALID":
-            meta["status"] = "NOT_COMPUTABLE"
-            meta["authority"] = "NOT_COMPUTABLE"
-            meta["not_computable"] = ["provider_semantic_preservation"]
-        meta["artifact_id"] = (
-            f"kubrick-video-adapt-{_digest({'packet': packet_text, 'provider': provider})}"
-        )
-    except Exception as exc:  # noqa: BLE001
-        meta["status"] = "NOT_COMPUTABLE"
-        meta["authority"] = "NOT_COMPUTABLE"
-        meta["diagnostic"] = {"code": "ADAPTER_NOT_COMPUTABLE", "message": str(exc)}
-        meta["result"] = {
-            "implementation_state": "DOMAIN",
-            "provider": normalize_provider(provider),
-            "capabilities": capabilities_for(provider),
-        }
-    meta["artifact_type"] = "video-prompt-packet"
-    return meta
+    return compile_video_adapt(
+        packet_text,
+        project_id,
+        provider,
+        base_meta=_base_meta,
+        digest=_digest,
+        parse_input=_parse_video_adapt_input,
+    )
 
 
 def video_qa(expected: str | None, observation: str | None, project_id: str) -> dict[str, Any]:
@@ -1561,80 +1476,24 @@ def video_shot(
     project_id: str,
     duration: float = 8.0,
     design_text: str | None = None,
+    input_text: str | None = None,
 ) -> dict[str, Any]:
-    fields = _extract_brief_fields(brief, evidence)
-    if not fields["raw"]:
-        return {
-            "status": "NOT_COMPUTABLE",
-            "authority": "NOT_COMPUTABLE",
-            "surface": "video",
-            "action": "shot",
-            "diagnostic": {"code": "INSUFFICIENT_EVIDENCE", "message": "Provide --brief or --evidence"},
-        }
-    design_rev = _design_revision(design_text)
-    cinematic = list(fields.get("cinematic_channel") or [])
-    if cinematic:
-        framing = cinematic[0]
-    elif "camera" in fields["raw"].lower():
-        framing = "evidenced framing"
-    else:
-        framing = "NOT_COMPUTABLE"
-    shot = {
-        "shot_id": f"shot-{_digest(fields)}",
-        "source_state_id": f"state-{_digest(project_id)}",
-        "duration_seconds": float(duration),
-        "start_state": {
-            "summary": "pre-action institutional arrangement",
-            "observable": fields["dramatic_problem"],
-            "evidence": list(fields.get("observable_evidence") or [])[:4],
-        },
-        "action": {
-            "subject": "primary figure",
-            "verb": "transfers" if "transfer" in fields["raw"].lower() else "changes",
-            "path_or_change": fields["desired_state_change"] or "NOT_COMPUTABLE",
-            "causal_actions": list(fields.get("causal_actions") or [])[:3],
-        },
-        "camera": {
-            "framing": framing,
-            "position": "NOT_COMPUTABLE",
-            "movement": "static unless evidenced",
-            "lens_behavior": "NOT_COMPUTABLE",
-        },
-        "physics": {"required": [], "forbidden": ["teleportation", "identity swap"]},
-        "end_state": {
-            "summary": fields["desired_state_change"] or "NOT_COMPUTABLE",
-            "residue": list(fields.get("residue") or [])[:3],
-        },
-        "continuity_invariants": [
-            "preserve_identity",
-            "preserve_ownership_rules",
-            "preserve_residue",
-        ],
-        "negative_constraints": [
-            "named occult labels",
-            "geometry reset",
-            "residue erasure",
-        ],
-        "claims": _claim_bundle(fields),
-    }
-    if design_rev:
-        shot["source_design_revision"] = design_rev
-    if shot["end_state"]["summary"] == "NOT_COMPUTABLE":
-        return {
-            "status": "NOT_COMPUTABLE",
-            "authority": "NOT_COMPUTABLE",
-            "surface": "video",
-            "action": "shot",
-            "diagnostic": {
-                "code": "INSUFFICIENT_EVIDENCE",
-                "message": "desired end state not evidenced",
-            },
-            "not_computable": ["end_state"],
-        }
-    meta = _base_meta("video", "shot", project_id, fields)
-    meta["result"] = {"implementation_state": "DOMAIN", "shot": shot}
-    meta["artifact_type"] = "shot-contract"
-    return _attach_design_revision(meta, design_text)
+    from video_packet_bridge import compile_video_shot
+
+    return compile_video_shot(
+        brief,
+        evidence,
+        project_id,
+        duration,
+        design_text,
+        input_text,
+        extract_fields=_extract_brief_fields,
+        design_revision=_design_revision,
+        claim_bundle=_claim_bundle,
+        digest=_digest,
+        base_meta=_base_meta,
+        attach=_attach_design_revision,
+    )
 
 
 def video_motion(brief: str | None, project_id: str) -> dict[str, Any]:
@@ -2418,6 +2277,7 @@ COMPILERS: dict[tuple[str, str], Any] = {
         a.project_id,
         getattr(a, "duration", 8.0),
         design_text=_design_for_args(a),
+        input_text=_read(a, "input"),
     ),
     ("video", "prompt"): lambda a: video_prompt(
         a.brief,

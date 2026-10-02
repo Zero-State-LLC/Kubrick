@@ -1,0 +1,84 @@
+storyboard_id: myslef-ep01-shots-03-06
+node_labels:
+  observed_1: cheap minder chair in a Westlake basement bot-farm
+  observed_2: industrial speaker grille set in myslef's mouth
+  observed_3: smaller right optic with a spiderweb crack
+frames:
+  - frame_id: frame-001
+    node_states:
+      observed_1: occupied by the minder
+      observed_2: closed and silent
+      observed_3: cracked and watching from the dark
+    motif_ownership:
+      observed_2: myslef
+      observed_3: myslef
+    object_states:
+      chair: upright, minder seated
+      laptop: playing a cartoon at low volume
+    light_states:
+      room: dim practical light from racks and laptop
+    material_states:
+      optic: spiderweb crack visible
+    convergence_sites:
+      - primary
+    residue_add:
+      - laptop cartoon audio under the hum
+  - frame_id: frame-002
+    node_states:
+      observed_1: minder jerking up out of it
+      observed_2: closed
+      observed_3: watching
+    motif_ownership:
+      observed_2: myslef
+    object_states:
+      chair: scraping back
+      laptop: still playing
+    light_states:
+      room: dim practical light
+    material_states:
+      optic: crack visible
+    convergence_sites:
+      - primary
+    required_mutations:
+      - minder voice cut off mid-syllable
+    residue_add:
+      - chair scraped out of position
+  - frame_id: frame-003
+    node_states:
+      observed_1: offscreen
+      observed_2: sounding, dust lifting off the grille
+      observed_3: cracked, at frame edge
+    motif_ownership:
+      observed_2: myslef
+    object_states:
+      speaker: dust lifting
+    light_states:
+      room: dim practical light
+    material_states:
+      optic: crack visible
+    convergence_sites:
+      - primary
+    required_mutations:
+      - silent speaker becomes sounding speaker
+    residue_add:
+      - hostile distorted bass
+  - frame_id: frame-004
+    node_states:
+      observed_1: empty and tipped
+      observed_2: sounding offscreen
+      observed_3: offscreen
+    motif_ownership:
+      observed_2: myslef
+    object_states:
+      chair: empty, tipped, still
+      laptop: still playing at frame edge
+    light_states:
+      room: same dim practical light, unchanged
+    material_states:
+      optic: offscreen
+    convergence_sites:
+      - primary
+    required_mutations:
+      - occupied chair becomes empty chair
+    residue_add:
+      - chair stays tipped

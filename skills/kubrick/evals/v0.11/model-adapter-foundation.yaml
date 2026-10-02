@@ -30,6 +30,21 @@ cases:
   - id: adapter_no_generation_call
     expected_network_required: false
     expected_credentials_required: false
+  - id: keyframe_create_movie
+    provider: keyframe
+    expected_shape:
+      - title
+      - brief
+      - aspectRatio
+      - targetDurationSeconds
+      - qualityPreset
+      - style
+      - shots
+    duration_seconds:
+      minimum: 3
+      maximum: 60
+      accepted_example: 10
+    speech_omitted_without_dialogue: true
 invariants:
   graph_mutation_allowed: false
   adapter_changes_syntax_only: true
