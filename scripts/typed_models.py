@@ -93,6 +93,7 @@ class ProviderCapabilities(TypedDict, total=False):
     image: bool
     video: bool
     max_duration_seconds: float
+    min_duration_seconds: float
     camera_motion: bool
     dialogue_audio: bool
     multi_shot: bool

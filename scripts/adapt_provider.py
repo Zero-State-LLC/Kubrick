@@ -1,7 +1,7 @@
 #!/usr/bin/env python3
 """Translate neutral Kubrick adapter packets into provider-specific prompt packets.
 
-Supported providers: grok-imagine, flux, sd3, midjourney.
+Supported providers: grok-imagine, flux, sd3, midjourney, generic, keyframe.
 Adapters change syntax only. Canonical symbolic intent and graph identity are immutable.
 """
 from __future__ import annotations
@@ -16,32 +16,33 @@ try:
 except ImportError:
     raise SystemExit("pyyaml required")
 
-PROVIDERS = {"grok-imagine", "flux", "sd3", "midjourney", "generic"}
+PROVIDERS = {"grok-imagine", "flux", "sd3", "midjourney", "generic", "keyframe"}
 
 import sys as _sys
 _sys.path.insert(0, str(Path(__file__).resolve().parent))
-from io_safety import load_structured, resolve_bounded_path, write_structured  # noqa: E402
+from io_safety import load_structured, write_structured  # noqa: E402
+from brief_constraints import packet_locks  # noqa: E402
+from prompt_text import join_clauses, positive_prompt  # noqa: E402
 
 
 def load(path: str) -> dict[str, Any]:
     return load_structured(path)
 
 
-def join_parts(parts: list[Any]) -> str:
-    return "; ".join(str(x).strip() for x in parts if str(x).strip())
+def _negatives(packet: dict[str, Any]) -> list[Any]:
+    return list(packet.get("shared_constraints", {}).get("negative_constraints", []))
 
 
 def base_frame(packet: dict[str, Any], frame: dict[str, Any]) -> dict[str, Any]:
-    prompt_parts = [frame.get("prompt", "")]
-    prompt_parts.extend(frame.get("continuity_from_previous", []))
-    prompt_parts.extend(frame.get("state_constraints", []))
-    prompt_parts.extend(packet.get("shared_constraints", {}).get("negative_constraints", []))
+    negatives = _negatives(packet)
+    locks = packet_locks(packet)
+    extras = list(frame.get("continuity_from_previous", [])) + list(frame.get("state_constraints", []))
     return {
         "frame_id": frame.get("frame_id"),
-        "prompt": join_parts(prompt_parts),
+        "prompt": positive_prompt(str(frame.get("prompt") or ""), extras, negatives, locks),
         "continuity_lock": frame.get("continuity_from_previous", []),
         "state_constraints": frame.get("state_constraints", []),
-        "negative_constraints": packet.get("shared_constraints", {}).get("negative_constraints", []),
+        "negative_constraints": negatives,
         "source_graph_id": packet.get("source_graph_id"),
     }
 
@@ -58,14 +59,9 @@ def adapt_grok(packet: dict[str, Any], frame: dict[str, Any]) -> dict[str, Any]:
 
 def adapt_flux(packet: dict[str, Any], frame: dict[str, Any]) -> dict[str, Any]:
     base = base_frame(packet, frame)
-    # Flux-style: concise positive prompt + explicit negative list; no intent rewrite
-    positives = [frame.get("prompt", "")]
-    positives.extend(frame.get("state_constraints", []))
-    positives.extend(frame.get("continuity_from_previous", []))
-    base["prompt"] = join_parts(positives)
-    base["negative_prompt"] = ", ".join(
-        packet.get("shared_constraints", {}).get("negative_constraints", [])
-    )
+    # Flux-style: concise positive prompt + explicit negative list; no intent rewrite.
+    # base_frame already keeps general negatives out of the positive prompt.
+    base["negative_prompt"] = ", ".join(str(term) for term in base["negative_constraints"])
     base["generation_parameters"] = {
         "width": frame.get("provider_parameters", {}).get("width", 1280),
         "height": frame.get("provider_parameters", {}).get("height", 720),
@@ -77,16 +73,27 @@ def adapt_flux(packet: dict[str, Any], frame: dict[str, Any]) -> dict[str, Any]:
     return base
 
 
+def _sd3_prompt(subject: str, composition: str) -> str:
+    if composition:
+        return f"subject: {subject}; composition: {composition}"
+    return f"subject: {subject}"
+
+
 def adapt_sd3(packet: dict[str, Any], frame: dict[str, Any]) -> dict[str, Any]:
     base = base_frame(packet, frame)
-    # SD3-style: subject / style / composition sections without adding motifs
+    # SD3-style: subject / composition sections without adding motifs.
+    negatives = base["negative_constraints"]
+    locks = packet_locks(packet)
     geometry = packet.get("shared_constraints", {}).get("visual_identity", [])
-    subject = join_parts([frame.get("prompt", "")] + list(frame.get("state_constraints", [])))
-    composition = join_parts(list(geometry) + list(frame.get("continuity_from_previous", [])))
-    base["prompt"] = join_parts([f"subject: {subject}", f"composition: {composition}"])
-    base["negative_prompt"] = ", ".join(
-        packet.get("shared_constraints", {}).get("negative_constraints", [])
+    subject = positive_prompt(
+        str(frame.get("prompt") or ""),
+        list(frame.get("state_constraints", [])),
+        negatives,
+        locks,
     )
+    composition = join_clauses([*list(geometry), *list(frame.get("continuity_from_previous", []))])
+    base["prompt"] = _sd3_prompt(subject, composition)
+    base["negative_prompt"] = ", ".join(str(term) for term in negatives)
     base["generation_parameters"] = {
         "aspect_ratio": frame.get("provider_parameters", {}).get("aspect_ratio", "16:9"),
         "cfg_scale": frame.get("provider_parameters", {}).get("cfg_scale", 4.5),
@@ -99,18 +106,20 @@ def adapt_sd3(packet: dict[str, Any], frame: dict[str, Any]) -> dict[str, Any]:
 
 def adapt_midjourney(packet: dict[str, Any], frame: dict[str, Any]) -> dict[str, Any]:
     base = base_frame(packet, frame)
-    # Midjourney-style: single prompt line + parameter flags; syntax only
-    body = join_parts(
-        [frame.get("prompt", "")]
-        + list(frame.get("state_constraints", []))
-        + list(frame.get("continuity_from_previous", []))
+    # Midjourney-style: single prompt line + parameter flags; syntax only.
+    # General negatives stay in --no. Character-lock negatives are also in the body.
+    negatives = base["negative_constraints"]
+    locks = packet_locks(packet)
+    body = positive_prompt(
+        str(frame.get("prompt") or ""),
+        list(frame.get("state_constraints", [])) + list(frame.get("continuity_from_previous", [])),
+        negatives,
+        locks,
     )
     ar = frame.get("provider_parameters", {}).get("aspect_ratio", "16:9")
     stylize = frame.get("provider_parameters", {}).get("stylize", 50)
     chaos = frame.get("provider_parameters", {}).get("chaos", 0)
-    no_terms = " ".join(
-        f"--no {term}" for term in packet.get("shared_constraints", {}).get("negative_constraints", [])
-    )
+    no_terms = " ".join(f"--no {term}" for term in negatives)
     base["prompt"] = f"{body} --ar {ar} --stylize {stylize} --chaos {chaos} --style raw {no_terms}".strip()
     base["generation_parameters"] = {
         "aspect_ratio": ar,
@@ -225,6 +234,10 @@ def apply_preservation_policy(packet: dict[str, Any], result: dict[str, Any]) ->
 
 
 def adapt(packet: dict[str, Any], provider: str) -> dict[str, Any]:
+    if provider == "keyframe":
+        from adapt_keyframe import adapt_keyframe_packet
+
+        return adapt_keyframe_packet(packet)
     errors: list[str] = list(packet.get("validation", {}).get("errors", []))
     if packet.get("validation", {}).get("status") != "VALID":
         errors.append("neutral adapter packet is not VALID")
@@ -300,6 +313,9 @@ def main() -> None:
         write_structured(args.output, result)
     else:
         print(text)
+    if provider == "keyframe":
+        ok = result.get("status") != "NOT_COMPUTABLE" and "shots" in result
+        raise SystemExit(0 if ok else 1)
     raise SystemExit(0 if result["validation"]["status"] == "VALID" else 1)
 
 

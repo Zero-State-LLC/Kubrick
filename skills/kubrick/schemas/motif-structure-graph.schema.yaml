@@ -67,6 +67,15 @@ properties:
         observable_effect: {type: string, minLength: 1}
         mask_priority: {type: number, minimum: 0, maximum: 1}
   residue: {type: array, items: {type: string}}
+  character_locks:
+    type: array
+    items: {type: string}
+    description: Optional brief identity locks carried into the model-adapter packet.
+  production_constraints: {type: array, items: {type: string}}
+  aspect_ratio:
+    type: string
+    minLength: 1
+    description: Optional brief aspect text. An N:M token becomes the packet aspect ratio.
   surface_output:
     type: object
     additionalProperties: false

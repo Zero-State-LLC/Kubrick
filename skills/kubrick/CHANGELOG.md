@@ -1,5 +1,20 @@
 # Changelog — Kubrick
 
+## [0.18.0] — 2026-10-02
+
+### Fixed
+- #23: VERSION, `kubrick.manifest.yaml`, `pyproject.toml`, `SKILL.md`, README, CHANGELOG, and the v0.18 release notes are audited together, including the `skills/kubrick` mirror. Both installers run `audit_release_version.py --strict` before activation. The 0.17.0 smoke failure was a VERSION bump while the manifest stayed at 0.16.0; the installer did not run the release audit, and hub sync only byte-compares trees.
+- #19: PyYAML and jsonschema are runtime dependencies. `compile` exits 3 with `python3 -m pip install -r requirements.txt` when jsonschema cannot be imported.
+- #20: the same noun may appear in more than one brief layer. A verbatim multi-word phrase copied across layers still fails, and the error names the phrase and both layers.
+- #18: ownership labels render as `motif ownership`.
+- #17: per-shot prompts are built from each storyboard frame's state. Observed ids render as evidence text. Blank and `None` values are omitted.
+- #21: general negatives stay in the negative field. Repeated clauses collapse in order.
+- #16: character-lock negatives are restated as positive identity constraints and kept in the negative field when the provider has one. A brief may supply them with `character_locks` or with `character-lock:` / `identity-lock:` production constraints, and `compile` carries them into every provider prompt.
+- #22: the `keyframe` provider emits a `create_movie` payload. Each shot is 3–60 seconds inclusive. Speech is omitted when a shot has no dialogue. Grok Imagine remains capped at 8 seconds. `aspectRatio` comes from an `N:M` token in the brief, and optional storyboard `duration_seconds`, `title`, `scene`, `sound`, and `speech_lines` pass through to the shot.
+
+### Notes
+- The production envelope schema id stays `0.16.0`. It does not track the product version. The installer receipt schema id stays `1.0.0`.
+
 ## [0.17.1] — 2026-09-01
 
 ### Changed

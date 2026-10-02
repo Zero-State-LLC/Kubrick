@@ -1,7 +1,7 @@
 ---
 name: kubrick
 description: Builds continuity-safe cinematic stories and visuals.
-version: 0.17.1
+version: 0.18.0
 author: Daniel Meyer (scrimshawlife-ctrl), Hermes Agent
 license: LicenseRef-Zero-State-Proprietary-1.0
 platforms: [linux, macos, windows]
@@ -38,7 +38,7 @@ Use Kubrick when the user wants to:
 - revise material while preserving locked facts, ownership, chronology, and residue
 - build a visual design system, scene contract, shot recurrence, or production packet
 - construct a single frame or storyboard with state continuity across images
-- translate a neutral cinematic packet for Flux, SD3, Midjourney, or Grok Imagine
+- translate a neutral cinematic packet for Flux, SD3, Midjourney, Grok Imagine, or Keyframe
 - compare an expected frame with a human or model observation
 - compile creative evidence into a design specification
 
@@ -56,7 +56,7 @@ handoff.
 
 - Python 3.10 or newer runs the bundled deterministic helpers.
 - Core creative and routing behavior uses the Python standard library.
-- PyYAML and jsonschema are optional and enable full YAML/schema validation.
+- `compile` requires PyYAML and jsonschema. Install them with `python3 -m pip install -r requirements.txt`.
 - Model APIs, vision APIs, Continuity Forge, and the bundled MCP server are optional.
 - No API key is required for local creative work.
 
@@ -134,7 +134,11 @@ Prefer the wizard when unsure; use `do <intent>` when flags are already known.
 Task aliases: `create` → compile, `revise` → design improve, `inspect` → operate,
 `validate` → check smoke.
 
-Providers: `none`, `generic`, `grok-imagine`, `flux`, `sd3`, and `midjourney`.
+Providers: `none`, `generic`, `grok-imagine`, `flux`, `sd3`, `midjourney`, and `keyframe`.
+
+Brief fields follow `examples/authority-transfer-storyboard/brief.yaml`: dramatic problem, desired state change, character pressure, observable evidence, layers, and production constraints. Optional `character_locks` is a list of identity constraints (`no nose`, `hairless scalp`). A `production_constraints` item prefixed `character-lock:` or `identity-lock:` is the same lock. `aspect_ratio`, or the first `N:M` token in `production_constraints`, sets Keyframe `aspectRatio`. The fallback is `16:9`.
+
+Storyboard plan frames may carry optional `duration_seconds`, `title`, `scene`, `sound`, and `speech_lines`. Keyframe allows 3–60 seconds per shot. When `sound` is omitted, the shot uses `no scored music; evidenced room presence only`.
 
 Authority classes:
 
@@ -238,7 +242,7 @@ For deeper rules, load only the reference needed for the task with `read_file` o
 - Do not silently change locked facts, graph identity, ownership, chronology, or
   residue during revision or provider adaptation.
 - Do not reset motif state between storyboard frames without an evidenced transition.
-- Do not treat optional dependencies, MCP, Forge, or provider APIs as prerequisites.
+- Do not treat MCP, Forge, or provider APIs as prerequisites. `compile` requires PyYAML and jsonschema.
 - Do not mutate references, confidence, or canonical authority from creative commands.
 - Do not invent evidence to avoid `NOT_COMPUTABLE`.
 - Do not preview frame or storyboard images as crushed inline bubbles. Attach them
@@ -273,7 +277,7 @@ terminal(command="python3 ${HERMES_SKILL_DIR}/scripts/kubrick.py do check --acti
 A valid delivery states what was produced, what was preserved, what was not
 computable, and which optional integration or human authority is required next.
 
-Current release context: `docs/ROADMAP-v0.17.md` and
-`docs/RELEASE-NOTES-v0.17.md`.
+Current release context: `docs/ROADMAP-v0.18.md` and
+`docs/RELEASE-NOTES-v0.18.md`.
 
 Source, profile, and migration rules: `references/source-and-upgrades.md`.

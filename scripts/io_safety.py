@@ -210,7 +210,7 @@ def load_structured(
         data = json.loads(text)
         return data if data is not None else {}
     try:
-        import yaml  # type: ignore[import-untyped]
+        import yaml
     except ImportError as exc:
         raise IntakeError(
             "PyYAML is required to load YAML intake; install the validation profile"

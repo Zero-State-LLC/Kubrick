@@ -1,6 +1,7 @@
 # Pinned dependencies for Kubrick CI validation/dev profiles.
 # Consumers may still use the looser ranges declared in pyproject.toml.
 PyYAML==6.0.2
+types-PyYAML==6.0.12.20250915
 jsonschema==4.25.0
 pytest==9.0.3
 ruff==0.12.7

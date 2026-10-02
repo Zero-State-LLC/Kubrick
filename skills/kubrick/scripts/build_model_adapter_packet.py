@@ -1,17 +1,39 @@
 #!/usr/bin/env python3
 """Build provider-neutral model adapter packets from Kubrick graph/storyboard state."""
 from __future__ import annotations
-import argparse, json
+
+import argparse
+from collections.abc import Mapping, Sequence
 from pathlib import Path
+
 try:
     import yaml
 except ImportError:
     raise SystemExit("pyyaml required")
 
+from brief_constraints import carried_shared, frame_parameters  # noqa: E402
+from prompt_text import (  # noqa: E402
+    continuity_clauses,
+    node_labels,
+    node_state_constraints,
+    render_frame_prompt,
+)
+
 
 def load(path: str) -> dict:
     p = Path(path)
-    return json.loads(p.read_text(encoding="utf-8")) if p.suffix == ".json" else yaml.safe_load(p.read_text(encoding="utf-8")) or {}
+    return json_or_yaml(p)
+
+
+def json_or_yaml(path: Path) -> dict:
+    text = path.read_text(encoding="utf-8")
+    if path.suffix == ".json":
+        import json
+
+        data = json.loads(text)
+    else:
+        data = yaml.safe_load(text) or {}
+    return data if isinstance(data, dict) else {}
 
 
 def save(path: str, data: dict) -> None:
@@ -20,14 +42,50 @@ def save(path: str, data: dict) -> None:
     p.write_text(yaml.safe_dump(data, sort_keys=False), encoding="utf-8")
 
 
-def base_prompt(frame: dict, shared: list[str]) -> str:
-    parts = list(shared)
-    for field in ("node_states", "motif_ownership", "object_states", "light_states", "material_states"):
-        for key, value in sorted((frame.get(field) or {}).items()):
-            parts.append(f"{field[:-1].replace('_', ' ')} {key}: {value}")
-    parts.extend(f"residue persists: {item}" for item in frame.get("residue", []))
-    parts.extend(f"convergence remains observable at {item}" for item in frame.get("convergence_sites", []))
-    return "; ".join(str(item).strip() for item in parts if str(item).strip())
+def _labels(graph: Mapping[str, object]) -> dict[str, str]:
+    raw = graph.get("nodes") or []
+    if not isinstance(raw, Sequence) or isinstance(raw, (str, bytes)):
+        return {}
+    nodes = [node for node in raw if isinstance(node, Mapping)]
+    return node_labels(nodes)
+
+
+def _fallback_frame(graph: Mapping[str, object]) -> dict[str, object]:
+    states: dict[str, object] = {}
+    raw = graph.get("nodes") or []
+    if isinstance(raw, Sequence) and not isinstance(raw, (str, bytes)):
+        for node in raw:
+            if isinstance(node, Mapping) and node.get("id"):
+                states[str(node.get("id"))] = node.get("target_state")
+    sites = []
+    raw_sites = graph.get("convergence_sites") or []
+    if isinstance(raw_sites, Sequence) and not isinstance(raw_sites, (str, bytes)):
+        for site in raw_sites:
+            if isinstance(site, Mapping) and site.get("site_id"):
+                sites.append(site.get("site_id"))
+    return {
+        "frame_id": "frame-001",
+        "node_states": states,
+        "motif_ownership": {},
+        "object_states": {},
+        "light_states": {},
+        "material_states": {},
+        "residue": list(graph.get("residue") or []),
+        "convergence_sites": sites,
+        "prohibited_resets": [],
+    }
+
+
+def _shared(graph: Mapping[str, object]) -> list[object]:
+    surface = graph.get("surface_output") or {}
+    if not isinstance(surface, Mapping):
+        return []
+    shared: list[object] = []
+    for key in ("geometry", "light", "material"):
+        values = surface.get(key) or []
+        if isinstance(values, Sequence) and not isinstance(values, (str, bytes)):
+            shared.extend(values)
+    return shared
 
 
 def build(graph: dict, storyboard: dict | None, provider: str) -> dict:
@@ -38,41 +96,34 @@ def build(graph: dict, storyboard: dict | None, provider: str) -> dict:
     graph_id = graph.get("graph_id")
     if not graph_id:
         errors.append("source graph_id missing")
-    shared = list(graph.get("surface_output", {}).get("geometry", []))
-    shared += list(graph.get("surface_output", {}).get("light", []))
-    shared += list(graph.get("surface_output", {}).get("material", []))
+    labels = _labels(graph)
+    shared = _shared(graph)
+    source_frames = (storyboard or {}).get("frames") or [_fallback_frame(graph)]
     frames = []
-    source_frames = (storyboard or {}).get("frames") or [{
-        "frame_id": "frame-001",
-        "node_states": {n.get("id"): n.get("target_state") for n in graph.get("nodes", []) if n.get("id")},
-        "motif_ownership": {},
-        "object_states": {},
-        "light_states": {},
-        "material_states": {},
-        "residue": graph.get("residue", []),
-        "convergence_sites": [s.get("site_id") for s in graph.get("convergence_sites", []) if s.get("site_id")],
-        "prohibited_resets": [],
-    }]
-    previous = None
+    previous: Mapping[str, object] | None = None
     for frame in source_frames:
-        continuity = []
-        if previous:
-            continuity.append(f"preserve graph identity {graph_id}")
-            for field in ("motif_ownership", "object_states", "light_states", "material_states"):
-                for key, value in sorted((previous.get(field) or {}).items()):
-                    continuity.append(f"preserve prior {field[:-1].replace('_', ' ')} {key}: {value}")
-            continuity.extend(f"do not remove residue: {item}" for item in previous.get("residue", []))
-        frames.append({
-            "frame_id": frame.get("frame_id", f"frame-{len(frames)+1:03d}"),
-            "prompt": base_prompt(frame, shared),
-            "state_constraints": [f"node {k}: {v}" for k, v in sorted((frame.get("node_states") or {}).items())],
-            "continuity_from_previous": continuity,
-            "provider_parameters": {},
-        })
+        if not isinstance(frame, Mapping):
+            continue
+        prompt = render_frame_prompt(shared, frame, labels) or "evidenced frame state"
+        continuity = continuity_clauses(str(graph_id), previous, labels) if previous else []
+        frames.append(
+            {
+                "frame_id": frame.get("frame_id", f"frame-{len(frames) + 1:03d}"),
+                "prompt": prompt,
+                "state_constraints": node_state_constraints(frame, labels),
+                "continuity_from_previous": continuity,
+                "provider_parameters": frame_parameters(frame),
+            }
+        )
         previous = frame
     if not frames:
         errors.append("no frames available for adaptation")
-    return {
+    prohibited: set[str] = set()
+    for frame in source_frames:
+        if isinstance(frame, Mapping):
+            for item in frame.get("prohibited_resets", []) or []:
+                prohibited.add(str(item))
+    packet = {
         "schema_version": "1.0.0",
         "adapter_id": f"kubrick-{provider}-adapter-v1",
         "provider": provider,
@@ -80,9 +131,12 @@ def build(graph: dict, storyboard: dict | None, provider: str) -> dict:
         "mode": "storyboard" if storyboard else "single-frame",
         "shared_constraints": {
             "visual_identity": shared,
-            "continuity_rules": ["preserve graph identity", "preserve residue", "preserve ownership until explicitly changed"],
-            "prohibited_resets": sorted({item for frame in source_frames for item in frame.get("prohibited_resets", [])}),
-            "negative_constraints": ["no named esoterica", "no unexplained motif reset", "no continuity-breaking ownership change"],
+            "continuity_rules": [
+                "preserve graph identity",
+                "preserve residue",
+                "preserve ownership until explicitly changed",
+            ],
+            "prohibited_resets": sorted(prohibited),
         },
         "frames": frames,
         "private_state_policy": {
@@ -90,17 +144,25 @@ def build(graph: dict, storyboard: dict | None, provider: str) -> dict:
             "pattern_links_exposed": False,
             "lexicon_links_exposed": False,
         },
-        "validation": {"status": "VALID" if not errors else "INVALID", "errors": errors, "warnings": warnings},
+        "validation": {
+            "status": "VALID" if not errors else "INVALID",
+            "errors": errors,
+            "warnings": warnings,
+        },
     }
+    shared_constraints = packet["shared_constraints"]
+    if isinstance(shared_constraints, dict):
+        shared_constraints.update(carried_shared(graph))
+    return packet
 
 
 def main() -> None:
-    p = argparse.ArgumentParser()
-    p.add_argument("--graph", required=True)
-    p.add_argument("--storyboard")
-    p.add_argument("--provider", default="generic")
-    p.add_argument("--output")
-    args = p.parse_args()
+    parser = argparse.ArgumentParser()
+    parser.add_argument("--graph", required=True)
+    parser.add_argument("--storyboard")
+    parser.add_argument("--provider", default="generic")
+    parser.add_argument("--output")
+    args = parser.parse_args()
     packet = build(load(args.graph), load(args.storyboard) if args.storyboard else None, args.provider)
     rendered = yaml.safe_dump(packet, sort_keys=False)
     if args.output:

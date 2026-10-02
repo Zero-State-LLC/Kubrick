@@ -29,14 +29,16 @@ from manifest_contract import load_manifest  # noqa: E402
 
 MANIFEST = load_manifest()
 VERSION = str(MANIFEST.get("version", "0.15.0"))
+_PROVIDER_LIST = ", ".join(str(name) for name in MANIFEST.get("providers", []))
 
 TOOLS = [
     {
         "name": "kubrick_do",
         "description": (
             "Run a Kubrick intent (compile, retrieve, adapt, visual, learn, check, "
-            "design, script, image, video, …). Paths in args must stay inside "
-            "KUBRICK_PROJECT_DIR (or cwd) / skill out/."
+            "design, script, image, video, …). Provider adapters: "
+            f"{_PROVIDER_LIST}. The keyframe adapter emits a create_movie payload. "
+            "Paths in args must stay inside KUBRICK_PROJECT_DIR (or cwd) / skill out/."
         ),
         "inputSchema": {
             "type": "object",
@@ -52,7 +54,7 @@ TOOLS = [
                     "items": {"type": "string"},
                     "description": (
                         "CLI flags after intent/action, e.g. "
-                        '["--provider","flux","--packet","p.yaml"]'
+                        '["--provider","keyframe","--packet","p.yaml"]'
                     ),
                 },
             },

@@ -3,14 +3,15 @@
 from __future__ import annotations
 import argparse, json
 from pathlib import Path
+_INSTALL = "python3 -m pip install -r requirements.txt"
 try:
     import yaml
 except ImportError:
-    raise SystemExit("pyyaml required")
+    raise SystemExit(f"pyyaml required. Install runtime dependencies: {_INSTALL}")
 try:
     from jsonschema import Draft202012Validator
 except ImportError:
-    raise SystemExit("jsonschema required")
+    raise SystemExit(f"jsonschema required. Install runtime dependencies: {_INSTALL}")
 
 
 def load(path: Path):

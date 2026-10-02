@@ -61,6 +61,17 @@ PROVIDER_CAPABILITIES: dict[str, dict[str, Any]] = {
         "physics_hints": True,
         "identity_lock": True,
     },
+    "keyframe": {
+        "image": True,
+        "video": True,
+        "min_duration_seconds": 3.0,
+        "max_duration_seconds": 60.0,
+        "camera_motion": True,
+        "dialogue_audio": True,
+        "multi_shot": True,
+        "physics_hints": True,
+        "identity_lock": True,
+    },
 }
 
 
@@ -107,6 +118,14 @@ def check_video_adapt(provider: str | None, *, duration: float | None = None) ->
             "message": f"provider `{name}` does not support video adaptation",
             "capabilities": caps,
         }
+    if duration is not None and "min_duration_seconds" in caps:
+        min_dur = float(caps["min_duration_seconds"])
+        if float(duration) < min_dur:
+            return {
+                "code": "PROVIDER_CAPABILITY",
+                "message": f"requested duration {duration}s is below `{name}` minimum {min_dur}s",
+                "capabilities": caps,
+            }
     if duration is not None:
         max_dur = float(caps.get("max_duration_seconds") or 0.0)
         if max_dur > 0 and float(duration) > max_dur:
@@ -131,6 +150,15 @@ def check_video_shot(provider: str | None, *, duration: float, wants_camera_moti
         return {
             "code": "PROVIDER_CAPABILITY",
             "message": f"provider `{name}` cannot execute video shots; keep packet provider-neutral",
+            "capabilities": caps,
+        }
+    if "min_duration_seconds" in caps and float(duration) < float(caps["min_duration_seconds"]):
+        return {
+            "code": "PROVIDER_CAPABILITY",
+            "message": (
+                f"shot duration {duration}s is below `{name}` minimum "
+                f"{float(caps['min_duration_seconds'])}s"
+            ),
             "capabilities": caps,
         }
     max_dur = float(caps.get("max_duration_seconds") or 0.0)

@@ -6,7 +6,7 @@
 
 <p align="center">
   <strong>Hermes-Native Symbolic Cinematic Engineering</strong><br>
-  <em>0.17.1 — First-Class Production Surfaces</em>
+  <em>0.18.0 — Prompt fidelity and Keyframe</em>
 </p>
 
 <p align="center">
@@ -100,7 +100,11 @@ python scripts/kubrick.py help adapt
 
 ### A simple path: idea → storyboard → image prompt
 
-1. **Write a short brief** (dramatic problem, what changes, what is visible).  
+1. **Write a short brief** (dramatic problem, what changes, what is visible).
+   Optional `character_locks` is a list of identity constraints such as `no nose` or `hairless scalp`.
+   A `production_constraints` item prefixed `character-lock:` or `identity-lock:` is the same lock.
+   `aspect_ratio`, or an `N:M` token in `production_constraints` such as `9:16 vertical`, sets the Keyframe aspect ratio. The fallback is `16:9`.
+   Storyboard plan frames may also carry optional `duration_seconds`, `title`, `scene`, `sound`, and `speech_lines`. Keyframe uses those values. When `sound` is omitted, the shot uses evidenced room presence and no scored music.
    Example layout: `examples/authority-transfer-storyboard/brief.yaml`
 2. **Optionally keep a ledger** of active motifs for the project.  
    Example: `examples/authority-transfer-storyboard/symbolic-ledger.yaml`
@@ -212,7 +216,7 @@ Default destination:
 Install repository validation dependencies when developing locally:
 
 ```bash
-python -m pip install pyyaml jsonschema
+python3 -m pip install -r requirements.txt
 ```
 
 Validate the installed skill:
@@ -237,7 +241,7 @@ python scripts/kubrick.py do compile \
   --out out/kubrick/authority-transfer
 ```
 
-Providers: `none` · `generic` · `grok-imagine` · `flux` · `sd3` · `midjourney`
+Providers: `none` · `generic` · `grok-imagine` · `flux` · `sd3` · `midjourney` · `keyframe`
 
 ```text
 brief
@@ -390,9 +394,12 @@ CI (`.github/workflows/hermes-evals.yml`) runs Hermes evals, outcome governance,
 | [`intent/`](intent/README.md) | Intent template for non-trivial work; then spec.md / plan |
 | [`QUICKSTART.md`](QUICKSTART.md) | Installation and command routing |
 | [`CHANGELOG.md`](CHANGELOG.md) | Release history |
-| [`docs/ROADMAP-v0.16.md`](docs/ROADMAP-v0.16.md) | Current roadmap and next priorities |
+| [`docs/ROADMAP-v0.18.md`](docs/ROADMAP-v0.18.md) | Current roadmap and next priorities |
+| [`docs/RELEASE-NOTES-v0.18.md`](docs/RELEASE-NOTES-v0.18.md) | v0.18 release notes |
+| [`docs/RELEASE-CHECKLIST-v0.18.md`](docs/RELEASE-CHECKLIST-v0.18.md) | v0.18 release gates |
+| [`docs/ROADMAP-v0.16.md`](docs/ROADMAP-v0.16.md) | v0.16 roadmap |
 | [`docs/RELEASE-NOTES-v0.16.md`](docs/RELEASE-NOTES-v0.16.md) | v0.16 release notes |
-| [`docs/RELEASE-CHECKLIST-v0.16.md`](docs/RELEASE-CHECKLIST-v0.16.md) | Release gates and procedure |
+| [`docs/RELEASE-CHECKLIST-v0.16.md`](docs/RELEASE-CHECKLIST-v0.16.md) | v0.16 release gates |
 | [`docs/README.md`](docs/README.md) | Docs index (incl. intent-router design/plan) |
 | [`docs/OPENCLAW.md`](docs/OPENCLAW.md) | OpenClaw Agent Skill edition (Prabu; branch `openclaw`) |
 | [`docs/archive/superpowers/specs/2026-07-30-operator-intent-router-design.md`](docs/archive/superpowers/specs/2026-07-30-operator-intent-router-design.md) | Operator intent-router design |
@@ -421,8 +428,8 @@ CI (`.github/workflows/hermes-evals.yml`) runs Hermes evals, outcome governance,
                                │
             ┌──────────────────┼──────────────────┐
             ▼                  ▼                  ▼
-      grok-imagine           flux / sd3        midjourney
-      (syntax only)        (syntax only)     (syntax only)
+      grok-imagine         flux / sd3 / mj       keyframe
+      (8s video cap)       (syntax only)     (3–60s per shot)
                                │
                     closed-loop visual QA
                     (geometry · state · residue · convergence)
@@ -436,11 +443,11 @@ CI (`.github/workflows/hermes-evals.yml`) runs Hermes evals, outcome governance,
 
 ## Version
 
-**0.17.1 — Hermes Agent v0.21 skill contract**
+**0.18.0 — Prompt fidelity and Keyframe**
 
-This patch aligns `SKILL.md` with Hermes Agent v0.21.0 (tag v2026.8.31). The
-0.17.0 production-surface CLI is unchanged. See
-[docs/RELEASE-NOTES-v0.17.md](docs/RELEASE-NOTES-v0.17.md).
+Per-shot prompts follow storyboard frame state. The Keyframe adapter emits
+`create_movie` with shots of 3–60 seconds. See
+[docs/RELEASE-NOTES-v0.18.md](docs/RELEASE-NOTES-v0.18.md).
 
 See [CHANGELOG.md](CHANGELOG.md) for full release history.
 
@@ -450,9 +457,9 @@ See [CHANGELOG.md](CHANGELOG.md) for full release history.
   <em>Symbolism should alter the conditions under which a scene is interpreted—without requiring the audience to consciously identify it.</em>
 </p>
 
-See also: [docs/ROADMAP-v0.17.md](docs/ROADMAP-v0.17.md)
+See also: [docs/ROADMAP-v0.18.md](docs/ROADMAP-v0.18.md)
 
-See also: [docs/RELEASE-NOTES-v0.17.md](docs/RELEASE-NOTES-v0.17.md)
+See also: [docs/RELEASE-NOTES-v0.18.md](docs/RELEASE-NOTES-v0.18.md)
 
 
 ## License

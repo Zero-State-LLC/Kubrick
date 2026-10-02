@@ -96,12 +96,19 @@ Remove-Item -Recurse -Force (Join-Path $Stage "references\reports") -ErrorAction
 Get-ChildItem -Recurse -Directory -Filter "__pycache__" $Stage | Remove-Item -Recurse -Force -ErrorAction SilentlyContinue
 
 Write-Host "Validating staged Kubrick skill..."
+& python -c "import yaml, jsonschema" 2>$null
+if ($LASTEXITCODE -ne 0) {
+    & python -m pip install -r (Join-Path $Stage "requirements.txt")
+    if ($LASTEXITCODE -ne 0) { throw "runtime dependency install failed" }
+}
 & python (Join-Path $Stage "scripts\validate_manifest.py")
 if ($LASTEXITCODE -ne 0) { throw "manifest validation failed" }
 & python (Join-Path $Stage "scripts\validate_hermes_skill.py")
 if ($LASTEXITCODE -ne 0) { throw "skill validation failed" }
 & python (Join-Path $Stage "scripts\validate_pattern_corpus.py")
 if ($LASTEXITCODE -ne 0) { throw "corpus validation failed" }
+& python (Join-Path $Stage "scripts\audit_release_version.py") --strict
+if ($LASTEXITCODE -ne 0) { throw "release version audit failed" }
 
 $BackupPath = ""
 if (Test-Path $Dest) {

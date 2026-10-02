@@ -10,9 +10,14 @@ try:
     import yaml
 except ImportError:
     abort(diagnostic(status="DEPENDENCY_UNAVAILABLE",code="PY_YAML_REQUIRED",exit_code=3,message="PyYAML is required for compile; install the validation runtime profile",context={"package":"PyYAML","profile":"validation"}))
+try:
+    import jsonschema  # noqa: F401
+except ImportError:
+    abort(diagnostic(status="DEPENDENCY_UNAVAILABLE",code="JSONSCHEMA_REQUIRED",exit_code=3,message="jsonschema is required for compile; install it with: python3 -m pip install -r requirements.txt",context={"package":"jsonschema","profile":"validation","install":"python3 -m pip install -r requirements.txt"}))
 ROOT=Path(__file__).resolve().parent.parent
 sys.path.insert(0, str(ROOT / "scripts"))
 from io_safety import PathSafetyError, load_structured, resolve_bounded_path, write_structured, write_text_bounded  # noqa: E402
+from brief_constraints import carried_brief_fields  # noqa: E402
 PY=sys.executable
 RUN_IDENTITY={}
 
@@ -58,7 +63,7 @@ def build_structured_packet(brief,graph,selected):
 
 def main():
     global RUN_IDENTITY
-    p=argparse.ArgumentParser(); p.add_argument("--brief",required=True); p.add_argument("--ledger"); p.add_argument("--mode",choices=["single-frame","scene","storyboard","diagnostic"],default="single-frame"); p.add_argument("--storyboard-plan"); p.add_argument("--provider",choices=["none","generic","grok-imagine","flux","sd3","midjourney"],default="none"); p.add_argument("--out",required=True); a=p.parse_args()
+    p=argparse.ArgumentParser(); p.add_argument("--brief",required=True); p.add_argument("--ledger"); p.add_argument("--mode",choices=["single-frame","scene","storyboard","diagnostic"],default="single-frame"); p.add_argument("--storyboard-plan"); p.add_argument("--provider",choices=["none","generic","grok-imagine","flux","sd3","midjourney","keyframe"],default="none"); p.add_argument("--out",required=True); a=p.parse_args()
     try:
         out=resolve_bounded_path(a.out, for_write=True); out.mkdir(parents=True,exist_ok=True); brief=read(a.brief)
         if a.ledger: brief["symbolic_ledger"]=read(a.ledger)
@@ -76,7 +81,7 @@ def main():
     if len(forms)<2: forms=[{"id":f"observed_{i+1}","kind":"motif","observed_form":str(v),"initial_state":"present","target_state":brief.get("desired_state_change","mutated"),"provenance_label":"OBSERVED","pattern_links":[selected]} for i,v in enumerate((brief.get("observable_evidence") or [])[:3])]
     if len(forms)<2: fail(out,"graph",["INSUFFICIENT_OBSERVED_FORMS"])
     relations=brief.get("relations") or [{"source":forms[0].get("id","observed_1"),"target":forms[1].get("id","observed_2"),"relation":"opposes","pressure":0.7,"transformation":brief.get("desired_state_change","relation changes")}]
-    graph_spec={"graph_id":hashlib.sha256(json.dumps(brief,sort_keys=True).encode()).hexdigest()[:16],"symbolic_intent":{"dramatic_function":brief.get("dramatic_problem","transform pressure"),"emotional_force":brief.get("character_pressure","pressure"),"desired_state_change":brief.get("desired_state_change","transformed")},"observed_forms":forms,"relations":relations,"layers":brief.get("layers",{"layout_geometry":brief.get("geometry",[]),"semantics_function":[brief.get("dramatic_problem","")],"attributes_states":brief.get("state_differentials",[])}),"convergence_sites":brief.get("convergence_sites",[{"site_id":"primary","node_ids":[forms[0].get("id"),forms[1].get("id")],"edge_ids":[0],"observable_effect":brief.get("convergence_effect","relation becomes materially visible"),"mask_priority":0.9}]),"residue":brief.get("residue",[]),"surface_output":complete_surface(brief)}
+    graph_spec={"graph_id":hashlib.sha256(json.dumps(brief,sort_keys=True).encode()).hexdigest()[:16],"symbolic_intent":{"dramatic_function":brief.get("dramatic_problem","transform pressure"),"emotional_force":brief.get("character_pressure","pressure"),"desired_state_change":brief.get("desired_state_change","transformed")},"observed_forms":forms,"relations":relations,"layers":brief.get("layers",{"layout_geometry":brief.get("geometry",[]),"semantics_function":[brief.get("dramatic_problem","")],"attributes_states":brief.get("state_differentials",[])}),"convergence_sites":brief.get("convergence_sites",[{"site_id":"primary","node_ids":[forms[0].get("id"),forms[1].get("id")],"edge_ids":[0],"observable_effect":brief.get("convergence_effect","relation becomes materially visible"),"mask_priority":0.9}]),"residue":brief.get("residue",[]),"surface_output":complete_surface(brief),**carried_brief_fields(brief)}
     graph_input=out/"graph-input.yaml"; write(graph_input,graph_spec); graph_path=out/"motif-graph.private.yaml"
     graph_run=run([PY,str(ROOT/"scripts/build_motif_graph.py"),"--input",str(graph_input),"--output",str(graph_path)])
     if graph_run.returncode!=0: fail(out,"graph",["GRAPH_INVALID"],graph_run.stderr or graph_run.stdout)
@@ -106,7 +111,7 @@ def main():
         adapter=run(cmd)
         if adapter.returncode!=0: fail(out,"adapter",["MODEL_ADAPTER_BUILD_FAILED"],adapter.stdout or adapter.stderr)
         schema_reports["adapter"]=validate(out,adapter_path,"schemas/model-adapter-packet.schema.yaml","adapter"); artifacts["model_adapter"]=adapter_path.name
-        if a.provider in {"grok-imagine","flux","sd3","midjourney"}:
+        if a.provider in {"generic","grok-imagine","flux","sd3","midjourney","keyframe"}:
             provider_path=out/f"{a.provider}-prompt-packet.yaml"
             if a.provider=="grok-imagine":
                 provider=run([PY,str(ROOT/"scripts/adapt_grok_imagine.py"),"--packet",str(adapter_path),"--output",str(provider_path)])
