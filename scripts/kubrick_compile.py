@@ -18,6 +18,8 @@ ROOT=Path(__file__).resolve().parent.parent
 sys.path.insert(0, str(ROOT / "scripts"))
 from io_safety import PathSafetyError, load_structured, resolve_bounded_path, write_structured, write_text_bounded  # noqa: E402
 from brief_constraints import carried_brief_fields  # noqa: E402
+from continuity_locks import REFERENCE_CODE  # noqa: E402
+from shot_plan import dedupe_warnings, warnings_in  # noqa: E402
 PY=sys.executable
 RUN_IDENTITY={}
 
@@ -29,10 +31,33 @@ def write(path,data):
 
 def run(cmd): return subprocess.run(cmd,cwd=ROOT,text=True,capture_output=True)
 
-def fail(out,stage,reasons,diagnostic_output=None):
+def fail(out,stage,reasons,diagnostic_output=None,extras=None):
     payload=diagnostic(status="NOT_COMPUTABLE",code="COMPILE_NOT_COMPUTABLE",exit_code=4,message=f"compile stopped at {stage}",reason_vector=reasons,context={"stage":stage,"implementation_output":diagnostic_output[-2000:] if diagnostic_output else ""})
     final={"status":"NOT_COMPUTABLE","compiler_version":"0.3.0",**RUN_IDENTITY,"stage":stage,"reason_vector":reasons,"diagnostic":payload}
+    if isinstance(extras,dict):
+        for key,value in extras.items():
+            if value not in (None,[],{}): final[key]=value
     write_text_bounded(out/"compile-receipt.json", json.dumps(final,indent=2) + "\n"); print(json.dumps(final,indent=2)); raise SystemExit(4)
+
+def prep_extras(*paths):
+    warnings=[]; techniques=[]
+    for path in paths:
+        if not path or not Path(path).is_file(): continue
+        try: data=read(path)
+        except (OSError, ValueError): continue
+        if not isinstance(data,dict): continue
+        warnings.extend(warnings_in(data))
+        raw=data.get("technique_suggestions")
+        if isinstance(raw,list) and raw: techniques=raw
+    extras={}
+    deduped=dedupe_warnings(warnings)
+    if deduped: extras["prep_warnings"]=deduped
+    if techniques: extras["technique_suggestions"]=techniques
+    return extras
+
+def reference_hit(extras):
+    warnings=extras.get("prep_warnings") or []
+    return any(isinstance(item,dict) and item.get("code")==REFERENCE_CODE for item in warnings)
 
 def validate(out,artifact,schema,label):
     report=out/f"schema-{label}.json"; result=run([PY,str(ROOT/"scripts/validate_artifact.py"),"--artifact",str(artifact),"--schema",str(ROOT/schema),"--output",str(report)])
@@ -63,13 +88,15 @@ def build_structured_packet(brief,graph,selected):
 
 def main():
     global RUN_IDENTITY
-    p=argparse.ArgumentParser(); p.add_argument("--brief",required=True); p.add_argument("--ledger"); p.add_argument("--mode",choices=["single-frame","scene","storyboard","diagnostic"],default="single-frame"); p.add_argument("--storyboard-plan"); p.add_argument("--provider",choices=["none","generic","grok-imagine","flux","sd3","midjourney","keyframe"],default="none"); p.add_argument("--out",required=True); a=p.parse_args()
+    p=argparse.ArgumentParser(); p.add_argument("--brief",required=True); p.add_argument("--ledger"); p.add_argument("--mode",choices=["single-frame","scene","storyboard","diagnostic"],default="single-frame"); p.add_argument("--storyboard-plan"); p.add_argument("--provider",choices=["none","generic","grok-imagine","flux","sd3","midjourney","keyframe"],default="none"); p.add_argument("--strict",action="store_true"); p.add_argument("--out",required=True); a=p.parse_args()
     try:
         out=resolve_bounded_path(a.out, for_write=True); out.mkdir(parents=True,exist_ok=True); brief=read(a.brief)
         if a.ledger: brief["symbolic_ledger"]=read(a.ledger)
     except (PathSafetyError, OSError, ValueError) as exc:
         abort(diagnostic(status="INVALID_COMMAND",code="PATH_POLICY",exit_code=2,message=str(exc),context={"surface":"compile"}))
-    identity_input={"brief":brief,"storyboard_plan":read(a.storyboard_plan) if a.storyboard_plan else None}
+    plan=read(a.storyboard_plan) if a.storyboard_plan else None
+    identity_input={"brief":brief,"storyboard_plan":plan}
+    strict=bool(a.strict) or brief.get("strict") is True or (isinstance(plan,dict) and plan.get("strict") is True)
     RUN_IDENTITY=compile_identity(identity_input,mode=a.mode,provider=a.provider)
     normalized=out/"brief.normalized.yaml"; write(normalized,brief)
     retrieval=run([PY,str(ROOT/"scripts/retrieve_symbolic_patterns_registry.py"),"--brief",str(normalized),"--no-cache"])
@@ -109,7 +136,11 @@ def main():
         adapter_path=out/"model-adapter-packet.yaml"; cmd=[PY,str(ROOT/"scripts/build_model_adapter_packet.py"),"--graph",str(graph_path),"--provider",a.provider,"--output",str(adapter_path)]
         if storyboard_path: cmd.extend(["--storyboard",str(storyboard_path)])
         adapter=run(cmd)
-        if adapter.returncode!=0: fail(out,"adapter",["MODEL_ADAPTER_BUILD_FAILED"],adapter.stdout or adapter.stderr)
+        if adapter.returncode!=0:
+            extras=prep_extras(adapter_path)
+            reasons=["MODEL_ADAPTER_BUILD_FAILED"]
+            if strict and reference_hit(extras): reasons.append("REFERENCE_LOCK_CONTRADICTION")
+            fail(out,"adapter",reasons,adapter.stdout or adapter.stderr,extras)
         schema_reports["adapter"]=validate(out,adapter_path,"schemas/model-adapter-packet.schema.yaml","adapter"); artifacts["model_adapter"]=adapter_path.name
         if a.provider in {"generic","grok-imagine","flux","sd3","midjourney","keyframe"}:
             provider_path=out/f"{a.provider}-prompt-packet.yaml"
@@ -117,9 +148,20 @@ def main():
                 provider=run([PY,str(ROOT/"scripts/adapt_grok_imagine.py"),"--packet",str(adapter_path),"--output",str(provider_path)])
             else:
                 provider=run([PY,str(ROOT/"scripts/adapt_provider.py"),"--packet",str(adapter_path),"--provider",a.provider,"--output",str(provider_path)])
-            if provider.returncode!=0: fail(out,"adapter",[f"{a.provider.upper().replace('-','_')}_ADAPTER_FAILED"],provider.stdout or provider.stderr)
+            extras=prep_extras(adapter_path, provider_path)
+            if provider.returncode!=0:
+                reasons=[f"{a.provider.upper().replace('-','_')}_ADAPTER_FAILED"]
+                if strict and reference_hit(extras): reasons.append("REFERENCE_LOCK_CONTRADICTION")
+                fail(out,"adapter",reasons,provider.stdout or provider.stderr,extras)
+            if strict and reference_hit(extras): fail(out,"adapter",["REFERENCE_LOCK_CONTRADICTION"],None,extras)
             artifacts["provider_packet"]=provider_path.name
+        else:
+            extras=prep_extras(adapter_path)
+            if strict and reference_hit(extras): fail(out,"adapter",["REFERENCE_LOCK_CONTRADICTION"],None,extras)
+    else:
+        extras={}
     final={"status":"COMPILED","compiler_version":"0.3.0",**RUN_IDENTITY,"timestamp":datetime.now(timezone.utc).isoformat(),"mode":a.mode,"provider":a.provider,"selected_primary":selected,"artifacts":artifacts,"schema_reports":schema_reports,"reason_vector":[]}
+    final.update(extras)
     write_text_bounded(out/"compile-receipt.json", json.dumps(final,indent=2) + "\n"); print(json.dumps(final,indent=2))
 
 if __name__=="__main__": main()

@@ -8,6 +8,7 @@ try:
 except ImportError:
     raise SystemExit("pyyaml required")
 from brief_constraints import optional_frame_fields
+from continuity_locks import introduced_residue, planning_frame_fields, planning_root_fields
 
 def load(path):
     p=Path(path); return json.loads(p.read_text()) if p.suffix=='.json' else yaml.safe_load(p.read_text()) or {}
@@ -20,11 +21,12 @@ def propagate(graph, plan):
     if graph.get('validation',{}).get('status')!='VALID': errors.append('source graph is not VALID')
     prior_states={nid:n.get('initial_state','present') for nid,n in nodes.items()}
     prior_owners={nid:None for nid in nodes}
-    prior_residue=list(graph.get('residue',[]))
+    pending=[str(item).strip() for item in graph.get('residue',[]) if str(item).strip()]
+    prior_residue=[]
     for ordinal,spec in enumerate(plan.get('frames',[]),start=1):
         states=dict(prior_states); states.update(spec.get('node_states',{}))
         owners=dict(prior_owners); owners.update(spec.get('motif_ownership',{}))
-        residue=list(dict.fromkeys(prior_residue + spec.get('residue_add',[])))
+        residue,pending=introduced_residue(prior_residue, spec.get('residue_add',[]) or [], pending)
         resets=[]
         for nid,value in states.items():
             if nid in prior_states and prior_states[nid]!=value and value==nodes.get(nid,{}).get('initial_state'):
@@ -34,11 +36,14 @@ def propagate(graph, plan):
             if item not in json.dumps(spec,sort_keys=True): warnings.append(f'frame {ordinal} required mutation not evidenced: {item}')
         frame={'frame_id':spec.get('frame_id',f'frame-{ordinal:03d}'),'ordinal':ordinal,'node_states':states,'motif_ownership':owners,'object_states':spec.get('object_states',{}),'light_states':spec.get('light_states',{}),'material_states':spec.get('material_states',{}),'residue':residue,'convergence_sites':spec.get('convergence_sites',[s.get('site_id') for s in graph.get('convergence_sites',[])]),'required_mutations':required,'prohibited_resets':resets}
         frame.update(optional_frame_fields(spec))
+        frame.update(planning_frame_fields(spec))
         frames.append(frame)
         if resets and not spec.get('allow_resets',False): errors.extend(f'frame {ordinal} prohibited reset: {r}' for r in resets)
         prior_states,prior_owners,prior_residue=states,owners,residue
     if len(frames)<2: errors.append('at least two frames are required')
-    return {'schema_version':'1.0.0','storyboard_id':plan.get('storyboard_id','kubrick-storyboard'),'graph_id':graph.get('graph_id','unknown'),'frames':frames,'validation':{'status':'VALID' if not errors else 'INVALID','errors':errors,'warnings':warnings,'frame_count':len(frames)}}
+    result={'schema_version':'1.0.0','storyboard_id':plan.get('storyboard_id','kubrick-storyboard'),'graph_id':graph.get('graph_id','unknown'),'frames':frames,'validation':{'status':'VALID' if not errors else 'INVALID','errors':errors,'warnings':warnings,'frame_count':len(frames)}}
+    result.update(planning_root_fields(plan))
+    return result
 
 def main():
     p=argparse.ArgumentParser(); p.add_argument('--graph',required=True); p.add_argument('--plan',required=True); p.add_argument('--output'); a=p.parse_args()

@@ -24,7 +24,7 @@ _NO_PREFIX = re.compile(r"^(?:no|without)\s+\S", re.IGNORECASE)
 _RATIO = re.compile(r"(?<!\d)(\d{1,2}:\d{1,2})(?!\d)")
 _BLANK = {"", "none", "not_computable"}
 _FRAME_KEYS = ("duration_seconds", "title", "scene", "sound", "speech_lines")
-_CARRIED_KEYS = ("character_locks", "production_constraints", "aspect_ratio")
+_CARRIED_KEYS = ("character_locks", "production_constraints", "aspect_ratio", "characters", "props")
 
 BASE_NEGATIVES = (
     "no named esoterica",

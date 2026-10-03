@@ -238,6 +238,29 @@ def continuity_clauses(
     return clauses
 
 
+def _prop_names(frame: Mapping[str, object]) -> set[str]:
+    raw = frame.get("prop_states")
+    if not isinstance(raw, Mapping):
+        params = frame.get("provider_parameters")
+        raw = params.get("prop_states") if isinstance(params, Mapping) else None
+    if not isinstance(raw, Mapping):
+        return set()
+    return {str(key).strip().casefold() for key in raw if str(key).strip()}
+
+
+def _prior_prop_line(text: str, names: set[str]) -> bool:
+    tokens = text.split(":", 1)[0].casefold().split()
+    return "prior" in tokens and bool(names.intersection(tokens))
+
+
+def continuity_for_frame(lines: Sequence[object], frame: Mapping[str, object]) -> list[str]:
+    """Drop prior-state lines for props this frame declares. The prop lock is authority."""
+    names = _prop_names(frame)
+    if not names:
+        return [str(line) for line in lines]
+    return [str(line) for line in lines if not _prior_prop_line(str(line), names)]
+
+
 def node_state_constraints(frame: Mapping[str, object], labels: Mapping[str, str]) -> list[str]:
     raw = frame.get("node_states") or {}
     if not isinstance(raw, Mapping):
@@ -254,6 +277,35 @@ def node_state_constraints(frame: Mapping[str, object], labels: Mapping[str, str
     return clauses
 
 
+def _stripped_lock(negative: str) -> tuple[str, bool]:
+    raw = negative.strip()
+    text = _LOCK_PREFIX.sub("", raw, count=1)
+    return text, text != raw
+
+
+def character_lock_feature(negative: str, *, from_lock: bool = False) -> str | None:
+    """Feature named by a lock negation.
+
+    Uses the same prefix and ``no`` / ``without`` parse as
+    ``character_lock_positive``. General negatives that are not locks return
+    None. Lexicon features resolve from the full phrase or its first word.
+    """
+    text, prefixed = _stripped_lock(negative)
+    explicit = from_lock or prefixed
+    match = _NO_PREFIX.match(text)
+    if match is None:
+        return None
+    key = match.group(1).strip().casefold()
+    if key in _FEATURES:
+        return key
+    first = key.split(" ", 1)[0]
+    if first in _FEATURES:
+        return first
+    if not explicit or not key:
+        return None
+    return key
+
+
 def character_lock_positive(
     negative: str,
     *,
@@ -268,24 +320,17 @@ def character_lock_positive(
     negation is copied as written. An unprefixed general negative that is not
     a lexicon hit stays negative-only.
     """
-    raw = negative.strip()
-    text = _LOCK_PREFIX.sub("", raw, count=1)
-    explicit = from_lock or text != raw
-    match = _NO_PREFIX.match(text)
-    if match is None:
+    text, prefixed = _stripped_lock(negative)
+    explicit = from_lock or prefixed
+    if _NO_PREFIX.match(text) is None:
         if explicit and text and not is_blank(text):
             return text
         return None
-    rest = match.group(1).strip()
-    key = rest.casefold()
-    if key in _FEATURES:
-        return _FEATURES[key]
-    first = key.split(" ", 1)[0]
-    if first in _FEATURES:
-        return _FEATURES[first]
-    if not explicit:
+    feature = character_lock_feature(negative, from_lock=from_lock)
+    if feature is None:
         return None
-    feature = rest.casefold()
+    if feature in _FEATURES:
+        return _FEATURES[feature]
     return (
         f"the locked character has no {feature}; "
         f"the {feature} stays absent in every frame"

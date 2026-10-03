@@ -8,7 +8,6 @@ from collections.abc import Mapping, Sequence
 from brief_constraints import (
     attach_shot_locks,
     carried_shared,
-    frame_parameters,
     string_list,
 )
 from prompt_text import (
@@ -17,6 +16,7 @@ from prompt_text import (
     node_state_constraints,
     render_frame_prompt,
 )
+from shot_plan import attach_plan, prompted_parameters
 
 _VIDEO_NEGATIVES = ["named occult labels", "geometry reset", "residue erasure"]
 _DURATION_KEYS = ("duration_seconds", "durationSeconds", "duration")
@@ -148,8 +148,30 @@ def _shared_identity(data: Mapping[str, object]) -> list[str]:
     return shared
 
 
-def _provider_parameters(frame: Mapping[str, object]) -> dict[str, object]:
-    return frame_parameters(frame)
+def _provider_name(data: Mapping[str, object]) -> str:
+    provider = data.get("provider")
+    if isinstance(provider, str) and provider.strip():
+        return provider.strip()
+    return "generic"
+
+
+def _enriched(
+    data: Mapping[str, object],
+    frames: Sequence[Mapping[str, object]],
+    provider: str,
+    shared: Sequence[object],
+    labels: Mapping[str, str],
+    duration: float,
+) -> tuple[list[str], object]:
+    from shot_plan import enrich_prompts
+
+    return enrich_prompts(
+        data,
+        frames,
+        provider,
+        lambda frame: render_frame_prompt(shared, frame, labels) or "evidenced frame state",
+        default_duration=duration,
+    )
 
 
 def shots_from_document(
@@ -161,16 +183,14 @@ def shots_from_document(
     shots: list[dict[str, object]] = []
     if not isinstance(frames, Sequence) or isinstance(frames, (str, bytes)):
         return shots
+    mapping = [frame for frame in frames if isinstance(frame, Mapping)]
+    prompts, _prep = _enriched(data, mapping, _provider_name(data), [], labels, duration)
     source_id = str(data.get("graph_id") or data.get("storyboard_id") or "storyboard")
-    for index, frame in enumerate(frames):
-        if not isinstance(frame, Mapping):
-            continue
-        prompt = render_frame_prompt([], frame, labels) or "evidenced frame state"
+    for frame, prompt in zip(mapping, prompts):
         summary = _end_summary(frame, prompt)
-        shot_id = str(frame.get("frame_id") or f"frame-{index + 1:03d}")
         shots.append(
             {
-                "shot_id": shot_id,
+                "shot_id": str(frame.get("frame_id") or f"frame-{len(shots) + 1:03d}"),
                 "source_state_id": source_id,
                 "duration_seconds": _frame_duration(frame, duration),
                 "prompt": prompt,
@@ -233,22 +253,24 @@ def adapter_packet_from_document(
     shared = _shared_identity(data)
     frames_out: list[dict[str, object]] = []
     raw_frames = data.get("frames")
+    mapping: list[Mapping[str, object]] = []
     if isinstance(raw_frames, Sequence) and not isinstance(raw_frames, (str, bytes)):
-        for index, frame in enumerate(raw_frames):
-            if not isinstance(frame, Mapping):
-                continue
-            prompt = render_frame_prompt(shared, frame, labels) or "evidenced frame state"
-            frames_out.append(
-                {
-                    "frame_id": str(frame.get("frame_id") or f"frame-{index + 1:03d}"),
-                    "prompt": prompt,
-                    "state_constraints": node_state_constraints(frame, labels),
-                    "continuity_from_previous": [],
-                    "provider_parameters": _provider_parameters(frame),
-                }
-            )
+        mapping = [frame for frame in raw_frames if isinstance(frame, Mapping)]
+    prompts, prep = _enriched(data, mapping, provider, shared, labels, 8.0)
+    for frame, prompt in zip(mapping, prompts):
+        frames_out.append(
+            {
+                "frame_id": str(frame.get("frame_id") or f"frame-{len(frames_out) + 1:03d}"),
+                "prompt": prompt or "evidenced frame state",
+                "state_constraints": node_state_constraints(frame, labels),
+                "continuity_from_previous": [],
+                "provider_parameters": prompted_parameters(frame),
+            }
+        )
     graph_id = str(data.get("graph_id") or data.get("storyboard_id") or "storyboard")
-    errors = [] if frames_out else ["no frames available for adaptation"]
+    errors = list(getattr(prep, "errors", []))
+    if not frames_out:
+        errors.append("no frames available for adaptation")
     packet: dict[str, object] = {
         "schema_version": "1.0.0",
         "adapter_id": f"kubrick-{provider}-adapter-v1",
@@ -274,7 +296,7 @@ def adapter_packet_from_document(
             "lexicon_links_exposed": False,
         },
         "validation": {
-            "status": "VALID" if frames_out else "INVALID",
+            "status": "VALID" if frames_out and not errors else "INVALID",
             "errors": errors,
             "warnings": [],
         },
@@ -282,4 +304,17 @@ def adapter_packet_from_document(
     constraints = packet["shared_constraints"]
     if isinstance(constraints, dict):
         constraints.update(carried_shared(data))
+    threshold = data.get("short_beat_threshold_seconds")
+    if isinstance(threshold, bool) or not isinstance(threshold, (int, float)):
+        threshold = None
+    attach_plan(
+        packet,
+        prep_warnings=getattr(prep, "warnings", []),
+        technique_suggestions=getattr(prep, "techniques", []),
+        characters=data.get("characters") if isinstance(data.get("characters"), Mapping) else None,
+        props=data.get("props") if isinstance(data.get("props"), Mapping) else None,
+        short_beat_threshold_seconds=threshold,
+    )
+    if data.get("strict") is True:
+        packet["strict"] = True
     return packet

@@ -1,5 +1,38 @@
 # Changelog — Kubrick
 
+## [0.19.0] — 2026-10-02
+
+### Added
+- #25: Keyframe short-beat warnings for shots at or below `short_beat_threshold_seconds` (default 2.0). The warning names the shot, the duration, and the recommendation to generate that shot as its own clip at the provider minimum, then trim. Shots under that minimum are generated at the minimum and trimmed. The warning is stored on the compile receipt and the adapter output.
+- #26: Optional per-frame `join` (`cut` or `{chain_from, at_seconds}`). A Keyframe chained shot receives `startImage` and drops `referenceImages`. The exclusivity rule is provider data. Unknown, same-frame, and later chains fail closed. Non-adjacent chains are kept.
+- #27: Generated duration is `max(planned + hold, provider minimum)`. A chained shot that does not open on an exit adds `start_frame_hold_seconds` (1.6) before that floor. See #26. The cut list trims the excess so used runtime stays the planned sum. `targetDurationSeconds` is the rendered sum and `plannedDurationSeconds` is the planned sum. Fail closed only above the provider maximum.
+- #28: Storyboard `props` and per-frame `prop_states` compile a positive prop lock. A declared prop drops carried-over prior-state lines for that prop; the lock is the authority. Unreachable state jumps fail closed. Brief residue applies only from the `residue_add` that introduces it.
+- #29: Author-supplied character reference manifests are linted against character-lock negatives. Character-level warnings set `shot` to null and name the character in `character`. `--strict` exits non-zero after the adapter writes the warning.
+- #30: Per-character `wardrobe`, overridable per frame, compiles `WARDROBE LOCK` lines. Keyframe warns on a plain top plus a significant motion verb.
+- #31: `assets/techniques/techniques.yaml` is checked against `schemas/techniques.schema.json` (registered in the manifest). Matches are suggestions unless the frame sets `apply_techniques`.
+
+### Notes
+- The production envelope schema id stays `0.16.0`. The installer receipt schema id stays `1.0.0`.
+- MYSLEF shots 03–06 are the example under `examples/myslef-minder/`. Generic compile:
+
+```bash
+python3 scripts/kubrick.py compile \
+  --brief examples/myslef-minder/brief.yaml \
+  --mode storyboard \
+  --storyboard-plan examples/myslef-minder/storyboard-plan.yaml \
+  --provider generic \
+  --out /tmp/myslef-minder-generic
+```
+
+- Keyframe adapt of that plan exits 0. Each shot is generated at least 3 seconds, and the cut list trims back to the planned beats. The artifact under `result.adapted_packet` includes `prep_warnings`, `technique_suggestions`, `cut_list`, and `dropped_references`. Chained shots carry `startImage` and omit `referenceImages`:
+
+```bash
+python3 scripts/kubrick.py video --action adapt \
+  --provider keyframe \
+  --input examples/myslef-minder/storyboard-plan.yaml \
+  --output /tmp/myslef-minder-keyframe.yaml
+```
+
 ## [0.18.0] — 2026-10-02
 
 ### Fixed

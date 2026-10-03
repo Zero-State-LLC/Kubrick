@@ -1,0 +1,19 @@
+version: "1.0.0"
+techniques:
+  - id: clear-characters-by-flicker
+    intent: Clear figures from a chained shot with a flicker instead of a visible exit.
+    triggers:
+      chained: true
+      fewer_characters_than_start: true
+    providers: [keyframe, generic]
+    prompt_template: lights flicker to near-black, figures gone on recovery
+    trim_guidance: cut in after recovery
+    evidence: MYSLEF EP-01 shot 06, 2026-10-02
+  - id: physical-action-distance-path
+    intent: Ask for distance, path, and end state when a body or prop travels.
+    triggers:
+      motion_verbs: [skids, rolls, shoves, tips]
+    providers: [keyframe, generic]
+    prompt_template: show the distance, the path, and the end state of the action
+    trim_guidance: keep the action path; trim only the hold before contact
+    evidence: MYSLEF EP-01 shot 04, 2026-10-02

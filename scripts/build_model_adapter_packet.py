@@ -11,12 +11,19 @@ try:
 except ImportError:
     raise SystemExit("pyyaml required")
 
-from brief_constraints import carried_shared, frame_parameters  # noqa: E402
+from brief_constraints import carried_shared  # noqa: E402
 from prompt_text import (  # noqa: E402
     continuity_clauses,
+    continuity_for_frame,
     node_labels,
     node_state_constraints,
     render_frame_prompt,
+)
+from shot_plan import (  # noqa: E402
+    attach_plan,
+    document_from_sources,
+    enrich_prompts,
+    prompted_parameters,
 )
 
 
@@ -88,6 +95,30 @@ def _shared(graph: Mapping[str, object]) -> list[object]:
     return shared
 
 
+def _rendered_frames(
+    mapping_frames: Sequence[Mapping[str, object]],
+    prompts: Sequence[str],
+    graph_id: object,
+    labels: Mapping[str, str],
+) -> list[dict[str, object]]:
+    frames: list[dict[str, object]] = []
+    previous: Mapping[str, object] | None = None
+    for frame, prompt in zip(mapping_frames, prompts):
+        raw_continuity = continuity_clauses(str(graph_id), previous, labels) if previous else []
+        continuity = continuity_for_frame(raw_continuity, frame)
+        frames.append(
+            {
+                "frame_id": frame.get("frame_id", f"frame-{len(frames) + 1:03d}"),
+                "prompt": prompt or "evidenced frame state",
+                "state_constraints": node_state_constraints(frame, labels),
+                "continuity_from_previous": continuity,
+                "provider_parameters": prompted_parameters(frame),
+            }
+        )
+        previous = frame
+    return frames
+
+
 def build(graph: dict, storyboard: dict | None, provider: str) -> dict:
     errors: list[str] = []
     warnings: list[str] = []
@@ -99,23 +130,17 @@ def build(graph: dict, storyboard: dict | None, provider: str) -> dict:
     labels = _labels(graph)
     shared = _shared(graph)
     source_frames = (storyboard or {}).get("frames") or [_fallback_frame(graph)]
-    frames = []
-    previous: Mapping[str, object] | None = None
-    for frame in source_frames:
-        if not isinstance(frame, Mapping):
-            continue
-        prompt = render_frame_prompt(shared, frame, labels) or "evidenced frame state"
-        continuity = continuity_clauses(str(graph_id), previous, labels) if previous else []
-        frames.append(
-            {
-                "frame_id": frame.get("frame_id", f"frame-{len(frames) + 1:03d}"),
-                "prompt": prompt,
-                "state_constraints": node_state_constraints(frame, labels),
-                "continuity_from_previous": continuity,
-                "provider_parameters": frame_parameters(frame),
-            }
-        )
-        previous = frame
+    mapping_frames = [frame for frame in source_frames if isinstance(frame, Mapping)]
+    board = storyboard if isinstance(storyboard, Mapping) else None
+    document = document_from_sources(graph, board)
+    prompts, prep = enrich_prompts(
+        document,
+        mapping_frames,
+        provider,
+        lambda frame: render_frame_prompt(shared, frame, labels) or "evidenced frame state",
+    )
+    frames = _rendered_frames(mapping_frames, prompts, graph_id, labels)
+    errors.extend(prep.errors)
     if not frames:
         errors.append("no frames available for adaptation")
     prohibited: set[str] = set()
@@ -153,6 +178,16 @@ def build(graph: dict, storyboard: dict | None, provider: str) -> dict:
     shared_constraints = packet["shared_constraints"]
     if isinstance(shared_constraints, dict):
         shared_constraints.update(carried_shared(graph))
+    attach_plan(
+        packet,
+        prep_warnings=prep.warnings,
+        technique_suggestions=prep.techniques,
+        characters=document.get("characters"),
+        props=document.get("props"),
+        short_beat_threshold_seconds=document.get("short_beat_threshold_seconds"),
+    )
+    if document.get("strict") is True:
+        packet["strict"] = True
     return packet
 
 
@@ -163,7 +198,8 @@ def main() -> None:
     parser.add_argument("--provider", default="generic")
     parser.add_argument("--output")
     args = parser.parse_args()
-    packet = build(load(args.graph), load(args.storyboard) if args.storyboard else None, args.provider)
+    storyboard = load(args.storyboard) if args.storyboard else None
+    packet = build(load(args.graph), storyboard, args.provider)
     rendered = yaml.safe_dump(packet, sort_keys=False)
     if args.output:
         save(args.output, packet)

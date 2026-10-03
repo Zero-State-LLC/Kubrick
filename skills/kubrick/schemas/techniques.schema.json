@@ -1,0 +1,52 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "$id": "https://kubrick.zero-state.dev/schemas/techniques.schema.json",
+  "title": "Kubrick technique library",
+  "type": "object",
+  "additionalProperties": false,
+  "required": ["version", "techniques"],
+  "properties": {
+    "version": {"type": "string", "minLength": 1},
+    "techniques": {
+      "type": "array",
+      "minItems": 1,
+      "items": {
+        "type": "object",
+        "additionalProperties": false,
+        "required": [
+          "id",
+          "intent",
+          "triggers",
+          "providers",
+          "prompt_template",
+          "trim_guidance",
+          "evidence"
+        ],
+        "properties": {
+          "id": {"type": "string", "minLength": 1},
+          "intent": {"type": "string", "minLength": 1},
+          "triggers": {
+            "type": "object",
+            "additionalProperties": false,
+            "properties": {
+              "chained": {"type": "boolean"},
+              "fewer_characters_than_start": {"type": "boolean"},
+              "motion_verbs": {
+                "type": "array",
+                "items": {"type": "string", "minLength": 1}
+              }
+            }
+          },
+          "providers": {
+            "type": "array",
+            "minItems": 1,
+            "items": {"type": "string", "minLength": 1}
+          },
+          "prompt_template": {"type": "string", "minLength": 1},
+          "trim_guidance": {"type": "string", "minLength": 1},
+          "evidence": {"type": "string", "minLength": 1}
+        }
+      }
+    }
+  }
+}

@@ -49,6 +49,36 @@ properties:
       graph_mutation_allowed: {const: false}
       pattern_links_exposed: {const: false}
       lexicon_links_exposed: {const: false}
+  characters: {type: object, additionalProperties: true}
+  props: {type: object, additionalProperties: true}
+  strict: {type: boolean}
+  short_beat_threshold_seconds: {type: number, exclusiveMinimum: 0}
+  prep_warnings:
+    type: array
+    items:
+      type: object
+      additionalProperties: false
+      required: [code, shot, message, recommendation]
+      properties:
+        code: {type: string}
+        shot: {type: [string, "null"]}
+        character: {type: string}
+        message: {type: string}
+        recommendation: {type: string}
+  technique_suggestions:
+    type: array
+    items:
+      type: object
+      additionalProperties: false
+      required: [id, shot, intent, prompt_template, trim_guidance, applied, evidence]
+      properties:
+        id: {type: string}
+        shot: {type: string}
+        intent: {type: string}
+        prompt_template: {type: string}
+        trim_guidance: {type: string}
+        applied: {type: boolean}
+        evidence: {type: string}
   validation:
     type: object
     additionalProperties: false

@@ -47,10 +47,26 @@ def base_frame(packet: dict[str, Any], frame: dict[str, Any]) -> dict[str, Any]:
     }
 
 
+def _declared_aspect(packet: dict[str, Any], frame: dict[str, Any]) -> str:
+    params = frame.get("provider_parameters") or {}
+    if isinstance(params, dict):
+        for key in ("aspect_ratio", "aspectRatio"):
+            value = params.get(key)
+            if isinstance(value, str) and value.strip():
+                return value.strip()
+    shared = packet.get("shared_constraints") or {}
+    if isinstance(shared, dict):
+        for key in ("aspect_ratio", "aspectRatio"):
+            value = shared.get(key)
+            if isinstance(value, str) and value.strip():
+                return value.strip()
+    return "16:9"
+
+
 def adapt_grok(packet: dict[str, Any], frame: dict[str, Any]) -> dict[str, Any]:
     base = base_frame(packet, frame)
     base["generation_parameters"] = {
-        "aspect_ratio": frame.get("provider_parameters", {}).get("aspect_ratio", "16:9"),
+        "aspect_ratio": _declared_aspect(packet, frame),
         "style_strength": frame.get("provider_parameters", {}).get("style_strength", "restrained"),
         "variation_policy": "preserve identity; vary only declared frame state",
     }
@@ -223,6 +239,27 @@ def preservation_report(packet: dict[str, Any], result: dict[str, Any]) -> dict[
     }
 
 
+def _with_prep(packet: dict[str, Any], provider: str, result: dict[str, Any]) -> dict[str, Any]:
+    """Recompute provider warnings. Reference contradictions can fail closed."""
+    if provider == "keyframe":
+        return result
+    from continuity_locks import reference_block, strict_enabled
+    from shot_plan import attach_plan, collect_prep, document_from_packet, merged_warnings
+
+    frames = [frame for frame in packet.get("frames", []) if isinstance(frame, dict)]
+    document = document_from_packet(packet)
+    prep = collect_prep(document, frames, provider)
+    warnings = merged_warnings(packet, prep.warnings)
+    attach_plan(result, prep_warnings=warnings, technique_suggestions=prep.techniques)
+    ref_errors = reference_block(warnings, strict_enabled(document))
+    if not ref_errors:
+        return result
+    errors = list(result.get("validation", {}).get("errors", []))
+    errors.extend(ref_errors)
+    result["validation"] = {"status": "INVALID", "errors": errors}
+    return result
+
+
 def apply_preservation_policy(packet: dict[str, Any], result: dict[str, Any]) -> dict[str, Any]:
     report = preservation_report(packet, result)
     result["preservation_report"] = report
@@ -297,7 +334,7 @@ def adapt(packet: dict[str, Any], provider: str) -> dict[str, Any]:
             "errors": errors or ([] if frames else ["no frames available"]),
         },
     }
-    return apply_preservation_policy(packet, result)
+    return _with_prep(packet, provider, apply_preservation_policy(packet, result))
 
 
 def main() -> None:
@@ -314,7 +351,9 @@ def main() -> None:
     else:
         print(text)
     if provider == "keyframe":
-        ok = result.get("status") != "NOT_COMPUTABLE" and "shots" in result
+        validation = result.get("validation")
+        invalid = isinstance(validation, dict) and validation.get("status") not in {None, "VALID"}
+        ok = result.get("status") != "NOT_COMPUTABLE" and "shots" in result and not invalid
         raise SystemExit(0 if ok else 1)
     raise SystemExit(0 if result["validation"]["status"] == "VALID" else 1)
 

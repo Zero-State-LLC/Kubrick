@@ -6,7 +6,7 @@
 
 <p align="center">
   <strong>Hermes-Native Symbolic Cinematic Engineering</strong><br>
-  <em>0.18.0 — Prompt fidelity and Keyframe</em>
+  <em>0.19.0 — Shot prep and continuity locks</em>
 </p>
 
 <p align="center">
@@ -105,6 +105,7 @@ python scripts/kubrick.py help adapt
    A `production_constraints` item prefixed `character-lock:` or `identity-lock:` is the same lock.
    `aspect_ratio`, or an `N:M` token in `production_constraints` such as `9:16 vertical`, sets the Keyframe aspect ratio. The fallback is `16:9`.
    Storyboard plan frames may also carry optional `duration_seconds`, `title`, `scene`, `sound`, and `speech_lines`. Keyframe uses those values. When `sound` is omitted, the shot uses evidenced room presence and no scored music.
+   Optional `props`, `prop_states`, `join`, `opens_with`, `characters` (`wardrobe`, `references`), frame `wardrobe`, `apply_techniques`, and `short_beat_threshold_seconds` are prep fields. See `examples/myslef-minder/`.
    Example layout: `examples/authority-transfer-storyboard/brief.yaml`
 2. **Optionally keep a ledger** of active motifs for the project.  
    Example: `examples/authority-transfer-storyboard/symbolic-ledger.yaml`
@@ -394,7 +395,9 @@ CI (`.github/workflows/hermes-evals.yml`) runs Hermes evals, outcome governance,
 | [`intent/`](intent/README.md) | Intent template for non-trivial work; then spec.md / plan |
 | [`QUICKSTART.md`](QUICKSTART.md) | Installation and command routing |
 | [`CHANGELOG.md`](CHANGELOG.md) | Release history |
-| [`docs/ROADMAP-v0.18.md`](docs/ROADMAP-v0.18.md) | Current roadmap and next priorities |
+| [`docs/ROADMAP-v0.19.md`](docs/ROADMAP-v0.19.md) | Current roadmap and next priorities |
+| [`docs/RELEASE-NOTES-v0.19.md`](docs/RELEASE-NOTES-v0.19.md) | v0.19 release notes |
+| [`docs/ROADMAP-v0.18.md`](docs/ROADMAP-v0.18.md) | v0.18 roadmap |
 | [`docs/RELEASE-NOTES-v0.18.md`](docs/RELEASE-NOTES-v0.18.md) | v0.18 release notes |
 | [`docs/RELEASE-CHECKLIST-v0.18.md`](docs/RELEASE-CHECKLIST-v0.18.md) | v0.18 release gates |
 | [`docs/ROADMAP-v0.16.md`](docs/ROADMAP-v0.16.md) | v0.16 roadmap |
@@ -443,11 +446,11 @@ CI (`.github/workflows/hermes-evals.yml`) runs Hermes evals, outcome governance,
 
 ## Version
 
-**0.18.0 — Prompt fidelity and Keyframe**
+**0.19.0 — Shot prep and continuity locks**
 
-Per-shot prompts follow storyboard frame state. The Keyframe adapter emits
-`create_movie` with shots of 3–60 seconds. See
-[docs/RELEASE-NOTES-v0.18.md](docs/RELEASE-NOTES-v0.18.md).
+Shot prep warns on short beats, chains start frames, and locks prop state,
+wardrobe, and reference contradictions before spend. See
+[docs/RELEASE-NOTES-v0.19.md](docs/RELEASE-NOTES-v0.19.md).
 
 See [CHANGELOG.md](CHANGELOG.md) for full release history.
 
@@ -457,9 +460,9 @@ See [CHANGELOG.md](CHANGELOG.md) for full release history.
   <em>Symbolism should alter the conditions under which a scene is interpreted—without requiring the audience to consciously identify it.</em>
 </p>
 
-See also: [docs/ROADMAP-v0.18.md](docs/ROADMAP-v0.18.md)
+See also: [docs/ROADMAP-v0.19.md](docs/ROADMAP-v0.19.md)
 
-See also: [docs/RELEASE-NOTES-v0.18.md](docs/RELEASE-NOTES-v0.18.md)
+See also: [docs/RELEASE-NOTES-v0.19.md](docs/RELEASE-NOTES-v0.19.md)
 
 
 ## License
