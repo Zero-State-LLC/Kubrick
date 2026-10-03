@@ -112,6 +112,60 @@ def test_ledger_passthrough_action():
     assert call.argv[0] == "audit"
 
 
+def test_ledger_action_flag_matches_positional():
+    flagged = ir.resolve(
+        ["do", "ledger", "--action", "init", "--project-id", "p", "--out", "L.yaml"]
+    )
+    positional = ir.resolve(["ledger", "init", "--project-id", "p", "--out", "L.yaml"])
+    assert flagged.action == positional.action == "init"
+    assert flagged.script == positional.script
+    assert flagged.argv == positional.argv
+    assert flagged.argv == ["init", "--project-id", "p", "--out", "L.yaml"]
+    equals = ir.resolve(["do", "ledger", "--action=audit", "--ledger", "L.yaml"])
+    assert equals.argv == ["audit", "--ledger", "L.yaml"]
+
+
+def test_operate_action_flag_and_legacy_alias():
+    call = ir.resolve(
+        ["do", "operate", "--action", "saturation-score", "--ledger", "L.yaml"]
+    )
+    assert call.action == "saturation-score"
+    assert call.argv == ["saturation-score", "--ledger", "L.yaml"]
+    alias = ir.resolve(["operator", "--action", "counterpoint", "--packet", "p.yaml"])
+    assert alias.intent == "operate"
+    assert alias.legacy_name == "operator"
+    assert alias.argv == ["counterpoint", "--packet", "p.yaml"]
+    same = ir.resolve(["do", "ledger", "init", "--action", "init", "--project-id", "p"])
+    assert same.argv == ["init", "--project-id", "p"]
+
+
+def test_ledger_action_flag_fails_closed():
+    try:
+        ir.resolve(["do", "ledger", "--project-id", "p"])
+        raise AssertionError("expected RouterError")
+    except ir.RouterError as exc:
+        assert exc.exit_code == 2
+        assert "missing subcommand" in exc.message
+    try:
+        ir.resolve(["do", "ledger", "init", "--action", "audit"])
+        raise AssertionError("expected RouterError")
+    except ir.RouterError as exc:
+        assert exc.exit_code == 2
+        assert "conflicting actions" in exc.message
+    try:
+        ir.resolve(["do", "ledger", "--action", "nope"])
+        raise AssertionError("expected RouterError")
+    except ir.RouterError as exc:
+        assert exc.exit_code == 2
+        assert "unknown action" in exc.message
+
+
+def test_ledger_help_documents_action_flag():
+    text = ir.format_intent_help("ledger")
+    assert "leading positional token or --action" in text
+    assert "kubrick do ledger --action <action>" in text
+
+
 def test_unknown_intent_fails_closed():
     try:
         ir.resolve(["do", "nope"])
@@ -195,6 +249,10 @@ def main():
     test_first_class_legacy_aliases()
     test_resolve_do_adapt_provider()
     test_ledger_passthrough_action()
+    test_ledger_action_flag_matches_positional()
+    test_operate_action_flag_and_legacy_alias()
+    test_ledger_action_flag_fails_closed()
+    test_ledger_help_documents_action_flag()
     test_unknown_intent_fails_closed()
     test_help_lists_first_class_surfaces()
     test_recipes_resolve()

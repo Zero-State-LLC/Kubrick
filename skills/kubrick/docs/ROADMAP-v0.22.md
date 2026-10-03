@@ -13,6 +13,10 @@
 - Take selection by id (#64)
 - Retake runbook, cut QA, and cue sheet prep (#69, #70, #71)
 
+## In progress (#82)
+
+Ledger `--action` matches the positional subcommand. Relative path flags on routed commands resolve against the caller cwd. `production_engine.py` is split under 500 lines. CodeQL and Pages workflows are removed (see `docs/ci/README.md`). QUICKSTART points at this roadmap.
+
 ## Next
 
 1. Retime model-overlay limits (needs its own intent).
