@@ -230,64 +230,27 @@ def _library() -> list[Mapping[str, object]]:
     if not isinstance(raw, Sequence) or isinstance(raw, (str, bytes)):
         return []
     return [item for item in raw if isinstance(item, Mapping)]
-def _names(frame: Mapping[str, object]) -> list[str] | None:
-    raw = frame_field(frame, "characters")
-    if not isinstance(raw, Sequence) or isinstance(raw, (str, bytes)):
-        return None
-    return [str(item).strip() for item in raw if str(item).strip()]
-def _removes_character(frame: Mapping[str, object], frames: Sequence[Mapping[str, object]]) -> bool:
-    source = chain_source(frame)
-    current = _names(frame)
-    if source is None or current is None:
-        return False
-    prior = next(
-        (item for i, item in enumerate(frames, start=1) if frame_id(item, i) == source),
-        None,
-    )
-    before = _names(prior) if isinstance(prior, Mapping) else None
-    if not before:
-        return False
-    return len(current) < len(before) or bool(set(before) - set(current))
-def _verb(text: str, verbs: Sequence[object]) -> bool:
-    folded = text.casefold()
-    for verb in verbs:
-        token = str(verb).casefold().strip()
-        if token and re.search(rf"\b{re.escape(token)}\b", folded):
-            return True
-    return False
-def _blob(frame: Mapping[str, object]) -> str:
-    return " ".join(
-        value for key in ("action", "prompt")
-        if isinstance(value := frame_field(frame, key), str)
-    )
 def _technique_matches(
     technique: Mapping[str, object], frame: Mapping[str, object],
     frames: Sequence[Mapping[str, object]], provider: str,
+    document: Mapping[str, object] | None = None, index: int | None = None,
 ) -> bool:
-    providers = technique.get("providers")
-    if isinstance(providers, Sequence) and not isinstance(providers, (str, bytes)):
-        if provider not in {str(item) for item in providers}:
-            return False
-    triggers = technique.get("triggers")
-    if not isinstance(triggers, Mapping):
-        return False
-    if "chained" in triggers and bool(triggers.get("chained")) != (chain_source(frame) is not None):
-        return False
-    if triggers.get("fewer_characters_than_start") and not _removes_character(frame, frames):
-        return False
-    verbs = triggers.get("motion_verbs")
-    if isinstance(verbs, Sequence) and not isinstance(verbs, (str, bytes)) and verbs:
-        return _verb(_blob(frame), verbs)
-    return True
+    from plan_cues import technique_matches
+    return technique_matches(
+        technique, frame, frames, provider, document=document, index=index,
+    )
 def match_techniques(
     frames: Sequence[Mapping[str, object]], provider: str,
+    document: Mapping[str, object] | None = None,
 ) -> list[dict[str, object]]:
     found: list[dict[str, object]] = []
     for index, frame in enumerate(frames, start=1):
         shot = frame_id(frame, index)
         opted = set(_string_list(frame_field(frame, "apply_techniques")))
         for technique in _library():
-            if not _technique_matches(technique, frame, frames, provider):
+            if not _technique_matches(
+                technique, frame, frames, provider, document, index - 1,
+            ):
                 continue
             tech_id = str(technique.get("id") or "")
             found.append({
@@ -318,7 +281,7 @@ def collect_prep(
     if locks:
         merged["character_locks"] = list(dict.fromkeys(locks))
     prop_lines, prop_errors = prop_assignments(merged, frames)
-    techniques = match_techniques(frames, provider)
+    techniques = match_techniques(frames, provider, merged)
     lock_map: dict[str, list[str]] = {}
     opted: dict[str, list[str]] = {}
     for index, frame in enumerate(frames, start=1):
@@ -328,6 +291,7 @@ def collect_prep(
         opted[shot] = opted_clauses(techniques, shot, wanted)
     from audio_screen_locks import lint as audio_screen_lint
     from drift_registry import registry_warnings
+    from plan_cues import keep_clear_warnings
     from provider_capabilities import capability_warnings
     from spend_plan import shot_count_warning
 
@@ -336,6 +300,7 @@ def collect_prep(
         *duration_warnings(frames),
         *short_beat_warnings(frames, provider, document=merged, default_duration=default_duration),
         *registry_warnings(merged, frames, provider),
+        *keep_clear_warnings(merged, frames),
         *reference_warnings(merged),
         *extra_warnings(merged, frames, provider),
         *audio_warnings,

@@ -70,3 +70,58 @@ entries:
     failed_mitigations: []
     evidence: MYSLEF minder retakes, 2026-10-02. The 4-shot clip merged the short beats.
     observed_on: "2026-10-02"
+  - id: framing-wider-than-asked
+    model: seedance-2.5
+    trigger:
+      kind: close_framing
+    effect: an ECU or close view renders wider than asked
+    mitigations:
+      - state the frame size in the prompt and in camera.size
+      - start from a frame that is already that close
+    failed_mitigations: []
+    evidence: MYSLEF EP-01 shot 05 speaker grille, 2026-10-02
+    observed_on: "2026-10-02"
+  - id: brightness-over-directed
+    model: seedance-2.5
+    trigger:
+      kind: dim_practical
+    effect: the room renders brighter than the directed dim practicals
+    mitigations:
+      - lock the dim practical level in a start frame
+      - repeat that light level on every shot in the clip
+    failed_mitigations: []
+    evidence: MYSLEF EP-01 v1 and v2 room, 2026-10-02
+    observed_on: "2026-10-02"
+  - id: weak-action-intensity
+    model: seedance-2.5
+    trigger:
+      kind: startle_action
+    effect: a startle or jump renders as a small head turn
+    mitigations:
+      - name the full body path and the end pose
+      - generate the startle as its own clip
+    failed_mitigations: []
+    evidence: MYSLEF EP-01 v1 startle, 2026-10-02
+    observed_on: "2026-10-02"
+  - id: chained-start-suppresses-move
+    model: seedance-2.5
+    trigger:
+      kind: chained_snap
+    effect: a chained start drops a snap or whip move
+    mitigations:
+      - generate the move as its own clip
+      - do not chain a snap or whip off a held start frame
+    failed_mitigations: []
+    evidence: MYSLEF EP-01 chained 03 to 04 snap pan, 2026-10-02
+    observed_on: "2026-10-02"
+  - id: flicker-clears-all-figures
+    model: seedance-2.5
+    trigger:
+      kind: flicker_keep
+    effect: a flicker or blackout clears every figure, including names on the keep list
+    mitigations:
+      - name the figures that must remain
+      - cut back to a frame that still shows each kept figure
+    failed_mitigations: []
+    evidence: MYSLEF EP-01 v8 flicker, 2026-10-02
+    observed_on: "2026-10-02"

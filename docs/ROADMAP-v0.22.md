@@ -18,3 +18,8 @@
 1. Retime model-overlay limits (needs its own intent).
 2. Remove the `skills/kubrick` mirror once hub packaging allows it (owner-gated).
 3. Land the official Hermes optional-skills submission against the current release.
+
+## In progress (#79)
+
+- Known-drift entries for framing wider than asked, brightness above a dim practical, a weak startle, a chained start that drops a snap or whip, and a flicker that clears a kept figure.
+- Technique triggers for a scoped flicker keep list, a cut on a sound peak, a new angle of at least 30 degrees after a cut, and an off-screen event that is heard and not shown.

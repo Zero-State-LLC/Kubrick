@@ -332,6 +332,14 @@ def _match(
 ) -> list[dict[str, str | None]]:
     trigger = entry.get("trigger")
     kind = trigger.get("kind") if isinstance(trigger, Mapping) else None
+    from plan_cues import extended_drift_hits
+
+    extra = extended_drift_hits(kind if isinstance(kind, str) else "", document, frames)
+    if extra is not None:
+        return [
+            _warn(entry, frame_id(frames[index], index + 1), character)
+            for index, character in extra
+        ]
     if kind == "plain_top_motion":
         return _plain(entry, document, frames, provider)
     if kind == "missing_reference":
