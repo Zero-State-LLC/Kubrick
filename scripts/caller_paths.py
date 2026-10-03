@@ -92,14 +92,16 @@ def _inline_prose(value: str) -> bool:
 
 
 def _looks_like_path(value: str, root: Path) -> bool:
-    if "/" in value or "\\" in value or value.startswith((".", "~")):
-        return True
-    if Path(value).suffix.lower() in _PATH_SUFFIXES:
-        return True
     try:
-        return (root / value).exists()
+        if (root / Path(value).expanduser()).exists():
+            return True
     except OSError:
         return False
+    if any(char.isspace() for char in value):
+        return False  # "day/night transition", "Create README.md": inline prose, not a path
+    if "/" in value or "\\" in value or value.startswith((".", "~")):
+        return True
+    return Path(value).suffix.lower() in _PATH_SUFFIXES
 
 
 def _should_rewrite(flag: str, value: str, root: Path) -> bool:

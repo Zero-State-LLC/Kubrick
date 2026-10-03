@@ -86,6 +86,13 @@ def test_rewrite_leaves_prose_and_labels() -> None:
     assert argv[7].endswith("/reel.yaml")
 
 
+def test_inline_brief_with_slash_or_suffix_stays_prose() -> None:
+    root = "/tmp/caller-example"
+    briefs = ["day/night transition", "Create README.md", "a ./hidden door at dusk"]
+    argv = rewrite([token for brief in briefs for token in ("--brief", brief)], root)
+    assert argv[1::2] == briefs
+
+
 def test_rewrite_stops_at_double_dash() -> None:
     argv = rewrite(["--input", "a.yaml", "--", "--output", "b.yaml"], "/tmp/caller-example")
     assert argv[0:2] == ["--input", str(Path("/tmp/caller-example/a.yaml").resolve())]
@@ -193,6 +200,7 @@ def test_inline_brief_and_relative_output_stay_with_caller() -> None:
 def main() -> None:
     test_rewrite_relative_path_flags()
     test_rewrite_leaves_prose_and_labels()
+    test_inline_brief_with_slash_or_suffix_stays_prose()
     test_rewrite_stops_at_double_dash()
     test_relative_input_resolves_against_caller_cwd()
     test_caller_cwd_env_wins_over_process_cwd()
