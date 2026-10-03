@@ -7,6 +7,8 @@ contiguous beats share one clip. `final_clock` is the edited runtime, the sum
 of edit-plan out minus in. `generated_clock` sums generated seconds and counts
 each shared clip once. This module does not call a provider, ffmpeg, or the
 network. Missing duration uses 8.0 seconds and adds DURATION_MISSING.
+``--take SHOT=TAKE_ID`` reuses the take with that ``take_id``; an unknown id is
+TAKE_NOT_FOUND and several ``selected: true`` takes are TAKE_AMBIGUOUS.
 """
 from __future__ import annotations
 
@@ -24,6 +26,7 @@ from shot_plan import (
     opens_with_exit,
     planned_duration,
 )
+from take_select import parse_take_overrides, select_take, unknown_override
 from value_coerce import as_number as _number
 
 
@@ -65,13 +68,30 @@ def _take_for(
     frame: Mapping[str, object],
     index: int,
     planned: float,
+    overrides: Mapping[str, str],
 ) -> Mapping[str, object] | None:
     labels = _labels(frame, index)
-    for take in takes:
-        shot = take.get("shot")
-        if isinstance(shot, str) and shot.strip() in labels and _usable(take, planned):
-            return take
-    return None
+    matches = [
+        take for take in takes
+        if isinstance(take.get("shot"), str) and str(take.get("shot")).strip() in labels
+    ]
+    has_override = any(label in overrides for label in labels)
+    if not has_override and not any(take.get("selected") is True for take in matches):
+        for take in matches:
+            if _usable(take, planned):
+                return take
+        return None
+    chosen, issue = select_take(matches, labels, frame_id(frame, index), overrides)
+    if issue is not None:
+        raise _Refuse(f"{issue.get('code')}: {issue.get('message')}")
+    if chosen is None:
+        return None
+    if not _usable(chosen, planned):
+        raise _Refuse(
+            f"TAKE_UNUSABLE: selected take {chosen.get('take_id')} for shot "
+            f"{frame_id(frame, index)} has no trim covering {planned}s"
+        )
+    return chosen
 
 
 def _separate(
@@ -135,12 +155,13 @@ def _groups(
     provider: str,
     takes: Sequence[Mapping[str, object]],
     threshold: float,
+    overrides: Mapping[str, str],
 ) -> list[list[tuple[int, Mapping[str, object], Mapping[str, object] | None]]]:
     groups: list[list[tuple[int, Mapping[str, object], Mapping[str, object] | None]]] = []
     current: list[tuple[int, Mapping[str, object], Mapping[str, object] | None]] = []
     for index, frame in enumerate(frames, start=1):
         planned = planned_duration(frame)
-        take = _take_for(takes, frame, index, planned)
+        take = _take_for(takes, frame, index, planned, overrides)
         reused = take is not None
         if _separate(frame, provider, threshold, reused):
             if current:
@@ -274,6 +295,7 @@ def retime(
     takes: Sequence[Mapping[str, object]] | None = None,
     *,
     accept_clock_delta: bool = False,
+    overrides: Mapping[str, str] | None = None,
 ) -> dict[str, object]:
     """PROPOSED plan, or NOT_COMPUTABLE when no feasible plan exists."""
     name = provider.strip().casefold() or "generic"
@@ -287,16 +309,25 @@ def retime(
     ] if isinstance(raw_frames, Sequence) and not isinstance(raw_frames, (str, bytes)) else []
     if not frames:
         return _closed(name, "NO_FEASIBLE_PLAN", "retime needs at least one frame")
+    known = set().union(*(_labels(frame, i) for i, frame in enumerate(frames, start=1)))
+    stray = unknown_override(dict(overrides or {}), known)
+    if stray is not None:
+        return _closed(name, "TAKE_NOT_FOUND", str(stray.get("message")))
     missing = duration_warnings(frames)
     usable = [item for item in (takes or []) if isinstance(item, Mapping)]
     threshold = _threshold(name, document)
     script = round(sum(planned_duration(frame) for frame in frames), 4)
     try:
-        generation, edits, generated_clock = _assemble(frames, name, usable, threshold)
+        generation, edits, generated_clock = _assemble(
+            frames, name, usable, threshold, dict(overrides or {})
+        )
     except _Refuse as refused:
+        code = "NO_FEASIBLE_PLAN"
+        if refused.message.startswith("TAKE_"):
+            code = refused.message.split(":", 1)[0]
         return _note(
             missing,
-            _closed(name, "NO_FEASIBLE_PLAN", refused.message, script_clock=script),
+            _closed(name, code, refused.message, script_clock=script),
         )
     final = _edited_runtime(edits)
     delta = round(final - script, 4)
@@ -335,12 +366,13 @@ def _assemble(
     provider: str,
     takes: Sequence[Mapping[str, object]],
     threshold: float,
+    overrides: Mapping[str, str],
 ) -> tuple[list[dict[str, object]], list[dict[str, object]], float]:
     generation: list[dict[str, object]] = []
     edits: list[dict[str, object]] = []
     generated_clock = 0.0
     clip_index = 0
-    for group in _groups(frames, provider, takes, threshold):
+    for group in _groups(frames, provider, takes, threshold, overrides):
         if len(group) == 1:
             row, edit, generated = _one_shot(provider, *group[0])
             generation.append(row)
@@ -374,9 +406,15 @@ def main(argv: Sequence[str] | None = None) -> int:
     parser.add_argument("--input", required=True)
     parser.add_argument("--provider", default="generic")
     parser.add_argument("--takes")
+    parser.add_argument("--take", action="append", default=None, metavar="SHOT=TAKE_ID")
     parser.add_argument("--output")
     parser.add_argument("--accept-clock-delta", action="store_true")
     args = parser.parse_args(list(argv) if argv is not None else None)
+    try:
+        overrides = parse_take_overrides(args.take)
+    except ValueError as error:
+        print(str(error), file=sys.stderr)
+        return 2
     document = load_structured(args.input)
     if not isinstance(document, dict):
         print("retime input must be a mapping", file=sys.stderr)
@@ -386,6 +424,7 @@ def main(argv: Sequence[str] | None = None) -> int:
         args.provider,
         _load_takes(args.takes),
         accept_clock_delta=args.accept_clock_delta,
+        overrides=overrides,
     )
     if args.output:
         write_structured(args.output, result)

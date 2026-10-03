@@ -36,3 +36,23 @@ receipt schema id stays `1.0.0`. No provider is called.
   excluded from lint. Shared `structured_io` and `value_coerce` helpers
   replace copied loaders and scalar helpers. `surface_compilers.py` is split
   into modules under 500 lines behind the same names.
+
+## Production (#63, #64, #69, #70, #71)
+
+- #63: `sequence_adapt.py` builds one Keyframe packet for a multi-shot
+  sequence, covering every shot. Shots whose shared constraints (negatives,
+  locks) differ fail closed by name, because those constraints apply to every
+  frame.
+- #64: `--take SHOT=TAKE_ID` on `storyboard impact` and `video retime`
+  picks a take. Unknown shots or ids, ambiguous takes, and a selected take
+  that is too short fail closed with `TAKE_NOT_FOUND`, `TAKE_AMBIGUOUS`, and
+  `TAKE_UNUSABLE`. `--retake` on the runbook regenerates a reused take.
+- #69: `video --action runbook [--retake SHOT]` lists PROPOSED Keyframe ops.
+  A shot in a shared clip regenerates the whole clip. Unchanged shots are
+  reused and the rejoin costs 0 credits. Spend is INFERRED and refused above
+  `budget_cap_credits`.
+- #70: `video --action cut-qa` lists ffmpeg frame-grab, scene-detect, and
+  start-frame luma-MAE commands at the expected cuts. Nothing is executed.
+- #71: `video --action cues` builds a cue sheet with voice locks, ducked and
+  muted mixes at -14 LUFS / -1 dBTP, and an INFERRED ElevenLabs estimate that
+  respects a cap. A non-speaking character with a line fails closed.

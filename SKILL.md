@@ -120,7 +120,7 @@ Prefer the wizard when unsure; use `do <intent>` when flags are already known.
 - `design` — design.md lifecycle (create/improve/audit/reconcile/update/validate)
 - `script` — Script development, diagnosis, and continuity handoff
 - `image` — Still-image prompt engineering and QA
-- `video` — Temporal shot, motion, and sequence prompting and QA. `retime` proposes a generation and edit plan and does not call a provider.
+- `video` — Temporal shot, motion, and sequence prompting and QA. `retime` proposes a generation and edit plan and does not call a provider. `runbook` (`--retake SHOT`), `cut-qa`, and `cues` emit PROPOSED retake ops, ffmpeg QA commands, and a cue sheet with mix targets. They never run a tool or spend credits. `retime` and `storyboard impact` accept `--take SHOT=TAKE_ID`.
 - `storyboard` — Propagate or compare state across frames. `impact` reports stale takes from an observation ledger.
 - `adapt` — Build neutral packets and provider-specific syntax
 - `visual` — Normalize, compare, correct, and govern visual QA

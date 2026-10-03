@@ -17,7 +17,7 @@ sys.path.insert(0, str(SCRIPTS))
 PY = sys.executable
 
 
-def test_b1_sequence_adapt_fails_closed() -> None:
+def test_b1_sequence_adapt_every_shot() -> None:
     from surface_compilers import _parse_video_adapt_input, video_adapt
 
     multi = {
@@ -30,11 +30,19 @@ def test_b1_sequence_adapt_fails_closed() -> None:
         }
     }
     meta = video_adapt(json.dumps(multi), "demo", "generic")
+    assert meta["status"] != "NOT_COMPUTABLE"
+    combined, _seconds = _parse_video_adapt_input(json.dumps(multi))
+    got = combined.get("frames")
+    assert isinstance(got, list) and len(got) == 3
+    ids = [frame.get("frame_id") for frame in got]
+    assert ids[0] == "shot-a" and ids[1] == "shot-b"
+    assert isinstance(ids[2], str) and ids[2] not in ("shot-a", "shot-b")
+    bad = {"result": {"shots": [multi["result"]["shots"][0], "bad"]}}
+    meta = video_adapt(json.dumps(bad), "demo", "generic")
     assert meta["status"] == "NOT_COMPUTABLE"
     diagnostic = meta.get("diagnostic")
     assert isinstance(diagnostic, dict)
-    message = str(diagnostic.get("message"))
-    assert "shot-b" in message and "index-2" in message
+    assert "index-1" in str(diagnostic.get("message"))
     single = {"result": {"shots": [multi["result"]["shots"][0]]}}
     packet, _duration = _parse_video_adapt_input(json.dumps(single))
     assert isinstance(packet, dict)
@@ -205,7 +213,7 @@ def test_b7_missing_runtime_dependency_is_exit_4() -> None:
 
 
 def main() -> None:
-    test_b1_sequence_adapt_fails_closed()
+    test_b1_sequence_adapt_every_shot()
     test_b2_ci_runs_pytest_and_every_script_test()
     test_b3_evolve_from_use_is_not_shipped()
     test_b4_corpus_coverage_writes_under_out()

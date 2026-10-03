@@ -131,7 +131,10 @@
         "continuity": "video_surface.py",
         "adapt": "video_surface.py",
         "retime": "retime_plan.py",
-        "qa": "video_surface.py"
+        "qa": "video_surface.py",
+        "runbook": "video_runbook.py",
+        "cut-qa": "video_cut_qa.py",
+        "cues": "video_cues.py"
       }
     },
     "storyboard": {

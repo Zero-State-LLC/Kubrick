@@ -5,7 +5,9 @@ Takes are OBSERVATION. They are never written back onto the storyboard.
 A downstream shot with no take uses the declared storyboard start. A compared
 take with no observation object is OBSERVATION_MISSING. Several takes for one
 shot and not exactly one ``selected: true`` is TAKE_AMBIGUOUS. Either blocker
-is NOT_COMPUTABLE. Equal text, or the same resolved state id, is a match. A
+is NOT_COMPUTABLE. ``--take SHOT=TAKE_ID`` picks the take whose ``take_id``
+matches; an unknown id is TAKE_NOT_FOUND. Equal text, or the same resolved
+state id, is a match. A
 token that starts with a state id and a space resolves to that id.
 ``prop_assignments`` errors fail closed.
 """
@@ -17,6 +19,7 @@ from collections.abc import Mapping, Sequence
 
 from continuity_locks import frame_field, frame_id, prop_assignments, resolve_state, warning
 from io_safety import load_structured, write_structured
+from take_select import parse_take_overrides, select_take, unknown_override
 
 _ARROW = "->"
 
@@ -116,22 +119,6 @@ def _matches(
     return found
 
 
-def _pick(
-    matches: Sequence[Mapping[str, object]],
-    shot: str,
-) -> tuple[Mapping[str, object] | None, dict[str, str | None] | None]:
-    if len(matches) <= 1:
-        return (matches[0] if matches else None), None
-    selected = [take for take in matches if take.get("selected") is True]
-    if len(selected) == 1:
-        return selected[0], None
-    return None, warning(
-        "TAKE_AMBIGUOUS",
-        shot,
-        f"shot {shot} has several takes and none is selected",
-        "set selected true on exactly one take for this shot",
-    )
-
 
 def _has_observation(take: Mapping[str, object], field: str) -> bool:
     raw = take.get(field)
@@ -147,7 +134,7 @@ def _missing(shot: str, field: str) -> dict[str, str | None]:
     )
 
 
-_BLOCKERS = {"OBSERVATION_MISSING", "TAKE_AMBIGUOUS"}
+_BLOCKERS = {"OBSERVATION_MISSING", "TAKE_AMBIGUOUS", "TAKE_NOT_FOUND"}
 
 
 def _blocker(items: Sequence[Mapping[str, object]]) -> Mapping[str, object] | None:
@@ -262,12 +249,15 @@ def _downstream(
     end_props: Mapping[str, str],
     end_wardrobe: Mapping[str, str],
     label: str,
+    overrides: Mapping[str, str],
 ) -> list[dict[str, str | None]]:
     found: list[dict[str, str | None]] = []
     later = frames[index + 1:]
     for later_index, frame in enumerate(later, start=index + 2):
         shot = _shot_name(frame, later_index)
-        take, ambiguous = _pick(_matches(takes, frame, later_index), shot)
+        take, ambiguous = select_take(
+            _matches(takes, frame, later_index), _labels(frame, later_index), shot, overrides
+        )
         if ambiguous is not None:
             found.append(ambiguous)
             continue
@@ -283,8 +273,10 @@ def impact(
     storyboard: Mapping[str, object],
     takes: Sequence[Mapping[str, object]],
     retake: str,
+    overrides: Mapping[str, str] | None = None,
 ) -> dict[str, object]:
     """Impact report. Does not mutate ``storyboard``."""
+    chosen = dict(overrides or {})
     frames = _frames(storyboard)
     _lines, errors = prop_assignments(storyboard, frames)
     if errors:
@@ -292,8 +284,14 @@ def impact(
     index = _find(frames, retake)
     if index is None:
         return _closed(f"retake {retake} is not on the storyboard", retake)
+    known = set().union(*(_labels(frame, i + 1) for i, frame in enumerate(frames)))
+    stray = unknown_override(chosen, known)
+    if stray is not None:
+        return _refused(retake, [stray], stray)
     label = _shot_name(frames[index], index + 1)
-    source, ambiguous = _pick(_matches(takes, frames[index], index + 1), label)
+    source, ambiguous = select_take(
+        _matches(takes, frames[index], index + 1), _labels(frames[index], index + 1), label, chosen
+    )
     if ambiguous is not None:
         return _refused(label, [ambiguous], ambiguous)
     if source is None:
@@ -310,6 +308,7 @@ def impact(
             _bucket(source, "observed_end_state", "props"),
             _bucket(source, "observed_end_state", "wardrobe"),
             label,
+            chosen,
         ))
     blocked = _blocker(warnings)
     if blocked is not None:
@@ -341,8 +340,14 @@ def main(argv: Sequence[str] | None = None) -> int:
     parser.add_argument("--plan")
     parser.add_argument("--takes", required=True)
     parser.add_argument("--retake", required=True)
+    parser.add_argument("--take", action="append", default=None, metavar="SHOT=TAKE_ID")
     parser.add_argument("--output")
     args = parser.parse_args(list(argv) if argv is not None else None)
+    try:
+        overrides = parse_take_overrides(args.take)
+    except ValueError as error:
+        print(str(error), file=sys.stderr)
+        return 2
     source = args.storyboard or args.plan
     if not source:
         print("impact needs --storyboard or --plan", file=sys.stderr)
@@ -351,7 +356,7 @@ def main(argv: Sequence[str] | None = None) -> int:
     if not isinstance(document, dict):
         print("impact storyboard must be a mapping", file=sys.stderr)
         return 4
-    result = impact(document, _load_takes(args.takes), args.retake)
+    result = impact(document, _load_takes(args.takes), args.retake, overrides)
     if args.output:
         write_structured(args.output, result)
     else:

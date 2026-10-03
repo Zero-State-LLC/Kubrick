@@ -9,6 +9,9 @@
 - Reference cap and native-audio checks (#67)
 - Dead-code cleanup and fail-closed frame comparison (#68)
 - Lint ratchet, shared helpers, and the surface compiler split (#72)
+- Multi-shot sequence adapt (#63)
+- Take selection by id (#64)
+- Retake runbook, cut QA, and cue sheet prep (#69, #70, #71)
 
 ## Next
 
