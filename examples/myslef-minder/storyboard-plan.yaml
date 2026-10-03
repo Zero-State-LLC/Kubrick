@@ -22,7 +22,6 @@ characters:
 character_locks:
   - no nose
 aspect_ratio: "9:16"
-accept_clock_delta: true
 location:
   locks:
     - no lit doorway
