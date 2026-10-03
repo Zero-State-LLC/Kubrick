@@ -1,0 +1,20 @@
+version: "1"
+providers:
+  keyframe:
+    models:
+      seedance-lab:
+        blocks:
+          - source: observed
+            verified_on: "2026-10-02"
+            start_frame_hold_seconds: 0.5
+      seedance-stale:
+        blocks:
+          - source: observed
+            verified_on: "2020-01-01"
+            start_frame_hold_seconds: 1.6
+      seedance-effective:
+        blocks:
+          - source: observed
+            verified_on: "2026-10-02"
+            negative_prompt_effective: true
+            start_frame_hold_seconds: 1.6

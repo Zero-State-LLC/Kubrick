@@ -1,5 +1,9 @@
 # Kubrick v0.22 Status and Continuation Roadmap
 
+## In progress (#80)
+
+Corpus hygiene: every sidecar is indexed, registered, and manifested. Duplicate sidecars are merged, dead lexicon links are repaired, fixture models stay out of production capabilities, and the coverage audit fails closed in CI.
+
 ## Shipped
 
 - Full CI with coverage floor and clean-tree check (#61)

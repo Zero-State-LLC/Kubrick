@@ -4,6 +4,7 @@
   "version": "0.11.5",
   "domain": "ritual-liminal",
   "source_tier": "SCHOLARLY",
+  "source_status": "VALIDATED",
   "source_refs": [{"author": "Arnold van Gennep and Victor Turner", "title": "Rites of Passage / The Ritual Process", "date": "1909 / 1969"}],
   "observed_structure": [
     "A subject leaves a prior status, crosses a bounded interval, and enters a changed relation.",
@@ -11,7 +12,12 @@
   ],
   "dramatic_operations": ["status change", "separation from old state", "conditional entry"],
   "transformation_grammars": ["initiation", "crossing"],
+  "grammar_family": "initiation",
   "cinematic_affordances": ["frame-edge crossing", "sound change at boundary", "doorway or checkpoint", "costume or access change"],
+  "applicable_genres": ["drama", "horror", "fantasy"],
+  "applicable_formats": ["feature", "short", "pilot", "single-frame"],
+  "cultural_scope": ["comparative rite-of-passage structure; do not copy a specific rite, regalia, or chant"],
+  "lexicon_links": ["threshold", "liminality", "initiation"],
   "misuse_risks": ["generic doorway symbolism", "flattening a specific ritual tradition", "crossing without consequence"],
   "mutation_requirements": {
     "required": true,

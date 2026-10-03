@@ -18,6 +18,6 @@
   "transferable_structure": "an established balanced relation is altered so the formal difference becomes evidence of a causal state change",
   "non_transferable_surface": "copied twins, hallways, centered rooms, or arbitrary crooked compositions",
   "production_cost": {"location_dependency":0.3,"prop_dependency":0.4,"lighting_dependency":0.3,"VFX_dependency":0.0},
-  "lexicon_links": ["balance", "quaternity", "rupture", "symmetry"],
+  "lexicon_links": ["quaternity", "symmetry_as_false_or_sacred_order", "shevirat_ha_kelim"],
   "confidence": 0.87
 }
