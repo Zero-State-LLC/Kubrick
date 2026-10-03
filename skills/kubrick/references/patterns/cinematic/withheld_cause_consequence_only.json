@@ -1,0 +1,67 @@
+{
+  "pattern_id": "withheld_cause_consequence_only",
+  "title": "Withheld Cause / Only the Consequence Is Shown",
+  "version": "0.11.5",
+  "domain": "cinematic",
+  "source_tier": "SCHOLARLY",
+  "source_status": "VALIDATED",
+  "source_refs": [
+    {
+      "author": "Classical narrative-film practice",
+      "title": "Ellipsis and offscreen action",
+      "date": "20th century",
+      "cultural_context": "Continuity editing in which a cut skips the act and keeps the aftermath readable"
+    }
+  ],
+  "observed_structure": [
+    "A stable situation is established so the audience knows who is present and what the place allows.",
+    "The next view presents the aftermath, and the act that produced it is not depicted.",
+    "What remains is enough to name the consequence, and still not enough to see the cause."
+  ],
+  "dramatic_operations": [
+    "show only the consequence while the cause stays withheld",
+    "occupied presence becomes an emptied room",
+    "never show the removal itself"
+  ],
+  "transformation_grammars": [
+    "cause-withheld",
+    "occupied-presence-to-emptied-room"
+  ],
+  "grammar_family": "separation",
+  "cinematic_affordances": [
+    "cut from the last stable moment straight to the aftermath",
+    "the triggering act kept outside the frame",
+    "one remaining object whose new position is the evidence",
+    "audio of the event continuing without a picture of the act"
+  ],
+  "applicable_genres": ["drama", "horror", "thriller", "mystery", "science fiction"],
+  "applicable_formats": ["feature", "pilot", "episode", "short"],
+  "cultural_scope": [
+    "general film ellipsis; the withheld event must stay inferable from project evidence"
+  ],
+  "misuse_risks": [
+    "hiding the cause because the action was never decided",
+    "a gap that removes information the next choice depends on",
+    "using every skipped beat as mystery branding"
+  ],
+  "mutation_requirements": {
+    "required": true,
+    "variables": [
+      "withheld event",
+      "visible remainder",
+      "who can still read the remainder",
+      "duration of the gap",
+      "next action taken with the remainder"
+    ]
+  },
+  "transferable_structure": "an emptied room shows only the consequence while the cause stays withheld and the removal is never shown",
+  "non_transferable_surface": "a specific film's missing assault, signature insert, or copied gap between two famous shots",
+  "production_cost": {
+    "location_dependency": 0.3,
+    "prop_dependency": 0.4,
+    "lighting_dependency": 0.2,
+    "VFX_dependency": 0.0
+  },
+  "lexicon_links": ["cause_and_effect", "saturn", "off_screen_space_as_ein_sof"],
+  "confidence": 0.78
+}

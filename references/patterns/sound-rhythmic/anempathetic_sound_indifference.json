@@ -1,0 +1,67 @@
+{
+  "pattern_id": "anempathetic_sound_indifference",
+  "title": "Anempathetic Sound / Playback Indifferent to the Event",
+  "version": "0.11.5",
+  "domain": "sound-rhythmic",
+  "source_tier": "SCHOLARLY",
+  "source_status": "VALIDATED",
+  "source_refs": [
+    {
+      "author": "Michel Chion",
+      "title": "Audio-Vision",
+      "date": "1990",
+      "cultural_context": "Film-sound theory of music that continues without sharing the scene's feeling"
+    }
+  ],
+  "observed_structure": [
+    "A diegetic track is already playing and has a mood of its own.",
+    "The picture undergoes harm, shock, or loss.",
+    "The track does not bend, duck sympathetically, or stop for that event."
+  ],
+  "dramatic_operations": [
+    "keep playback running with no sympathy for the event",
+    "let banal audio ignore the harm in the picture",
+    "make the indifference of the track the emotional fact"
+  ],
+  "transformation_grammars": [
+    "playback-ignores-harm",
+    "indifferent-register"
+  ],
+  "grammar_family": "separation",
+  "cinematic_affordances": [
+    "a visible on-screen player so the track has a source",
+    "no score swell that agrees with the shock",
+    "the same tune or cartoon audible after the people are gone",
+    "level left low enough that the picture is still readable"
+  ],
+  "applicable_genres": ["horror", "drama", "thriller", "satire"],
+  "applicable_formats": ["feature", "pilot", "episode", "short"],
+  "cultural_scope": [
+    "film-sound formal pattern; do not copy a signature song or a specific cartoon cue"
+  ],
+  "misuse_risks": [
+    "irony pasted on by a needle-drop with no on-screen source",
+    "a cheerful track that makes the harm unreadable",
+    "stopping the track at the scare so the indifference never lands"
+  ],
+  "mutation_requirements": {
+    "required": true,
+    "variables": [
+      "on-screen source",
+      "mood of the playback",
+      "event it refuses to match",
+      "whether the level changes at all",
+      "who is left able to hear it"
+    ]
+  },
+  "transferable_structure": "diegetic playback continues in an indifferent register and refuses to match the feeling of what the picture has just undergone",
+  "non_transferable_surface": "a quoted song, a copied cartoon soundtrack, or a famous ironic needle-drop",
+  "production_cost": {
+    "location_dependency": 0.1,
+    "prop_dependency": 0.3,
+    "lighting_dependency": 0.1,
+    "VFX_dependency": 0.0
+  },
+  "lexicon_links": ["dissonance", "drone", "rhythm"],
+  "confidence": 0.8
+}

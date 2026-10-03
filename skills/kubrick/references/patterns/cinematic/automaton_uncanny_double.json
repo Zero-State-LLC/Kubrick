@@ -1,0 +1,73 @@
+{
+  "pattern_id": "automaton_uncanny_double",
+  "title": "Automaton / Uncanny Near-Human Double",
+  "version": "0.11.5",
+  "domain": "cinematic",
+  "source_tier": "SCHOLARLY",
+  "source_status": "VALIDATED",
+  "source_refs": [
+    {
+      "author": "Ernst Jentsch",
+      "title": "On the Psychology of the Uncanny",
+      "date": "1906",
+      "cultural_context": "Early psychology of doubt about whether a lifelike figure is animate"
+    },
+    {
+      "author": "Sigmund Freud",
+      "title": "The Uncanny",
+      "date": "1919",
+      "cultural_context": "Psychoanalytic discussion of the double and of figures that are almost persons"
+    }
+  ],
+  "observed_structure": [
+    "A body is presented with enough human layout to be read as a person.",
+    "One or more parts are wrong, mechanical, or mismatched, so the reading fails.",
+    "The figure does not settle the doubt by ordinary speech or ordinary action."
+  ],
+  "dramatic_operations": [
+    "present a body that is almost a person and not quite one",
+    "let mismatched parts block easy recognition as human",
+    "keep the double inert so likeness is felt before any deed"
+  ],
+  "transformation_grammars": [
+    "near-human-likeness",
+    "mismatched-parts-block-recognition"
+  ],
+  "grammar_family": "fragmentation",
+  "cinematic_affordances": [
+    "a still medium or wide view long enough to compare the body with a person",
+    "one damaged or asymmetric feature held in readable light",
+    "speech replaced by a mechanical aperture, grille, or tone",
+    "no reassuring task that would classify the figure as a tool"
+  ],
+  "applicable_genres": ["horror", "science fiction", "thriller", "drama"],
+  "applicable_formats": ["feature", "pilot", "episode", "short"],
+  "cultural_scope": [
+    "general uncanny-double figure; do not treat one psychology essay as a production recipe"
+  ],
+  "misuse_risks": [
+    "a robot costume played for novelty with no doubt about its status",
+    "explaining the manufacture so the uncertainty never starts",
+    "copying a famous android face, voice, or reveal"
+  ],
+  "mutation_requirements": {
+    "required": true,
+    "variables": [
+      "which parts read as human",
+      "which parts break that reading",
+      "whether the figure can speak words",
+      "how long it withholds action",
+      "who is forced to share the space with it"
+    ]
+  },
+  "transferable_structure": "a near-human body with mismatched parts stands as an uncanny double whose likeness is legible and whose intent is not yet acted",
+  "non_transferable_surface": "a specific film's android design, facial appliance, or catchphrase for an artificial person",
+  "production_cost": {
+    "location_dependency": 0.2,
+    "prop_dependency": 0.6,
+    "lighting_dependency": 0.4,
+    "VFX_dependency": 0.3
+  },
+  "lexicon_links": ["doppelganger", "fetch", "servitor"],
+  "confidence": 0.76
+}

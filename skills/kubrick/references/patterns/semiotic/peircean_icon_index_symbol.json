@@ -4,6 +4,7 @@
   "version": "0.11.5",
   "domain": "semiotic",
   "source_tier": "PRIMARY",
+  "source_status": "VALIDATED",
   "source_refs": [{"author": "Charles Sanders Peirce", "title": "Collected Papers on Signs", "date": "late 19th–early 20th century"}],
   "observed_structure": [
     "A sign may resemble its referent, bear a causal trace of it, or depend on a learned convention.",
@@ -11,6 +12,10 @@
   ],
   "dramatic_operations": ["representation", "hidden connection", "evidentiary shift"],
   "cinematic_affordances": ["graphic match", "material trace", "institutional badge or code", "misread sign"],
+  "applicable_genres": ["drama", "mystery", "thriller"],
+  "applicable_formats": ["feature", "short", "pilot", "single-frame"],
+  "cultural_scope": ["general sign theory; the sign's mode has to stay observable in the scene"],
+  "lexicon_links": ["correspondence", "augury", "talisman"],
   "misuse_risks": ["abstract semiotic lecture", "fixed one-to-one symbolism", "sign categories without causal stakes"],
   "mutation_requirements": {
     "required": true,
