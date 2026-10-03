@@ -20,6 +20,15 @@ SKILL_ROOT=SCRIPT_DIR.parent
 PATTERNS_DIR=SKILL_ROOT/"references"/"patterns"
 THRESHOLD=0.55
 MAX_SUPPORTING=2
+# Function words are not dramatic evidence. Overlap and route matching share this set.
+STOP_WORDS=frozenset({
+    "a","an","and","are","as","at","be","by","for","from",
+    "in","is","of","on","or","the","to","with",
+})
+# SELECTED requires at least this much dramatic overlap. Weaker evidence stays NOT_COMPUTABLE.
+MIN_DRAMATIC_FIT=0.15
+# Cache keys carry the selection policy so receipts cached under an older policy are not replayed.
+SELECTION_POLICY="stopwords-v1+min-dramatic-fit-0.15"
 WEIGHTS={"dramatic_fit":0.24,"character_fit":0.10,"cinematic_fit":0.12,"cultural_fit":0.10,"source_quality":0.10,"mutation_potential":0.14,"continuity_compatibility":0.10,"payoff_compatibility":0.10}
 
 def cache_dir()->Path: return kubrick_out_dir("retrieval","cache")
@@ -30,13 +39,30 @@ def canonical_json(value:Any)->str:
     return json.dumps(value,sort_keys=True,separators=(",",":"),default=lambda item:item.isoformat() if hasattr(item,"isoformat") else str(item))
 
 def _tokens(value:Any)->set[str]:
-    if isinstance(value,(list,tuple,set)): value=" ".join(str(i) for i in value)
+    if isinstance(value,(list,tuple,set)):
+        value=" ".join(str(item) for item in value)
     normalized=str(value).lower().replace("-"," ").replace("_"," ")
-    return set(re.findall(r"[a-z0-9]+",normalized))
+    found=re.findall(r"[a-z0-9]+",normalized)
+    return {token for token in found if token not in STOP_WORDS}
 
 def _overlap(query:Any,candidate:Any)->float:
     q=_tokens(query); c=_tokens(candidate)
     return len(q&c)/max(1,len(q)) if q and c else 0.0
+
+def dramatic_fit_of(item:Dict[str,Any])->float:
+    components=item.get("score_components") or {}
+    if not isinstance(components,dict):
+        return 0.0
+    raw=components.get("dramatic_fit",0.0)
+    if isinstance(raw,bool) or not isinstance(raw,(int,float)):
+        return 0.0
+    return float(raw)
+
+def selection_eligible(item:Dict[str,Any])->bool:
+    score=item.get("total_score",0.0)
+    if isinstance(score,bool) or not isinstance(score,(int,float)):
+        return False
+    return float(score)>=THRESHOLD and dramatic_fit_of(item)>=MIN_DRAMATIC_FIT
 
 def _load(path:Path)->Dict[str,Any]:
     with path.open("r",encoding="utf-8") as h: return json.load(h) if path.suffix==".json" else yaml.safe_load(h) or {}
@@ -53,7 +79,7 @@ def ledger_snapshot(brief:Dict[str,Any])->Dict[str,Any]:
     if active and isinstance(active[0] if isinstance(active,list) else None,dict): active=[x.get("motif_id","") for x in active]
     return {"active":sorted(set(active)),"retired":sorted(set(ledger.get("retired_motifs",[]))),"prohibited":sorted(set(ledger.get("prohibited_motifs",brief.get("prohibited_patterns",[])))),"unresolved_payoffs":sorted(set(ledger.get("unresolved_payoffs",[]))),"saturation_score":float(ledger.get("saturation_score",0.0)),"symbolic_debt":float(ledger.get("symbolic_debt",0.0)),"collisions":ledger.get("collisions",[]),"prohibited_cultural_scopes":ledger.get("prohibited_cultural_scopes",[])}
 
-def cache_key(brief,ledger): return hashlib.sha256(canonical_json({"brief":brief,"ledger":ledger}).encode()).hexdigest()[:24]
+def cache_key(brief,ledger): return hashlib.sha256(canonical_json({"brief":brief,"ledger":ledger,"policy":SELECTION_POLICY}).encode()).hexdigest()[:24]
 
 def production_cost(pattern:Dict[str,Any])->float:
     raw=pattern.get("production_cost")
@@ -100,7 +126,7 @@ def score_pattern(pattern,brief,ledger):
 def reason_vector(ranked,ledger):
     if not ranked:return ["NO_EXECUTABLE_PATTERNS"]
     top=ranked[0]; c=top["score_components"]; reasons=[]
-    if c["dramatic_fit"]<=0:reasons.append("LOW_DRAMATIC_FIT")
+    if c["dramatic_fit"]<MIN_DRAMATIC_FIT:reasons.append("LOW_DRAMATIC_FIT")
     if c["mutation_potential"]<0.6:reasons.append("LOW_MUTATION_POTENTIAL")
     if c["continuity_compatibility"]<0.5:reasons.append("SATURATION_OR_SYMBOLIC_DEBT")
     if c["cultural_fit"]<0.25:reasons.append("LOW_CULTURAL_FIT")
@@ -119,7 +145,7 @@ def gap_report(brief,ranked):
 def read_brief(path): return _load(Path(path)) if path else yaml.safe_load(sys.stdin.read()) or {}
 
 def build_receipt(brief,ranked,ledger):
-    eligible=[x for x in ranked if x["total_score"]>=THRESHOLD]; primary=eligible[0] if eligible else None; supporting=eligible[1:1+MAX_SUPPORTING]
+    eligible=[x for x in ranked if selection_eligible(x)]; primary=eligible[0] if eligible else None; supporting=eligible[1:1+MAX_SUPPORTING]
     hard={"PROHIBITED","CONTRADICTORY","CULTURALLY_INCOMPATIBLE","OWNERSHIP_CONFLICT","AUTHORITY_PROMOTION","PROVIDER_SEMANTIC_DROP"}
     rejected=[{"pattern_id":item["pattern_id"],"reason":", ".join(c["type"] for c in item.get("collisions",[]) if c["type"] in hard)} for item in ranked if any(c["type"] in hard for c in item.get("collisions",[]))]
     return {"retrieval_receipt":{"request_hash":cache_key(brief,ledger),"algorithm":"deterministic-v0.11","timestamp":datetime.now(timezone.utc).isoformat(),"selected_primary_grammar":primary["pattern_id"] if primary else None,"selected_supporting_grammars":[x["pattern_id"] for x in supporting],"ranked_patterns":ranked[:8] if primary else [],"rejected_patterns":rejected,"confidence":primary["total_score"] if primary else 0.0,"status":"SELECTED" if primary else "NOT_COMPUTABLE","reason_vector":[] if primary else reason_vector(ranked,ledger),"pattern_gap_report":gap_report(brief,ranked),"ledger_snapshot":ledger,"brief":brief}}

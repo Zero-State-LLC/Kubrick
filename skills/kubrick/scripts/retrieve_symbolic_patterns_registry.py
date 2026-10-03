@@ -30,13 +30,27 @@ def route_registry():
     registry=load_yaml(REGISTRY_PATH); routes={str(route):{str(item) for item in ids or []} for route,ids in (registry.get("default_routes") or {}).items()}; strong={str(item) for item in registry.get("strong_defaults",[])}
     return routes,strong
 
-def route_query(brief): return base._tokens([brief.get("dramatic_problem",""),brief.get("desired_state_change",""),brief.get("symbolic_intent",""),brief.get("requested_domains",[]),brief.get("preferred_encoding_vectors",[])])
+def route_query(brief:Dict[str,Any])->set[str]:
+    fields=[
+        brief.get("dramatic_problem",""),
+        brief.get("desired_state_change",""),
+        brief.get("symbolic_intent",""),
+        brief.get("requested_domains",[]),
+        brief.get("preferred_encoding_vectors",[]),
+    ]
+    return base._tokens(fields)-base.STOP_WORDS
 
-def route_matches(brief,routes):
-    tokens=route_query(brief); return sorted(route for route in routes if base._tokens(route) and base._tokens(route)&tokens)
+def route_matches(brief:Dict[str,Any],routes:Dict[str,Any])->list[str]:
+    tokens=route_query(brief)
+    matched:list[str]=[]
+    for route in routes:
+        overlap=base._tokens(route)-base.STOP_WORDS
+        if overlap&tokens:
+            matched.append(str(route))
+    return sorted(matched)
 
 def cache_key(brief,ledger):
-    payload=base.canonical_json({"algorithm":CORPUS_VERSION,"brief":brief,"ledger":ledger})
+    payload=base.canonical_json({"algorithm":CORPUS_VERSION,"policy":base.SELECTION_POLICY,"brief":brief,"ledger":ledger})
     return hashlib.sha256(payload.encode()).hexdigest()[:24]
 
 def score_with_registry(pattern,brief,ledger,routes,matched,strong):
@@ -49,7 +63,7 @@ def gap_report(brief,ranked,matched,routes):
     return report
 
 def build_receipt(brief,ranked,ledger,matched,routes):
-    eligible=[x for x in ranked if x["total_score"]>=base.THRESHOLD]; primary=eligible[0] if eligible else None; supporting=eligible[1:1+base.MAX_SUPPORTING]; key=cache_key(brief,ledger)
+    eligible=[x for x in ranked if base.selection_eligible(x)]; primary=eligible[0] if eligible else None; supporting=eligible[1:1+base.MAX_SUPPORTING]; key=cache_key(brief,ledger)
     return {"retrieval_receipt":{"request_hash":key,"algorithm":"registry-aware-v1","corpus_version":CORPUS_VERSION,"timestamp":datetime.now(timezone.utc).isoformat(),"selected_primary_grammar":primary["pattern_id"] if primary else None,"selected_supporting_grammars":[x["pattern_id"] for x in supporting],"ranked_patterns":ranked[:8] if primary else [],"confidence":primary["total_score"] if primary else 0.0,"status":"SELECTED" if primary else "NOT_COMPUTABLE","reason_vector":[] if primary else base.reason_vector(ranked,ledger),"pattern_gap_report":gap_report(brief,ranked,matched,routes),"matched_registry_routes":matched,"ledger_snapshot":ledger,"brief":brief}}
 
 def load_cached(key):
