@@ -26,3 +26,7 @@ Corpus hygiene: every sidecar is indexed, registered, and manifested. Duplicate 
 ## In progress (#76)
 
 Retrieval ignores stop-words in token overlap and registry route matching. `SELECTED` requires dramatic fit of at least 0.15. Weaker evidence stays `NOT_COMPUTABLE` with `LOW_DRAMATIC_FIT`.
+
+## In progress (#81)
+
+Six sidecars cover a withheld cause, a dormant background watcher, an uncanny near-human double, indifferent playback, a power-failure reply, and the domestic trap. The MYSLEF example brief now states that scene, and retrieval on it selects a fitting pattern.

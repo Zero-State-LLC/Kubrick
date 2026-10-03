@@ -215,8 +215,22 @@ def test_myslef_brief_still_selects() -> None:
     assert isinstance(brief, dict)
     receipt, matched = _registry_receipt(brief)
     assert receipt["status"] == "SELECTED"
-    assert receipt["selected_primary_grammar"] == "kubrick_center_transfer_authority"
-    assert "authority_and_institutions" in matched
+    fitting = {
+        "withheld_cause_consequence_only",
+        "dormant_watcher_background_presence",
+        "acousmatic_sound",
+        "anempathetic_sound_indifference",
+        "automaton_uncanny_double",
+    }
+    assert receipt["selected_primary_grammar"] in fitting
+    assert "authority_and_institutions" not in matched
+    ranked = receipt["ranked_patterns"]
+    assert isinstance(ranked, list) and ranked
+    primary = ranked[0]
+    assert isinstance(primary, dict)
+    components = primary["score_components"]
+    assert isinstance(components, dict)
+    assert components["dramatic_fit"] >= base.MIN_DRAMATIC_FIT
 
 def test_function_word_only_briefs_are_not_computable() -> None:
     for problem in ("it", "that", "then it was so", "this is its", "but they were"):

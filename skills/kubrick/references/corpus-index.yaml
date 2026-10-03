@@ -99,6 +99,14 @@ by_dramatic_problem:
   villainy_lack_and_mediation:
     patterns:
     - propp_villainy_lack_mediation
+  withheld_cause_and_aftermath:
+    patterns:
+    - withheld_cause_consequence_only
+    - dormant_watcher_background_presence
+    - automaton_uncanny_double
+    - anempathetic_sound_indifference
+    - power_failure_world_response
+    - horror_domestic_trap
 by_domain:
   alchemical:
   - alchemical_nigredo_putrefaction
@@ -124,11 +132,16 @@ by_domain:
   - kubrick_one_point_control_void
   - kubrick_symmetry_empty_center
   - tarkovsky_water_reflection
+  - withheld_cause_consequence_only
+  - automaton_uncanny_double
+  - power_failure_world_response
+  - horror_domestic_trap
   sound-rhythmic:
   - sonic_motif_source_migration
   - sonic_silence_withdrawal_revelation
   - indian_tala_accent_displacement
   - acousmatic_sound
+  - anempathetic_sound_indifference
   spatial-geometric:
   - labyrinth_route_pressure
   - doorway_ownership_transfer
@@ -137,6 +150,7 @@ by_domain:
   - occlusion_relational_denial
   - broken_symmetry_state_evidence
   - negative_space_authority_vacancy
+  - dormant_watcher_background_presence
   semiotic:
   - image_dialogue_counterpoint
   - reflection_substitution_ownership

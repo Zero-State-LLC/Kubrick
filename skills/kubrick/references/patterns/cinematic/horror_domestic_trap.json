@@ -1,0 +1,67 @@
+{
+  "pattern_id": "horror_domestic_trap",
+  "title": "Domestic Trap / Familiar Space Tightens",
+  "version": "0.11.5",
+  "domain": "cinematic",
+  "source_tier": "COMPARATIVE",
+  "source_status": "VALIDATED",
+  "source_refs": [
+    {
+      "author": "Domestic horror staging tradition",
+      "title": "The dwelling as a tightening enclosure",
+      "date": "20th century",
+      "cultural_context": "Horror cinema in which repeated rooms stop protecting the people who live in them"
+    }
+  ],
+  "observed_structure": [
+    "A dwelling is first readable as ordinary shelter.",
+    "The same paths, doors, and objects recur, and each pass is slightly more hostile.",
+    "Leaving or resting no longer restores safety, so the dwelling behaves as a trap."
+  ],
+  "dramatic_operations": [
+    "turn a familiar dwelling into a tightening enclosure",
+    "repeat domestic paths until repetition itself feels hostile",
+    "contaminate shelter by altering the same rooms under sustained strain"
+  ],
+  "transformation_grammars": [
+    "contamination",
+    "dwelling-to-hostile-enclosure"
+  ],
+  "grammar_family": "contamination",
+  "cinematic_affordances": [
+    "repeated architectural lines that grow less comforting",
+    "blocking that circles the same route",
+    "a slow move that feels like the space is following",
+    "house noise that gains force without a visible body"
+  ],
+  "applicable_genres": ["horror", "thriller", "drama"],
+  "applicable_formats": ["feature", "pilot", "episode", "short"],
+  "cultural_scope": [
+    "general domestic-horror staging; a specific culture's house rules need their own provenance"
+  ],
+  "misuse_risks": [
+    "a creepy house with no change across repetitions",
+    "contamination claimed by set dressing alone",
+    "copying a famous corridor, carpet, or hotel plan"
+  ],
+  "mutation_requirements": {
+    "required": true,
+    "variables": [
+      "which room repeats",
+      "what changes on each pass",
+      "who still treats it as shelter",
+      "which object carries the hostility",
+      "whether exit is still possible"
+    ]
+  },
+  "transferable_structure": "a familiar dwelling tightens through repetition until the inhabitant can no longer treat it as shelter",
+  "non_transferable_surface": "a copied haunted-house floor plan, carpet, or hotel corridor from a specific film",
+  "production_cost": {
+    "location_dependency": 0.7,
+    "prop_dependency": 0.4,
+    "lighting_dependency": 0.4,
+    "VFX_dependency": 0.1
+  },
+  "lexicon_links": ["putrefactio", "labyrinth", "saturn", "threshold"],
+  "confidence": 0.74
+}
