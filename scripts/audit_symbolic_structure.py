@@ -1,19 +1,12 @@
 #!/usr/bin/env python3
 """Structured anti-slop audit for Kubrick symbolic packets and graph-derived data."""
 from __future__ import annotations
-import argparse, json
-from pathlib import Path
+
+import argparse
+import json
 
 from io_safety import write_text_bounded
-try:
-    import yaml
-except ImportError:
-    raise SystemExit("pyyaml required")
-
-
-def load(path: str) -> dict:
-    p = Path(path)
-    return json.loads(p.read_text(encoding="utf-8")) if p.suffix == ".json" else yaml.safe_load(p.read_text(encoding="utf-8")) or {}
+from structured_io import load_mapping as load
 
 
 def norm(values):

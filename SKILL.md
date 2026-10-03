@@ -1,7 +1,7 @@
 ---
 name: kubrick
 description: Builds continuity-safe cinematic stories and visuals.
-version: 0.21.1
+version: 0.22.0
 author: Daniel Meyer (scrimshawlife-ctrl), Hermes Agent
 license: LicenseRef-Zero-State-Proprietary-1.0
 platforms: [linux, macos, windows]
@@ -279,7 +279,7 @@ terminal(command="python3 ${HERMES_SKILL_DIR}/scripts/kubrick.py do check --acti
 A valid delivery states what was produced, what was preserved, what was not
 computable, and which optional integration or human authority is required next.
 
-Current release context: `docs/ROADMAP-v0.21.md` and
-`docs/RELEASE-NOTES-v0.21.md`.
+Current release context: `docs/ROADMAP-v0.22.md` and
+`docs/RELEASE-NOTES-v0.22.md`.
 
 Source, profile, and migration rules: `references/source-and-upgrades.md`.

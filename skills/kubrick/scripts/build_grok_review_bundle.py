@@ -1,17 +1,24 @@
 #!/usr/bin/env python3
 """Assemble a self-contained Grok generation and review bundle without calling APIs."""
 from __future__ import annotations
-import argparse, json, shutil, sys
-from pathlib import Path
+
+import argparse
+import shutil
+import sys
 
 from io_safety import PathSafetyError, resolve_bounded_path, write_text_bounded
+
 try:
     import yaml
 except ImportError:
     raise SystemExit("pyyaml required")
+from structured_io import load_mapping
+
 
 def load(path):
-    p=Path(path); return json.loads(p.read_text(encoding="utf-8")) if p.suffix==".json" else yaml.safe_load(p.read_text(encoding="utf-8")) or {}
+    """Shared loader; untyped legacy callers keep their contract."""
+    return load_mapping(path)
+
 
 def _build(a):
     grok=load(a.grok_packet); expected=load(a.expected_state)

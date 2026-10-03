@@ -18,6 +18,7 @@ from continuity_locks import (
 )
 from planning_fields import planning_frame_fields
 from reference_lint import extra_warnings, prompt_lines
+from value_coerce import as_float as _as_float
 
 _ROOT = Path(__file__).resolve().parent.parent
 _TECHNIQUE_PATH = _ROOT / "assets" / "techniques" / "techniques.yaml"
@@ -40,13 +41,6 @@ def _capabilities(
     from provider_capabilities import capabilities_for_document
     caps = capabilities_for_document(provider, document)
     return caps if isinstance(caps, Mapping) else {}
-def _as_float(value: object) -> float | None:
-    if isinstance(value, bool) or not isinstance(value, (int, float, str)):
-        return None
-    try:
-        return float(value)
-    except ValueError:
-        return None
 def _seconds_text(value: float) -> str:
     rounded = round(float(value), 4)
     return str(int(rounded)) if float(rounded).is_integer() else str(rounded)

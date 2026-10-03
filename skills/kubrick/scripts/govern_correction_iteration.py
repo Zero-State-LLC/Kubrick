@@ -1,18 +1,21 @@
 #!/usr/bin/env python3
 """Compare fidelity reports and govern bounded correction-loop continuation."""
 from __future__ import annotations
-import argparse, hashlib, json, sys
-from pathlib import Path
+
+import argparse
+import hashlib
+import json
+import sys
 
 import diagnostics
 from io_safety import write_text_bounded
+
 try:
     import yaml
 except ImportError:
     raise SystemExit("pyyaml required")
+from structured_io import load_mapping as load
 
-def load(path):
-    p=Path(path); return json.loads(p.read_text(encoding="utf-8")) if p.suffix==".json" else yaml.safe_load(p.read_text(encoding="utf-8")) or {}
 
 def score_map(report): return {k:float(v.get("score",0)) for k,v in report.get("dimensions",{}).items() if isinstance(v,dict)}
 

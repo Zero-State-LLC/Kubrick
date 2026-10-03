@@ -19,18 +19,18 @@ try:
 except ImportError:
     raise SystemExit("pyyaml required")
 
-from io_safety import write_text_bounded  # noqa: E402
+from io_safety import write_text_bounded
+from structured_io import load_mapping
+
+
+def load(path: Path) -> dict[str, Any]:
+    """Shared loader; keeps the legacy Any-typed contract for this module."""
+    return load_mapping(path)
+
 
 ROOT = Path(__file__).resolve().parent.parent
 PY = sys.executable
 SEPARATE_DIMS = ("geometry", "state", "residue", "convergence")
-
-
-def load(path: Path) -> dict[str, Any]:
-    text = path.read_text(encoding="utf-8")
-    if path.suffix == ".json":
-        return json.loads(text) or {}
-    return yaml.safe_load(text) or {}
 
 
 def dump(path: Path, data: dict[str, Any]) -> None:

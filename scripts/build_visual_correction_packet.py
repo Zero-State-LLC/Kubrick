@@ -1,17 +1,22 @@
 #!/usr/bin/env python3
 """Build a provider-neutral regeneration packet from a Kubrick fidelity report."""
 from __future__ import annotations
-import argparse, json
-from pathlib import Path
+
+import argparse
 
 from io_safety import write_text_bounded
+
 try:
     import yaml
 except ImportError:
     raise SystemExit("pyyaml required")
+from structured_io import load_mapping
+
 
 def load(path):
-    p=Path(path); return json.loads(p.read_text()) if p.suffix==".json" else yaml.safe_load(p.read_text()) or {}
+    """Shared loader; untyped legacy callers keep their contract."""
+    return load_mapping(path)
+
 
 def main():
     p=argparse.ArgumentParser(); p.add_argument("--report",required=True); p.add_argument("--adapter-packet"); p.add_argument("--output"); a=p.parse_args()

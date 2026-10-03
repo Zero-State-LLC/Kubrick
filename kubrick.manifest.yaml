@@ -1,7 +1,7 @@
 {
   "manifest_version": 1,
   "name": "kubrick",
-  "version": "0.21.1",
+  "version": "0.22.0",
   "host": "hermes",
   "runtime_profiles": {
     "prose": {
@@ -623,8 +623,7 @@
       "yaml"
     ],
     "check.artifact": [
-      "jsonschema",
-      "yaml"
+      "jsonschema"
     ],
     "check.eval": [
       "yaml"
@@ -684,9 +683,6 @@
       "yaml"
     ],
     "visual.closed-loop": [
-      "yaml"
-    ],
-    "visual.compare": [
       "yaml"
     ],
     "visual.correct": [

@@ -1,17 +1,20 @@
 #!/usr/bin/env python3
 """Compile the canonical example twice and compare stable artifact hashes."""
 from __future__ import annotations
-import argparse, hashlib, json, subprocess, sys, tempfile
+
+import argparse
+import hashlib
+import json
+import subprocess
+import sys
+import tempfile
 from pathlib import Path
+
+from structured_io import load_mapping as load
 
 ROOT=Path(__file__).resolve().parent.parent
 PY=sys.executable
 VOLATILE_KEYS={"timestamp","updated_at","last_evolved","cached_to","logged_to"}
-
-
-def load(path:Path):
-    import yaml
-    return json.loads(path.read_text(encoding="utf-8")) if path.suffix==".json" else yaml.safe_load(path.read_text(encoding="utf-8")) or {}
 
 
 def stable(value):

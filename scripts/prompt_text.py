@@ -11,7 +11,8 @@ from __future__ import annotations
 import re
 from collections.abc import Mapping, Sequence
 
-_BLANK = {"", "none", "not_computable"}
+from value_coerce import is_blank
+
 _OBSERVED_ID = re.compile(r"^observed_\d+$")
 _LOCK_PREFIX = re.compile(
     r"^(?:character-lock|identity-lock|identity)\s*:\s*",
@@ -97,12 +98,6 @@ def field_label(field: str) -> str:
         stem = field[: -len("_states")].replace("_", " ")
         return f"{stem} state"
     return field.replace("_", " ")
-
-
-def is_blank(value: object) -> bool:
-    if value is None:
-        return True
-    return str(value).strip().casefold() in _BLANK
 
 
 def split_clauses(text: str) -> list[str]:

@@ -18,6 +18,7 @@ from datetime import date, datetime
 from pathlib import Path
 
 from continuity_locks import warning
+from value_coerce import as_number as _number
 
 _ROOT = Path(__file__).resolve().parent.parent
 _MODEL_PATH = _ROOT / "assets" / "models" / "capabilities.yaml"
@@ -111,12 +112,6 @@ PROVIDER_CAPABILITIES: dict[str, dict[str, object]] = {
 def normalize_provider(provider: str | None) -> str:
     name = (provider or "generic").strip().lower() or "generic"
     return name
-
-
-def _number(value: object) -> float | None:
-    if isinstance(value, bool) or not isinstance(value, (int, float)):
-        return None
-    return float(value)
 
 
 def _base(provider: str | None) -> dict[str, object]:

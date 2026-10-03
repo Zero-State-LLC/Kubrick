@@ -18,6 +18,7 @@ from prompt_text import (
     render_frame_prompt,
 )
 from shot_plan import attach_plan, prompted_parameters
+from value_coerce import as_float as _as_float
 
 _VIDEO_NEGATIVES = ["named occult labels", "geometry reset", "residue erasure"]
 _DURATION_KEYS = ("duration_seconds", "durationSeconds", "duration")
@@ -84,15 +85,6 @@ def _add_forms(labels: dict[str, str], forms: Sequence[object]) -> None:
                 labels.setdefault(node_id, str(text).strip())
         elif not is_blank(form):
             labels.setdefault(f"observed_{index}", str(form).strip())
-
-
-def _as_float(value: object) -> float | None:
-    if isinstance(value, bool) or not isinstance(value, (int, float, str)):
-        return None
-    try:
-        return float(value)
-    except ValueError:
-        return None
 
 
 def _frame_duration(frame: Mapping[str, object], default: float) -> float:

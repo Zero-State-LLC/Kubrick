@@ -24,12 +24,7 @@ from shot_plan import (
     opens_with_exit,
     planned_duration,
 )
-
-
-def _number(value: object) -> float | None:
-    if isinstance(value, bool) or not isinstance(value, (int, float)):
-        return None
-    return float(value)
+from value_coerce import as_number as _number
 
 
 def _threshold(provider: str, document: Mapping[str, object]) -> float:

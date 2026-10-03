@@ -1,17 +1,24 @@
 #!/usr/bin/env python3
 """Normalize manual or generic observer JSON into Kubrick visual-observation format."""
 from __future__ import annotations
-import argparse, hashlib, json
-from pathlib import Path
+
+import argparse
+import hashlib
+import json
 
 from io_safety import write_text_bounded
+
 try:
     import yaml
 except ImportError:
     raise SystemExit("pyyaml required")
+from structured_io import load_mapping
+
 
 def load(path):
-    p=Path(path); return json.loads(p.read_text(encoding="utf-8")) if p.suffix==".json" else yaml.safe_load(p.read_text(encoding="utf-8")) or {}
+    """Shared loader; untyped legacy callers keep their contract."""
+    return load_mapping(path)
+
 
 def main():
     p=argparse.ArgumentParser(); p.add_argument("--input",required=True); p.add_argument("--source-graph-id",required=True); p.add_argument("--frame-id",required=True); p.add_argument("--observer",default="human"); p.add_argument("--method",choices=["manual","generic-json","grok-vision"],default="manual"); p.add_argument("--model"); p.add_argument("--confidence",type=float,default=1.0); p.add_argument("--output",required=True); a=p.parse_args()

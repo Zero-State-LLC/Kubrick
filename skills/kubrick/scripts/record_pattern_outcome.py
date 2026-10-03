@@ -1,17 +1,24 @@
 #!/usr/bin/env python3
 """Record proposal-only evidence from a Kubrick compile and optional QA reports."""
 from __future__ import annotations
-import argparse, hashlib, json
-from pathlib import Path
+
+import argparse
+import hashlib
+import json
 
 from io_safety import write_text_bounded
+
 try:
     import yaml
 except ImportError:
     raise SystemExit("pyyaml required")
+from structured_io import load_mapping
+
 
 def load(path):
-    p=Path(path); return json.loads(p.read_text(encoding="utf-8")) if p.suffix==".json" else yaml.safe_load(p.read_text(encoding="utf-8")) or {}
+    """Shared loader; untyped legacy callers keep their contract."""
+    return load_mapping(path)
+
 
 def canonical(value): return json.dumps(value,sort_keys=True,separators=(",",":"),default=str)
 

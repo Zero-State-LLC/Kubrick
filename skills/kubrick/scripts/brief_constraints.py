@@ -12,6 +12,8 @@ import json
 import re
 from collections.abc import Mapping, Sequence
 
+from value_coerce import is_blank as _blank
+
 _CONSTRAINT_LOCK = re.compile(
     r"^(?:character-lock|identity-lock)\s*:\s*(.+)$",
     re.IGNORECASE,
@@ -22,7 +24,6 @@ _LOCK_PREFIX = re.compile(
 )
 _NO_PREFIX = re.compile(r"^(?:no|without)\s+\S", re.IGNORECASE)
 _RATIO = re.compile(r"(?<!\d)(\d{1,2}:\d{1,2})(?!\d)")
-_BLANK = {"", "none", "not_computable"}
 _FRAME_KEYS = ("duration_seconds", "title", "scene", "sound", "speech_lines")
 _CARRIED_KEYS = ("character_locks", "production_constraints", "aspect_ratio", "characters", "props")
 
@@ -31,12 +32,6 @@ BASE_NEGATIVES = (
     "no unexplained motif reset",
     "no continuity-breaking ownership change",
 )
-
-
-def _blank(value: object) -> bool:
-    if value is None:
-        return True
-    return str(value).strip().casefold() in _BLANK
 
 
 def string_list(value: object) -> list[str]:

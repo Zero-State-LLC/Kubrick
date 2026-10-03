@@ -11,6 +11,7 @@ from __future__ import annotations
 from collections.abc import Mapping, Sequence
 
 from continuity_locks import frame_field, frame_id, warning
+from value_coerce import as_number as _number
 
 _MISSING = (
     "verify the grab against the saved timestamp, not the UI label; "
@@ -28,12 +29,6 @@ def _label(frame: Mapping[str, object], index: int) -> str:
     if isinstance(raw, str) and raw.strip():
         return raw.strip()
     return frame_id(frame, index)
-
-
-def _number(value: object) -> float | None:
-    if isinstance(value, bool) or not isinstance(value, (int, float)):
-        return None
-    return float(value)
 
 
 def grab(frame: Mapping[str, object]) -> tuple[float, str]:
