@@ -3,8 +3,10 @@
 
 A short beat on a multi-shot single clip, a chained shot, a reused shot, or a
 provider that is not multi-shot is its own generation. Two or more remaining
-contiguous beats share one clip. This module does not call a provider, ffmpeg,
-or the network. Missing duration uses 4.0 seconds.
+contiguous beats share one clip. `final_clock` is the edited runtime, the sum
+of edit-plan out minus in. `generated_clock` sums generated seconds and counts
+each shared clip once. This module does not call a provider, ffmpeg, or the
+network. Missing duration uses 4.0 seconds.
 """
 from __future__ import annotations
 
@@ -242,6 +244,16 @@ def _shared(
     return rows, edits, generated
 
 
+def _edited_runtime(edits: Sequence[Mapping[str, object]]) -> float:
+    total = 0.0
+    for edit in edits:
+        start = _number(edit.get("in")) or 0.0
+        end = _number(edit.get("out"))
+        width = (start if end is None else end) - start
+        total = round(total + round(width, 4), 4)
+    return total
+
+
 def _accepted(document: Mapping[str, object], flag: bool) -> bool:
     return flag or document.get("accept_clock_delta") is True
 
@@ -282,9 +294,10 @@ def retime(
     threshold = _threshold(name, document)
     script = round(sum(_planned(frame) for frame in frames), 4)
     try:
-        generation, edits, final = _assemble(frames, name, usable, threshold, document)
+        generation, edits, generated_clock = _assemble(frames, name, usable, threshold, document)
     except _Refuse as refused:
         return _closed(name, "NO_FEASIBLE_PLAN", refused.message, script_clock=script)
+    final = _edited_runtime(edits)
     delta = round(final - script, 4)
     if abs(delta) > 1e-6 and not _accepted(document, accept_clock_delta):
         return _closed(
@@ -296,6 +309,7 @@ def retime(
             ),
             script_clock=script,
             final_clock=final,
+            generated_clock=generated_clock,
             delta=delta,
             generation_plan=generation,
             edit_plan=edits,
@@ -307,6 +321,7 @@ def retime(
         "provider": name,
         "script_clock": script,
         "final_clock": final,
+        "generated_clock": generated_clock,
         "delta": delta,
         "accept_clock_delta": _accepted(document, accept_clock_delta),
         "generation_plan": generation,
@@ -323,21 +338,21 @@ def _assemble(
 ) -> tuple[list[dict[str, object]], list[dict[str, object]], float]:
     generation: list[dict[str, object]] = []
     edits: list[dict[str, object]] = []
-    final = 0.0
+    generated_clock = 0.0
     clip_index = 0
     for group in _groups(frames, provider, takes, threshold):
         if len(group) == 1:
             row, edit, generated = _one_shot(provider, *group[0], document)
             generation.append(row)
             edits.append(edit)
-            final = round(final + generated, 4)
+            generated_clock = round(generated_clock + generated, 4)
             continue
         clip_index += 1
         rows, shared_edits, generated = _shared(provider, group, f"clip-{clip_index}")
         generation.extend(rows)
         edits.extend(shared_edits)
-        final = round(final + generated, 4)
-    return generation, edits, final
+        generated_clock = round(generated_clock + generated, 4)
+    return generation, edits, generated_clock
 
 
 def _load_takes(path: str | None) -> list[Mapping[str, object]]:

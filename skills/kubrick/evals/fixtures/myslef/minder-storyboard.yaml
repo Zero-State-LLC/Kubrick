@@ -33,7 +33,6 @@ character_locks:
 aspect_ratio: "9:16"
 audio_strategy: muted_native
 budget_cap_credits: 400
-accept_clock_delta: true
 location:
   locks:
     - no lit doorway

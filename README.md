@@ -105,7 +105,7 @@ python scripts/kubrick.py help adapt
    A `production_constraints` item prefixed `character-lock:` or `identity-lock:` is the same lock.
    `aspect_ratio`, or an `N:M` token in `production_constraints` such as `9:16 vertical`, sets the Keyframe aspect ratio. The fallback is `16:9`.
    Storyboard plan frames may also carry optional `duration_seconds`, `title`, `scene`, `sound`, and `speech_lines`. Keyframe uses those values. When `sound` is omitted, the shot uses evidenced room presence and no scored music.
-   Optional `props`, `prop_states`, `join`, `opens_with`, `characters` (`wardrobe`, `references` with `scope` and `applies_to`), frame `wardrobe`, `cast`, `counts`, `start_frame`, `shot_id`, `apply_techniques`, and `short_beat_threshold_seconds` are prep fields. A plan may also set `location`, `counts`, `locks`, and `accept_clock_delta`. See `examples/myslef-minder/`.
+   Optional `props`, `prop_states`, `join`, `opens_with`, `characters` (`wardrobe`, `references` with `scope` and `applies_to`), frame `wardrobe`, `cast`, `counts`, `start_frame`, `shot_id`, `apply_techniques`, and `short_beat_threshold_seconds` are prep fields. A plan may also set `location`, `counts`, `locks`, and `accept_clock_delta`. `video retime` sets `final_clock` to the sum of edit windows and reports `generated_clock` separately. See `examples/myslef-minder/`.
    Example layout: `examples/authority-transfer-storyboard/brief.yaml`
 2. **Optionally keep a ledger** of active motifs for the project.  
    Example: `examples/authority-transfer-storyboard/symbolic-ledger.yaml`

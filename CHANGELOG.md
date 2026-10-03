@@ -14,6 +14,11 @@
 - The production envelope schema id stays `0.16.0`. The installer receipt schema id stays `1.0.0`.
 - MYSLEF shots 03–06 are the example under `examples/myslef-minder/`. Generic compile shows the asymmetry line once on each prompt where myslef is on screen. Keyframe adapt is `PROPOSED` and exits 0. The spend estimate is 4 × 3s at 15.5 credits per second, 186 credits total, labelled INFERRED. The exact commands are in `docs/RELEASE-NOTES-v0.21.md`.
 
+## [0.20.1] — 2026-10-02
+
+### Fixed
+- #36: `video retime` `final_clock` is the edited runtime, the sum of edit-plan `out` minus `in`. `delta` is `final_clock` minus `script_clock`. `generated_clock` is generated seconds, counting each shared clip once. The MYSLEF example no longer sets `accept_clock_delta`. Its script clock, final clock, and delta are 6, 6, and 0, and its generated clock is 12. An edit window longer than the script beat is still `CLOCK_DELTA_UNACCEPTED` unless accepted.
+
 ## [0.20.0] — 2026-10-02
 
 ### Added
@@ -150,8 +155,6 @@ Kubrick is the primary symbolic cinematic narrative engineering skill. It replac
 
 - Skill version advanced to `0.16.0`.
 - Production envelopes use `schema_version: 0.16.0`.
-
-
 
 ## [0.15.0] - 2026-08-04
 
