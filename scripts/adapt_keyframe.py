@@ -284,7 +284,8 @@ def _one_shot(
     if range_error:
         return None, range_error
     image, video = _prompts(frame, negatives, packet_locks(packet), packet)
-    audio: dict[str, object] = {"sound": _sound(frame)}
+    from audio_screen_locks import guide_sound
+    audio: dict[str, object] = {"sound": guide_sound(_sound(frame), packet.get("audio_strategy"))}
     lines = _dialogue(frame)
     if lines:
         audio["speech"] = {"mode": "native", "lines": lines}
@@ -322,8 +323,9 @@ def _keyframe_plan(
     warnings = merged_warnings(packet, prep.warnings)
     directives = shot_directives(
         frames, "keyframe", _references(packet), default_duration=DEFAULT_SECONDS,
+        document=document,
     )
-    blocked = [*prep.errors, *padding_errors(frames, "keyframe", DEFAULT_SECONDS)]
+    blocked = [*prep.errors, *padding_errors(frames, "keyframe", DEFAULT_SECONDS, document)]
     return document, prep, warnings, directives, blocked
 
 
@@ -419,8 +421,18 @@ def build_create_movie(packet: Mapping[str, object]) -> dict[str, object]:
         return _not_computable(mapped)
     document, prep, warnings, directives, blocked = _keyframe_plan(packet, mapped)
     techniques = getattr(prep, "techniques", [])
+    from spend_plan import keyframe_extras, stamp_closed
+
+    extra, budget_error = keyframe_extras(document, mapped, directives, _aspect(packet))
+    if budget_error:
+        return stamp_closed(
+            _refuse(budget_error, mapped, directives, warnings, techniques), budget_error, extra,
+        )
     if blocked:
-        return _refuse(blocked[0], mapped, directives, warnings, techniques, blocked)
+        return stamp_closed(
+            _refuse(blocked[0], mapped, directives, warnings, techniques, blocked),
+            blocked[0], extra,
+        )
     negatives = _negatives(packet)
     shots: list[dict[str, object]] = []
     for index, pair in enumerate(zip(mapped, directives), start=1):
@@ -456,7 +468,9 @@ def build_create_movie(packet: Mapping[str, object]) -> dict[str, object]:
     from lock_carriers import lock_table
 
     carriers = lock_table(document, mapped)
-    attach_plan(movie, **_plan_sections(directives, warnings, techniques, carriers=carriers))
+    attach_plan(
+        movie, **_plan_sections(directives, warnings, techniques, carriers=carriers), **extra,
+    )
     ref_errors = reference_block(warnings, strict_enabled(document))
     if ref_errors:
         movie["validation"] = {"status": "INVALID", "errors": ref_errors}

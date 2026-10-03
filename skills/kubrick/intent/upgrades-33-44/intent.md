@@ -4,7 +4,7 @@ Status: accepted by Danny (repo owner) on 2026-10-02.
 
 Scope: GitHub issues #33, #34, #35, #36, #37, #38, #39, #40, #41, #42, #43, and #44.
 
-Phase A (this change) is #33–#38. Phase B (#39–#44) is a later pass on the same branch and is not implemented here.
+Phase A is #33–#38. Phase B (#39–#44) is implemented on the same branch in this release. Version stays 0.20.0.
 
 ## Problem
 
@@ -21,8 +21,14 @@ A character reference on a two-person shot can bleed onto the other person, and 
 - #37: `storyboard --action impact` reads `takes.yaml` as OBSERVATION. It replays declared prop states and warns `STALE_TAKE`. It does not write observations back onto the storyboard.
 - #38: A chained Keyframe shot without `start_frame.asset` warns `START_FRAME_MISSING` and includes an ffmpeg handoff string. Kubrick does not run ffmpeg. `verified: false` with an asset warns `START_FRAME_UNVERIFIED`.
 - `--strict` exits non-zero for `REFERENCE_LOCK_CONTRADICTION`, `LOCATION_REFERENCE_CONTRADICTION`, and `START_FRAME_MISSING` after the artifact is written. The other new codes stay warnings.
+- #39: Drift entries live in `assets/drift/known_drift.yaml`. An entry applies only when `model` equals the document `model` or the provider default. `plain_top_motion` delegates to the #30 warning. Other triggers use character count, attached references, location references, `chain_from`, and the short-beat threshold. Age is `(as_of - observed_on).days > max_age` (default 180). One `DRIFT_ENTRY_STALE` warning is emitted per stale entry. Tests inject `as_of`.
+- #40: The estimate is labelled INFERRED and uses generated seconds. A retime `clip_id` counts once. `image_rate` is not added. The cap fails closed only when a computable total is strictly greater than `budget_cap_credits`. Missing pricing is `NOT_COMPUTABLE` with a null total, never 0.
+- #41: `multi_shot_prompt` is emitted only for `is_multi_shot_single_clip`. Continuity repeats planner wardrobe, prop, and asymmetry lines once, then identity clauses that are not already there. `SHOT_COUNT_HIGH` fires above 5 shots.
+- #42: The overlay writes only keys that already exist on the provider. Vendor claims apply first, then observed values. An `input_mode` block applies only when that mode is requested. `max_references` and `native_audio` stay on the block. `negative_prompt_effective` is the #35 field. `CAPABILITY_STALE` uses the same age rule as drift, with `capability_max_age_days`.
+- #43: A speech line belongs to a character when it starts with `{id}:` or is a `{character, line}` mapping. Words are the tokens after that prefix. `DIALOGUE_TOO_LONG` fires above 2.5 words per planned second. `speaks: false` plus an attributed line, and a `library_id` or `name` that casefold-matches `never_clone_of`, fail closed.
+- #44: Figure-right is viewer-left. The asymmetry line is added once per on-screen feature. Empty cast drops it. `SCREEN_DIRECTION_FLIP` compares adjacent left/right sides and is silent when the later frame has boolean `axis_change: true`. `mirrored` counts only as boolean true.
 
-Out of scope for this change: issues #39–#44; calling Keyframe, ElevenLabs, or OpenRouter; running ffmpeg or a frame grab; rewriting `references/`; publishing the skill; changing the envelope schema id or the installer receipt schema id.
+Out of scope: calling Keyframe, ElevenLabs, or OpenRouter; running ffmpeg or a frame grab; rewriting `references/`; publishing the skill; changing the envelope schema id or the installer receipt schema id.
 
 ## Affected users / systems
 
@@ -47,11 +53,11 @@ Hermes operators running `compile`, `video adapt`, `video retime`, and `storyboa
 - Impact compares a downstream take's `observed_start_state` (else the declared storyboard start) to the retake's `observed_end_state`. Equal text, or the same resolved state id, is a match. A token that starts with a state id plus a space resolves to that id. `prop_assignments` errors fail closed and do not guess.
 - Start-frame grab time is `start_frame.at_seconds`, else the join `at_seconds`, else 0. The ffmpeg `-ss` value is not the join `atSeconds` already stored on `startImage`. `verified` counts only when it is boolean true. A missing asset does not also warn `START_FRAME_UNVERIFIED`.
 - `accept_clock_delta` is read from the plan file or the retime flag. It is not copied onto the propagated storyboard.
-- Danny accepted this intent on 2026-10-02. Phase B stays named on the roadmap only.
+- Danny accepted this intent on 2026-10-02. Phase A and phase B are both in v0.20.0.
 
 ## Open questions
 
-None for phase A. The rules above are the deterministic choices where an issue left a detail open. Phase B is out of scope until its own pass.
+None. The rules above are the deterministic choices where an issue left a detail open.
 
 ## Verified / assumed claims
 

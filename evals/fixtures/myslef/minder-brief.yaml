@@ -8,9 +8,18 @@ character_locks:
 characters:
   minder:
     wardrobe: "plain solid black pullover hoodie, no logo, no print; charcoal sweatpants"
+    voice:
+      library_id: ibrahim-talkative-friend
+      never_clone_of: [danny]
+      speaks: true
   myslef:
     character_locks:
       - no nose
+    voice:
+      speaks: false
+    asymmetry:
+      - feature: cracked optic
+        figure_side: right
     references:
       - path: head-lock-short-flush.png
         role: character

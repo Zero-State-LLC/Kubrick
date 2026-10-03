@@ -8,17 +8,14 @@
 - Proposed retime plan and clock-delta sign-off (#36)
 - Take ledger impact, observations never written back (#37)
 - Start-frame asset gate and the ffmpeg handoff string (#38)
+- Known-drift registry, model-keyed and dated (#39)
+- Inferred spend estimate, budget cap, and the execution checklist (#40)
+- Multi-shot prompt blocks and `SHOT_COUNT_HIGH` (#41)
+- Model capability overlay with `source` and `verified_on` (#42)
+- Audio strategy, voice lock, and dialogue length (#43)
+- Asymmetry lines, screen direction, and mirrored references (#44)
 
 ## Next
-
-Phase B is the same branch, not this release:
-
-1. #39: known-drift registry, model-keyed and dated.
-2. #40: audio lock, per-character voice, and speech lint.
-3. #41: screen direction and handedness.
-4. #42: model-keyed capabilities with source and verified-on dates.
-5. #43: structured multi-shot prompt blocks.
-6. #44: spend plan, pre-spend credit estimate, budget cap, and retry-guard handoff.
 
 Still open from v0.19.0:
 

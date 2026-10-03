@@ -1,0 +1,64 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "$id": "https://kubrick.zero-state.dev/schemas/drift-registry.schema.json",
+  "title": "Kubrick known-drift registry",
+  "type": "object",
+  "additionalProperties": false,
+  "required": ["version", "entries"],
+  "properties": {
+    "version": {"type": "string", "minLength": 1},
+    "entries": {
+      "type": "array",
+      "minItems": 1,
+      "items": {
+        "type": "object",
+        "additionalProperties": false,
+        "required": [
+          "id",
+          "model",
+          "trigger",
+          "effect",
+          "mitigations",
+          "failed_mitigations",
+          "evidence",
+          "observed_on"
+        ],
+        "properties": {
+          "id": {"type": "string", "minLength": 1},
+          "model": {"type": "string", "minLength": 1},
+          "trigger": {
+            "type": "object",
+            "additionalProperties": false,
+            "required": ["kind"],
+            "properties": {
+              "kind": {
+                "enum": [
+                  "plain_top_motion",
+                  "missing_reference",
+                  "character_reference_bleed",
+                  "location_reference",
+                  "chained_start",
+                  "short_multi_shot"
+                ]
+              },
+              "feature": {"type": "string", "minLength": 1},
+              "min_characters": {"type": "integer", "minimum": 1}
+            }
+          },
+          "effect": {"type": "string", "minLength": 1},
+          "mitigations": {
+            "type": "array",
+            "minItems": 1,
+            "items": {"type": "string", "minLength": 1}
+          },
+          "failed_mitigations": {
+            "type": "array",
+            "items": {"type": "string", "minLength": 1}
+          },
+          "evidence": {"type": "string", "minLength": 1},
+          "observed_on": {"type": "string", "pattern": "^[0-9]{4}-[0-9]{2}-[0-9]{2}$"}
+        }
+      }
+    }
+  }
+}

@@ -1,0 +1,71 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "$id": "https://kubrick.zero-state.dev/schemas/model-capabilities.schema.json",
+  "title": "Kubrick model capability overlay",
+  "type": "object",
+  "additionalProperties": false,
+  "required": ["version", "providers"],
+  "properties": {
+    "version": {"type": "string", "minLength": 1},
+    "providers": {
+      "type": "object",
+      "additionalProperties": {"$ref": "#/$defs/provider"}
+    }
+  },
+  "$defs": {
+    "provider": {
+      "type": "object",
+      "additionalProperties": false,
+      "properties": {
+        "default_model": {"type": "string", "minLength": 1},
+        "pricing": {"$ref": "#/$defs/pricing"},
+        "models": {
+          "type": "object",
+          "additionalProperties": {"$ref": "#/$defs/model"}
+        }
+      }
+    },
+    "pricing": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": ["unit", "rate", "resolution", "source", "observed_on"],
+      "properties": {
+        "unit": {"const": "credits_per_second"},
+        "rate": {"type": "number", "exclusiveMinimum": 0},
+        "image_rate": {"type": "number", "minimum": 0},
+        "resolution": {"type": "string", "minLength": 1},
+        "source": {"const": "INFERRED"},
+        "observed_on": {"type": "string", "pattern": "^[0-9]{4}-[0-9]{2}-[0-9]{2}$"}
+      }
+    },
+    "model": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": ["blocks"],
+      "properties": {
+        "blocks": {
+          "type": "array",
+          "minItems": 1,
+          "items": {"$ref": "#/$defs/block"}
+        }
+      }
+    },
+    "block": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": ["source", "verified_on"],
+      "properties": {
+        "source": {"enum": ["observed", "vendor_claim"]},
+        "verified_on": {"type": "string", "pattern": "^[0-9]{4}-[0-9]{2}-[0-9]{2}$"},
+        "input_mode": {"type": "string", "minLength": 1},
+        "max_references": {"type": "integer", "minimum": 0},
+        "negative_prompt_effective": {"type": "boolean"},
+        "native_audio": {"type": "boolean"},
+        "start_frame_hold_seconds": {"type": "number", "minimum": 0},
+        "min_duration_seconds": {"type": "number", "minimum": 0},
+        "max_duration_seconds": {"type": "number", "exclusiveMinimum": 0},
+        "short_beat_threshold_seconds": {"type": "number", "exclusiveMinimum": 0}
+      }
+    }
+  }
+}

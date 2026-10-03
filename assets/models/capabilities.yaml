@@ -1,0 +1,46 @@
+version: "1"
+providers:
+  keyframe:
+    default_model: seedance-2.5
+    pricing:
+      unit: credits_per_second
+      rate: 15.5
+      image_rate: 7
+      resolution: 480p
+      source: INFERRED
+      observed_on: "2026-10-02"
+    models:
+      seedance-2.5:
+        blocks:
+          - source: vendor_claim
+            verified_on: "2026-10-02"
+            start_frame_hold_seconds: 0.4
+            negative_prompt_effective: false
+            max_references: 4
+            native_audio: true
+          - source: observed
+            verified_on: "2026-10-02"
+            start_frame_hold_seconds: 1.6
+            negative_prompt_effective: false
+            native_audio: true
+            max_references: 9
+          - source: observed
+            verified_on: "2026-10-02"
+            input_mode: lab-hold
+            start_frame_hold_seconds: 0.25
+      seedance-lab:
+        blocks:
+          - source: observed
+            verified_on: "2026-10-02"
+            start_frame_hold_seconds: 0.5
+      seedance-stale:
+        blocks:
+          - source: observed
+            verified_on: "2020-01-01"
+            start_frame_hold_seconds: 1.6
+      seedance-effective:
+        blocks:
+          - source: observed
+            verified_on: "2026-10-02"
+            negative_prompt_effective: true
+            start_frame_hold_seconds: 1.6

@@ -14,7 +14,7 @@ from collections.abc import Mapping, Sequence
 
 from continuity_locks import frame_field, frame_id
 from io_safety import load_structured, write_structured
-from provider_capabilities import capabilities_for
+from provider_capabilities import capabilities_for, capabilities_for_document
 from shot_plan import chain_source, generation_seconds, opens_with_exit
 
 _DEFAULT_SECONDS = 4.0
@@ -38,7 +38,8 @@ def _threshold(provider: str, document: Mapping[str, object]) -> float:
     override = _number(document.get("short_beat_threshold_seconds"))
     if override is not None:
         return override
-    parsed = _number(capabilities_for(provider).get("short_beat_threshold_seconds"))
+    caps = capabilities_for_document(provider, document)
+    parsed = _number(caps.get("short_beat_threshold_seconds"))
     return 2.0 if parsed is None else parsed
 
 
@@ -166,6 +167,7 @@ def _one_shot(
     index: int,
     frame: Mapping[str, object],
     take: Mapping[str, object] | None,
+    document: Mapping[str, object] | None = None,
 ) -> tuple[dict[str, object], dict[str, object], float]:
     planned = _planned(frame)
     shot = _shot_name(frame, index)
@@ -188,6 +190,7 @@ def _one_shot(
         chained=chained,
         exit_open=opens_with_exit(frame),
         provider=provider,
+        document=document,
     )
     start = hold
     end = round(hold + planned, 4)
@@ -279,7 +282,7 @@ def retime(
     threshold = _threshold(name, document)
     script = round(sum(_planned(frame) for frame in frames), 4)
     try:
-        generation, edits, final = _assemble(frames, name, usable, threshold)
+        generation, edits, final = _assemble(frames, name, usable, threshold, document)
     except _Refuse as refused:
         return _closed(name, "NO_FEASIBLE_PLAN", refused.message, script_clock=script)
     delta = round(final - script, 4)
@@ -316,6 +319,7 @@ def _assemble(
     provider: str,
     takes: Sequence[Mapping[str, object]],
     threshold: float,
+    document: Mapping[str, object] | None = None,
 ) -> tuple[list[dict[str, object]], list[dict[str, object]], float]:
     generation: list[dict[str, object]] = []
     edits: list[dict[str, object]] = []
@@ -323,7 +327,7 @@ def _assemble(
     clip_index = 0
     for group in _groups(frames, provider, takes, threshold):
         if len(group) == 1:
-            row, edit, generated = _one_shot(provider, *group[0])
+            row, edit, generated = _one_shot(provider, *group[0], document)
             generation.append(row)
             edits.append(edit)
             final = round(final + generated, 4)

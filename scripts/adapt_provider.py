@@ -291,12 +291,15 @@ def _with_prep(packet: dict[str, Any], provider: str, result: dict[str, Any]) ->
     document = document_from_packet(packet)
     prep = collect_prep(document, frames, provider)
     warnings = merged_warnings(packet, prep.warnings)
+    from spend_plan import attach_spend
+
     attach_plan(
         result,
         prep_warnings=warnings,
         technique_suggestions=prep.techniques,
         lock_carriers=lock_table(document, frames),
     )
+    attach_spend(result, provider, [])
     ref_errors = reference_block(warnings, strict_enabled(document))
     if not ref_errors:
         return result

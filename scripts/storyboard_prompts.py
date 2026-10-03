@@ -10,6 +10,7 @@ from brief_constraints import (
     carried_shared,
     string_list,
 )
+from planning_fields import prep_fields
 from prompt_text import (
     is_blank,
     node_labels,
@@ -335,6 +336,7 @@ def adapter_packet_from_document(
         counts=_mapping_field(data, "counts"),
         locks=_lock_field(data),
         short_beat_threshold_seconds=_beat_threshold(data),
+        **prep_fields(data),
     )
     if data.get("strict") is True:
         packet["strict"] = True

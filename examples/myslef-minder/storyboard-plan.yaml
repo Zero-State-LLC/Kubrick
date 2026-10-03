@@ -9,9 +9,18 @@ node_labels:
 characters:
   minder:
     wardrobe: "plain solid black pullover hoodie, no logo, no print; charcoal sweatpants"
+    voice:
+      library_id: ibrahim-talkative-friend
+      never_clone_of: [danny]
+      speaks: true
   myslef:
     character_locks:
       - no nose
+    voice:
+      speaks: false
+    asymmetry:
+      - feature: cracked optic
+        figure_side: right
     references:
       - path: head-lock-short-flush.png
         role: character
@@ -22,6 +31,8 @@ characters:
 character_locks:
   - no nose
 aspect_ratio: "9:16"
+audio_strategy: muted_native
+budget_cap_credits: 400
 accept_clock_delta: true
 location:
   locks:
@@ -93,6 +104,8 @@ frames:
     prop_states:
       chair: C1->C3
     action: the minder springs up and the chair skids
+    speech_lines:
+      - "minder: Wha—"
     reference_images: [ref://chair]
     node_states:
       observed_1: minder springing up out of it

@@ -9,11 +9,16 @@
 - #36: `video --action retime` proposes a generation plan, an edit plan, and script versus final clock. Short, chained, or reused shots are separate generations. Contiguous long beats can share one clip. A non-zero delta without `accept_clock_delta` is `CLOCK_DELTA_UNACCEPTED`. No provider call.
 - #37: `storyboard --action impact` reads `takes.yaml` as OBSERVATION and warns `STALE_TAKE` when a downstream take does not continue the retake's observed end. Observations are not written back.
 - #38: A chained Keyframe shot without `start_frame.asset` warns `START_FRAME_MISSING` and includes an ffmpeg handoff string. `--strict` exits non-zero. An unverified asset warns `START_FRAME_UNVERIFIED`. Kubrick does not run ffmpeg.
+- #39: `known_drift` lives in `assets/drift/known_drift.yaml`, validated by `schemas/drift-registry.schema.json`. Entries are model-keyed and dated. A plain top plus motion on Keyframe still warns with the #30 text. An entry older than 180 days warns `DRIFT_ENTRY_STALE`. Tests inject the reference date.
+- #40: Keyframe pricing is provider data labelled INFERRED (15.5 credits per second at 480p). The adapt output carries a per-shot and total `spend_estimate` from generated seconds, plus an `execution_checklist`. `budget_cap_credits` fails closed with `BUDGET_CAP_EXCEEDED` when the estimate is over the cap. A provider without pricing gets `NOT_COMPUTABLE`, not 0. No provider is called. `image_rate` is recorded and is not added to the video estimate.
+- #41: Multi-shot single-clip providers get `multi_shot_prompt`: a header, `Shot N (Xs):` blocks, one continuity block, and an ending state. More than 5 shots warns `SHOT_COUNT_HIGH`. Generic output has no `multi_shot_prompt`. The preservation report is unchanged.
+- #42: `provider_capabilities(provider, model=None)` merges a model overlay. Observed values win over vendor claims. Each block has `source` and `verified_on`. A stale `verified_on` warns `CAPABILITY_STALE`. A missing `source` fails schema validation. The Keyframe default remains the phase A values, including the 1.6s hold. `negative_prompt_effective` is the same field as #35.
+- #43: `audio_strategy` is `native`, `external`, or `muted_native`. The last two mark Keyframe `audio.sound` as a guide track. A character `voice` with `speaks: false` plus a speech line, or a voice id matching `never_clone_of`, fails closed with `VOICE_LOCK_VIOLATION`. More than 2.5 words per planned second warns `DIALOGUE_TOO_LONG`.
+- #44: Character `asymmetry` compiles one positive line with figure and viewer sides. A left/right swap between consecutive frames warns `SCREEN_DIRECTION_FLIP` unless the later frame sets `axis_change: true`. A reference with `mirrored: true` warns that sides in the image are inverted.
 
 ### Notes
 - The production envelope schema id stays `0.16.0`. The installer receipt schema id stays `1.0.0`.
-- Issues #39–#44 are roadmap-only in this release.
-- MYSLEF shots 03–06 are the example under `examples/myslef-minder/`. Generic compile:
+- MYSLEF shots 03–06 are the example under `examples/myslef-minder/`. Generic compile shows the asymmetry line on shots that include myslef:
 
 ```bash
 python3 scripts/kubrick.py compile \
@@ -24,7 +29,7 @@ python3 scripts/kubrick.py compile \
   --out /tmp/myslef-minder-generic
 ```
 
-- Keyframe adapt, retime, and take impact of that plan:
+- Keyframe adapt of that plan is `PROPOSED` and exits 0. The spend estimate is 4 × 3s at 15.5 credits per second, 186 credits total, labelled INFERRED. `audio.sound` says native audio is a guide track. Shot 04 carries `minder: Wha—`. `multi_shot_prompt` has the header, four shot blocks, one continuity block, and an ending state. `KNOWN_DRIFT` includes the plain-top motion on frame-002, the start-frame hold, and the short multi-shot beats. Retime and take impact:
 
 ```bash
 python3 scripts/kubrick.py video --action adapt \

@@ -396,6 +396,9 @@ def prompt_lines(
     lines.extend(prop_lines)
     lines.extend(_count_lines(document, frame))
     lines.extend(_binding_lines(document, frame))
+    from audio_screen_locks import asymmetry_lines
+
+    lines.extend(asymmetry_lines(document, frame))
     return lines
 
 
