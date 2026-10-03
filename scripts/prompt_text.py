@@ -202,12 +202,20 @@ def frame_state_clauses(frame: Mapping[str, object], labels: Mapping[str, str]) 
     return dedupe_clauses(clauses)
 
 
+def _direction_clauses(frame: Mapping[str, object]) -> list[str]:
+    from film_grammar import direction_clauses
+
+    return direction_clauses(frame)
+
+
 def render_frame_prompt(
     shared: Sequence[object],
     frame: Mapping[str, object],
     labels: Mapping[str, str],
 ) -> str:
-    return join_clauses([*shared, *frame_state_clauses(frame, labels)])
+    clauses: list[object] = [*shared, *frame_state_clauses(frame, labels)]
+    clauses.extend(_direction_clauses(frame))
+    return join_clauses(clauses)
 
 
 def continuity_clauses(

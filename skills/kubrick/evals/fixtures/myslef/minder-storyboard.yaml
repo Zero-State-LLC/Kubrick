@@ -66,6 +66,9 @@ frames:
     shot_id: "03"
     duration_seconds: 2.0
     join: cut
+    camera:
+      lens_mm: 35
+      move: push-in
     characters: [minder, myslef]
     prop_states:
       chair: C0
@@ -94,6 +97,8 @@ frames:
     join:
       chain_from: frame-001
       at_seconds: 2.0
+    camera:
+      move: handheld, tilt-down
     start_frame:
       source_take: shot-04-v8.mp4
       at_seconds: 2.958
@@ -124,6 +129,10 @@ frames:
     shot_id: "05"
     duration_seconds: 2.0
     join: cut
+    camera:
+      size: ecu
+      lens_mm: 85
+      move: locked
     characters: [myslef]
     prop_states:
       chair: C3
@@ -147,6 +156,10 @@ frames:
     duration_seconds: 1.0
     join:
       chain_from: frame-002
+    camera:
+      lens_mm: 35
+      move: push-in
+    cut: cut-on-sound, thirty-degree
     opens_with: exit
     characters: []
     cast: []

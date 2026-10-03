@@ -100,6 +100,9 @@ def propagate(graph: dict, plan: dict) -> dict:
         if resets and not spec.get("allow_resets", False):
             errors.extend(f"frame {ordinal} prohibited reset: {item}" for item in resets)
         prior_states, prior_owners, prior_residue = states, owners, residue
+    from film_grammar import storyboard_warning_lines
+
+    warnings.extend(storyboard_warning_lines(plan.get("frames", [])))
     if len(frames) < 2:
         errors.append("at least two frames are required")
     result = {

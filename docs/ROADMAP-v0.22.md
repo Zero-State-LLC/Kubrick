@@ -13,6 +13,14 @@
 - Take selection by id (#64)
 - Retake runbook, cut QA, and cue sheet prep (#69, #70, #71)
 
+## In progress (#77)
+
+- Storyboard frames can carry optional `camera` and `cut`. Known terms reach generic prompts and Keyframe `videoPrompt` / `multi_shot_prompt`. An unknown frame key warns `UNKNOWN_FIELD`.
+
+## In progress (#78)
+
+- `assets/grammar/film_grammar.yaml` holds the working film grammar. Camera and cut terms are checked and expanded through it. A snap or whip on a chained start frame warns.
+
 ## Next
 
 1. Retime model-overlay limits (needs its own intent).
