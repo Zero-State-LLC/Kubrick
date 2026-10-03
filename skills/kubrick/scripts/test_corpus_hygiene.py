@@ -440,6 +440,12 @@ def test_thin_sidecar_fails() -> None:
         _fail(paths, "thin sidecar: demo_pattern: missing lexicon_links")
 
 
+def test_empty_list_sidecar_is_thin() -> None:
+    with tempfile.TemporaryDirectory() as directory:
+        paths = _plant(Path(directory), links=[])
+        _fail(paths, "thin sidecar: demo_pattern: missing lexicon_links")
+
+
 def test_minimal_corpus_passes() -> None:
     with tempfile.TemporaryDirectory() as directory:
         report = audit.build_report(_plant(Path(directory)))
@@ -477,6 +483,7 @@ def main() -> None:
     test_directory_domain_mismatch_fails()
     test_invalid_grammar_family_fails()
     test_thin_sidecar_fails()
+    test_empty_list_sidecar_is_thin()
     test_minimal_corpus_passes()
     test_myslef_and_authority_retrieval_select()
     print("corpus hygiene: PASS")
