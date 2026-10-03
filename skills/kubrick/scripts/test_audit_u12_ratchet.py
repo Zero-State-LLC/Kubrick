@@ -19,8 +19,9 @@ from value_coerce import as_float, as_number, is_blank  # noqa: E402
 
 ROOT = SCRIPTS.parent
 
-# New modules must stay under 500 lines; only pre-existing oversized files may be listed.
-LEGACY_OVERSIZED: set[str] = {"scripts/production_engine.py"}
+# New modules must stay under 500 lines. Pre-existing exceptions are listed here.
+# #82 split the last oversized module (scripts/production_engine.py).
+LEGACY_OVERSIZED: set[str] = set()
 
 
 class ValueCoerceTests(unittest.TestCase):

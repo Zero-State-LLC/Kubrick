@@ -23,6 +23,7 @@ PY = sys.executable
 FIRST_CLASS_PRODUCTION_SURFACES = {"design", "script", "image", "video"}
 
 sys.path.insert(0, str(SCRIPTS))
+import caller_paths  # noqa: E402
 import intent_router as ir  # noqa: E402
 import runtime_deps  # noqa: E402
 from diagnostics import abort, diagnostic  # noqa: E402
@@ -60,10 +61,21 @@ def _wizard_flags(argv: list[str]) -> list[str]:
     return argv[2:]
 
 
-def _child_env() -> dict[str, str]:
-    """Record the caller's cwd before the child runs with cwd=ROOT (#62).
+def _pin_caller_cwd() -> None:
+    """Remember this process cwd before any child starts with cwd=ROOT.
 
-    Only artifact placement reads it; path policy still keys off KUBRICK_PROJECT_DIR.
+    Wizard re-dispatch inherits the environment, so a nested ``kubrick.py``
+    keeps the original caller even though that child is started in the skill root.
+    """
+    if not os.environ.get("KUBRICK_CALLER_CWD", "").strip():
+        os.environ["KUBRICK_CALLER_CWD"] = os.getcwd()
+
+
+def _child_env() -> dict[str, str]:
+    """Record the caller's cwd before the child runs with cwd=ROOT (#62, #82).
+
+    Artifact placement and relative path flags read ``KUBRICK_CALLER_CWD``.
+    Path policy still keys off ``KUBRICK_PROJECT_DIR``.
     """
     env = dict(os.environ)
     if not env.get("KUBRICK_CALLER_CWD"):
@@ -71,14 +83,22 @@ def _child_env() -> dict[str, str]:
     return env
 
 
+def _prepared_argv(argv: list[str], env: dict[str, str]) -> list[str]:
+    """Absolutize relative path flags against the caller cwd (#82)."""
+    caller = env.get("KUBRICK_CALLER_CWD", "").strip() or os.getcwd()
+    return caller_paths.rewrite(argv, caller)
+
+
 def _dispatch_smoke(call: ir.IntentCall) -> None:
     """check smoke: validate manifest, skill, then pattern corpus (composite)."""
+    env = _child_env()
+    argv = _prepared_argv(list(call.argv), env)
     for script in (
         "validate_manifest.py",
         "validate_hermes_skill.py",
         "validate_pattern_corpus.py",
     ):
-        r = subprocess.run([PY, str(SCRIPTS / script), *call.argv], cwd=ROOT)
+        r = subprocess.run([PY, str(SCRIPTS / script), *argv], cwd=ROOT, env=env)
         if r.returncode != 0:
             raise SystemExit(r.returncode)
     print("check smoke: PASS")
@@ -101,6 +121,7 @@ def _execution_argv(call: ir.IntentCall) -> list[str]:
 
 
 def main() -> None:
+    _pin_caller_cwd()
     argv = sys.argv[1:]
 
     if not argv or (argv[0] in {"-h", "--help", "help"} and len(argv) == 1):
@@ -115,8 +136,9 @@ def main() -> None:
         raise SystemExit(0)
 
     if argv[0] == "receipts":
-        receipt = [PY, str(SCRIPTS / "list_receipts.py"), *argv[1:]]
-        raise SystemExit(subprocess.call(receipt, cwd=ROOT))
+        env = _child_env()
+        receipt = [PY, str(SCRIPTS / "list_receipts.py"), *_prepared_argv(argv[1:], env)]
+        raise SystemExit(subprocess.call(receipt, cwd=ROOT, env=env))
 
     if argv[0] == "qa" and len(argv) >= 2:
         # sugar: kubrick qa <surface> ... → do <surface> --action qa ...
@@ -204,10 +226,11 @@ def main() -> None:
         _dispatch_smoke(call)
 
     runtime_deps.check_action(ir.MANIFEST, call.intent, call.action)
+    env = _child_env()
     result = subprocess.run(
-        [PY, str(call.script), *_execution_argv(call)],
+        [PY, str(call.script), *_prepared_argv(_execution_argv(call), env)],
         cwd=ROOT,
-        env=_child_env(),
+        env=env,
     )
     raise SystemExit(result.returncode)
 

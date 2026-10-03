@@ -117,9 +117,10 @@ def format_intent_help(intent: str) -> str:
     if intent in {"ledger", "operate"}:
         lines += [
             "",
-            "Pass-through: first positional token is the action and is forwarded",
-            "as the first argv token to the implementation script.",
+            "Pass-through: the action is a leading positional token or --action.",
+            "Both forms are forwarded as the first argv token to the script.",
             f"  example: kubrick do {intent} <action> [flags]",
+            f"  example: kubrick do {intent} --action <action> [flags]",
         ]
     elif spec.default_action and intent != "check":
         lines += [
@@ -276,12 +277,22 @@ def _resolve_passthrough(
     *,
     legacy_name: str | None = None,
 ) -> IntentCall:
-    """ledger / operate: first positional is action and stays first in argv."""
-    if not rest or rest[0].startswith("-"):
+    """ledger / operate: positional action or --action, forwarded as argv[0]."""
+    action_flag, flags = _strip_flag_with_value(rest, "--action")
+    positional: str | None = None
+    if flags and not flags[0].startswith("-"):
+        positional = flags[0]
+        flags = flags[1:]
+    if positional and action_flag and positional != action_flag:
+        raise RouterError(
+            f"conflicting actions for {intent!r}: "
+            f"positional {positional!r} and --action {action_flag!r}"
+        )
+    action = positional or action_flag
+    if not action:
         raise RouterError(
             f"missing subcommand for {intent!r}; valid actions: {_valid_actions_msg(intent)}"
         )
-    action = rest[0]
     actions = INTENT_REGISTRY[intent].actions
     if action not in actions:
         raise RouterError(
@@ -292,7 +303,7 @@ def _resolve_passthrough(
         intent=intent,
         action=action,
         script=SCRIPTS / actions[action],
-        argv=list(rest),
+        argv=[action, *flags],
         legacy_name=legacy_name,
     )
 
@@ -311,7 +322,7 @@ def _resolve_do(argv: list[str]) -> IntentCall:
     rest = list(argv[1:])
     spec = INTENT_REGISTRY[intent]
 
-    # ledger / operate: subcommand passthrough (first positional = action)
+    # ledger / operate: positional subcommand or --action, forwarded first
     if intent in {"ledger", "operate"}:
         return _resolve_passthrough(intent, rest)
 
