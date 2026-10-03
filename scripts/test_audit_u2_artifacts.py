@@ -134,5 +134,39 @@ class ArtifactPathsUnitTests(unittest.TestCase):
             self.assertTrue(path.is_dir())
 
 
+class DispatcherProjectRootTests(unittest.TestCase):
+    def test_child_env_records_caller_cwd(self) -> None:
+        import kubrick
+
+        with tempfile.TemporaryDirectory() as tmp:
+            old = os.getcwd()
+            try:
+                os.chdir(tmp)
+                with mock.patch.dict(os.environ, {"KUBRICK_CALLER_CWD": ""}):
+                    env = kubrick._child_env()
+            finally:
+                os.chdir(old)
+            self.assertEqual(Path(env["KUBRICK_CALLER_CWD"]).resolve(), Path(tmp).resolve())
+            self.assertNotEqual(env.get("KUBRICK_PROJECT_DIR"), tmp)
+
+    def test_out_dir_uses_caller_cwd_without_project_dir(self) -> None:
+        import artifact_paths
+
+        with tempfile.TemporaryDirectory() as tmp:
+            env = {"KUBRICK_PROJECT_DIR": "", "KUBRICK_CALLER_CWD": tmp}
+            with mock.patch.dict(os.environ, env):
+                path = artifact_paths.kubrick_out_dir("retrieval")
+            self.assertEqual(path, (Path(tmp) / "out" / "kubrick" / "retrieval").resolve())
+
+    def test_project_dir_wins_over_caller_cwd(self) -> None:
+        import artifact_paths
+
+        with tempfile.TemporaryDirectory() as proj, tempfile.TemporaryDirectory() as caller:
+            env = {"KUBRICK_PROJECT_DIR": proj, "KUBRICK_CALLER_CWD": caller}
+            with mock.patch.dict(os.environ, env):
+                path = artifact_paths.kubrick_out_dir()
+            self.assertEqual(path, (Path(proj) / "out" / "kubrick").resolve())
+
+
 if __name__ == "__main__":
     unittest.main()

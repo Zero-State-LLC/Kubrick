@@ -91,6 +91,18 @@ class RatchetPureTests(unittest.TestCase):
         self.assertFalse(any("scripts/a.py" in line for line in regressions))
 
 
+class RatchetToolFailureTests(unittest.TestCase):
+    def test_abnormal_exit_fails_ratchet(self) -> None:
+        import subprocess
+        from unittest import mock
+
+        failed = subprocess.CompletedProcess(["ruff"], 2, stdout="", stderr="bad config")
+        with mock.patch.object(check_lint_ratchet.subprocess, "run", return_value=failed):
+            with self.assertRaises(check_lint_ratchet.ToolFailed):
+                check_lint_ratchet.collect_ruff()
+            self.assertEqual(check_lint_ratchet.main([]), 2)
+
+
 class RepoShapeTests(unittest.TestCase):
     def test_baseline_file_shape(self) -> None:
         path = SCRIPTS / "lint_baseline.json"

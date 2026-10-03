@@ -23,6 +23,10 @@ class ToolMissing(RuntimeError):
     """Raised when a lint tool is not installed."""
 
 
+class ToolFailed(RuntimeError):
+    """Raised when a lint tool exits abnormally (status other than 0 or 1)."""
+
+
 def _relative_key(filename: str) -> str:
     path = Path(filename)
     try:
@@ -77,6 +81,8 @@ def _run(module: str, args: list[str]) -> str:
     combined = proc.stdout + proc.stderr
     if proc.returncode != 0 and f"No module named {module}" in combined:
         raise ToolMissing(f"{module} is not installed")
+    if proc.returncode not in (0, 1):
+        raise ToolFailed(f"{module} exited {proc.returncode}: {combined.strip()[:500]}")
     return proc.stdout
 
 
@@ -132,6 +138,9 @@ def main(argv: list[str] | None = None) -> int:
     except ToolMissing as exc:
         print(f"lint ratchet: {exc}", file=sys.stderr)
         return 3
+    except ToolFailed as exc:
+        print(f"lint ratchet: {exc}", file=sys.stderr)
+        return 2
     if args.update:
         write_baseline(BASELINE, current)
         print(f"lint ratchet: baseline written to {BASELINE.relative_to(ROOT).as_posix()}")

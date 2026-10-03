@@ -8,6 +8,7 @@ Any failure to create or write those locations fails closed with a structured
 """
 from __future__ import annotations
 
+import os
 import sys
 import tempfile
 from pathlib import Path
@@ -46,9 +47,19 @@ def _unwritable(path: Path, error: str) -> NoReturn:
     raise SystemExit(4)
 
 
+def _artifact_root() -> Path:
+    """KUBRICK_PROJECT_DIR, else the dispatcher caller's cwd, else this process's cwd."""
+    if os.environ.get("KUBRICK_PROJECT_DIR", "").strip():
+        return io_safety.project_root()
+    caller = os.environ.get("KUBRICK_CALLER_CWD", "").strip()
+    if caller:
+        return Path(caller).expanduser().resolve()
+    return io_safety.project_root()
+
+
 def kubrick_out_dir(*parts: str) -> Path:
     """Return (and create) ``project_root()/out/kubrick/<parts>``, verified writable."""
-    base = io_safety.project_root() / "out" / "kubrick"
+    base = _artifact_root() / "out" / "kubrick"
     path = base.joinpath(*parts).resolve()
     if not _is_within(path, base.resolve()):
         _unwritable(path, "artifact path escapes out/kubrick")

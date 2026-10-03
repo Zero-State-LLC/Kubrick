@@ -60,6 +60,17 @@ def _wizard_flags(argv: list[str]) -> list[str]:
     return argv[2:]
 
 
+def _child_env() -> dict[str, str]:
+    """Record the caller's cwd before the child runs with cwd=ROOT (#62).
+
+    Only artifact placement reads it; path policy still keys off KUBRICK_PROJECT_DIR.
+    """
+    env = dict(os.environ)
+    if not env.get("KUBRICK_CALLER_CWD"):
+        env["KUBRICK_CALLER_CWD"] = os.getcwd()
+    return env
+
+
 def _dispatch_smoke(call: ir.IntentCall) -> None:
     """check smoke: validate manifest, skill, then pattern corpus (composite)."""
     for script in (
@@ -196,6 +207,7 @@ def main() -> None:
     result = subprocess.run(
         [PY, str(call.script), *_execution_argv(call)],
         cwd=ROOT,
+        env=_child_env(),
     )
     raise SystemExit(result.returncode)
 
