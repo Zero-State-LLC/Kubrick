@@ -22,13 +22,19 @@ THRESHOLD=0.55
 MAX_SUPPORTING=2
 # Function words are not dramatic evidence. Overlap and route matching share this set.
 STOP_WORDS=frozenset({
-    "a","an","and","are","as","at","be","by","for","from",
-    "in","is","of","on","or","the","to","with",
+    "a","about","after","all","also","an","and","any","are","as","at","be","been","before",
+    "being","but","by","can","could","did","do","does","for","from","had","has","have",
+    "he","her","hers","him","his","how","i","if","in","into","is","it","its","just",
+    "may","me","might","more","most","my","no","nor","not","now","of","off","on","once",
+    "only","or","other","our","out","over","own","same","she","should","so","some","such",
+    "than","that","the","their","them","then","there","these","they","this","those",
+    "through","to","too","under","until","up","very","was","we","were","what","when",
+    "where","which","while","who","whom","why","will","with","would","you","your",
 })
 # SELECTED requires at least this much dramatic overlap. Weaker evidence stays NOT_COMPUTABLE.
 MIN_DRAMATIC_FIT=0.15
 # Cache keys carry the selection policy so receipts cached under an older policy are not replayed.
-SELECTION_POLICY="stopwords-v1+min-dramatic-fit-0.15"
+SELECTION_POLICY="stopwords-v2+min-dramatic-fit-0.15+primary-first"
 WEIGHTS={"dramatic_fit":0.24,"character_fit":0.10,"cinematic_fit":0.12,"cultural_fit":0.10,"source_quality":0.10,"mutation_potential":0.14,"continuity_compatibility":0.10,"payoff_compatibility":0.10}
 
 def cache_dir()->Path: return kubrick_out_dir("retrieval","cache")
@@ -144,11 +150,19 @@ def gap_report(brief,ranked):
 
 def read_brief(path): return _load(Path(path)) if path else yaml.safe_load(sys.stdin.read()) or {}
 
+def receipt_ranking(ranked,primary,supporting,limit=8):
+    """Selected primary first, then supporting, then the rest by score, so the receipt always carries the selection."""
+    if not primary:
+        return []
+    chosen=[primary,*supporting]
+    ids={item["pattern_id"] for item in chosen}
+    return (chosen+[item for item in ranked if item["pattern_id"] not in ids])[:limit]
+
 def build_receipt(brief,ranked,ledger):
     eligible=[x for x in ranked if selection_eligible(x)]; primary=eligible[0] if eligible else None; supporting=eligible[1:1+MAX_SUPPORTING]
     hard={"PROHIBITED","CONTRADICTORY","CULTURALLY_INCOMPATIBLE","OWNERSHIP_CONFLICT","AUTHORITY_PROMOTION","PROVIDER_SEMANTIC_DROP"}
     rejected=[{"pattern_id":item["pattern_id"],"reason":", ".join(c["type"] for c in item.get("collisions",[]) if c["type"] in hard)} for item in ranked if any(c["type"] in hard for c in item.get("collisions",[]))]
-    return {"retrieval_receipt":{"request_hash":cache_key(brief,ledger),"algorithm":"deterministic-v0.11","timestamp":datetime.now(timezone.utc).isoformat(),"selected_primary_grammar":primary["pattern_id"] if primary else None,"selected_supporting_grammars":[x["pattern_id"] for x in supporting],"ranked_patterns":ranked[:8] if primary else [],"rejected_patterns":rejected,"confidence":primary["total_score"] if primary else 0.0,"status":"SELECTED" if primary else "NOT_COMPUTABLE","reason_vector":[] if primary else reason_vector(ranked,ledger),"pattern_gap_report":gap_report(brief,ranked),"ledger_snapshot":ledger,"brief":brief}}
+    return {"retrieval_receipt":{"request_hash":cache_key(brief,ledger),"algorithm":"deterministic-v0.11","timestamp":datetime.now(timezone.utc).isoformat(),"selected_primary_grammar":primary["pattern_id"] if primary else None,"selected_supporting_grammars":[x["pattern_id"] for x in supporting],"ranked_patterns":receipt_ranking(ranked,primary,supporting),"rejected_patterns":rejected,"confidence":primary["total_score"] if primary else 0.0,"status":"SELECTED" if primary else "NOT_COMPUTABLE","reason_vector":[] if primary else reason_vector(ranked,ledger),"pattern_gap_report":gap_report(brief,ranked),"ledger_snapshot":ledger,"brief":brief}}
 
 def persist(receipt):
     key=receipt["retrieval_receipt"]["request_hash"]; stamp=datetime.now(timezone.utc).strftime('%Y%m%d-%H%M%S')
