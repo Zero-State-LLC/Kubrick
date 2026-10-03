@@ -3,6 +3,8 @@
 from __future__ import annotations
 import argparse, json
 from pathlib import Path
+
+from io_safety import write_text_bounded
 try:
     import yaml
 except ImportError:
@@ -91,7 +93,7 @@ def main():
     result = audit(load(args.input))
     rendered = json.dumps(result, indent=2)
     if args.output:
-        Path(args.output).write_text(rendered, encoding="utf-8")
+        write_text_bounded(args.output, rendered)
     print(rendered)
     raise SystemExit(0 if result["status"] == "PASS" else 1)
 

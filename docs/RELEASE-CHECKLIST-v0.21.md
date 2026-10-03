@@ -1,5 +1,7 @@
 # Release checklist — v0.21.0
 
+- [x] Audit fixes #48–#60 aligned to v0.21.1
+
 - [x] VERSION / manifest / SKILL / pyproject / README / CHANGELOG aligned to v0.21.0
 - [x] Release notes, roadmap, and checklist present for v0.21.0
 - [x] `audit_release_version.py --strict` covers the hub mirror and envelope schema id `0.16.0`

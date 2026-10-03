@@ -44,6 +44,7 @@ jobs:
       - run: python scripts/test_installer.py
       - run: python scripts/test_receipt_identity.py
       - run: python scripts/run_hermes_evals.py
+      - run: python scripts/check_hub_sync.py
       - run: python scripts/test_outcome_governance.py
       - run: python scripts/test_wave2_wave3.py
       - name: Compile canonical storyboard example

@@ -13,6 +13,7 @@ except ImportError:
 
 from brief_constraints import optional_frame_fields
 from continuity_locks import introduced_residue
+from io_safety import write_text_bounded
 from planning_fields import planning_frame_fields, planning_root_fields
 
 
@@ -24,9 +25,7 @@ def load(path: str) -> dict:
 
 
 def dump(path: str, data: dict) -> None:
-    destination = Path(path)
-    destination.parent.mkdir(parents=True, exist_ok=True)
-    destination.write_text(yaml.safe_dump(data, sort_keys=False), encoding="utf-8")
+    write_text_bounded(path, yaml.safe_dump(data, sort_keys=False))
 
 
 def _resets(

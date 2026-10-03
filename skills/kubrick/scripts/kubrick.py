@@ -81,6 +81,8 @@ def _execution_argv(call: ir.IntentCall) -> list[str]:
     flag so the implementation never has to infer operator intent.
     """
     argv = list(call.argv)
+    if call.script.name == "generate_design_spec.py":
+        return argv
     if call.intent in FIRST_CLASS_PRODUCTION_SURFACES:
         argv = ["--surface-action", call.action, *argv]
     return argv
@@ -101,7 +103,8 @@ def main() -> None:
         raise SystemExit(0)
 
     if argv[0] == "receipts":
-        raise SystemExit(subprocess.call([PY, str(SCRIPTS / "list_receipts.py"), *argv[1:]], cwd=ROOT))
+        receipt = [PY, str(SCRIPTS / "list_receipts.py"), *argv[1:]]
+        raise SystemExit(subprocess.call(receipt, cwd=ROOT))
 
     if argv[0] == "qa" and len(argv) >= 2:
         # sugar: kubrick qa <surface> ... → do <surface> --action qa ...
@@ -123,7 +126,10 @@ def main() -> None:
         else:
             _abort_router(ir.RouterError("usage: kubrick validate <design|script|image|video> ..."))
 
-    if argv[0] in FIRST_CLASS_PRODUCTION_SURFACES and (len(argv) == 1 or not argv[1].startswith("-") and argv[1] != "do"):
+    bare_surface = argv[0] in FIRST_CLASS_PRODUCTION_SURFACES and (
+        len(argv) == 1 or (not argv[1].startswith("-") and argv[1] != "do")
+    )
+    if bare_surface:
         # sugar: kubrick design create ... → do design --action create ...
         surface = argv[0]
         rest = argv[1:]

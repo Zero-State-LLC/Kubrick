@@ -3,6 +3,8 @@
 from __future__ import annotations
 import argparse, hashlib, json
 from pathlib import Path
+
+from io_safety import write_text_bounded
 try:
     import yaml
 except ImportError:
@@ -26,5 +28,5 @@ def main():
     selected_primary=compile_receipt.get("selected_primary") or rr.get("selected_primary_grammar")
     payload={"schema_version":"1.0.0","project_id":a.project_id,"source_compile_receipt":str(a.compile_receipt),"compile_status":compile_receipt.get("status","NOT_COMPUTABLE"),"selected_patterns":{"primary":selected_primary,"supporting":rr.get("selected_supporting_grammars",[])},"signals":{"retrieval_confidence":float(rr.get("confidence",0.0)),"graph_valid":compile_receipt.get("status")=="COMPILED","anti_slop_pass":compile_receipt.get("status")=="COMPILED","production_feasibility":a.production_feasibility,"visual_fidelity":round(sum(scores)/len(scores),4) if scores else None,"correction_iterations":len(fidelity),"payoff_realized":None if a.payoff_realized is None else a.payoff_realized=="true","cultural_boundary_respected":None if a.cultural_boundary_respected is None else a.cultural_boundary_respected=="true"},"outcome":{"status":a.outcome,"notes":a.note},"authority":{"state":"OBSERVATION","automatic_corpus_change_allowed":False}}
     payload["receipt_id"]=hashlib.sha256(canonical(payload).encode()).hexdigest()[:16]
-    out=Path(a.output); out.parent.mkdir(parents=True,exist_ok=True); out.write_text(yaml.safe_dump(payload,sort_keys=False),encoding="utf-8"); print(yaml.safe_dump(payload,sort_keys=False))
+    text=yaml.safe_dump(payload,sort_keys=False); write_text_bounded(a.output, text); print(text)
 if __name__=="__main__": main()

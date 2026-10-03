@@ -3,6 +3,8 @@
 from __future__ import annotations
 import argparse, json, shutil
 from pathlib import Path
+
+from io_safety import write_text_bounded
 try:
     import yaml
 except ImportError:
@@ -22,7 +24,7 @@ def main():
     templates=[]
     for frame in expected.get("frames",[]):
         template={"schema_version":"1.0.0","observation_id":"FILL_AFTER_REVIEW","source_graph_id":graph_id,"frame_id":frame.get("frame_id"),"observed":{"geometry":[],"node_states":{},"motif_ownership":{},"object_states":{},"light_states":{},"material_states":{},"residue":[],"convergence_sites":[]},"confidence":0.0,"ambiguities":[],"provenance":{"observer":"operator","method":"manual","model":None}}
-        path=out/f"{frame.get('frame_id')}-observation-template.yaml"; path.write_text(yaml.safe_dump(template,sort_keys=False),encoding="utf-8"); templates.append(path.name)
+        path=out/f"{frame.get('frame_id')}-observation-template.yaml"; write_text_bounded(path, yaml.safe_dump(template,sort_keys=False)); templates.append(path.name)
     manifest={"bundle_version":"1.0.0","source_graph_id":graph_id,"frame_count":len(expected.get("frames",[])),"generation_packet":"grok-imagine-prompt-packet.yaml","expected_state":"expected-frame-state.yaml","observation_templates":templates,"next_commands":["kubrick visual-compare --expected expected-frame-state.yaml --observation <filled-template> --output fidelity-report.json","kubrick visual-correct --report fidelity-report.json --adapter-packet ../model-adapter-packet.yaml --output correction-packet.yaml","kubrick correction-govern --current fidelity-report.json --iteration 1 --output iteration-receipt.yaml"]}
-    (out/"workflow-manifest.yaml").write_text(yaml.safe_dump(manifest,sort_keys=False),encoding="utf-8"); print(yaml.safe_dump(manifest,sort_keys=False))
+    write_text_bounded(out/"workflow-manifest.yaml", yaml.safe_dump(manifest,sort_keys=False)); print(yaml.safe_dump(manifest,sort_keys=False))
 if __name__=="__main__": main()

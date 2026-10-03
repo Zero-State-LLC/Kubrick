@@ -1,4 +1,9 @@
-# Kubrick v0.21.0 Release Notes
+# Kubrick v0.21.1 Release Notes
+
+v0.21.1 fixes audit issues #48–#60. Multi-shot sequence adapt fails closed,
+CI runs the script tests, and missing PyYAML or jsonschema on adapt, retime,
+and impact returns `DEPENDENCY_MISSING`. The production envelope schema id
+stays `0.16.0`. The installer receipt schema id stays `1.0.0`.
 
 v0.21.0 adds a dated drift registry, an inferred spend estimate, multi-shot
 prompt blocks, model capability overlays, voice locks, and screen-direction

@@ -254,7 +254,11 @@ def format_plan_human(plan: dict[str, Any], prog: str = "scripts/kubrick.py") ->
         f"{plan['rationale']}\n"
         f"Safety: {'; '.join(plan['safety'])}\n\n"
         f"python3 {prog} {line}\n\n"
-        + ("(will execute via --run)\n" if plan.get("run") else "Print-only. Re-run with --run to execute.\n")
+        + (
+            "(will execute via --run)\n"
+            if plan.get("run")
+            else "Print-only. Re-run with --run to execute.\n"
+        )
     )
 
 
@@ -315,6 +319,7 @@ def interactive_collect(registry: dict) -> dict[str, Any]:
 def parse_wizard_argv(argv: list[str] | None = None) -> argparse.Namespace:
     """Parse wizard flags from argv list (no program name)."""
     p = argparse.ArgumentParser(prog="kubrick do wizard")
+    p.add_argument("--action", default="plan", help="wizard action (only plan is valid)")
     p.add_argument("--answers", default=None, help="path to answers JSON, or - for stdin")
     p.add_argument("--preset", choices=sorted(PRESETS), default=None)
     p.add_argument("--print-only", action="store_true", help="plan only (default without --run)")
@@ -341,6 +346,12 @@ def main(argv: list[str] | None = None) -> int:
     import intent_router as ir
 
     args = parse_wizard_argv(argv)
+    if args.action != "plan":
+        print(
+            f"wizard error: unknown action {args.action!r}; valid actions: plan",
+            file=sys.stderr,
+        )
+        return 2
 
     try:
         answers_in = load_answers(args.answers) if args.answers else None

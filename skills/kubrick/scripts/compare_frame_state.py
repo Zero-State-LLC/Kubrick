@@ -3,6 +3,8 @@
 from __future__ import annotations
 import argparse, json
 from pathlib import Path
+
+from io_safety import write_text_bounded
 try:
     import yaml
 except ImportError:
@@ -30,6 +32,6 @@ def compare(storyboard):
 def main():
     p=argparse.ArgumentParser(); p.add_argument('--storyboard',required=True); p.add_argument('--output'); a=p.parse_args()
     result=compare(load(a.storyboard)); text=json.dumps(result,indent=2)
-    if a.output: Path(a.output).write_text(text,encoding='utf-8')
+    if a.output: write_text_bounded(a.output, text)
     print(text); raise SystemExit(0 if result['status']=='VALID' else 1)
 if __name__=='__main__': main()

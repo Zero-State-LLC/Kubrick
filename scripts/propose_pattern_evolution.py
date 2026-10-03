@@ -17,6 +17,8 @@ try:
 except ImportError:
     raise SystemExit("pyyaml required")
 
+from io_safety import write_text_bounded  # noqa: E402
+
 LARGE_CONFIDENCE_THRESHOLD = 0.08
 MAX_DELTA = 0.2
 
@@ -334,11 +336,12 @@ def main() -> None:
     bundles = [load(path) for path in args.forge_bundle]
     result = build(args.pattern_id, receipts, bundles)
     out = Path(args.output)
-    out.parent.mkdir(parents=True, exist_ok=True)
-    out.write_text(yaml.safe_dump(result["proposal"], sort_keys=False), encoding="utf-8")
-    receipt_path = Path(args.receipt_output) if args.receipt_output else out.with_name(out.stem + ".multi-signal.yaml")
-    receipt_path.parent.mkdir(parents=True, exist_ok=True)
-    receipt_path.write_text(yaml.safe_dump(result["multi_signal_receipt"], sort_keys=False), encoding="utf-8")
+    write_text_bounded(out, yaml.safe_dump(result["proposal"], sort_keys=False))
+    if args.receipt_output:
+        receipt_path = Path(args.receipt_output)
+    else:
+        receipt_path = out.with_name(out.stem + ".multi-signal.yaml")
+    write_text_bounded(receipt_path, yaml.safe_dump(result["multi_signal_receipt"], sort_keys=False))
     print(yaml.safe_dump(result["proposal"], sort_keys=False))
     print(yaml.safe_dump({"multi_signal_receipt_path": str(receipt_path)}, sort_keys=False))
 

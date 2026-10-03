@@ -88,18 +88,23 @@ def spend_estimate(
 
 
 def budget_error(estimate: Mapping[str, object], cap: object) -> str | None:
-    """Fail closed only when a computable estimate is strictly over the cap."""
-    if estimate.get("status") != _LABEL:
-        return None
+    """Fail closed when a numeric cap is set and the estimate is missing or over it."""
     if isinstance(cap, bool) or not isinstance(cap, (int, float)):
         return None
+    cap_text = whole_number(float(cap))
+    unverifiable = (
+        f"BUDGET_CAP_UNVERIFIABLE budget_cap_credits {cap_text} "
+        "is set but the spend estimate is not computable"
+    )
+    if estimate.get("status") != _LABEL:
+        return unverifiable
     total = estimate.get("total_credits")
     if isinstance(total, bool) or not isinstance(total, (int, float)):
-        return None
+        return unverifiable
     if float(total) > float(cap):
         return (
             f"BUDGET_CAP_EXCEEDED estimate {whole_number(float(total))} credits "
-            f"is above budget_cap_credits {whole_number(float(cap))}"
+            f"is above budget_cap_credits {cap_text}"
         )
     return None
 
@@ -245,8 +250,8 @@ def stamp_closed(
     extra: Mapping[str, object],
 ) -> dict[str, object]:
     """Set the fail-closed code. Budget refusals also carry the estimate."""
-    if message.startswith("BUDGET_CAP_EXCEEDED"):
-        payload["code"] = "BUDGET_CAP_EXCEEDED"
+    if message.startswith("BUDGET_CAP_EXCEEDED") or message.startswith("BUDGET_CAP_UNVERIFIABLE"):
+        payload["code"] = message.split()[0]
         payload.update(dict(extra))
     elif message.startswith("VOICE_LOCK_VIOLATION"):
         payload["code"] = "VOICE_LOCK_VIOLATION"

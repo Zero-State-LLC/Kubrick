@@ -117,7 +117,14 @@ def test_chain_breaks_a_group_and_threshold_overrides() -> None:
     grok = retime(_plan(4, 4), "grok-imagine")
     assert _modes(grok) == ["new_generation", "new_generation"]
     missing = retime({"frames": [{}, {}]}, "generic")
-    assert missing["script_clock"] == 8 and missing["final_clock"] == 8
+    assert missing["script_clock"] == 16 and missing["final_clock"] == 16
+    raw_warnings = missing.get("prep_warnings")
+    assert isinstance(raw_warnings, list)
+    missing_codes: list[object] = []
+    for item in raw_warnings:
+        assert isinstance(item, dict)
+        missing_codes.append(item.get("code"))
+    assert missing_codes == ["DURATION_MISSING", "DURATION_MISSING"]
 
 
 def test_reuse_takes_and_clock_delta() -> None:

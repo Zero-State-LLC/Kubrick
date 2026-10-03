@@ -155,10 +155,37 @@ def call_tool(name: str, arguments: dict[str, Any]) -> dict[str, Any]:
     }
 
 
+def _request_error(message: object) -> dict[str, Any] | None:
+    if not isinstance(message, dict):
+        return {"code": -32600, "message": "invalid request"}
+    if message.get("jsonrpc") != "2.0":
+        return {"code": -32600, "message": "invalid request"}
+    method = message.get("method")
+    if not isinstance(method, str) or not method:
+        return {"code": -32600, "message": "invalid request"}
+    return None
+
+
+def _params_error(message: dict[str, Any]) -> dict[str, Any] | None:
+    raw = message.get("params")
+    if "params" in message and raw is not None and not isinstance(raw, dict):
+        return {"code": -32602, "message": "invalid params"}
+    if message.get("method") != "tools/call":
+        return None
+    params = raw if isinstance(raw, dict) else {}
+    if not isinstance(params.get("name"), str):
+        return {"code": -32602, "message": "invalid params"}
+    arguments = params.get("arguments")
+    if "arguments" in params and arguments is not None and not isinstance(arguments, dict):
+        return {"code": -32602, "message": "invalid params"}
+    return None
+
+
 def handle(message: dict[str, Any]) -> None:
     method = message.get("method")
     msg_id = message.get("id")
-    params = message.get("params") or {}
+    raw_params = message.get("params")
+    params = raw_params if isinstance(raw_params, dict) else {}
 
     if method == "initialize":
         respond(
@@ -201,11 +228,29 @@ def handle(message: dict[str, Any]) -> None:
         return
     if method == "tools/call":
         name = params.get("name")
-        arguments = params.get("arguments") or {}
-        respond(msg_id, call_tool(name, arguments))
+        arguments = params.get("arguments")
+        if not isinstance(arguments, dict):
+            arguments = {}
+        respond(msg_id, call_tool(str(name), arguments))
         return
     if msg_id is not None:
         respond(msg_id, error={"code": -32601, "message": f"Method not found: {method}"})
+
+
+def dispatch(message: object) -> None:
+    problem = _request_error(message)
+    if problem is not None:
+        msg_id = message.get("id") if isinstance(message, dict) and "id" in message else None
+        respond(msg_id, error=problem)
+        return
+    if not isinstance(message, dict):
+        respond(None, error={"code": -32600, "message": "invalid request"})
+        return
+    params_problem = _params_error(message)
+    if params_problem is not None:
+        respond(message.get("id"), error=params_problem)
+        return
+    handle(message)
 
 
 def main() -> None:
@@ -216,8 +261,13 @@ def main() -> None:
         try:
             message = json.loads(line)
         except json.JSONDecodeError:
+            respond(None, error={"code": -32700, "message": "parse error"})
             continue
-        handle(message)
+        try:
+            dispatch(message)
+        except Exception as exc:
+            msg_id = message.get("id") if isinstance(message, dict) else None
+            respond(msg_id, error={"code": -32603, "message": f"internal error: {exc}"})
 
 
 if __name__ == "__main__":

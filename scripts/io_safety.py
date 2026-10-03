@@ -49,6 +49,8 @@ PATH_FLAG_NAMES = frozenset(
         "--state",
         "--grok-packet",
         "--expected-state",
+        "--takes",
+        "--answers",
     }
 )
 FLAG_RE = re.compile(r"^--[a-z][a-z0-9-]*$")
@@ -209,13 +211,9 @@ def load_structured(
     if resolved.suffix.lower() == ".json":
         data = json.loads(text)
         return data if data is not None else {}
-    try:
-        import yaml
-    except ImportError as exc:
-        raise IntakeError(
-            "PyYAML is required to load YAML intake; install the validation profile"
-        ) from exc
-    data = yaml.safe_load(text)
+    from runtime_deps import yaml_load
+
+    data = yaml_load(text)
     return data if data is not None else {}
 
 
@@ -246,13 +244,9 @@ def write_structured(
             encoding="utf-8",
         )
         return resolved
-    try:
-        import yaml
-    except ImportError as exc:
-        raise IntakeError(
-            "PyYAML is required to write YAML artifacts; install the validation profile"
-        ) from exc
-    resolved.write_text(yaml.safe_dump(data, sort_keys=False), encoding="utf-8")
+    from runtime_deps import yaml_dump
+
+    resolved.write_text(yaml_dump(data, sort_keys=False), encoding="utf-8")
     return resolved
 
 

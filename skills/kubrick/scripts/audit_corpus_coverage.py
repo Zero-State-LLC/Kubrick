@@ -7,9 +7,11 @@ with conservative line parsing; pattern sidecars are parsed as JSON.
 
 from __future__ import annotations
 
+import argparse
 import json
 import re
 from collections import Counter, defaultdict
+from collections.abc import Mapping
 from pathlib import Path
 
 ROOT = Path(__file__).resolve().parent.parent
@@ -17,7 +19,7 @@ PATTERNS = ROOT / "references" / "patterns"
 MANIFESTS = ROOT / "references" / "pattern-manifests"
 INDEX = ROOT / "references" / "corpus-index.yaml"
 REGISTRY = ROOT / "references" / "executable-corpus-registry.yaml"
-REPORT = ROOT / "references" / "reports" / "corpus-coverage.json"
+REPORT = ROOT / "out" / "kubrick" / "corpus-coverage.json"
 
 ID_LINE = re.compile(r"^\s*-?\s*(?:id|pattern_id):\s*([a-z0-9_\-]+)\s*$")
 PATH_LINE = re.compile(r"^\s*path:\s*(\S+)\s*$")
@@ -44,7 +46,39 @@ def parse_manifest_paths(path: Path) -> list[str]:
     return paths
 
 
-def main() -> int:
+def _route_counts() -> dict[str, int]:
+    route_counts: dict[str, int] = defaultdict(int)
+    registry_text = REGISTRY.read_text(encoding="utf-8") if REGISTRY.exists() else ""
+    current_route = None
+    in_routes = False
+    for line in registry_text.splitlines():
+        if line.strip() == "default_routes:":
+            in_routes = True
+            continue
+        if in_routes and line and not line.startswith(" "):
+            break
+        if in_routes:
+            route_match = re.match(r"^\s{2}([a-z0-9_\-]+):\s*$", line)
+            if route_match:
+                current_route = route_match.group(1)
+                continue
+            if current_route and re.match(r"^\s{4}-\s+", line):
+                route_counts[current_route] += 1
+    return route_counts
+
+
+def _emit_report(report: Mapping[str, object], argv: list[str] | None) -> None:
+    parser = argparse.ArgumentParser(description="Audit corpus coverage.")
+    parser.add_argument("--output", default=None)
+    args = parser.parse_args(argv)
+    destination = Path(args.output) if args.output else REPORT
+    destination.parent.mkdir(parents=True, exist_ok=True)
+    text = json.dumps(report, indent=2) + "\n"
+    destination.write_text(text, encoding="utf-8")
+    print(text, end="")
+
+
+def main(argv: list[str] | None = None) -> int:
     errors: list[str] = []
     warnings: list[str] = []
     patterns: dict[str, dict] = {}
@@ -103,23 +137,7 @@ def main() -> int:
     if index_missing:
         warnings.append(f"{len(index_missing)} index tokens do not resolve to executable sidecars")
 
-    route_counts: dict[str, int] = defaultdict(int)
-    registry_text = REGISTRY.read_text(encoding="utf-8") if REGISTRY.exists() else ""
-    current_route = None
-    in_routes = False
-    for line in registry_text.splitlines():
-        if line.strip() == "default_routes:":
-            in_routes = True
-            continue
-        if in_routes and line and not line.startswith(" "):
-            break
-        if in_routes:
-            route_match = re.match(r"^\s{2}([a-z0-9_\-]+):\s*$", line)
-            if route_match:
-                current_route = route_match.group(1)
-                continue
-            if current_route and re.match(r"^\s{4}-\s+", line):
-                route_counts[current_route] += 1
+    route_counts = _route_counts()
 
     report = {
         "status": "PASS" if not errors else "FAIL",
@@ -140,9 +158,7 @@ def main() -> int:
         "warnings": warnings,
     }
 
-    REPORT.parent.mkdir(parents=True, exist_ok=True)
-    REPORT.write_text(json.dumps(report, indent=2) + "\n", encoding="utf-8")
-    print(json.dumps(report, indent=2))
+    _emit_report(report, argv)
     return 1 if errors else 0
 
 

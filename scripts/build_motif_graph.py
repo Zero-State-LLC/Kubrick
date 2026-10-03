@@ -4,6 +4,8 @@ from __future__ import annotations
 import argparse, json, re, sys
 from pathlib import Path
 from typing import Any, Dict, List
+
+from io_safety import write_text_bounded
 try:
     import yaml
 except ImportError:
@@ -56,7 +58,7 @@ def build(spec:Dict[str,Any])->Dict[str,Any]:
     return validate(graph)
 def main()->None:
     p=argparse.ArgumentParser();p.add_argument("--input",required=True);p.add_argument("--output");a=p.parse_args();g=build(load(Path(a.input)));out=yaml.safe_dump(g,sort_keys=False)
-    if a.output: Path(a.output).write_text(out,encoding="utf-8")
+    if a.output: write_text_bounded(a.output, out)
     else: print(out)
     raise SystemExit(0 if g["validation"]["status"]=="VALID" else 1)
 if __name__=="__main__":main()

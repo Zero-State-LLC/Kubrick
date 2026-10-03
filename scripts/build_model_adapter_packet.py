@@ -12,6 +12,7 @@ except ImportError:
     raise SystemExit("pyyaml required")
 
 from brief_constraints import carried_shared  # noqa: E402
+from io_safety import write_text_bounded  # noqa: E402
 from planning_fields import document_from_sources, prep_fields  # noqa: E402
 from prompt_text import (  # noqa: E402
     continuity_clauses,
@@ -40,9 +41,7 @@ def json_or_yaml(path: Path) -> dict:
 
 
 def save(path: str, data: dict) -> None:
-    p = Path(path)
-    p.parent.mkdir(parents=True, exist_ok=True)
-    p.write_text(yaml.safe_dump(data, sort_keys=False), encoding="utf-8")
+    write_text_bounded(path, yaml.safe_dump(data, sort_keys=False))
 
 
 def _copied_list(value: object) -> list[object]:

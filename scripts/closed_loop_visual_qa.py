@@ -19,6 +19,8 @@ try:
 except ImportError:
     raise SystemExit("pyyaml required")
 
+from io_safety import write_text_bounded  # noqa: E402
+
 ROOT = Path(__file__).resolve().parent.parent
 PY = sys.executable
 SEPARATE_DIMS = ("geometry", "state", "residue", "convergence")
@@ -32,11 +34,10 @@ def load(path: Path) -> dict[str, Any]:
 
 
 def dump(path: Path, data: dict[str, Any]) -> None:
-    path.parent.mkdir(parents=True, exist_ok=True)
     if path.suffix == ".json":
-        path.write_text(json.dumps(data, indent=2), encoding="utf-8")
+        write_text_bounded(path, json.dumps(data, indent=2))
     else:
-        path.write_text(yaml.safe_dump(data, sort_keys=False), encoding="utf-8")
+        write_text_bounded(path, yaml.safe_dump(data, sort_keys=False))
 
 
 def run(cmd: list[str]) -> subprocess.CompletedProcess[str]:

@@ -1,7 +1,7 @@
 ---
 name: kubrick
 description: Builds continuity-safe cinematic stories and visuals.
-version: 0.21.0
+version: 0.21.1
 author: Daniel Meyer (scrimshawlife-ctrl), Hermes Agent
 license: LicenseRef-Zero-State-Proprietary-1.0
 platforms: [linux, macos, windows]
@@ -56,7 +56,7 @@ handoff.
 
 - Python 3.10 or newer runs the bundled deterministic helpers.
 - Core creative and routing behavior uses the Python standard library.
-- `compile` requires PyYAML and jsonschema. Install them with `python3 -m pip install -r requirements.txt`.
+- `compile`, `video adapt`, `video retime`, and `storyboard impact` require PyYAML and jsonschema. Install them with `python3 -m pip install -r requirements.txt`.
 - Model APIs, vision APIs, Continuity Forge, and the bundled MCP server are optional.
 - No API key is required for local creative work.
 
