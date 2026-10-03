@@ -1,0 +1,183 @@
+"""Prep-only dialogue cue sheet and mix plan (issue #71). Never calls ElevenLabs."""
+
+from __future__ import annotations
+
+import sys
+from collections.abc import Mapping, Sequence
+
+from video_prep_common import (
+    build_parser,
+    closed,
+    emit,
+    frame_label_matches,
+    frames_of,
+    number,
+    prepare,
+    timeline,
+)
+
+ACTION = "cues"
+MIX_VARIANTS: list[dict[str, object]] = [
+    {
+        "name": "ducked",
+        "music_under_dialogue_db": -12,
+        "integrated_lufs": -14,
+        "true_peak_dbtp": -1,
+    },
+    {
+        "name": "muted",
+        "music_under_dialogue_db": None,
+        "integrated_lufs": -14,
+        "true_peak_dbtp": -1,
+    },
+]
+
+
+def parse_line(raw: object) -> tuple[str | None, str] | None:
+    if isinstance(raw, str):
+        if ":" in raw:
+            speaker, text = raw.split(":", 1)
+            return (speaker.strip() or None), text.strip()
+        return None, raw.strip()
+    if isinstance(raw, Mapping):
+        speaker = raw.get("character", raw.get("speaker"))
+        text = raw.get("line", raw.get("text"))
+        if isinstance(text, str):
+            return (str(speaker) if speaker is not None else None), text.strip()
+    return None
+
+
+def _voice_of(document: Mapping[str, object], speaker: str) -> Mapping[str, object] | None:
+    chars = document.get("characters")
+    if not isinstance(chars, Mapping):
+        return None
+    for name, entry in chars.items():
+        if str(name).casefold() == speaker.casefold() and isinstance(entry, Mapping):
+            voice = entry.get("voice")
+            return voice if isinstance(voice, Mapping) else None
+    return None
+
+
+def resolve_voice(
+    document: Mapping[str, object], speaker: str | None, shot: object
+) -> tuple[str | None, str | None]:
+    """Return (voice_id, violation_message)."""
+    voice = _voice_of(document, speaker) if speaker else None
+    if voice is None:
+        return None, None
+    if voice.get("speaks") is False:
+        return None, f"speaker {speaker!r} is locked silent but speaks in shot {shot!r}"
+    vid = voice.get("library_id") or voice.get("voice_id")
+    if not isinstance(vid, str) or not vid:
+        return None, None
+    banned = voice.get("never_clone_of")
+    if isinstance(banned, list) and vid.casefold() in {str(b).casefold() for b in banned}:
+        return None, f"voice {vid!r} for {speaker!r} in shot {shot!r} is in never_clone_of"
+    return vid, None
+
+
+def build_cues(
+    document: Mapping[str, object], rows: Sequence[Mapping[str, object]]
+) -> tuple[list[dict[str, object]], list[dict[str, object]]] | str:
+    cues: list[dict[str, object]] = []
+    warnings: list[dict[str, object]] = []
+    frames = frames_of(document)
+    for row in rows:
+        frame = next((f for f in frames if frame_label_matches(f, row.get("shot"))), None)
+        lines = frame.get("speech_lines") if frame else None
+        for raw in lines if isinstance(lines, list) else []:
+            parsed = parse_line(raw)
+            if parsed is None:
+                continue
+            speaker, text = parsed
+            voice, violation = resolve_voice(document, speaker, row.get("shot"))
+            if violation:
+                return violation
+            if voice is None:
+                warnings.append(
+                    {
+                        "code": "VOICE_UNASSIGNED",
+                        "shot": row.get("shot"),
+                        "speaker": speaker,
+                        "message": "no library_id/voice_id for speaker",
+                    }
+                )
+            cues.append(
+                {
+                    "cue": len(cues) + 1,
+                    "shot": row.get("shot"),
+                    "start": row.get("start"),
+                    "end": row.get("end"),
+                    "speaker": speaker,
+                    "text": text,
+                    "characters": len(text),
+                    "voice": voice,
+                }
+            )
+    return cues, warnings
+
+
+def estimate(
+    document: Mapping[str, object], cues: Sequence[Mapping[str, object]]
+) -> dict[str, object] | str:
+    cfg = document.get("elevenlabs")
+    cfg = cfg if isinstance(cfg, Mapping) else {}
+    raw_rate = cfg.get("credits_per_character", 1.0)
+    rate = number(raw_rate)
+    if rate is None or rate < 0:
+        return "ELEVENLABS_RATE_INVALID"
+    cap = number(cfg.get("cap_credits")) if "cap_credits" in cfg else None
+    if "cap_credits" in cfg and cap is None:
+        return "ELEVENLABS_CAP_UNVERIFIABLE"
+    chars = sum(int(number(c.get("characters")) or 0) for c in cues)
+    total = round(rate * chars, 4)
+    return {
+        "label": "INFERRED",
+        "credits_per_character": rate,
+        "characters": chars,
+        "total_credits": total,
+        "cap_credits": cap,
+        "within_cap": None if cap is None else total <= cap,
+    }
+
+
+def cue_sheet(document: Mapping[str, object], plan: Mapping[str, object]) -> dict[str, object]:
+    try:
+        rows = timeline(plan)
+    except ValueError as exc:
+        return closed(ACTION, "EDIT_PLAN_INVALID", str(exc))
+    built = build_cues(document, rows)
+    if isinstance(built, str):
+        return closed(ACTION, "VOICE_LOCK_VIOLATION", built)
+    cues, warnings = built
+    est = estimate(document, cues)
+    if isinstance(est, str):
+        return closed(ACTION, est, "elevenlabs pricing/cap config is not a valid number")
+    if est["within_cap"] is False:
+        return closed(
+            ACTION,
+            "ELEVENLABS_CAP_EXCEEDED",
+            f"inferred {est['total_credits']} credits exceed cap {est['cap_credits']}",
+        )
+    return {
+        "status": "PROPOSED",
+        "authority": "PROPOSED",
+        "final_clock": plan.get("final_clock"),
+        "cues": cues,
+        "mix_variants": [dict(v) for v in MIX_VARIANTS],
+        "elevenlabs_estimate": est,
+        "warnings": warnings,
+    }
+
+
+def main(argv: Sequence[str] | None = None) -> int:
+    args = build_parser("PROPOSED dialogue cue sheet and mix plan (prep only)").parse_args(argv)
+    prepared = prepare(args)
+    if isinstance(prepared, dict):
+        return emit(args, ACTION, prepared)
+    document, plan = prepared
+    return emit(args, ACTION, cue_sheet(document, plan))
+
+
+if __name__ == "__main__":
+    sys.exit(main())

@@ -8,6 +8,7 @@ from __future__ import annotations
 import re
 from typing import Any
 
+from sequence_adapt import sequence_adapter_packet
 from surface_common import (
     _attach_design_revision,
     _base_meta,
@@ -28,13 +29,6 @@ def _shot_dict_to_adapter_packet(shot: dict[str, Any], provider: str = "generic"
 
     return shot_dict_to_adapter_packet(shot, provider, _digest)
 
-def _sequence_shot_name(shot: object, index: int) -> str:
-    if isinstance(shot, dict):
-        for key in ("shot_id", "frame_id", "id"):
-            raw = shot.get(key)
-            if isinstance(raw, str) and raw.strip():
-                return raw.strip()
-    return f"index-{index}"
 
 def _sequence_packet(data: dict[str, Any]) -> tuple[dict[str, Any], float | None] | None:
     result = data.get("result")
@@ -43,15 +37,7 @@ def _sequence_packet(data: dict[str, Any]) -> tuple[dict[str, Any], float | None
     shots = result.get("shots")
     if not isinstance(shots, list) or not shots:
         return None
-    if len(shots) > 1:
-        dropped = ", ".join(
-            _sequence_shot_name(shot, index) for index, shot in enumerate(shots[1:], start=1)
-        )
-        raise ValueError(f"sequence adapt cannot keep every shot; dropped: {dropped}")
-    shot = shots[0]
-    if not isinstance(shot, dict):
-        raise ValueError("sequence shot must be an object")
-    return _shot_dict_to_adapter_packet(shot), shot.get("duration_seconds")
+    return sequence_adapter_packet(shots, _shot_dict_to_adapter_packet)
 
 def _parse_video_adapt_input(packet_text: str) -> tuple[dict[str, Any], float | None]:
     """Return adapter packet + optional duration from surface/shot/adapter input."""
