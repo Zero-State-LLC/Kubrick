@@ -1,0 +1,72 @@
+version: "1"
+entries:
+  - id: plain-top-motion-logo
+    model: seedance-2.5
+    trigger:
+      kind: plain_top_motion
+    effect: invented chest logo/graphic
+    mitigations:
+      - use a start frame that already shows the plain top in the moving pose
+      - retouch after generation
+      - accept the drift
+    failed_mitigations: []
+    evidence: MYSLEF minder retakes, 2026-10-02. A plain top plus a motion verb invented a chest graphic.
+    observed_on: "2026-10-02"
+  - id: no-ref-head-red-light
+    model: seedance-2.5
+    trigger:
+      kind: missing_reference
+      feature: red light
+    effect: a red light appears on the head when the negative is only in the prompt
+    mitigations:
+      - put the locked state in a reference or a start frame
+      - retouch the frame after generation
+    failed_mitigations:
+      - prompt negatives
+    evidence: MYSLEF minder retakes, 2026-10-02. Prompt negatives did not keep the red light off the head.
+    observed_on: "2026-10-02"
+  - id: char-ref-bleed-two-person
+    model: seedance-2.5
+    trigger:
+      kind: character_reference_bleed
+      min_characters: 2
+    effect: a character reference bleeds onto the other person
+    mitigations:
+      - scope the reference with applies_to naming one on-screen character
+      - use a separate clip for the two-person beat
+    failed_mitigations: []
+    evidence: MYSLEF minder retakes, 2026-10-02. A character reference on a two-person shot bled.
+    observed_on: "2026-10-02"
+  - id: location-ref-overrides-prompt
+    model: seedance-2.5
+    trigger:
+      kind: location_reference
+    effect: an old location reference overrides the prompt
+    mitigations:
+      - drop location references that contradict the room lock
+      - retouch the plate after generation
+    failed_mitigations: []
+    evidence: MYSLEF minder retakes, 2026-10-02. Old location references overrode the prompt.
+    observed_on: "2026-10-02"
+  - id: start-frame-hold
+    model: seedance-2.5
+    trigger:
+      kind: chained_start
+    effect: the start frame holds and the planned beat starts late
+    mitigations:
+      - trim the hold in the cut list
+      - generate the beat as its own clip when the hold eats the action
+    failed_mitigations: []
+    evidence: MYSLEF minder retakes, 2026-10-02. Chained shots held the start frame before the beat.
+    observed_on: "2026-10-02"
+  - id: multi-shot-merges-short-beats
+    model: seedance-2.5
+    trigger:
+      kind: short_multi_shot
+    effect: a multi-shot clip merges a beat at or below the short-beat threshold
+    mitigations:
+      - generate the short beat as its own clip at the provider minimum
+      - trim it back to the planned duration
+    failed_mitigations: []
+    evidence: MYSLEF minder retakes, 2026-10-02. The 4-shot clip merged the short beats.
+    observed_on: "2026-10-02"

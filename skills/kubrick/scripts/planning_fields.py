@@ -23,6 +23,19 @@ FRAME_KEYS = (
     "start_frame",
     "counts",
     "shot_id",
+    "screen_side",
+    "axis_change",
+    "light_states",
+    "object_states",
+)
+PREP_KEYS = (
+    "audio_strategy",
+    "budget_cap_credits",
+    "model",
+    "input_mode",
+    "as_of",
+    "drift_max_age_days",
+    "capability_max_age_days",
 )
 ROOT_KEYS = (
     "props",
@@ -31,6 +44,7 @@ ROOT_KEYS = (
     "location",
     "counts",
     "locks",
+    *PREP_KEYS,
 )
 
 
@@ -40,6 +54,10 @@ def planning_frame_fields(spec: Mapping[str, object]) -> dict[str, object]:
 
 def planning_root_fields(plan: Mapping[str, object]) -> dict[str, object]:
     return {key: plan[key] for key in ROOT_KEYS if key in plan and plan.get(key) is not None}
+
+
+def prep_fields(source: Mapping[str, object]) -> dict[str, object]:
+    return {key: source[key] for key in PREP_KEYS if key in source and source.get(key) is not None}
 
 
 def _copy_maps(source: Mapping[str, object], doc: dict[str, object], keys: Sequence[str]) -> None:
@@ -68,6 +86,7 @@ def document_from_packet(packet: Mapping[str, object]) -> dict[str, object]:
     threshold = packet.get("short_beat_threshold_seconds")
     if isinstance(threshold, (int, float)) and not isinstance(threshold, bool):
         doc["short_beat_threshold_seconds"] = threshold
+    doc.update(prep_fields(packet))
     return doc
 
 

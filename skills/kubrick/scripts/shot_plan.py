@@ -34,9 +34,11 @@ class Prep:
     locks: dict[str, list[str]]
     opted: dict[str, list[str]]
     techniques: list[dict[str, object]]
-def _capabilities(provider: str) -> Mapping[str, object]:
-    from provider_capabilities import capabilities_for
-    caps = capabilities_for(provider)
+def _capabilities(
+    provider: str, document: Mapping[str, object] | None = None,
+) -> Mapping[str, object]:
+    from provider_capabilities import capabilities_for_document
+    caps = capabilities_for_document(provider, document)
     return caps if isinstance(caps, Mapping) else {}
 def _as_float(value: object) -> float | None:
     if isinstance(value, bool) or not isinstance(value, (int, float, str)):
@@ -65,7 +67,7 @@ def _threshold(provider: str, document: Mapping[str, object] | None) -> float:
         override = _as_float(document.get("short_beat_threshold_seconds"))
         if override is not None:
             return override
-    parsed = _as_float(_capabilities(provider).get("short_beat_threshold_seconds"))
+    parsed = _as_float(_capabilities(provider, document).get("short_beat_threshold_seconds"))
     return 2.0 if parsed is None else parsed
 
 def short_beat_warnings(
@@ -75,7 +77,7 @@ def short_beat_warnings(
     document: Mapping[str, object] | None = None,
     default_duration: float = 8.0,
 ) -> list[dict[str, str | None]]:
-    caps = _capabilities(provider)
+    caps = _capabilities(provider, document)
     if not caps.get("is_multi_shot_single_clip") or len(frames) < 2:
         return []
     limit = _threshold(provider, document)
@@ -154,23 +156,30 @@ def opens_with_exit(frame: Mapping[str, object]) -> bool:
     if re.search(r"\bexits\b", folded):
         return True
     return any(phrase in folded for phrase in _EXIT_PHRASES)
-def _positive_bound(provider: str, key: str) -> float:
-    parsed = _as_float(_capabilities(provider).get(key))
+def _positive_bound(
+    provider: str, key: str, document: Mapping[str, object] | None = None,
+) -> float:
+    parsed = _as_float(_capabilities(provider, document).get(key))
     if parsed is None or parsed <= 0:
         return 0.0
     return parsed
 def generation_seconds(
     planned: float, *, chained: bool, exit_open: bool, provider: str,
+    document: Mapping[str, object] | None = None,
 ) -> tuple[float, float]:
     """Generated length is the padded plan, raised to the provider minimum."""
     hold = _positive_bound(
-        provider, "start_frame_hold_seconds") if chained and not exit_open else 0.0
-    floor = _positive_bound(provider, "min_duration_seconds")
+        provider, "start_frame_hold_seconds", document,
+    ) if chained and not exit_open else 0.0
+    floor = _positive_bound(provider, "min_duration_seconds", document)
     return round(max(planned + hold, floor), 4), hold
-def padding_error(shot: str, generated: float, provider: str, *, hold: float) -> str | None:
+def padding_error(
+    shot: str, generated: float, provider: str, *, hold: float,
+    document: Mapping[str, object] | None = None,
+) -> str | None:
     if hold <= 0:
         return None
-    maximum = _as_float(_capabilities(provider).get("max_duration_seconds"))
+    maximum = _as_float(_capabilities(provider, document).get("max_duration_seconds"))
     if maximum is None or maximum <= 0 or generated <= maximum:
         return None
     return (
@@ -179,15 +188,18 @@ def padding_error(shot: str, generated: float, provider: str, *, hold: float) ->
     )
 def padding_errors(
     frames: Sequence[Mapping[str, object]], provider: str, default_duration: float,
+    document: Mapping[str, object] | None = None,
 ) -> list[str]:
     errors: list[str] = []
     for index, frame in enumerate(frames, start=1):
         planned = _duration(frame, default_duration)
         generated, hold = generation_seconds(
             planned, chained=chain_source(frame) is not None,
-            exit_open=opens_with_exit(frame), provider=provider,
+            exit_open=opens_with_exit(frame), provider=provider, document=document,
         )
-        message = padding_error(frame_id(frame, index), generated, provider, hold=hold)
+        message = padding_error(
+            frame_id(frame, index), generated, provider, hold=hold, document=document,
+        )
         if message:
             errors.append(message)
     return errors
@@ -310,18 +322,25 @@ def collect_prep(
         lock_map[shot] = prompt_lines(merged, frame, prop_lines.get(shot, []))
         wanted = _string_list(frame_field(frame, "apply_techniques"))
         opted[shot] = opted_clauses(techniques, shot, wanted)
-    from continuity_locks import drift_warnings
-    raw_drift = _capabilities(provider).get("known_drift")
-    entries: list[Mapping[str, object]] = []
-    if isinstance(raw_drift, Sequence) and not isinstance(raw_drift, (str, bytes)):
-        entries = [item for item in raw_drift if isinstance(item, Mapping)]
+    from audio_screen_locks import lint as audio_screen_lint
+    from drift_registry import registry_warnings
+    from provider_capabilities import capability_warnings
+    from spend_plan import shot_count_warning
+
+    audio_warnings, voice_errors = audio_screen_lint(merged, frames)
     warnings = [
         *short_beat_warnings(frames, provider, document=merged, default_duration=default_duration),
-        *drift_warnings(merged, frames, provider, entries),
+        *registry_warnings(merged, frames, provider),
         *reference_warnings(merged),
         *extra_warnings(merged, frames, provider),
+        *audio_warnings,
+        *capability_warnings(provider, merged),
     ]
-    return Prep(warnings, [*validate_joins(frames), *prop_errors], lock_map, opted, techniques)
+    high = shot_count_warning(len(frames), provider, merged)
+    if high is not None:
+        warnings.append(high)
+    errors = [*validate_joins(frames), *prop_errors, *voice_errors]
+    return Prep(warnings, errors, lock_map, opted, techniques)
 def enrich_prompts(
     document: Mapping[str, object], frames: Sequence[Mapping[str, object]], provider: str,
     render: Render, *, extra_locks: Sequence[str] = (), default_duration: float = 8.0,
@@ -339,8 +358,10 @@ def enrich_prompts(
     ]
     return prompts, prep
 
-def exclusivity_reason(provider: str, shot: str) -> str | None:
-    caps = _capabilities(provider)
+def exclusivity_reason(
+    provider: str, shot: str, document: Mapping[str, object] | None = None,
+) -> str | None:
+    caps = _capabilities(provider, document)
     groups = caps.get("exclusive_inputs")
     notes = caps.get("exclusivity_notes")
     if not isinstance(groups, Sequence) or isinstance(groups, (str, bytes)):
@@ -359,11 +380,13 @@ def exclusivity_reason(provider: str, shot: str) -> str | None:
 def _one_directive(
     frame: Mapping[str, object], index: int, provider: str, movie_refs: Sequence[str],
     chained_any: bool, default_duration: float,
+    document: Mapping[str, object] | None = None,
 ) -> dict[str, object]:
     shot, source = frame_id(frame, index), chain_source(frame)
     planned = _duration(frame, default_duration)
     generated, hold = generation_seconds(
-        planned, chained=source is not None, exit_open=opens_with_exit(frame), provider=provider,
+        planned, chained=source is not None, exit_open=opens_with_exit(frame),
+        provider=provider, document=document,
     )
     own = frame_references(frame)
     directive: dict[str, object] = {
@@ -387,17 +410,19 @@ def _one_directive(
             image["atSeconds"] = at
     directive["startImage"] = image
     directive["dropped_references"] = own or list(movie_refs)
-    reason = exclusivity_reason(provider, shot)
+    reason = exclusivity_reason(provider, shot, document)
     if reason:
         directive["reason"] = reason
     return directive
 def shot_directives(
     frames: Sequence[Mapping[str, object]], provider: str, movie_refs: Sequence[str], *,
-    default_duration: float = 8.0,
+    default_duration: float = 8.0, document: Mapping[str, object] | None = None,
 ) -> list[dict[str, object]]:
     chained_any = any(chain_source(frame) is not None for frame in frames)
     return [
-        _one_directive(frame, index, provider, movie_refs, chained_any, default_duration)
+        _one_directive(
+            frame, index, provider, movie_refs, chained_any, default_duration, document,
+        )
         for index, frame in enumerate(frames, start=1)
     ]
 def cut_list(directives: Sequence[Mapping[str, object]]) -> list[dict[str, object]]:

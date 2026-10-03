@@ -37,8 +37,16 @@ properties:
           description: Optional Keyframe audio.sound. Omitted sound uses evidenced room presence.
         speech_lines:
           type: array
-          items: {type: string}
-          description: Optional dialogue lines. Speech is omitted when this list is empty.
+          items:
+            oneOf:
+              - {type: string}
+              - type: object
+                additionalProperties: false
+                required: [character, line]
+                properties:
+                  character: {type: string, minLength: 1}
+                  line: {type: string}
+          description: Optional dialogue. A string or a character and line mapping. Speech is omitted when empty.
         join:
           description: Optional cut, or a chain_from object pointing at an earlier frame.
           oneOf:
@@ -63,6 +71,10 @@ properties:
         cast: {type: array, items: {type: string}}
         counts: {type: object, additionalProperties: {type: integer, minimum: 0}}
         shot_id: {type: string}
+        screen_side:
+          type: object
+          additionalProperties: {enum: [left, right, center]}
+        axis_change: {type: boolean}
         start_frame:
           type: object
           additionalProperties: true
@@ -80,6 +92,13 @@ properties:
     additionalProperties: true
     description: Optional character wardrobe and author-supplied reference manifests.
   short_beat_threshold_seconds: {type: number, exclusiveMinimum: 0}
+  audio_strategy: {enum: [native, external, muted_native]}
+  budget_cap_credits: {type: number, minimum: 0}
+  model: {type: string, minLength: 1}
+  input_mode: {type: string, minLength: 1}
+  as_of: {type: string, minLength: 1}
+  drift_max_age_days: {type: integer, minimum: 0}
+  capability_max_age_days: {type: integer, minimum: 0}
   strict: {type: boolean}
   location:
     type: object

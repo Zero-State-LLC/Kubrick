@@ -56,6 +56,13 @@ properties:
   locks: {type: array, items: {type: object, additionalProperties: true}}
   strict: {type: boolean}
   short_beat_threshold_seconds: {type: number, exclusiveMinimum: 0}
+  audio_strategy: {enum: [native, external, muted_native]}
+  budget_cap_credits: {type: number, minimum: 0}
+  model: {type: string, minLength: 1}
+  input_mode: {type: string, minLength: 1}
+  as_of: {type: string, minLength: 1}
+  drift_max_age_days: {type: integer, minimum: 0}
+  capability_max_age_days: {type: integer, minimum: 0}
   prep_warnings:
     type: array
     items:

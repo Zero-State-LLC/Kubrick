@@ -12,7 +12,7 @@ except ImportError:
     raise SystemExit("pyyaml required")
 
 from brief_constraints import carried_shared  # noqa: E402
-from planning_fields import document_from_sources  # noqa: E402
+from planning_fields import document_from_sources, prep_fields  # noqa: E402
 from prompt_text import (  # noqa: E402
     continuity_clauses,
     continuity_for_frame,
@@ -190,6 +190,7 @@ def build(graph: dict, storyboard: dict | None, provider: str) -> dict:
         counts=document.get("counts"),
         locks=document.get("locks"),
         short_beat_threshold_seconds=document.get("short_beat_threshold_seconds"),
+        **prep_fields(document),
     )
     if document.get("strict") is True:
         packet["strict"] = True

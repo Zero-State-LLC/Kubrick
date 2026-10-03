@@ -12,7 +12,7 @@ from collections.abc import Mapping, Sequence
 
 from continuity_locks import frame_field, frame_id, prop_assignments, warning
 from prompt_text import character_lock_feature, character_lock_positive
-from provider_capabilities import capabilities_for
+from provider_capabilities import capabilities_for_document
 from reference_lint import (
     declares_feature,
     frame_locks,
@@ -292,12 +292,13 @@ def lock_table(
     return rows
 
 
-def _recommendation(provider: str) -> str:
+def _recommendation(provider: str, document: Mapping[str, object] | None = None) -> str:
     base = (
         "use a start frame or a reference that already shows the locked state, "
         "and add the positive restatement"
     )
-    if capabilities_for(provider).get("negative_prompt_effective") is True:
+    effective = capabilities_for_document(provider, document).get("negative_prompt_effective")
+    if effective is True:
         return base
     return f"{base}; {provider} negative_prompt_effective is false"
 
@@ -317,6 +318,6 @@ def negative_only_warnings(
             "NEGATIVE_ONLY_LOCK",
             shot or None,
             f"lock {ident} on {shot} is carried only by a negative prompt",
-            _recommendation(provider),
+            _recommendation(provider, document),
         ))
     return found

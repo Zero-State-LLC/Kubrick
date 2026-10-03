@@ -83,6 +83,38 @@
         }
       }
     },
+    "spend_estimate": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": ["label", "status", "shots", "total_credits"],
+      "properties": {
+        "label": {"const": "INFERRED"},
+        "status": {"enum": ["INFERRED", "NOT_COMPUTABLE"]},
+        "unit": {"type": ["string", "null"]},
+        "resolution": {"type": ["string", "null"]},
+        "rate": {"type": ["number", "null"]},
+        "shots": {
+          "type": "array",
+          "items": {
+            "type": "object",
+            "additionalProperties": false,
+            "required": ["shot", "generated_seconds", "credits"],
+            "properties": {
+              "shot": {"type": "string"},
+              "generated_seconds": {"type": "number"},
+              "credits": {"type": ["number", "null"]}
+            }
+          }
+        },
+        "total_credits": {"type": ["number", "null"]}
+      }
+    },
+    "execution_checklist": {
+      "type": "array",
+      "minItems": 2,
+      "items": {"type": "string", "minLength": 1}
+    },
+    "multi_shot_prompt": {"type": "string", "minLength": 1},
     "technique_suggestions": {
       "type": "array",
       "items": {

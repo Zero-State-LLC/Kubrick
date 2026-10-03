@@ -9,4 +9,3 @@
 - [x] Hub sync gate path (`bash scripts/sync_hub_skill.sh`)
 - [ ] Official Hermes PR refreshed against v0.20.1
 - [ ] CI workflow hardening applied (requires `gh auth refresh -s workflow`; see `docs/ci/`)
-- [ ] Phase B issues #39–#44

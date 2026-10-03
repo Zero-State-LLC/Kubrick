@@ -1,7 +1,7 @@
 {
   "manifest_version": 1,
   "name": "kubrick",
-  "version": "0.20.1",
+  "version": "0.21.0",
   "host": "hermes",
   "runtime_profiles": {
     "prose": {
@@ -566,11 +566,13 @@
     "schemas/design-revision-receipt.schema.json",
     "schemas/design-specification.schema.yaml",
     "schemas/diagnostic.schema.json",
+    "schemas/drift-registry.schema.json",
     "schemas/forge-signal-bundle.schema.yaml",
     "schemas/image-prompt-packet.schema.json",
     "schemas/keyframe-create-movie.schema.json",
     "schemas/media-reconciliation-report.schema.json",
     "schemas/model-adapter-packet.schema.yaml",
+    "schemas/model-capabilities.schema.json",
     "schemas/motif-structure-graph.schema.yaml",
     "schemas/multi-signal-evolution-receipt.schema.yaml",
     "schemas/narrative-affordance.schema.json",

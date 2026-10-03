@@ -17,8 +17,8 @@ reused take whose trim is longer than the planned beat is
 
 v0.20.0 adds reference scope, location and count locks, lock carriers, a
 proposed retime plan, a take-impact report, and a start-frame gate. The
-production envelope schema id stays `0.16.0`. Issues #39–#44 are named on the
-roadmap and are not in this release.
+production envelope schema id stays `0.16.0`. Issues #39–#44 shipped in
+v0.21.0.
 
 ## Added
 
