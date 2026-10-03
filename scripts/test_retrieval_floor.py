@@ -232,6 +232,28 @@ def test_myslef_brief_still_selects() -> None:
     assert isinstance(components, dict)
     assert components["dramatic_fit"] >= base.MIN_DRAMATIC_FIT
 
+def test_function_word_only_briefs_are_not_computable() -> None:
+    for problem in ("it", "that", "then it was so", "this is its", "but they were"):
+        assert base._tokens(problem) == set(), problem
+        receipt, matched = _registry_receipt({"dramatic_problem": problem})
+        assert receipt["status"] == "NOT_COMPUTABLE", problem
+        assert receipt["selected_primary_grammar"] is None, problem
+        assert matched == [], problem
+
+
+def test_receipt_ranking_puts_selected_primary_first() -> None:
+    brief = {"dramatic_problem": "cats and dogs"}
+    ledger = _ledger()
+    weak = [_scored(f"weak_{index}", 0.95 - index * 0.01, 0.0) for index in range(9)]
+    ranked = [*weak, _scored("real_pattern", 0.7, 0.4)]
+    for receipt in (
+        _receipt(base.build_receipt(brief, ranked, ledger)),
+        _receipt(registry.build_receipt(brief, ranked, ledger, [], {})),
+    ):
+        assert receipt["selected_primary_grammar"] == "real_pattern"
+        listed = [item["pattern_id"] for item in receipt["ranked_patterns"]]
+        assert listed[0] == "real_pattern"
+        assert len(listed) == 8
 
 
 def test_cache_key_carries_selection_policy() -> None:
@@ -257,6 +279,8 @@ def main() -> None:
     test_route_match_refuses_stop_word_only_overlap()
     test_registry_routes_for_real_and_empty_briefs()
     test_selection_floor_rejects_weak_dramatic_fit()
+    test_function_word_only_briefs_are_not_computable()
+    test_receipt_ranking_puts_selected_primary_first()
     test_cache_key_carries_selection_policy()
     test_cats_and_dogs_cli_is_not_computable()
     test_authority_transfer_still_selects()

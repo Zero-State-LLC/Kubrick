@@ -188,7 +188,7 @@ def _thin_fields(payload: Mapping[str, object]) -> list[str]:
     if not isinstance(status, str) or not status.strip():
         missing.append("source_status")
     for key in THIN_FIELDS[1:]:
-        if _string_list(payload.get(key)) is None:
+        if not _string_list(payload.get(key)):
             missing.append(key)
     return missing
 
