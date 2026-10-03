@@ -1,0 +1,127 @@
+storyboard_id: myslef-ep01-shots-03-06-minder
+title: MYSLEF EP-01 shots 03-06
+brief: surveillance transfer leaves the tipped chair and the seated identity
+style: continuity-locked photoreal
+node_labels:
+  observed_1: minder chair in a basement surveillance aisle
+  observed_2: speaker grille set in the seated face
+  observed_3: cracked optic watching the transfer
+characters:
+  minder:
+    wardrobe: "plain solid black pullover hoodie, no logo, no print; charcoal sweatpants"
+  myslef:
+    character_locks:
+      - no nose
+    references:
+      - path: head-lock-short-flush.png
+        role: character
+        declares:
+          - nose
+character_locks:
+  - no nose
+aspect_ratio: "9:16"
+props:
+  chair:
+    states:
+      C0: "upright, occupied, at the bench"
+      C1: "shoved back from the bench"
+      C2: "rolling down the aisle"
+      C3: "tipped on its side at the far end of the aisle by the rack gap"
+      C4: "on its side at the far end of the aisle by the rack gap; it does not move"
+frames:
+  - frame_id: frame-001
+    duration_seconds: 2.0
+    join: cut
+    characters: [minder, myslef]
+    prop_states:
+      chair: C0
+    action: the minder sits typing at the bench
+    reference_images: [ref://minder-head, head-lock-short-flush.png]
+    node_states:
+      observed_1: occupied at the bench
+      observed_2: closed and silent
+      observed_3: cracked and watching
+    motif_ownership:
+      observed_2: myslef
+      observed_3: myslef
+    object_states:
+      chair: upright, occupied, at the bench
+      laptop: playing a cartoon at low volume
+    light_states:
+      room: dim practical light from racks and laptop
+    material_states:
+      optic: spiderweb crack visible
+    convergence_sites: [primary]
+    residue_add:
+      - laptop cartoon audio under the hum
+  - frame_id: frame-002
+    duration_seconds: 1.0
+    join:
+      chain_from: frame-001
+      at_seconds: 2.0
+    characters: [minder, myslef]
+    prop_states:
+      chair: C1->C3
+    action: the minder springs up and the chair skids
+    reference_images: [ref://chair]
+    node_states:
+      observed_1: minder springing up out of it
+      observed_2: closed
+      observed_3: watching
+    motif_ownership:
+      observed_2: myslef
+    object_states:
+      chair: tipped on its side at the far end of the aisle by the rack gap
+      laptop: still playing
+    light_states:
+      room: dim practical light
+    material_states:
+      optic: crack visible
+    convergence_sites: [primary]
+  - frame_id: frame-003
+    duration_seconds: 2.0
+    join: cut
+    characters: [myslef]
+    prop_states:
+      chair: C3
+    action: myslef stays seated at the rack
+    reference_images: [ref://myslef]
+    node_states:
+      observed_1: offscreen
+      observed_2: sounding
+      observed_3: cracked, at frame edge
+    motif_ownership:
+      observed_2: myslef
+    object_states:
+      chair: tipped on its side at the far end of the aisle by the rack gap
+    light_states:
+      room: dim practical light
+    material_states:
+      optic: crack visible
+    convergence_sites: [primary]
+  - frame_id: frame-004
+    duration_seconds: 1.0
+    join:
+      chain_from: frame-002
+    opens_with: exit
+    characters: []
+    prop_states:
+      chair: C3->C4
+    action: the minder walks out of frame right
+    reference_images: [ref://exit]
+    node_states:
+      observed_1: empty and still
+      observed_2: sounding offscreen
+      observed_3: offscreen
+    motif_ownership:
+      observed_2: myslef
+    object_states:
+      chair: "on its side at the far end of the aisle by the rack gap; it does not move"
+      laptop: still playing at frame edge
+    light_states:
+      room: same dim practical light, unchanged
+    material_states:
+      optic: offscreen
+    convergence_sites: [primary]
+    residue_add:
+      - chair stays tipped

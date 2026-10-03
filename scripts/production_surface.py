@@ -15,6 +15,7 @@ from typing import Any
 SCRIPTS = Path(__file__).resolve().parent
 sys.path.insert(0, str(SCRIPTS))
 
+from continuity_locks import bind_strict, unbind_strict  # noqa: E402
 from io_safety import PathSafetyError, resolve_bounded_path, write_text_bounded  # noqa: E402
 from production_engine import (  # noqa: E402
     ProductionRequest,
@@ -140,12 +141,13 @@ def run(surface: str, actions: set[str]) -> int:
     parser.add_argument("--output")
     parser.add_argument("--format", default="markdown")
     parser.add_argument("--duration", type=float, default=8.0)
+    parser.add_argument("--strict", action="store_true")
     parser.add_argument(
         "--artifact-root",
         help="Optional directory for receipts/artifacts/qa/metadata tree",
     )
     args = parser.parse_args()
-
+    strict_token = bind_strict(bool(args.strict))
     try:
         loaded_input = _load_optional(args.input)
         loaded_evidence = _load_optional(args.evidence)
@@ -242,6 +244,8 @@ def run(surface: str, actions: set[str]) -> int:
         }
         print(json.dumps(fail, indent=2, sort_keys=True), flush=True)
         return 1
+    finally:
+        unbind_strict(strict_token)
 
     if artifact.get("status") == "NOT_COMPUTABLE":
         return 4

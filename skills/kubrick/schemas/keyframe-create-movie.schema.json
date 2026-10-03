@@ -18,11 +18,81 @@
     "brief": {"type": "string", "minLength": 1},
     "aspectRatio": {"type": "string", "minLength": 1},
     "targetDurationSeconds": {"type": "number", "exclusiveMinimum": 0},
+    "plannedDurationSeconds": {"type": "number", "exclusiveMinimum": 0},
     "qualityPreset": {"enum": ["draft", "standard", "high"]},
     "style": {"type": "string", "minLength": 1},
     "referenceImages": {
       "type": "array",
       "items": {"type": "string", "minLength": 1}
+    },
+    "dropped_references": {
+      "type": "array",
+      "items": {
+        "type": "object",
+        "additionalProperties": false,
+        "required": ["shot", "references", "reason"],
+        "properties": {
+          "shot": {"type": "string"},
+          "references": {"type": "array", "items": {"type": "string"}},
+          "reason": {"type": "string"}
+        }
+      }
+    },
+    "cut_list": {
+      "type": "array",
+      "items": {
+        "type": "object",
+        "additionalProperties": false,
+        "required": ["shot", "source_in", "source_out", "planned_seconds", "generated_seconds"],
+        "properties": {
+          "shot": {"type": "string"},
+          "source_in": {"type": "number"},
+          "source_out": {"type": "number"},
+          "planned_seconds": {"type": "number"},
+          "generated_seconds": {"type": "number"}
+        }
+      }
+    },
+    "prep_warnings": {
+      "type": "array",
+      "items": {
+        "type": "object",
+        "additionalProperties": false,
+        "required": ["code", "shot", "message", "recommendation"],
+        "properties": {
+          "code": {"type": "string"},
+          "shot": {"type": ["string", "null"]},
+          "character": {"type": "string"},
+          "message": {"type": "string"},
+          "recommendation": {"type": "string"}
+        }
+      }
+    },
+    "technique_suggestions": {
+      "type": "array",
+      "items": {
+        "type": "object",
+        "additionalProperties": false,
+        "required": ["id", "shot", "intent", "prompt_template", "trim_guidance", "applied", "evidence"],
+        "properties": {
+          "id": {"type": "string"},
+          "shot": {"type": "string"},
+          "intent": {"type": "string"},
+          "prompt_template": {"type": "string"},
+          "trim_guidance": {"type": "string"},
+          "applied": {"type": "boolean"},
+          "evidence": {"type": "string"}
+        }
+      }
+    },
+    "validation": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": ["status", "errors"],
+      "properties": {
+        "status": {"type": "string"},
+        "errors": {"type": "array", "items": {"type": "string"}}
+      }
     },
     "shots": {
       "type": "array",
@@ -37,6 +107,19 @@
           "imagePrompt": {"type": "string", "minLength": 1},
           "videoPrompt": {"type": "string", "minLength": 1},
           "durationSeconds": {"type": "number", "minimum": 3, "maximum": 60},
+          "startImage": {
+            "type": "object",
+            "additionalProperties": false,
+            "required": ["sourceFrame"],
+            "properties": {
+              "sourceFrame": {"type": "string", "minLength": 1},
+              "atSeconds": {"type": "number"}
+            }
+          },
+          "referenceImages": {
+            "type": "array",
+            "items": {"type": "string", "minLength": 1}
+          },
           "audio": {
             "type": "object",
             "additionalProperties": false,

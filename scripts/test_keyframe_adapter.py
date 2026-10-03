@@ -13,7 +13,12 @@ import yaml
 ROOT = Path(__file__).resolve().parent.parent
 sys.path.insert(0, str(ROOT / "scripts"))
 
-from adapt_keyframe import MAX_SECONDS, MIN_SECONDS, adapt_keyframe_packet  # noqa: E402
+from adapt_keyframe import (  # noqa: E402
+    MAX_SECONDS,
+    MIN_SECONDS,
+    _with_plan_duration,
+    adapt_keyframe_packet,
+)
 from adapt_provider import PROVIDERS, adapt  # noqa: E402
 from intent_router import resolve  # noqa: E402
 from mcp_kubrick_server import TOOLS  # noqa: E402
@@ -107,7 +112,7 @@ def test_duration_bounds_fail_closed() -> None:
     assert top["shots"][0]["durationSeconds"] == 60
     fractional = _movie(_with_duration(10.5))
     assert fractional["shots"][0]["durationSeconds"] == 10.5
-    for seconds in (2, 2.9, 60.1, 61):
+    for seconds in (60.1, 61):
         refused = adapt_keyframe_packet(_with_duration(seconds))
         assert refused["status"] == "NOT_COMPUTABLE"
         assert "shots" not in refused
@@ -131,13 +136,83 @@ def test_duration_bounds_fail_closed() -> None:
     assert MIN_SECONDS == 3.0 and MAX_SECONDS == 60.0
 
 
+def test_plan_duration_keeps_non_numeric_declarations() -> None:
+    frame = {"frame_id": "frame-001", "provider_parameters": {"duration_seconds": "slow"}}
+    kept = _with_plan_duration(frame, {"generated_seconds": "slow"}, 4.0)
+    assert kept["provider_parameters"]["duration_seconds"] == "slow"
+    padded = _with_plan_duration(frame, {"generated_seconds": 3.6}, 2.0)
+    assert padded["provider_parameters"]["duration_seconds"] == 3.6
+
+
+def _floor_packet(
+    planned: float, join: dict[str, str] | None, opens: str | None,
+) -> dict[str, object]:
+    second: dict[str, object] = {
+        "frame_id": "frame-002" if join else "frame-001",
+        "prompt": "a room holds still",
+        "provider_parameters": {"duration_seconds": planned},
+    }
+    if join is not None:
+        second["join"] = join
+    if opens is not None:
+        second["opens_with"] = opens
+    frames: list[dict[str, object]] = []
+    if join is not None:
+        frames.append(
+            {
+                "frame_id": "frame-001",
+                "prompt": "a room holds still",
+                "provider_parameters": {"duration_seconds": 4},
+            }
+        )
+    frames.append(second)
+    return {
+        "source_graph_id": "duration-graph",
+        "provider": "keyframe",
+        "validation": {"status": "VALID", "errors": []},
+        "frames": frames,
+    }
+
+
+def test_generated_duration_floors_then_trims() -> None:
+    cases = (
+        (1.0, {"chain_from": "frame-001"}, None, 3, 1.6, 2.6, 5),
+        (2.0, {"chain_from": "frame-001"}, None, 3.6, 1.6, 3.6, 6),
+        (1.0, {"chain_from": "frame-001"}, "exit", 3, 0.0, 1.0, 5),
+        (2.0, None, None, 3, 0.0, 2.0, 2),
+        (2.9, None, None, 3, 0.0, 2.9, 2.9),
+    )
+    for planned, join, opens, generated, source_in, source_out, total_planned in cases:
+        movie = adapt_keyframe_packet(_floor_packet(planned, join, opens))
+        assert movie.get("status") != "NOT_COMPUTABLE", movie
+        jsonschema.validate(movie, SCHEMA)
+        shots = movie["shots"]
+        assert isinstance(shots, list)
+        assert shots[-1]["durationSeconds"] == generated
+        cuts = movie["cut_list"]
+        assert isinstance(cuts, list)
+        cut = cuts[-1]
+        assert cut["shot"] == shots[-1]["title"]
+        assert cut["source_in"] == source_in
+        assert cut["source_out"] == source_out
+        assert cut["planned_seconds"] == planned
+        assert cut["generated_seconds"] == generated
+        assert round(cut["source_out"] - cut["source_in"], 4) == planned
+        assert movie["plannedDurationSeconds"] == total_planned
+        assert movie["targetDurationSeconds"] == sum(item["durationSeconds"] for item in shots)
+    held = adapt_keyframe_packet(_with_duration(10))
+    assert "cut_list" not in held
+    assert held["plannedDurationSeconds"] == 10
+    assert held["targetDurationSeconds"] == 10
+
+
 def test_first_bad_shot_refuses_the_movie() -> None:
     packet = _with_duration(4, "frame-001")
     packet["frames"].append(
         {
             "frame_id": "frame-002",
             "prompt": "the chair tips",
-            "provider_parameters": {"duration_seconds": 2},
+            "provider_parameters": {"duration_seconds": 61},
         }
     )
     refused = adapt_keyframe_packet(packet)
@@ -212,7 +287,7 @@ def test_video_adapt_storyboard_and_grok_cap() -> None:
     assert "speech" not in movie["shots"][0]["audio"]
     short = myslef_document()
     short["frames"] = [short["frames"][0]]
-    short["frames"][0]["duration_seconds"] = 2
+    short["frames"][0]["duration_seconds"] = 61
     refused = video_adapt(yaml.safe_dump(short), "myslef", "keyframe")
     assert refused["status"] == "NOT_COMPUTABLE"
     assert "3–60" in refused["diagnostic"]["message"]
@@ -255,6 +330,8 @@ def main() -> None:
     test_create_movie_schema_and_duration_totals()
     test_shots_are_distinct_and_identity_locked()
     test_duration_bounds_fail_closed()
+    test_generated_duration_floors_then_trims()
+    test_plan_duration_keeps_non_numeric_declarations()
     test_first_bad_shot_refuses_the_movie()
     test_dialogue_preset_references_and_failures()
     test_video_adapt_storyboard_and_grok_cap()

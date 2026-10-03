@@ -2,13 +2,14 @@
 """Keyframe MCP create_movie adapter.
 
 Shot duration is inclusive 3–60 seconds. A missing duration defaults to 4
-seconds, which is inside that range and is not an 8 second cap. Out-of-range
-durations fail closed and are not clamped or dropped. Speech is omitted when
-the shot has no dialogue.
+seconds. A shorter planned beat is generated at the 3 second minimum and the
+cut list trims it back. Above 60 seconds fails closed and is not clamped.
+Speech is omitted when the shot has no dialogue.
 """
 from __future__ import annotations
 
 from collections.abc import Mapping, Sequence
+from typing import cast
 
 from brief_constraints import aspect_ratio_from, packet_locks
 from prompt_text import is_blank, join_clauses, positive_prompt
@@ -155,7 +156,7 @@ def _prompts(
     continuity = _string_list(frame.get("continuity_from_previous"))
     constraints = _string_list(frame.get("state_constraints"))
     if continuity or constraints:
-        video = positive_prompt(join_clauses(continuity) or source, constraints, negatives, locks)
+        video = positive_prompt(source, [*continuity, *constraints], negatives, locks)
     else:
         video = image
     return image, video or image
@@ -295,46 +296,181 @@ def _one_shot(
     return shot, None
 
 
-def build_create_movie(packet: Mapping[str, object]) -> dict[str, object]:
-    frames = packet.get("frames")
+def _mapped_frames(frames: object) -> list[Mapping[str, object]] | str:
     if not isinstance(frames, Sequence) or isinstance(frames, (str, bytes)) or not frames:
-        return _not_computable("no frames available for keyframe adaptation")
-    negatives = _negatives(packet)
-    shots: list[dict[str, object]] = []
+        return "no frames available for keyframe adaptation"
+    mapped: list[Mapping[str, object]] = []
     for index, frame in enumerate(frames, start=1):
         if not isinstance(frame, Mapping):
-            return _not_computable(
-                f"keyframe shot {index} is not an object; refusing to drop the shot"
-            )
-        shot, error = _one_shot(frame, packet, negatives, index)
+            return f"keyframe shot {index} is not an object; refusing to drop the shot"
+        mapped.append(frame)
+    return mapped
+
+
+def _keyframe_plan(
+    packet: Mapping[str, object], frames: Sequence[Mapping[str, object]],
+) -> tuple[Mapping[str, object], object, list[dict[str, str | None]], list[dict[str, object]],
+           list[str]]:
+    from shot_plan import (
+        collect_prep,
+        document_from_packet,
+        merged_warnings,
+        padding_errors,
+        shot_directives,
+    )
+
+    document = document_from_packet(packet)
+    prep = collect_prep(document, frames, "keyframe", default_duration=DEFAULT_SECONDS)
+    warnings = merged_warnings(packet, prep.warnings)
+    directives = shot_directives(
+        frames, "keyframe", _references(packet), default_duration=DEFAULT_SECONDS,
+    )
+    blocked = [*prep.errors, *padding_errors(frames, "keyframe", DEFAULT_SECONDS)]
+    return document, prep, warnings, directives, blocked
+
+
+def _sum_planned(directives: Sequence[Mapping[str, object]]) -> float:
+    total = 0.0
+    for item in directives:
+        value = item.get("planned_seconds")
+        if isinstance(value, bool) or not isinstance(value, (int, float)):
+            continue
+        total += float(value)
+    return total
+
+
+def _needs_cut(directives: Sequence[Mapping[str, object]]) -> bool:
+    for item in directives:
+        if item.get("chained"):
+            return True
+        if item.get("source_in") not in (0, 0.0, None):
+            return True
+        if item.get("source_out") != item.get("generated_seconds"):
+            return True
+    return False
+
+
+def _plan_sections(
+    directives: Sequence[Mapping[str, object]],
+    warnings: Sequence[Mapping[str, object]],
+    techniques: object,
+    prompts: Sequence[str] | None = None,
+) -> dict[str, object]:
+    from shot_plan import cut_list, dropped_references
+
+    sections: dict[str, object] = {
+        "prep_warnings": list(warnings),
+        "technique_suggestions": techniques,
+        "plannedDurationSeconds": _as_seconds(_sum_planned(directives)),
+    }
+    if prompts is not None:
+        sections["planned_prompts"] = list(prompts)
+    if _needs_cut(directives):
+        sections["cut_list"] = cut_list(directives)
+    if any(item.get("chained") for item in directives):
+        sections["dropped_references"] = dropped_references(directives)
+    return sections
+
+
+def _refuse(
+    message: str,
+    frames: Sequence[Mapping[str, object]],
+    directives: Sequence[Mapping[str, object]],
+    warnings: Sequence[Mapping[str, object]],
+    techniques: object,
+    errors: Sequence[str] | None = None,
+) -> dict[str, object]:
+    from shot_plan import attach_plan
+
+    payload = _not_computable(message)
+    if errors:
+        payload["errors"] = [message, *[item for item in errors if item != message]]
+    prompts = [str(frame.get("prompt") or "") for frame in frames]
+    attach_plan(payload, **_plan_sections(directives, warnings, techniques, prompts))
+    return payload
+
+
+def _apply_directive(shot: dict[str, object], directive: Mapping[str, object]) -> None:
+    if "startImage" in directive:
+        shot["startImage"] = directive["startImage"]
+    if "referenceImages" in directive:
+        shot["referenceImages"] = directive["referenceImages"]
+
+
+def _with_plan_duration(
+    frame: Mapping[str, object], directive: Mapping[str, object], declared: float,
+) -> Mapping[str, object]:
+    """Keep an invalid declared duration visible. Replace only a real planned number."""
+    from shot_plan import with_generated_duration
+
+    generated = directive.get("generated_seconds")
+    if not isinstance(generated, (int, float)) or float(generated) == declared:
+        return frame
+    return with_generated_duration(frame, float(generated))
+
+
+def build_create_movie(packet: Mapping[str, object]) -> dict[str, object]:
+    from continuity_locks import reference_block, strict_enabled
+    from shot_plan import attach_plan
+
+    mapped = _mapped_frames(packet.get("frames"))
+    if isinstance(mapped, str):
+        return _not_computable(mapped)
+    document, prep, warnings, directives, blocked = _keyframe_plan(packet, mapped)
+    techniques = getattr(prep, "techniques", [])
+    if blocked:
+        return _refuse(blocked[0], mapped, directives, warnings, techniques, blocked)
+    negatives = _negatives(packet)
+    shots: list[dict[str, object]] = []
+    for index, pair in enumerate(zip(mapped, directives), start=1):
+        frame, directive = pair
+        shot_id = str(directive.get("shot") or index)
+        declared, error = _duration(frame, shot_id)
+        if error:
+            return _refuse(error, mapped, directives, warnings, techniques)
+        prepared = _with_plan_duration(frame, directive, cast(float, declared))
+        shot, error = _one_shot(prepared, packet, negatives, index)
         if error or shot is None:
-            return _not_computable(error or f"keyframe shot {index} is not computable")
+            reason = error or f"keyframe shot {index} is not computable"
+            return _refuse(reason, mapped, directives, warnings, techniques)
+        _apply_directive(shot, directive)
         shots.append(shot)
     graph_id = str(packet.get("source_graph_id") or "unknown")
-    total = _total_seconds(shots)
     movie: dict[str, object] = {
         "title": _text(packet.get("title"), f"Kubrick {graph_id}"),
         "brief": _brief(packet),
         "aspectRatio": _aspect(packet),
-        "targetDurationSeconds": _as_seconds(total),
+        "targetDurationSeconds": _as_seconds(_total_seconds(shots)),
         "qualityPreset": _preset(packet),
         "style": _text(packet.get("style"), "continuity-locked photoreal"),
         "shots": shots,
     }
-    refs = _references(packet)
-    if refs:
-        movie["referenceImages"] = refs
+    if not any(item.get("chained") for item in directives):
+        refs = _references(packet)
+        if refs:
+            movie["referenceImages"] = refs
+    attach_plan(movie, **_plan_sections(directives, warnings, techniques))
+    ref_errors = reference_block(warnings, strict_enabled(document))
+    if ref_errors:
+        movie["validation"] = {"status": "INVALID", "errors": ref_errors}
     return movie
 
 
 def adapt_keyframe_packet(packet: Mapping[str, object]) -> dict[str, object]:
     validation = packet.get("validation")
     if isinstance(validation, Mapping) and validation.get("status") not in {None, "VALID"}:
+        from shot_plan import attach_plan, warnings_in
+
         message = "neutral adapter packet is not VALID"
         payload = _not_computable(message)
         errors = validation.get("errors")
         if isinstance(errors, Sequence) and not isinstance(errors, (str, bytes)):
             payload["errors"] = [message, *[str(item) for item in errors]]
+        attach_plan(
+            payload,
+            prep_warnings=warnings_in(packet),
+            technique_suggestions=packet.get("technique_suggestions"),
+        )
         return payload
     provider = packet.get("provider")
     if provider not in {"keyframe", "generic", None}:

@@ -1,0 +1,91 @@
+dramatic_problem: authority remains active after the leader exits because access and geometry preserve the system
+desired_state_change: personal command becomes institutional pressure
+character_pressure: a former subordinate receives access while the former authority is excluded
+format: storyboard
+aspect_ratio: "9:16"
+character_locks:
+  - no nose
+characters:
+  minder:
+    wardrobe: "plain solid black pullover hoodie, no logo, no print; charcoal sweatpants"
+  myslef:
+    character_locks:
+      - no nose
+    references:
+      - path: head-lock-short-flush.png
+        role: character
+        declares:
+          - nose
+observable_evidence:
+  - empty command chair
+  - cracked access badge
+  - controlled doorway
+observed_forms:
+  - id: observed_1
+    kind: motif
+    observed_form: minder chair in a basement surveillance aisle
+    initial_state: unresolved
+    target_state: empty and still
+    provenance_label: OBSERVED
+  - id: observed_2
+    kind: motif
+    observed_form: speaker grille set in the seated face
+    initial_state: unresolved
+    target_state: sounding
+    provenance_label: OBSERVED
+  - id: observed_3
+    kind: motif
+    observed_form: cracked optic watching the transfer
+    initial_state: unresolved
+    target_state: offscreen
+    provenance_label: OBSERVED
+relations:
+  - source: observed_1
+    target: observed_2
+    relation: transfers
+    pressure: 0.8
+    transformation: the empty authority position transfers operative access through the badge
+  - source: observed_2
+    target: observed_3
+    relation: crosses
+    pressure: 0.9
+    transformation: badge ownership determines who may cross the doorway
+layers:
+  layout_geometry:
+    - repeated work cells
+    - peripheral checkpoint
+  semantics_function:
+    - institutional persistence
+    - delegated control
+  attributes_states:
+    - vacant command
+    - transferred credential
+geometry:
+  - repeated work cells organized around an empty center
+  - one controlled doorway at the edge of the frame
+state_differentials:
+  - occupied authority becomes operative vacancy
+  - access transfers from supervisor to subordinate
+residue:
+  - laptop cartoon audio under the hum
+  - the chair stays tipped after the minder is gone
+causal_actions:
+  - the badge changes hands and the doorway grants access to the subordinate
+symbolic_channels:
+  diegetic:
+    - cracked badge changes hands
+  dramaturgical:
+    - access transfers while institutional pressure persists
+  cinematic:
+    - the empty chair remains centered while the former supervisor waits outside
+convergence_effect: badge transfer and doorway access become visible in the same frame
+convergence_sites:
+  - site_id: primary
+    node_ids: [observed_1, observed_2]
+    edge_ids: [0]
+    observable_effect: badge transfer and doorway access become visible in the same frame
+    mask_priority: 0.9
+production_constraints:
+  - practical office location
+  - one badge prop
+  - 9:16 vertical

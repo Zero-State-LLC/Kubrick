@@ -1,7 +1,7 @@
 ---
 name: kubrick
 description: Builds continuity-safe cinematic stories and visuals.
-version: 0.18.0
+version: 0.19.0
 author: Daniel Meyer (scrimshawlife-ctrl), Hermes Agent
 license: LicenseRef-Zero-State-Proprietary-1.0
 platforms: [linux, macos, windows]
@@ -138,7 +138,7 @@ Providers: `none`, `generic`, `grok-imagine`, `flux`, `sd3`, `midjourney`, and `
 
 Brief fields follow `examples/authority-transfer-storyboard/brief.yaml`: dramatic problem, desired state change, character pressure, observable evidence, layers, and production constraints. Optional `character_locks` is a list of identity constraints (`no nose`, `hairless scalp`). A `production_constraints` item prefixed `character-lock:` or `identity-lock:` is the same lock. `aspect_ratio`, or the first `N:M` token in `production_constraints`, sets Keyframe `aspectRatio`. The fallback is `16:9`.
 
-Storyboard plan frames may carry optional `duration_seconds`, `title`, `scene`, `sound`, and `speech_lines`. Keyframe allows 3–60 seconds per shot. When `sound` is omitted, the shot uses `no scored music; evidenced room presence only`.
+Storyboard plan frames may carry optional `duration_seconds`, `title`, `scene`, `sound`, and `speech_lines`. Keyframe allows 3–60 seconds per shot. When `sound` is omitted, the shot uses `no scored music; evidenced room presence only`. Optional `props` registers ordered states, and a frame `prop_states` value is a state id or `start->end`. Optional `join` is `cut` or `{chain_from, at_seconds}`. `opens_with: exit` skips the Keyframe start-frame hold from #26. Optional `characters` carry `wardrobe` and an author-supplied `references` list (`path` or `mediaObjectId`, `role`, `declares`). A frame `wardrobe` overrides that character. `apply_techniques` opts a frame into a technique template. `short_beat_threshold_seconds` overrides the provider short-beat threshold. All of these fields are optional.
 
 Authority classes:
 
@@ -277,7 +277,7 @@ terminal(command="python3 ${HERMES_SKILL_DIR}/scripts/kubrick.py do check --acti
 A valid delivery states what was produced, what was preserved, what was not
 computable, and which optional integration or human authority is required next.
 
-Current release context: `docs/ROADMAP-v0.18.md` and
-`docs/RELEASE-NOTES-v0.18.md`.
+Current release context: `docs/ROADMAP-v0.19.md` and
+`docs/RELEASE-NOTES-v0.19.md`.
 
 Source, profile, and migration rules: `references/source-and-upgrades.md`.

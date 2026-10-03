@@ -39,6 +39,37 @@ properties:
           type: array
           items: {type: string}
           description: Optional dialogue lines. Speech is omitted when this list is empty.
+        join:
+          description: Optional cut, or a chain_from object pointing at an earlier frame.
+          oneOf:
+            - const: cut
+            - type: object
+              additionalProperties: false
+              required: [chain_from]
+              properties:
+                chain_from: {type: string, minLength: 1}
+                at_seconds: {type: number}
+        opens_with: {type: string}
+        prop_states: {type: object, additionalProperties: {type: string}}
+        characters: {type: array, items: {type: string}}
+        wardrobe:
+          oneOf:
+            - type: string
+            - type: object
+              additionalProperties: {type: string}
+        apply_techniques: {type: array, items: {type: string}}
+        action: {type: string}
+        reference_images: {type: array, items: {type: string, minLength: 1}}
+  props:
+    type: object
+    additionalProperties: true
+    description: Optional prop registry. States are ordered. Frames declare prop_states.
+  characters:
+    type: object
+    additionalProperties: true
+    description: Optional character wardrobe and author-supplied reference manifests.
+  short_beat_threshold_seconds: {type: number, exclusiveMinimum: 0}
+  strict: {type: boolean}
   validation:
     type: object
     additionalProperties: false

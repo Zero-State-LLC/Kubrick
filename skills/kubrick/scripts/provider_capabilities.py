@@ -71,6 +71,24 @@ PROVIDER_CAPABILITIES: dict[str, dict[str, Any]] = {
         "multi_shot": True,
         "physics_hints": True,
         "identity_lock": True,
+        "is_multi_shot_single_clip": True,
+        "short_beat_threshold_seconds": 2.0,
+        "start_frame_hold_seconds": 1.6,
+        "exclusive_inputs": [["startImage", "referenceImages"]],
+        "exclusivity_notes": {
+            "startImage|referenceImages": (
+                "Seedance 2.5: startImage and referenceImages are mutually exclusive; "
+                "references dropped on shot {shot}"
+            ),
+        },
+        "known_drift": [
+            {
+                "id": "plain-top-motion-logo",
+                "pattern": "plain top + motion",
+                "effect": "invented chest logo/graphic",
+                "providers": ["keyframe"],
+            }
+        ],
     },
 }
 
