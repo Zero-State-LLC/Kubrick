@@ -18,6 +18,6 @@
   "transferable_structure": "center ownership is established, withdrawn, and reassigned to reveal a changed power relation",
   "non_transferable_surface": "specific corridors, costumes, carpets, monoliths, or production designs from Kubrick films",
   "production_cost": {"location_dependency":0.5,"prop_dependency":0.2,"lighting_dependency":0.4,"VFX_dependency":0.0},
-  "lexicon_links": ["axis_mundi", "empty_center", "demiurge"],
+  "lexicon_links": ["axis_mundi", "kenoma", "demiurge"],
   "confidence": 0.88
 }

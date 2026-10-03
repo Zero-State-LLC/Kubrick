@@ -193,7 +193,7 @@ def shots_from_document(
                     "verb": "changes",
                     "path_or_change": summary,
                 },
-                "camera": {"framing": "evidenced framing", "movement": "static unless evidenced"},
+                "camera": _shot_camera(frame),
                 "end_state": {"summary": summary, "residue": _residue(frame)},
                 "continuity_invariants": ["preserve_identity", "preserve_residue"],
                 "negative_constraints": _negatives(frame),
@@ -201,6 +201,12 @@ def shots_from_document(
         )
     _apply_document_locks(data, shots)
     return shots
+
+
+def _shot_camera(frame: Mapping[str, object]) -> dict[str, str]:
+    from film_grammar import shot_camera
+
+    return shot_camera(frame)
 
 
 def _apply_document_locks(data: Mapping[str, object], shots: list[dict[str, object]]) -> None:

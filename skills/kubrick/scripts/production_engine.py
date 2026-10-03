@@ -14,9 +14,9 @@ import hashlib
 import json
 from dataclasses import asdict, dataclass, field
 from datetime import datetime, timezone
-from pathlib import Path
 from typing import Any, Callable, Mapping
 
+from production_artifacts import write_artifact_tree as write_artifact_tree
 from provenance import provenance_bucket
 
 SCHEMA_VERSION = "0.16.0"
@@ -433,77 +433,3 @@ def run_production(
         context=context,
     )
     return build_surface(surface).execute(request)
-
-
-def write_artifact_tree(
-    result: ProductionResult,
-    root: str | Path,
-    *,
-    write_document: bool = True,
-) -> dict[str, str]:
-    """Write canonical artifact layout under root (receipts/, artifacts/, qa/, …)."""
-    root_path = Path(root)
-    paths = {
-        "receipts": root_path / "receipts",
-        "artifacts": root_path / "artifacts",
-        "reports": root_path / "reports",
-        "validation": root_path / "validation",
-        "qa": root_path / "qa",
-        "timeline": root_path / "timeline",
-        "references": root_path / "references",
-        "metadata": root_path / "metadata",
-    }
-    for path in paths.values():
-        path.mkdir(parents=True, exist_ok=True)
-
-    written: dict[str, str] = {}
-    envelope = result.to_dict()
-    receipt_path = paths["receipts"] / f"{result.receipt.receipt_id}.json"
-    receipt_path.write_text(json.dumps(result.receipt.to_dict(), indent=2, sort_keys=True) + "\n", encoding="utf-8")
-    written["receipt"] = str(receipt_path)
-
-    artifact_path = paths["artifacts"] / f"{result.artifact.artifact_id}.json"
-    artifact_path.write_text(json.dumps(envelope, indent=2, sort_keys=True) + "\n", encoding="utf-8")
-    written["artifact"] = str(artifact_path)
-
-    validation_path = paths["validation"] / f"{result.receipt.receipt_id}.validation.json"
-    validation_path.write_text(json.dumps(result.receipt.validation, indent=2, sort_keys=True) + "\n", encoding="utf-8")
-    written["validation"] = str(validation_path)
-
-    meta_path = paths["metadata"] / f"{result.receipt.receipt_id}.meta.json"
-    meta_path.write_text(
-        json.dumps(
-            {
-                "timestamp": result.receipt.timestamp,
-                "surface": result.surface,
-                "version": SCHEMA_VERSION,
-                "inputs": result.receipt.inputs,
-                "outputs": result.receipt.outputs,
-                "warnings": result.receipt.warnings,
-                "validation": result.receipt.validation,
-                "receipt_hash": result.receipt.receipt_hash,
-            },
-            indent=2,
-            sort_keys=True,
-        )
-        + "\n",
-        encoding="utf-8",
-    )
-    written["metadata"] = str(meta_path)
-
-    if result.action == "qa":
-        qa_path = paths["qa"] / f"{result.artifact.artifact_id}.qa.json"
-        qa_path.write_text(json.dumps(envelope, indent=2, sort_keys=True) + "\n", encoding="utf-8")
-        written["qa"] = str(qa_path)
-
-    if result.surface == "video" and result.action in {"shot", "sequence", "timeline"}:
-        tl_path = paths["timeline"] / f"{result.artifact.artifact_id}.json"
-        tl_path.write_text(json.dumps(result.artifact.payload, indent=2, sort_keys=True) + "\n", encoding="utf-8")
-        written["timeline"] = str(tl_path)
-
-    if write_document and result.document_markdown:
-        doc_path = paths["artifacts"] / f"{result.artifact.artifact_id}.md"
-        doc_path.write_text(result.document_markdown, encoding="utf-8")
-        written["document"] = str(doc_path)
-
-    return written

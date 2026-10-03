@@ -28,6 +28,7 @@ from provider_capabilities import (  # noqa: E402
 from shot_plan import collect_prep, generation_seconds, shot_directives  # noqa: E402
 from spend_plan import CHECKLIST, budget_error, spend_estimate  # noqa: E402
 from storyboard_prompts import adapter_packet_from_document  # noqa: E402
+from test_corpus_hygiene import fixture_capabilities as _fixture_capabilities  # noqa: E402
 
 PY = sys.executable
 EXAMPLE = ROOT / "examples/myslef-minder/storyboard-plan.yaml"
@@ -221,28 +222,29 @@ def test_keyframe_capabilities_regression_and_overlay() -> None:
     assert blocks[0]["source"] == "vendor_claim"
     assert blocks[0]["start_frame_hold_seconds"] == 0.4
     assert blocks[1]["source"] == "observed"
-    lab = provider_capabilities("keyframe", "seedance-lab")
-    assert lab["start_frame_hold_seconds"] == 0.5
-    assert lab["negative_prompt_effective"] is False
-    assert "max_references" not in lab
-    assert "native_audio" not in lab
-    generated, hold = generation_seconds(
-        2.0, chained=True, exit_open=False, provider="keyframe",
-        document={"model": "seedance-lab"},
-    )
-    assert (generated, hold) == (3.0, 0.5)
-    directives = shot_directives(
-        [_frame("frame-002", duration_seconds=2.0, join={"chain_from": "frame-001"})],
-        "keyframe",
-        [],
-        document={"model": "seedance-lab"},
-    )
-    assert directives[0]["source_in"] == 0.5
-    assert directives[0]["hold_seconds"] == 0.5
+    with _fixture_capabilities():
+        lab = provider_capabilities("keyframe", "seedance-lab")
+        assert lab["start_frame_hold_seconds"] == 0.5
+        assert lab["negative_prompt_effective"] is False
+        assert "max_references" not in lab
+        assert "native_audio" not in lab
+        generated, hold = generation_seconds(
+            2.0, chained=True, exit_open=False, provider="keyframe",
+            document={"model": "seedance-lab"},
+        )
+        assert (generated, hold) == (3.0, 0.5)
+        directives = shot_directives(
+            [_frame("frame-002", duration_seconds=2.0, join={"chain_from": "frame-001"})],
+            "keyframe",
+            [],
+            document={"model": "seedance-lab"},
+        )
+        assert directives[0]["source_in"] == 0.5
+        assert directives[0]["hold_seconds"] == 0.5
+        assert "is false" not in _recommendation("keyframe", {"model": "seedance-effective"})
     held = provider_capabilities("keyframe", input_mode="lab-hold")
     assert held["start_frame_hold_seconds"] == 0.25
     assert "is false" in _recommendation("keyframe")
-    assert "is false" not in _recommendation("keyframe", {"model": "seedance-effective"})
 
 
 def _raises(action: Callable[[], object], *needles: str) -> None:
@@ -315,16 +317,17 @@ def test_registry_warnings_uses_drift_path_only() -> None:
 
 def test_capability_staleness_and_schema() -> None:
     fresh = capability_warnings("keyframe", as_of=AS_OF)
-    stale = capability_warnings("keyframe", {"model": "seedance-stale"}, as_of=AS_OF)
+    with _fixture_capabilities():
+        stale = capability_warnings("keyframe", {"model": "seedance-stale"}, as_of=AS_OF)
+        assert stale and stale[0]["code"] == "CAPABILITY_STALE"
+        assert "seedance-stale" in str(stale[0]["message"])
+        kept = capability_warnings(
+            "keyframe",
+            {"model": "seedance-stale", "capability_max_age_days": 10000},
+            as_of=AS_OF,
+        )
+        assert kept == []
     assert fresh == []
-    assert stale and stale[0]["code"] == "CAPABILITY_STALE"
-    assert "seedance-stale" in str(stale[0]["message"])
-    kept = capability_warnings(
-        "keyframe",
-        {"model": "seedance-stale", "capability_max_age_days": 10000},
-        as_of=AS_OF,
-    )
-    assert kept == []
     with tempfile.TemporaryDirectory() as directory:
         path = Path(directory) / "models.yaml"
         path.write_text(

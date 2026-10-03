@@ -1,0 +1,51 @@
+manifest_version: 0.11.5
+batch_id: hermes-corpus-wave2
+runtime: standalone-hermes
+patterns:
+  - id: alchemical_nigredo_putrefaction
+    path: references/patterns/alchemical/alchemical_nigredo_putrefaction.json
+    routes: [identity_breakdown, putrefaction, false_coherence]
+  - id: denis_marching
+    path: references/patterns/cinematic/denis_marching.json
+    routes: [group_discipline, rhythmic_formation, individual_deviation]
+  - id: kubrick_monolith
+    path: references/patterns/cinematic/kubrick_monolith.json
+    routes: [threshold_object, initiation, scale_shift]
+  - id: kubrick_one_point_control_void
+    path: references/patterns/cinematic/kubrick_one_point_control_void.json
+    routes: [perspective_control, vanishing_point, agency_void]
+  - id: kubrick_symmetry_empty_center
+    path: references/patterns/cinematic/kubrick_symmetry_empty_center.json
+    routes: [bilateral_order, empty_center, withheld_authority]
+  - id: tarkovsky_water_reflection
+    path: references/patterns/cinematic/tarkovsky_water_reflection.json
+    routes: [memory_boundary, reflection, duration]
+  - id: memetic_template_half_life
+    path: references/patterns/contemporary/cultural-signal-packs/memetic_template_half_life.json
+    routes: [template_decay, recognition_loss, role_reversal]
+  - id: platform_attention_economy_gaze
+    path: references/patterns/contemporary/cultural-signal-packs/platform_attention_economy_gaze.json
+    routes: [attention_rank, distributed_gaze, status_metric]
+  - id: propp_villainy_lack_mediation
+    path: references/patterns/myth-folklore/propp_villainy_lack_mediation.json
+    routes: [observable_lack, villainy, mediation]
+  - id: liminal_threshold_crossing
+    path: references/patterns/ritual-liminal/liminal_threshold_crossing.json
+    routes: [status_change, threshold, conditional_entry]
+  - id: peircean_icon_index_symbol
+    path: references/patterns/semiotic/peircean_icon_index_symbol.json
+    routes: [resemblance, causal_trace, convention]
+  - id: acousmatic_sound
+    path: references/patterns/sound-rhythmic/acousmatic_sound.json
+    routes: [unseen_source, offscreen_power, sonic_control]
+selection_policy:
+  primary_limit: 1
+  supporting_limit: 2
+  minimum_confidence: 0.55
+  fail_closed: NOT_COMPUTABLE
+guards:
+  observed_structure_required: true
+  mutation_required: true
+  provenance_required: true
+  latent_surface_default: true
+  tradition_boundary_required_for_non_western_sources: true

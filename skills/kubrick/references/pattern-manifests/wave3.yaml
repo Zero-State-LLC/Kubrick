@@ -1,0 +1,33 @@
+manifest_version: 0.11.5
+batch_id: hermes-corpus-wave3-targeted
+runtime: standalone-hermes
+patterns:
+  - id: withheld_cause_consequence_only
+    path: references/patterns/cinematic/withheld_cause_consequence_only.json
+    routes: [withheld_cause, consequence_only, ellipsis]
+  - id: dormant_watcher_background_presence
+    path: references/patterns/spatial-geometric/dormant_watcher_background_presence.json
+    routes: [background_figure, inert_depth, unaddressed_watcher]
+  - id: automaton_uncanny_double
+    path: references/patterns/cinematic/automaton_uncanny_double.json
+    routes: [uncanny_double, near_human, mismatched_body]
+  - id: anempathetic_sound_indifference
+    path: references/patterns/sound-rhythmic/anempathetic_sound_indifference.json
+    routes: [indifferent_playback, continuing_audio, anempathetic]
+  - id: power_failure_world_response
+    path: references/patterns/cinematic/power_failure_world_response.json
+    routes: [blackout, electrical_failure, recurring_outage]
+  - id: horror_domestic_trap
+    path: references/patterns/cinematic/horror_domestic_trap.json
+    routes: [domestic_enclosure, hostile_repetition, contamination]
+selection_policy:
+  primary_limit: 1
+  supporting_limit: 2
+  minimum_confidence: 0.55
+  fail_closed: NOT_COMPUTABLE
+guards:
+  observed_structure_required: true
+  mutation_required: true
+  provenance_required: true
+  latent_surface_default: true
+  tradition_boundary_required_for_non_western_sources: true

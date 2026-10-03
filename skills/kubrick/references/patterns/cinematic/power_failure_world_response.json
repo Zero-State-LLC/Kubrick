@@ -1,0 +1,67 @@
+{
+  "pattern_id": "power_failure_world_response",
+  "title": "Power Failure / The World Answers by Going Dark",
+  "version": "0.11.5",
+  "domain": "cinematic",
+  "source_tier": "COMPARATIVE",
+  "source_status": "VALIDATED",
+  "source_refs": [
+    {
+      "author": "Horror and thriller staging tradition",
+      "title": "Electrical failure as a world reply",
+      "date": "20th-21st century",
+      "cultural_context": "Narrative cinema in which a blackout is timed to an event and may return later"
+    }
+  ],
+  "observed_structure": [
+    "Practical sources define what can be seen.",
+    "Those sources fail on the peak of an event, not at a random moment.",
+    "The same failure can return later, so the dark is a motif and not a one-time effect."
+  ],
+  "dramatic_operations": [
+    "drop practical illumination as the world answers an event",
+    "let darkness arrive on a sonic peak rather than as a random outage",
+    "allow the same failure to recur later as a motif"
+  ],
+  "transformation_grammars": [
+    "practicals-to-blackout",
+    "peak-timed-failure"
+  ],
+  "grammar_family": "descent",
+  "cinematic_affordances": [
+    "a small set of practicals established before they die",
+    "the cut or the outage landed on an audio peak",
+    "a beat of black before a reduced image returns",
+    "a later recurrence of the same failure with a changed stake"
+  ],
+  "applicable_genres": ["horror", "thriller", "science fiction", "drama"],
+  "applicable_formats": ["feature", "pilot", "episode", "short"],
+  "cultural_scope": [
+    "general electrical-failure motif; do not claim a supernatural grid without project rules"
+  ],
+  "misuse_risks": [
+    "a blackout used only to hide a missing effect",
+    "killing the lights with no established practicals",
+    "a single outage that never returns and therefore carries no motif"
+  ],
+  "mutation_requirements": {
+    "required": true,
+    "variables": [
+      "which practicals fail",
+      "what peak they answer",
+      "how long the dark lasts",
+      "what is different when the image returns",
+      "whether the failure recurs"
+    ]
+  },
+  "transferable_structure": "a power failure answers the scene on a peak and can return later as the world's repeated reply",
+  "non_transferable_surface": "a copied blackout gag, flicker pattern, or generator stunt from a specific film",
+  "production_cost": {
+    "location_dependency": 0.4,
+    "prop_dependency": 0.2,
+    "lighting_dependency": 0.8,
+    "VFX_dependency": 0.1
+  },
+  "lexicon_links": ["uranus", "black", "silence"],
+  "confidence": 0.7
+}

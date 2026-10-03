@@ -6,10 +6,11 @@
   "source_tier": "PRIMARY",
   "source_status": "VALIDATED",
   "source_refs": [{"author":"Stanley Kubrick","title":"Selected films: 2001, The Shining, Eyes Wide Shut","date":"1968-1999","cultural_context":"Kubrick filmography"}],
-  "observed_structure": ["red is initially absent, peripheral, or materially limited", "the color accumulates through recurring objects, spaces, or light", "red becomes dominant only when an existing process reaches consequence"],
+  "observed_structure": ["red is initially absent, peripheral, or materially limited", "the color accumulates through recurring objects, spaces, or light", "red becomes dominant only when an existing process reaches consequence", "red residue remains after the irreversible action"],
   "dramatic_operations": ["mark culmination rather than warning", "make accumulated pressure visible", "transfer a latent system into dominant material state"],
   "transformation_grammars": ["peripheral-to-dominant color", "accumulation-to-culmination"],
-  "cinematic_affordances": ["small red elements recurring with increased area", "neutral palette displaced by one saturated field", "red transferred from object to architecture or light", "final recurrence tied to irreversible action"],
+  "grammar_family": "coagulation",
+  "cinematic_affordances": ["small red elements recurring with increased area", "neutral palette displaced by one saturated field", "red transferred from object to architecture or light", "final recurrence tied to irreversible action", "delayed red field before the color occupies area", "warm-light takeover of a previously neutral source"],
   "applicable_genres": ["drama", "horror", "thriller", "science fiction", "satire"],
   "applicable_formats": ["feature", "pilot", "short", "single-frame"],
   "cultural_scope": ["film-derived color progression; color meaning remains project-specific"],
@@ -18,6 +19,6 @@
   "transferable_structure": "a color state grows through recurrence until it materially embodies an accumulated process",
   "non_transferable_surface": "specific Kubrick sets, costumes, carpets, masks, or room designs",
   "production_cost": {"location_dependency":0.2,"prop_dependency":0.5,"lighting_dependency":0.7,"VFX_dependency":0.1},
-  "lexicon_links": ["rubedo", "mars", "sulfur", "culmination"],
+  "lexicon_links": ["rubedo", "mars", "sulfur", "coagulation"],
   "confidence": 0.88
 }

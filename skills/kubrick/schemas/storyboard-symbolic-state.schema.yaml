@@ -87,6 +87,40 @@ properties:
             at_seconds: {type: number}
             asset: {type: string}
             verified: {type: boolean}
+        camera:
+          type: object
+          additionalProperties: false
+          description: Optional shot grammar. Known terms expand from the film grammar registry.
+          properties:
+            size:
+              description: Shot size id, or a list of them.
+              oneOf:
+                - {type: string}
+                - {type: array, items: {type: string}}
+            angle:
+              description: Camera angle id, or a list of them.
+              oneOf:
+                - {type: string}
+                - {type: array, items: {type: string}}
+            lens_mm:
+              type: number
+              exclusiveMinimum: 0
+              description: Focal length in millimetres. Mapped to a lens band by range.
+            move:
+              description: Camera move id, or a list of them.
+              oneOf:
+                - {type: string}
+                - {type: array, items: {type: string}}
+            focus:
+              description: Focus move id, such as rack focus, or a list of them.
+              oneOf:
+                - {type: string}
+                - {type: array, items: {type: string}}
+        cut:
+          description: Edit type into this frame. A grammar id, or a list of them.
+          oneOf:
+            - {type: string}
+            - {type: array, items: {type: string}}
   props:
     type: object
     additionalProperties: true

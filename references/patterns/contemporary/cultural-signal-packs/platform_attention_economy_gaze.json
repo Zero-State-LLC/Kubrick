@@ -60,7 +60,7 @@
     "lighting_dependency": 0.4,
     "VFX_dependency": 0.2
   },
-  "lexicon_links": ["panopticon", "egregore", "witness"],
+  "lexicon_links": ["archons", "egregore", "scrying"],
   "confidence": 0.74,
   "provenance_notes": "Memetic/cultural signal pack with explicit time-sensitive status; revalidate before each production cycle."
 }

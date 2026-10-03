@@ -28,7 +28,45 @@ FRAME_KEYS = (
     "light_states",
     "object_states",
     "keep",
+    "camera",
+    "cut",
 )
+# Keys a plan, a storyboard frame, or an adapter frame may carry. Anything else
+# warns UNKNOWN_FIELD instead of disappearing without a trace.
+KNOWN_FRAME_KEYS = frozenset({
+    *FRAME_KEYS,
+    "frame_id",
+    "ordinal",
+    "node_states",
+    "motif_ownership",
+    "material_states",
+    "residue",
+    "residue_add",
+    "convergence_sites",
+    "required_mutations",
+    "prohibited_resets",
+    "allow_resets",
+    "duration_seconds",
+    "durationSeconds",
+    "duration",
+    "title",
+    "scene",
+    "sound",
+    "audio_sound",
+    "speech_lines",
+    "dialogue",
+    "lines",
+    "speech",
+    "negative_constraints",
+    "prompt",
+    "state_constraints",
+    "continuity_from_previous",
+    "provider_parameters",
+    "qualityPreset",
+    "quality_preset",
+    "aspect_ratio",
+    "aspectRatio",
+})
 PREP_KEYS = (
     "audio_strategy",
     "budget_cap_credits",
@@ -51,7 +89,17 @@ ROOT_KEYS = (
 
 
 def planning_frame_fields(spec: Mapping[str, object]) -> dict[str, object]:
-    return {key: spec[key] for key in FRAME_KEYS if key in spec and spec.get(key) is not None}
+    found = {
+        key: spec[key]
+        for key in FRAME_KEYS
+        if key != "camera" and key in spec and spec.get(key) is not None
+    }
+    from film_grammar import carried_camera
+
+    camera = carried_camera(spec.get("camera"))
+    if camera:
+        found["camera"] = camera
+    return found
 
 
 def planning_root_fields(plan: Mapping[str, object]) -> dict[str, object]:

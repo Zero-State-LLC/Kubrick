@@ -1,0 +1,483 @@
+schema_version: "1.0.0"
+entries:
+  - id: ews
+    category: shot_size
+    definition: An extreme wide shot holds a large field. Any figure reads as small against the place.
+    prompt_phrase: extreme wide shot, the figure small in a large field
+    conflicts: []
+    evidence: Working definition for the Kubrick film-grammar registry.
+    aliases: [extreme wide, extreme wide shot, extreme-wide]
+  - id: ws
+    category: shot_size
+    definition: A wide shot shows the whole body and enough of the room to place it.
+    prompt_phrase: wide shot, full body with room around it
+    conflicts: []
+    evidence: Working definition for the Kubrick film-grammar registry.
+    aliases: [wide, wide shot]
+  - id: fs
+    category: shot_size
+    definition: A full shot frames the body from head to feet, with little spare space above or below.
+    prompt_phrase: full shot, head to feet
+    conflicts: []
+    evidence: Working definition for the Kubrick film-grammar registry.
+    aliases: [full shot, full-shot]
+  - id: mws
+    category: shot_size
+    definition: A medium-wide shot cuts the body around the knees and still leaves space at the sides.
+    prompt_phrase: medium-wide shot, cut near the knees
+    conflicts: []
+    evidence: Working definition for the Kubrick film-grammar registry.
+    aliases: [medium wide, medium-wide, medium wide shot]
+  - id: ms
+    category: shot_size
+    definition: A medium shot holds the body from about the waist upward.
+    prompt_phrase: medium shot, from about the waist up
+    conflicts: []
+    evidence: Working definition for the Kubrick film-grammar registry.
+    aliases: [medium, medium shot]
+  - id: mcu
+    category: shot_size
+    definition: A medium close-up holds the head and shoulders and cuts near the chest.
+    prompt_phrase: medium close-up, head and shoulders
+    conflicts: []
+    evidence: Working definition for the Kubrick film-grammar registry.
+    aliases: [medium close-up, medium close up, mcu]
+  - id: cu
+    category: shot_size
+    definition: A close-up lets the face, or one object, fill most of the frame.
+    prompt_phrase: close-up, the face or one object filling the frame
+    conflicts: []
+    evidence: Working definition for the Kubrick film-grammar registry.
+    aliases: [close-up, close up]
+  - id: ecu
+    category: shot_size
+    definition: An extreme close-up fills the frame with one small detail, such as an eye or a crack.
+    prompt_phrase: ECU, an extreme close-up filling the frame with one detail
+    conflicts: []
+    evidence: MYSLEF EP-01 shot 05 is an 85 mm locked ECU on the cracked optic.
+    aliases: [extreme close-up, extreme close up]
+  - id: insert
+    category: shot_size
+    definition: An insert is a tight view of a prop or detail, cut in beside the wider action.
+    prompt_phrase: insert of one prop or detail
+    conflicts: []
+    evidence: Working definition for the Kubrick film-grammar registry.
+    aliases: [insert shot, detail insert]
+
+  - id: eye-level
+    category: angle
+    definition: The lens sits near the subject's eye height, so the view is not looking up or down.
+    prompt_phrase: eye-level camera
+    conflicts: []
+    evidence: Working definition for the Kubrick film-grammar registry.
+    aliases: [eye level, eye-level]
+  - id: low-angle
+    category: angle
+    definition: The lens looks up at the subject from below eye height.
+    prompt_phrase: low angle, looking up at the subject
+    conflicts: []
+    evidence: Working definition for the Kubrick film-grammar registry.
+    aliases: [low, low angle, low-angle]
+  - id: high-angle
+    category: angle
+    definition: The lens looks down on the subject from above eye height.
+    prompt_phrase: high angle, looking down on the subject
+    conflicts: []
+    evidence: Working definition for the Kubrick film-grammar registry.
+    aliases: [high, high angle, high-angle]
+  - id: overhead
+    category: angle
+    definition: The lens looks nearly straight down, so the floor plan reads more than the face.
+    prompt_phrase: overhead angle, looking nearly straight down
+    conflicts: []
+    evidence: Working definition for the Kubrick film-grammar registry.
+    aliases: [overhead, top down, bird's eye]
+  - id: dutch
+    category: angle
+    definition: The horizon is canted, so verticals in the room lean in the frame.
+    prompt_phrase: dutch angle, horizon tilted
+    conflicts: []
+    evidence: Working definition for the Kubrick film-grammar registry.
+    aliases: [dutch, dutch angle, dutch tilt]
+  - id: pov
+    category: angle
+    definition: The frame is what one character sees, without showing that character's face as the viewer.
+    prompt_phrase: point-of-view angle, seen through a character's eyes
+    conflicts: []
+    evidence: Working definition for the Kubrick film-grammar registry.
+    aliases: [pov, point of view, point-of-view]
+  - id: ots
+    category: angle
+    definition: One character's shoulder or the back of the head stays in the foreground while the lens faces someone else.
+    prompt_phrase: over-the-shoulder angle, a foreground shoulder facing the other person
+    conflicts: []
+    evidence: Working definition for the Kubrick film-grammar registry.
+    aliases: [ots, over the shoulder, over-the-shoulder]
+
+  - id: ultra-wide
+    category: lens_band
+    definition: An ultra-wide lens, about 14 to 24 mm, bends straight lines near the edges and stretches the depth of a room.
+    prompt_phrase: ultra-wide lens, about 14 to 24 millimetres
+    conflicts: []
+    evidence: Working definition for the Kubrick film-grammar registry.
+    aliases: [ultra wide, ultra-wide, 14mm, 24mm]
+    lens_mm_min: 14
+    lens_mm_max: 24
+  - id: wide-lens
+    category: lens_band
+    definition: A wide lens, about 28 to 35 mm, keeps the room readable without the strong bend of an ultra-wide.
+    prompt_phrase: wide lens, about 28 to 35 millimetres
+    conflicts: []
+    evidence: MYSLEF EP-01 shots 03 and 06 are 35 mm.
+    aliases: [wide lens, 28mm, 35mm]
+    lens_mm_min: 28
+    lens_mm_max: 35
+  - id: normal-lens
+    category: lens_band
+    definition: A normal lens, around 50 mm, keeps relative sizes close to what the eye expects at that distance.
+    prompt_phrase: normal lens, around 50 millimetres
+    conflicts: []
+    evidence: Working definition for the Kubrick film-grammar registry.
+    aliases: [normal, normal lens, 50mm]
+    lens_mm_min: 40
+    lens_mm_max: 65
+  - id: short-tele
+    category: lens_band
+    definition: A short telephoto, around 85 mm, compresses the face slightly and lets the background fall back.
+    prompt_phrase: short telephoto, around 85 millimetres
+    conflicts: []
+    evidence: MYSLEF EP-01 shot 05 is 85 mm.
+    aliases: [short tele, short telephoto, 85mm, 85 mm]
+    lens_mm_min: 70
+    lens_mm_max: 110
+  - id: long-tele
+    category: lens_band
+    definition: A long telephoto, 135 mm or longer, stacks distant planes together and isolates a small subject.
+    prompt_phrase: long telephoto, 135 millimetres or longer
+    conflicts: []
+    evidence: Working definition for the Kubrick film-grammar registry.
+    aliases: [long tele, long telephoto, 135mm]
+    lens_mm_min: 135
+  - id: macro
+    category: lens_band
+    definition: Macro framing focuses very near a surface. The subject is large in frame and the background drops out of focus.
+    prompt_phrase: macro focus on a near surface
+    conflicts: []
+    evidence: Working definition for the Kubrick film-grammar registry.
+    aliases: [macro, macro lens]
+
+  - id: static
+    category: move
+    definition: The camera stays fixed. It does not travel, pan, tilt, or zoom during the shot.
+    prompt_phrase: locked-off camera, static, with no travel
+    conflicts: []
+    evidence: MYSLEF EP-01 shot 05 is a locked view.
+    aliases: [static, locked, locked-off, locked off]
+  - id: pan
+    category: move
+    definition: The camera turns left or right from one fixed spot, without travelling through the room.
+    prompt_phrase: pan left or right from a fixed spot
+    conflicts: []
+    evidence: Working definition for the Kubrick film-grammar registry.
+    aliases: [pan]
+  - id: tilt
+    category: move
+    definition: The camera pivots up or down from one fixed spot. A tilt-down aims the lens toward the floor.
+    prompt_phrase: tilt up or down from a fixed spot
+    conflicts: []
+    evidence: MYSLEF EP-01 shot 04 tilts down near 4.1 seconds.
+    aliases: [tilt, tilt-down, tilt down, tilt-up, tilt up]
+  - id: snap-pan
+    category: move
+    definition: A snap pan yanks the aim from one direction to another in a single fast turn, with no travel of the camera body.
+    prompt_phrase: snap pan, a sudden fast pan to a new aim
+    conflicts: [chain_from_start_frame]
+    evidence: MYSLEF EP-01 lost a snap pan on shot 04 because that shot chained from shot 03's last frame.
+    provider_notes: A chain that starts on an earlier frame already shows that frame, so the discontinuous pan is not visible inside the chain.
+    aliases: [snap, snap pan, snap-pan]
+  - id: whip-pan
+    category: move
+    definition: A whip pan turns so fast that the middle of the move smears and the new aim arrives at the end.
+    prompt_phrase: whip pan, a pan fast enough to blur the middle
+    conflicts: [chain_from_start_frame]
+    evidence: Working definition for the Kubrick film-grammar registry. The same chain limit as a snap pan applies.
+    provider_notes: A chained start image cannot show the blurred middle of a whip. The conflict is warned instead of dropped in silence.
+    aliases: [whip, whip pan, whip-pan]
+  - id: push-in
+    category: move
+    definition: The camera travels forward along its lens axis, so the subject grows in frame without a zoom.
+    prompt_phrase: push-in toward the subject
+    conflicts: []
+    evidence: MYSLEF EP-01 shots 03 and 06 are 35 mm push-ins.
+    aliases: [push in, push-in, slow push-in, slow push in]
+  - id: pull-out
+    category: move
+    definition: The camera travels backward along its lens axis, so more of the room enters the frame.
+    prompt_phrase: pull-out away from the subject
+    conflicts: []
+    evidence: Working definition for the Kubrick film-grammar registry.
+    aliases: [pull out, pull-out]
+  - id: dolly
+    category: move
+    definition: The camera travels on a mount. A dolly moves along the lens axis and a truck moves sideways. The body of the camera changes place.
+    prompt_phrase: dolly or truck, the camera travelling on a mount
+    conflicts: []
+    evidence: Working definition for the Kubrick film-grammar registry.
+    aliases: [dolly, truck, dolly in, truck left]
+  - id: track
+    category: move
+    definition: The camera travels with a moving subject and keeps that subject in frame while the background slides.
+    prompt_phrase: tracking shot that follows the moving subject
+    conflicts: []
+    evidence: Working definition for the Kubrick film-grammar registry.
+    aliases: [track, tracking, follow, follow shot]
+  - id: arc
+    category: move
+    definition: The camera moves in a curve around the subject, so the background swings behind them.
+    prompt_phrase: arc or orbit around the subject
+    conflicts: []
+    evidence: Working definition for the Kubrick film-grammar registry.
+    aliases: [arc, orbit, arc shot]
+  - id: crane
+    category: move
+    definition: The camera rises or drops as a unit, on a crane arm or a pedestal, rather than only tilting from a fixed head.
+    prompt_phrase: crane or pedestal move, the camera rising or dropping
+    conflicts: []
+    evidence: Working definition for the Kubrick film-grammar registry.
+    aliases: [crane, pedestal, crane up, pedestal down]
+  - id: handheld
+    category: move
+    definition: The camera is carried. Small unsteady shifts in the frame come from the operator, not from the subject shaking.
+    prompt_phrase: handheld camera with visible operator sway
+    conflicts: []
+    evidence: MYSLEF EP-01 shot 04 continues handheld off the previous shot.
+    aliases: [handheld, hand-held, hand held]
+  - id: stabilised-float
+    category: move
+    definition: The camera travels smoothly, as if floated. The path can move, but handheld shake stays out of the frame.
+    prompt_phrase: stabilised float, a smooth moving camera without handheld shake
+    conflicts: []
+    evidence: Working definition for the Kubrick film-grammar registry.
+    aliases: [stabilised, stabilized, stabilised float, stabilized float]
+  - id: zoom
+    category: move
+    definition: Focal length changes during the shot while the camera body stays in one place. The frame tightens or widens without a dolly.
+    prompt_phrase: zoom, focal length changing while the camera body stays put
+    conflicts: []
+    evidence: Working definition for the Kubrick film-grammar registry.
+    aliases: [zoom, zoom in, zoom out]
+  - id: rack-focus
+    category: move
+    definition: Focus shifts from one distance to another during the shot. One plane goes soft as another becomes sharp.
+    prompt_phrase: rack focus from one plane to another
+    conflicts: []
+    evidence: Working definition for the Kubrick film-grammar registry.
+    aliases: [rack focus, rack-focus, pull focus]
+
+  - id: practical-only
+    category: lighting
+    definition: The only sources are lamps, screens, or other fixtures that belong in the room. No extra movie light is added.
+    prompt_phrase: practical-only light from sources inside the room
+    conflicts: []
+    evidence: MYSLEF EP-01 shots 03 to 06 are lit by the racks and one laptop.
+    aliases: [practical, practical only, practical-only]
+  - id: motivated-key
+    category: lighting
+    definition: The main light has a reason inside the scene, such as a window, a screen, or a lamp the audience can place.
+    prompt_phrase: motivated key light from a source in the scene
+    conflicts: []
+    evidence: Working definition for the Kubrick film-grammar registry.
+    aliases: [motivated, motivated key, motivated-key]
+  - id: low-key
+    category: lighting
+    definition: Most of the frame stays dark. Small areas carry the light, and shadows stay heavy.
+    prompt_phrase: low-key lighting, mostly dark with small bright areas
+    conflicts: []
+    evidence: Working definition for the Kubrick film-grammar registry.
+    aliases: [low key, low-key]
+  - id: high-key
+    category: lighting
+    definition: The frame is bright overall. Shadows are soft and deep black is scarce.
+    prompt_phrase: high-key lighting, bright with soft shadows
+    conflicts: []
+    evidence: Working definition for the Kubrick film-grammar registry.
+    aliases: [high key, high-key]
+  - id: silhouette
+    category: lighting
+    definition: The subject reads as a dark shape against a brighter ground. Facial detail is not the point of the light.
+    prompt_phrase: silhouette, a dark shape against a brighter ground
+    conflicts: []
+    evidence: Working definition for the Kubrick film-grammar registry.
+    aliases: [silhouette]
+  - id: rim-back
+    category: lighting
+    definition: A source behind the subject draws a bright edge on hair, shoulders, or a profile. The face can stay darker than that edge.
+    prompt_phrase: rim or back light tracing the subject's edge
+    conflicts: []
+    evidence: Working definition for the Kubrick film-grammar registry.
+    aliases: [rim, rim light, backlight, back light, back-light]
+  - id: top-light
+    category: lighting
+    definition: The main source is above the subject, so eye sockets and the space under the chin fall into shadow.
+    prompt_phrase: top light from above the subject
+    conflicts: []
+    evidence: Working definition for the Kubrick film-grammar registry.
+    aliases: [top light, top-light, overhead light]
+  - id: single-source
+    category: lighting
+    definition: One source does the lighting. A second lamp is not filling the shadows.
+    prompt_phrase: single light source, no fill from a second lamp
+    conflicts: []
+    evidence: Working definition for the Kubrick film-grammar registry.
+    aliases: [single source, single-source]
+  - id: color-contrast
+    category: lighting
+    definition: Two sources read as different colour temperatures, such as a warm practical against a cooler spill.
+    prompt_phrase: colour-temperature contrast between two sources
+    conflicts: []
+    evidence: Working definition for the Kubrick film-grammar registry.
+    aliases: [color contrast, colour contrast, color-temperature contrast, colour-temperature contrast]
+  - id: blackout
+    category: lighting
+    definition: The image falls to black, or near black, as an event in the shot rather than as a fade added later.
+    prompt_phrase: blackout, the image falling to near black
+    conflicts: []
+    evidence: MYSLEF EP-01 uses a blackout as a lighting event.
+    aliases: [blackout, black-out, near black]
+  - id: flicker
+    category: lighting
+    definition: The light level jumps in short flashes instead of holding one exposure.
+    prompt_phrase: flickering light, short jumps in level
+    conflicts: []
+    evidence: Working definition for the Kubrick film-grammar registry.
+    aliases: [flicker, flickering]
+
+  - id: hard-cut
+    category: edit
+    definition: The picture changes in one frame. There is no dissolve, wipe, or fade between the two shots.
+    prompt_phrase: hard cut into the frame
+    conflicts: []
+    evidence: Working definition for the Kubrick film-grammar registry.
+    aliases: [hard cut, hard-cut, straight cut]
+  - id: match-on-action
+    category: edit
+    definition: The cut lands while a movement is still going, so the action continues across the join.
+    prompt_phrase: match on action, the movement continuing across the cut
+    conflicts: []
+    evidence: Working definition for the Kubrick film-grammar registry.
+    aliases: [match on action, match-on-action]
+  - id: graphic-match
+    category: edit
+    definition: The cut joins two frames that share a shape, a line, or a placement, so the eye lands on the echo.
+    prompt_phrase: graphic match, a shared shape across the cut
+    conflicts: []
+    evidence: Working definition for the Kubrick film-grammar registry.
+    aliases: [graphic match, graphic-match]
+  - id: cut-on-sound
+    category: edit
+    definition: The picture changes on a sound accent. The cut is timed to the hit, not to the end of a movement.
+    prompt_phrase: cut on a sound accent
+    conflicts: []
+    evidence: MYSLEF EP-01 shot 06 cuts on the bass peak at 9.25 seconds.
+    aliases: [cut on sound, cut-on-sound, cut on the bass, cut on bass]
+  - id: j-cut
+    category: edit
+    definition: Sound from the incoming shot starts before the picture cuts to it. The audience hears the next shot first.
+    prompt_phrase: J-cut, incoming sound starting before the picture
+    conflicts: []
+    evidence: Working definition for the Kubrick film-grammar registry.
+    provider_notes: The picture prompt can name the early sound. The overlap itself is an edit decision.
+    aliases: [j-cut, j cut, jcut]
+  - id: l-cut
+    category: edit
+    definition: Sound from the outgoing shot keeps playing after the picture has cut away.
+    prompt_phrase: L-cut, outgoing sound continuing after the picture cut
+    conflicts: []
+    evidence: Working definition for the Kubrick film-grammar registry.
+    provider_notes: The picture prompt can name the lingering sound. The overlap itself is an edit decision.
+    aliases: [l-cut, l cut, lcut]
+  - id: smash-cut
+    category: edit
+    definition: A hard cut that arrives with a sharp jump in energy, scale, or loudness. The join itself is abrupt.
+    prompt_phrase: smash cut, an abrupt hard cut
+    conflicts: []
+    evidence: Working definition for the Kubrick film-grammar registry.
+    aliases: [smash cut, smash-cut]
+  - id: jump-cut
+    category: edit
+    definition: A cut removes a piece of time inside what still reads as one setup. The subject seems to pop forward.
+    prompt_phrase: jump cut, a slice of time removed inside one view
+    conflicts: []
+    evidence: Working definition for the Kubrick film-grammar registry.
+    aliases: [jump cut, jump-cut]
+  - id: thirty-degree
+    category: edit
+    definition: The new camera setup differs by about thirty degrees or more from the previous angle, so the cut does not look like a stutter of the same frame.
+    prompt_phrase: a new angle about 30 degrees from the previous setup
+    conflicts: []
+    evidence: MYSLEF EP-01 shot 06 is a new angle of about 30 degrees.
+    aliases: [30-degree, 30 degree, thirty degree, 30-degree rule, thirty-degree rule]
+  - id: axis-180
+    category: edit
+    definition: The camera stays on one side of the line between the subjects. Crossing that line is a declared choice, not an accident.
+    prompt_phrase: stay on one side of the 180-degree line unless a crossing is declared
+    conflicts: []
+    evidence: Working definition for the Kubrick film-grammar registry.
+    aliases: ["180", 180-degree, 180 degree, axis, crossing the line]
+  - id: cutaway
+    category: edit
+    definition: The cut leaves the main action for a related detail. A return to the main action can follow.
+    prompt_phrase: cutaway to a related detail
+    conflicts: []
+    evidence: Working definition for the Kubrick film-grammar registry.
+    aliases: [cutaway, insert cutaway, cutaway insert]
+  - id: ellipsis
+    category: edit
+    definition: The cut drops a stretch of time. The story resumes later without showing the missing interval.
+    prompt_phrase: ellipsis, a jump forward in time
+    conflicts: []
+    evidence: Working definition for the Kubrick film-grammar registry.
+    aliases: [ellipsis, time cut]
+  - id: seamless-chain
+    category: edit
+    definition: The next frame continues from the previous frame's image instead of cutting to a new setup.
+    prompt_phrase: seamless chain continuing the previous frame
+    conflicts: []
+    evidence: Working definition for the Kubrick film-grammar registry.
+    aliases: [seamless, seamless chain, chain]
+
+  - id: headroom
+    category: composition_9_16
+    definition: In a tall frame, space remains above the head so the subject is not pressed against the top edge.
+    prompt_phrase: headroom above the subject in the tall frame
+    conflicts: []
+    evidence: Working definition for the Kubrick film-grammar registry.
+    aliases: [headroom, head room]
+  - id: lead-room
+    category: composition_9_16
+    definition: Empty space sits in front of the direction a subject looks or moves, including down a tall 9:16 frame.
+    prompt_phrase: lead room in front of the subject's look or movement
+    conflicts: []
+    evidence: Working definition for the Kubrick film-grammar registry.
+    aliases: [lead room, lead-room, looking room]
+  - id: vertical-stack
+    category: composition_9_16
+    definition: In a 9:16 frame, the important shapes are stacked up the tall frame instead of spread across a wide one.
+    prompt_phrase: vertical stacking of the important shapes in the 9:16 frame
+    conflicts: []
+    evidence: Working definition for the Kubrick film-grammar registry.
+    aliases: [vertical stack, vertical stacking, vertical-stack]
+  - id: deep-background
+    category: composition_9_16
+    definition: A small figure stays readable deep in the tall frame, behind whatever is close to the lens.
+    prompt_phrase: a deep-background figure still readable in the tall frame
+    conflicts: []
+    evidence: Working definition for the Kubrick film-grammar registry.
+    aliases: [deep background, deep-background figure, deep background figure]
+  - id: centre-punch
+    category: composition_9_16
+    definition: The subject sits on the vertical centre of a 9:16 frame so a side margin does not swallow them.
+    prompt_phrase: centre punch, the subject on the vertical centre of the tall frame
+    conflicts: []
+    evidence: Working definition for the Kubrick film-grammar registry.
+    aliases: [center punch, centre punch, center-punch, centre-punch]

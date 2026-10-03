@@ -18,6 +18,6 @@
   "transferable_structure": "an established authority position becomes empty while the surrounding system continues to organize behavior around the absence",
   "non_transferable_surface": "generic thrones, boardroom chairs, altars, or empty centers without established ownership",
   "production_cost": {"location_dependency":0.2,"prop_dependency":0.3,"lighting_dependency":0.2,"VFX_dependency":0.0},
-  "lexicon_links": ["empty_center", "tzimtzum", "vacancy", "throne"],
+  "lexicon_links": ["tzimtzum", "kenoma", "demiurge"],
   "confidence": 0.88
 }

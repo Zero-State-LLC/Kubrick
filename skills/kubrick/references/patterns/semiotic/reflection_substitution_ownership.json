@@ -18,6 +18,6 @@
   "transferable_structure": "a stable reflected relation changes occupant or behavior, transferring an operative claim between image and world",
   "non_transferable_surface": "shattered mirrors, doubled faces, or copied mirror scenes used as identity shorthand",
   "production_cost": {"location_dependency":0.2,"prop_dependency":0.5,"lighting_dependency":0.5,"VFX_dependency":0.2},
-  "lexicon_links": ["mirror", "doppelganger", "astral_double", "substitution"],
+  "lexicon_links": ["doppelganger", "astral_double", "the_fetch"],
   "confidence": 0.84
 }

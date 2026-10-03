@@ -18,7 +18,7 @@
     "scripts/list_receipts.py": 2,
     "scripts/manifest_contract.py": 2,
     "scripts/normalize_visual_observation.py": 14,
-    "scripts/production_engine.py": 12,
+    "scripts/production_engine.py": 8,
     "scripts/propose_pattern_evolution.py": 9,
     "scripts/record_pattern_outcome.py": 20,
     "scripts/retrieve_symbolic_patterns.py": 99,

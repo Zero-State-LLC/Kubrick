@@ -291,6 +291,7 @@ def collect_prep(
         opted[shot] = opted_clauses(techniques, shot, wanted)
     from audio_screen_locks import lint as audio_screen_lint
     from drift_registry import registry_warnings
+    from film_grammar import frame_prep_warnings
     from plan_cues import keep_clear_warnings
     from provider_capabilities import capability_warnings
     from spend_plan import shot_count_warning
@@ -305,6 +306,7 @@ def collect_prep(
         *extra_warnings(merged, frames, provider),
         *audio_warnings,
         *capability_warnings(provider, merged),
+        *frame_prep_warnings(frames),
     ]
     high = shot_count_warning(len(frames), provider, merged)
     if high is not None:

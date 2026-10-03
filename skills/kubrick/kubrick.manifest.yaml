@@ -562,7 +562,6 @@
     "visual-reference-packet"
   ],
   "schemas": [
-    "schemas/cinematic-pattern.schema.json",
     "schemas/cinematic-project-state.schema.json",
     "schemas/continuity-forge-symbolic-export.schema.json",
     "schemas/correction-iteration-receipt.schema.yaml",
@@ -571,6 +570,7 @@
     "schemas/design-specification.schema.yaml",
     "schemas/diagnostic.schema.json",
     "schemas/drift-registry.schema.json",
+    "schemas/film-grammar.schema.json",
     "schemas/forge-signal-bundle.schema.yaml",
     "schemas/image-prompt-packet.schema.json",
     "schemas/keyframe-create-movie.schema.json",
