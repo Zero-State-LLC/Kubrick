@@ -562,7 +562,6 @@
     "visual-reference-packet"
   ],
   "schemas": [
-    "schemas/cinematic-pattern.schema.json",
     "schemas/cinematic-project-state.schema.json",
     "schemas/continuity-forge-symbolic-export.schema.json",
     "schemas/correction-iteration-receipt.schema.yaml",

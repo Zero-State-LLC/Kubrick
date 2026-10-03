@@ -6,7 +6,6 @@ This document operationalizes the corpus for deterministic use by Hermes / Kubri
 
 All patterns must be representable in the schemas/ directory:
 - symbolic-narrative-pattern.schema.json
-- cinematic-pattern.schema.json
 - transformation-grammar.schema.json
 - narrative-affordance.schema.json
 - symbolic-architecture.schema.json

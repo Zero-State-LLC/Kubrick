@@ -18,6 +18,6 @@
   "transferable_structure": "two motivated light systems make competing relational claims, and their balance mutates with action",
   "non_transferable_surface": "generic red-blue lighting, occult polarity labels, or arbitrary half-lit faces",
   "production_cost": {"location_dependency":0.2,"prop_dependency":0.1,"lighting_dependency":0.9,"VFX_dependency":0.1},
-  "lexicon_links": ["polarity", "sun_moon", "solve_coagula", "syzygy"],
+  "lexicon_links": ["polarity", "sun", "moon", "solve_coagula", "syzygy"],
   "confidence": 0.86
 }

@@ -4,6 +4,7 @@
   "version": "0.11.5",
   "domain": "sound-rhythmic",
   "source_tier": "SCHOLARLY",
+  "source_status": "VALIDATED",
   "source_refs": [
     {"author": "Michel Chion", "title": "Audio-Vision", "date": "1990"}
   ],
@@ -13,6 +14,10 @@
   ],
   "dramatic_operations": ["unseen power", "threat", "spatial control"],
   "cinematic_affordances": ["reaction to unseen source", "sound bridge", "empty frame"],
+  "applicable_genres": ["horror", "thriller", "drama", "mystery"],
+  "applicable_formats": ["feature", "short", "episode"],
+  "cultural_scope": ["film and sound-studies pattern; do not copy a signature unseen voice or cue"],
+  "lexicon_links": ["silence", "drone", "off_screen_space_as_ein_sof"],
   "misuse_risks": ["generic ominous sound", "unmotivated jump-scare audio", "source withheld without dramatic consequence"],
   "mutation_requirements": {
     "required": true,

@@ -1,0 +1,67 @@
+{
+  "pattern_id": "dormant_watcher_background_presence",
+  "title": "Dormant Watcher / Still Figure in Deep Background",
+  "version": "0.11.5",
+  "domain": "spatial-geometric",
+  "source_tier": "COMPARATIVE",
+  "source_status": "VALIDATED",
+  "source_refs": [
+    {
+      "author": "Comparative staging practice",
+      "title": "Background figure held in depth",
+      "date": "cross-period",
+      "cultural_context": "Stage and cinema blocking in which a living figure is parked in depth and not yet used"
+    }
+  ],
+  "observed_structure": [
+    "Foreground behavior is readable and occupies the near plane.",
+    "A second figure stands far back, alive enough to act, and does not move.",
+    "The shot ends with that figure still unaddressed, so attention has a debt."
+  ],
+  "dramatic_operations": [
+    "hold an inert figure motionless in deep background",
+    "let foreground behavior proceed without addressing the watcher",
+    "keep unresolved attention on the unmoving body"
+  ],
+  "transformation_grammars": [
+    "foreground-activity-against-inert-depth",
+    "watcher-unacknowledged"
+  ],
+  "grammar_family": "fixation",
+  "cinematic_affordances": [
+    "wide depth with the figure small at the far end of an aisle",
+    "no eyeline from the foreground actor toward the watcher",
+    "the figure excluded from speech and from the main action path",
+    "a later cut that still finds the figure unmoved"
+  ],
+  "applicable_genres": ["horror", "thriller", "science fiction", "drama"],
+  "applicable_formats": ["feature", "pilot", "episode", "short"],
+  "cultural_scope": [
+    "general depth staging; do not assign a spirit or surveillance ideology without project evidence"
+  ],
+  "misuse_risks": [
+    "a extra parked in the background with no later pressure",
+    "creeping the figure forward before the scene has earned a change",
+    "explaining the watcher in dialogue at the moment of introduction"
+  ],
+  "mutation_requirements": {
+    "required": true,
+    "variables": [
+      "depth of placement",
+      "degree of stillness",
+      "whether foreground attention ever turns",
+      "how long the figure is withheld from action",
+      "what finally changes the stillness"
+    ]
+  },
+  "transferable_structure": "a figure that could act is held motionless in deep background and foreground behavior proceeds without addressing that figure",
+  "non_transferable_surface": "a copied lurking silhouette, specific costume, or shot that recreates one film's background threat",
+  "production_cost": {
+    "location_dependency": 0.5,
+    "prop_dependency": 0.2,
+    "lighting_dependency": 0.5,
+    "VFX_dependency": 0.1
+  },
+  "lexicon_links": ["shadow", "hermit", "servitor"],
+  "confidence": 0.72
+}

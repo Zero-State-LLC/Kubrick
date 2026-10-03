@@ -4,6 +4,7 @@
   "version": "0.11.5",
   "domain": "myth-folklore",
   "source_tier": "PRIMARY",
+  "source_status": "VALIDATED",
   "source_refs": [{"author": "Vladimir Propp", "title": "Morphology of the Folktale", "date": "1928"}],
   "observed_structure": [
     "A concrete harm or lack destabilizes the prior order.",
@@ -12,6 +13,10 @@
   "dramatic_operations": ["lack", "villainy", "mediation"],
   "transformation_grammars": ["lack", "mediation"],
   "cinematic_affordances": ["disrupted home", "evidence of absence", "message or witness that activates action"],
+  "applicable_genres": ["drama", "fantasy", "mystery"],
+  "applicable_formats": ["feature", "short", "pilot"],
+  "cultural_scope": ["comparative folktale morphology; do not copy a specific tale's roles, helpers, or objects"],
+  "lexicon_links": ["kenoma", "threshold"],
   "misuse_risks": ["mechanical hero's-journey substitution", "villainy without consequence", "abstract lack without observable evidence"],
   "mutation_requirements": {
     "required": true,

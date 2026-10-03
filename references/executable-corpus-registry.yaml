@@ -6,6 +6,8 @@ source_manifests:
 - references/pattern-manifests/wave1-batch3.yaml
 - references/pattern-manifests/wave1-batch4.yaml
 - references/pattern-manifests/wave1-batch5.yaml
+- references/pattern-manifests/wave2.yaml
+- references/pattern-manifests/wave3.yaml
 selection_policy:
   primary_limit: 1
   supporting_limit: 2
@@ -23,6 +25,10 @@ default_routes:
   - alchemical_coagulation_embodied_consequence
   - costume_state_identity_migration
   - lynch_causal_discontinuity_residue
+  - alchemical_nigredo_putrefaction
+  - kubrick_monolith
+  - propp_villainy_lack_mediation
+  - automaton_uncanny_double
   authority_and_institutions:
   - kubrick_center_transfer_authority
   - interface_badge_authority_transfer
@@ -31,28 +37,37 @@ default_routes:
   - doorway_ownership_transfer
   - vertical_hierarchy_descent
   - negative_space_authority_vacancy
+  - kubrick_one_point_control_void
+  - kubrick_symmetry_empty_center
   memory_time_and_residue:
   - resnais_temporal_recurrence_substitution
   - tarkovsky_material_memory_weathering
   - object_residue_continuity_after_use
   - material_repair_visible_scar
   - reflection_substitution_ownership
+  - tarkovsky_water_reflection
   sound_rhythm_and_absence:
   - sonic_motif_source_migration
   - sonic_silence_withdrawal_revelation
   - indian_tala_accent_displacement
   - japanese_ma_active_interval
+  - acousmatic_sound
+  - anempathetic_sound_indifference
   spatial_and_collective_pressure:
   - soviet_montage_collision_thesis
   - labyrinth_route_pressure
   - crowd_formation_fracture
   - broken_symmetry_state_evidence
   - occlusion_relational_denial
+  - denis_marching
+  - liminal_threshold_crossing
+  - dormant_watcher_background_presence
   light_color_and_counterpoint:
   - dual_light_conflicting_claims
   - kubrick_red_culmination_state
   - image_dialogue_counterpoint
   - environmental_response_world_agency
+  - peircean_icon_index_symbol
   contemporary_symbolic_systems:
   - meme_template_role_mutation
   - interface_badge_authority_transfer
@@ -64,6 +79,12 @@ default_routes:
   - bresson_gesture_object_transfer
   - object_residue_continuity_after_use
   - material_repair_visible_scar
+  withheld_cause_and_aftermath:
+  - withheld_cause_consequence_only
+  domestic_horror_enclosure:
+  - horror_domestic_trap
+  power_failure_world_response:
+  - power_failure_world_response
 strong_defaults:
 - alchemical_separation_signal_from_noise
 - alchemical_coagulation_embodied_consequence

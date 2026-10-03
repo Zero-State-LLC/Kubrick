@@ -18,6 +18,6 @@
   "transferable_structure": "a discontinuity changes identity or world state while a persistent residue carries unresolved causal pressure across the break",
   "non_transferable_surface": "red rooms, zigzag floors, mystery boxes, blue keys, or direct recreations of Lynch imagery",
   "production_cost": {"location_dependency":0.5,"prop_dependency":0.4,"lighting_dependency":0.5,"VFX_dependency":0.2},
-  "lexicon_links": ["doppelganger", "choronzon", "residue", "oneiric_logic"],
+  "lexicon_links": ["doppelganger", "choronzon", "salt", "oneiric_logic"],
   "confidence": 0.81
 }
