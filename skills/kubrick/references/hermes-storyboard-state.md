@@ -46,3 +46,7 @@ State is inherited unless explicitly changed. Residue is monotonic by default. R
 - convergence sites may move, but disappearance is recorded,
 - private pattern and lexicon links never enter audience prompts,
 - model adapters consume this neutral state packet; they do not rewrite it.
+
+## Camera and edit grammar
+
+A frame may carry optional `camera` (`size`, `angle`, `lens_mm`, `move`, `focus`) and `cut`. Kubrick checks those terms against `assets/grammar/film_grammar.yaml` and expands a known term to its prompt phrase. An unknown frame key produces an `UNKNOWN_FIELD` warning instead of a silent drop. A snap or whip move on a frame that chains from a start frame produces a conflict warning. `lens_mm` selects a lens band by its millimetre range. The registry is a proposal aid. It does not promote a take.

@@ -1,0 +1,48 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "$id": "https://kubrick.zero-state.dev/schemas/film-grammar.schema.json",
+  "title": "Kubrick film grammar",
+  "type": "object",
+  "additionalProperties": false,
+  "required": ["schema_version", "entries"],
+  "properties": {
+    "schema_version": {"const": "1.0.0"},
+    "entries": {
+      "type": "array",
+      "minItems": 65,
+      "items": {
+        "type": "object",
+        "additionalProperties": false,
+        "required": ["id", "category", "definition", "prompt_phrase", "conflicts", "evidence"],
+        "properties": {
+          "id": {"type": "string", "minLength": 1},
+          "category": {
+            "enum": [
+              "shot_size",
+              "angle",
+              "lens_band",
+              "move",
+              "lighting",
+              "edit",
+              "composition_9_16"
+            ]
+          },
+          "definition": {"type": "string", "minLength": 1},
+          "prompt_phrase": {"type": "string", "minLength": 1},
+          "provider_notes": {"type": "string", "minLength": 1},
+          "conflicts": {
+            "type": "array",
+            "items": {"type": "string", "minLength": 1}
+          },
+          "evidence": {"type": "string", "minLength": 1},
+          "aliases": {
+            "type": "array",
+            "items": {"type": "string", "minLength": 1}
+          },
+          "lens_mm_min": {"type": "number", "exclusiveMinimum": 0},
+          "lens_mm_max": {"type": "number", "exclusiveMinimum": 0}
+        }
+      }
+    }
+  }
+}

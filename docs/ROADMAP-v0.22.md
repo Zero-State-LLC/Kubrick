@@ -17,6 +17,14 @@ Corpus hygiene: every sidecar is indexed, registered, and manifested. Duplicate 
 - Take selection by id (#64)
 - Retake runbook, cut QA, and cue sheet prep (#69, #70, #71)
 
+## In progress (#77)
+
+- Storyboard frames can carry optional `camera` and `cut`. Known terms reach generic prompts and Keyframe `videoPrompt` / `multi_shot_prompt`. An unknown frame key warns `UNKNOWN_FIELD`.
+
+## In progress (#78)
+
+- `assets/grammar/film_grammar.yaml` holds the working film grammar. Camera and cut terms are checked and expanded through it. A snap or whip on a chained start frame warns.
+
 ## In progress (#82)
 
 Ledger `--action` matches the positional subcommand. Relative path flags on routed commands resolve against the caller cwd. `production_engine.py` is split under 500 lines. CodeQL and Pages workflows are removed (see `docs/ci/README.md`). QUICKSTART points at this roadmap.
