@@ -4,7 +4,6 @@ from __future__ import annotations
 
 import argparse
 import json
-from pathlib import Path
 
 try:
     import yaml
@@ -15,13 +14,7 @@ from brief_constraints import optional_frame_fields
 from continuity_locks import introduced_residue
 from io_safety import write_text_bounded
 from planning_fields import planning_frame_fields, planning_root_fields
-
-
-def load(path: str) -> dict:
-    file_path = Path(path)
-    if file_path.suffix == ".json":
-        return json.loads(file_path.read_text())
-    return yaml.safe_load(file_path.read_text()) or {}
+from structured_io import load_mapping as load
 
 
 def dump(path: str, data: dict) -> None:

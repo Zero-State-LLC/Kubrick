@@ -14,7 +14,8 @@ try:
 except ImportError:
     raise SystemExit("pyyaml required")
 
-from io_safety import write_text_bounded  # noqa: E402
+from io_safety import write_text_bounded
+from structured_io import load_mapping as load
 
 ESOTERICA = {
     "nigredo",
@@ -33,13 +34,6 @@ ESOTERICA = {
     "thelema",
     "egregore",
 }
-
-
-def load(path: Path) -> dict[str, Any]:
-    text = path.read_text(encoding="utf-8")
-    if path.suffix == ".json":
-        return json.loads(text) or {}
-    return yaml.safe_load(text) or {}
 
 
 def dump(data: dict[str, Any], path: Path | None) -> None:
@@ -390,7 +384,10 @@ def main() -> None:
         raise SystemExit(f"unknown command {args.cmd}")
 
     dump(receipt, out)
-    raise SystemExit(0 if receipt["status"] in {"OK", "PASS", "WARN"} else 1)
+    status = receipt["status"]
+    if status == "NOT_COMPUTABLE":
+        raise SystemExit(4)
+    raise SystemExit(0 if status in {"OK", "PASS", "WARN"} else 1)
 
 
 if __name__ == "__main__":

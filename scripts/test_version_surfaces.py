@@ -45,22 +45,22 @@ def _aligned(root: Path, version: str = "0.18.0") -> None:
     _write(root, "docs/ROADMAP-v0.18.md", "# Roadmap\n")
     _write(root, "docs/RELEASE-CHECKLIST-v0.18.md", f"- [x] aligned to v{version}\n")
     _write(root, "scripts/production_engine.py", 'SCHEMA_VERSION = "0.16.0"\n')
-    _write(root, "scripts/surface_compilers.py", '{ "schema_version": "0.16.0" }\n')
+    _write(root, "scripts/surface_common.py", '{ "schema_version": "0.16.0" }\n')
 
 
 def test_repo_surfaces_match_product_version() -> None:
     report = build_report(ROOT)
     assert report["status"] == "READY", report["mismatches"]
-    assert report["expected_version"] == "0.21.1"
+    assert report["expected_version"] == "0.22.0"
     assert report["tag_allowed"] is True
     declarations = report["declarations"]
     assert isinstance(declarations, dict)
     for name, observed in declarations.items():
-        assert observed == "0.21.1", (name, observed)
+        assert observed == "0.22.0", (name, observed)
     envelopes = report["envelope_schema_versions"]
     assert envelopes == {
         "scripts/production_engine.py": ENVELOPE_SCHEMA_VERSION,
-        "scripts/surface_compilers.py": ENVELOPE_SCHEMA_VERSION,
+        "scripts/surface_common.py": ENVELOPE_SCHEMA_VERSION,
     }
     schemas = report["non_tracking_schemas"]
     assert schemas["installer_receipt"] == INSTALLER_RECEIPT_SCHEMA_VERSION

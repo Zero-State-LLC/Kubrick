@@ -1,6 +1,6 @@
 [project]
 name = "kubrick-skill"
-version = "0.21.1"
+version = "0.22.0"
 description = "Development metadata for the standalone Kubrick Hermes skill"
 requires-python = ">=3.10"
 dependencies = [
@@ -26,12 +26,14 @@ python_files = ["test_*.py"]
 [tool.ruff]
 target-version = "py310"
 line-length = 100
+# The hub mirror is a generated copy of the root; lint the root only (#72).
+extend-exclude = ["skills"]
 
 [tool.ruff.lint]
 select = ["E", "F", "I"]
 
 [tool.ruff.lint.per-file-ignores]
-"scripts/surface_compilers.py" = ["E501"]
+"scripts/surface_*.py" = ["E501"]
 "scripts/test_surface_compilers.py" = ["E501"]
 "scripts/production_surface.py" = ["E501"]
 

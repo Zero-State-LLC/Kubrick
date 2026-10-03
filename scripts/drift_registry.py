@@ -148,7 +148,7 @@ def _warn(
         message = f"{character} on {shot} matches {ident} and can show {effect}"
     else:
         message = f"{shot} matches {ident}: {effect}"
-    return warning(
+    found = warning(
         "KNOWN_DRIFT",
         shot,
         message,
@@ -157,6 +157,13 @@ def _warn(
         ),
         character=character,
     )
+    evidence = entry.get("evidence")
+    if isinstance(evidence, str) and evidence.strip():
+        found["evidence"] = str(evidence)
+    observed = entry.get("observed_on")
+    if observed is not None:
+        found["observed_on"] = str(observed)
+    return found
 
 
 def _plain(

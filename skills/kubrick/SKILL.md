@@ -1,7 +1,7 @@
 ---
 name: kubrick
 description: Builds continuity-safe cinematic stories and visuals.
-version: 0.21.1
+version: 0.22.0
 author: Daniel Meyer (scrimshawlife-ctrl), Hermes Agent
 license: LicenseRef-Zero-State-Proprietary-1.0
 platforms: [linux, macos, windows]
@@ -134,7 +134,9 @@ Prefer the wizard when unsure; use `do <intent>` when flags are already known.
 Task aliases: `create` → compile, `revise` → design improve, `inspect` → operate,
 `validate` → check smoke.
 
-Providers: `none`, `generic`, `grok-imagine`, `flux`, `sd3`, `midjourney`, and `keyframe`.
+Adapter providers: `generic`, `grok-imagine`, `flux`, `sd3`, `midjourney`, and `keyframe`. `compile --provider none` (the default) skips adaptation.
+
+CLI sugar: `kubrick qa <surface>` runs `do <surface> --action qa`; `kubrick validate design|script|image|video` runs design validate, script diagnose, or image/video qa; `kubrick receipts` lists receipts under `out/`.
 
 Brief fields follow `examples/authority-transfer-storyboard/brief.yaml`: dramatic problem, desired state change, character pressure, observable evidence, layers, and production constraints. Optional `character_locks` is a list of identity constraints (`no nose`, `hairless scalp`). A `production_constraints` item prefixed `character-lock:` or `identity-lock:` is the same lock. `aspect_ratio`, or the first `N:M` token in `production_constraints`, sets Keyframe `aspectRatio`. The fallback is `16:9`.
 
@@ -277,7 +279,7 @@ terminal(command="python3 ${HERMES_SKILL_DIR}/scripts/kubrick.py do check --acti
 A valid delivery states what was produced, what was preserved, what was not
 computable, and which optional integration or human authority is required next.
 
-Current release context: `docs/ROADMAP-v0.21.md` and
-`docs/RELEASE-NOTES-v0.21.md`.
+Current release context: `docs/ROADMAP-v0.22.md` and
+`docs/RELEASE-NOTES-v0.22.md`.
 
 Source, profile, and migration rules: `references/source-and-upgrades.md`.

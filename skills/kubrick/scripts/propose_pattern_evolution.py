@@ -17,18 +17,11 @@ try:
 except ImportError:
     raise SystemExit("pyyaml required")
 
-from io_safety import write_text_bounded  # noqa: E402
+from io_safety import write_text_bounded
+from structured_io import load_mapping as load
 
 LARGE_CONFIDENCE_THRESHOLD = 0.08
 MAX_DELTA = 0.2
-
-
-def load(path: str | Path) -> dict[str, Any]:
-    p = Path(path)
-    text = p.read_text(encoding="utf-8")
-    if p.suffix == ".json":
-        return json.loads(text) or {}
-    return yaml.safe_load(text) or {}
 
 
 def clamp(value: float, lo: float = -MAX_DELTA, hi: float = MAX_DELTA) -> float:

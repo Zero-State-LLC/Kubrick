@@ -11,13 +11,13 @@ API keys, or privileged installation for core creative work.
 | Optional MCP (`kubrick_do`) | **Untrusted args** | Intent/action allowlisted; flags validated; paths bounded |
 | Continuity Forge / model / vision APIs | Optional external | Never required; adapters are syntax-only |
 | Pattern corpus (`references/`, `schemas/`) | Read-only at runtime | Ordinary operators must not mutate these trees |
-| `references/usage/` and `out/` | Mutable overlays | Cache, receipts, and project outputs only |
+| `out/` (project or skill) | Mutable overlay | Cache, receipts, and project outputs only |
 
 ## Path policy
 
 - Set `KUBRICK_PROJECT_DIR` to pin the project root (defaults to cwd).
 - Reads may come from the project root or the skill root (examples, schemas, references).
-- Writes must stay inside the project root or skill `out/` / `references/usage/`.
+- Writes must stay inside the project root or skill `out/`. Retrieval cache and receipts go to `<project>/out/kubrick/retrieval/`.
 - Writes into `references/` (except `usage/`), `schemas/`, `scripts/`, `skills/`, `.git`, and core contract files are rejected.
 
 ## Intake bounds

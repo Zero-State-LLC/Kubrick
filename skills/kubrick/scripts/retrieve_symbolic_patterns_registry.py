@@ -10,15 +10,18 @@ try:
 except ImportError:
     print("pyyaml required. pip install pyyaml",file=sys.stderr); raise SystemExit(1)
 import retrieve_symbolic_patterns as base
+from artifact_paths import kubrick_out_dir, write_json_artifact
 SCRIPT_DIR=Path(__file__).resolve().parent
 SKILL_ROOT=SCRIPT_DIR.parent
 REGISTRY_PATH=SKILL_ROOT/"references"/"executable-corpus-registry.yaml"
 INDEX_PATH=SKILL_ROOT/"references"/"corpus-index.yaml"
-CACHE_DIR=SKILL_ROOT/"references"/"usage"/"cache-registry"
-RECEIPT_DIR=SKILL_ROOT/"references"/"usage"/"receipts"
 CORPUS_VERSION="0.11.5"
 ROUTE_MATCH_BONUS=0.08
 STRONG_DEFAULT_BONUS=0.03
+
+def cache_dir()->Path: return kubrick_out_dir("retrieval","cache-registry")
+
+def receipt_dir()->Path: return kubrick_out_dir("retrieval","receipts")
 
 def load_yaml(path:Path)->Dict[str,Any]:
     with path.open("r",encoding="utf-8") as h:return yaml.safe_load(h) or {}
@@ -50,12 +53,12 @@ def build_receipt(brief,ranked,ledger,matched,routes):
     return {"retrieval_receipt":{"request_hash":key,"algorithm":"registry-aware-v1","corpus_version":CORPUS_VERSION,"timestamp":datetime.now(timezone.utc).isoformat(),"selected_primary_grammar":primary["pattern_id"] if primary else None,"selected_supporting_grammars":[x["pattern_id"] for x in supporting],"ranked_patterns":ranked[:8] if primary else [],"confidence":primary["total_score"] if primary else 0.0,"status":"SELECTED" if primary else "NOT_COMPUTABLE","reason_vector":[] if primary else base.reason_vector(ranked,ledger),"pattern_gap_report":gap_report(brief,ranked,matched,routes),"matched_registry_routes":matched,"ledger_snapshot":ledger,"brief":brief}}
 
 def load_cached(key):
-    path=CACHE_DIR/f"{key}.json"; return base._load(path) if path.exists() else None
+    path=cache_dir()/f"{key}.json"; return base._load(path) if path.exists() else None
 
 def persist(receipt):
-    CACHE_DIR.mkdir(parents=True,exist_ok=True); RECEIPT_DIR.mkdir(parents=True,exist_ok=True); key=receipt["retrieval_receipt"]["request_hash"]; cache=CACHE_DIR/f"{key}.json"; logged=RECEIPT_DIR/f"receipt-registry-{key}-{datetime.now(timezone.utc).strftime('%Y%m%d-%H%M%S')}.json"
+    key=receipt["retrieval_receipt"]["request_hash"]; stamp=datetime.now(timezone.utc).strftime('%Y%m%d-%H%M%S')
     payload=json.dumps(receipt,indent=2,default=lambda item:item.isoformat() if hasattr(item,"isoformat") else str(item))+"\n"
-    for p in (cache,logged):p.write_text(payload,encoding="utf-8")
+    cache=write_json_artifact(cache_dir(),f"{key}.json",payload); logged=write_json_artifact(receipt_dir(),f"receipt-registry-{key}-{stamp}.json",payload)
     return cache,logged
 
 def main():
@@ -66,9 +69,9 @@ def main():
     if not a.no_cache:
         cached=load_cached(key)
         if cached:
-            cached["retrieval_receipt"]["cache_hit"]=True;print(yaml.safe_dump(cached,sort_keys=False));raise SystemExit(0 if cached["retrieval_receipt"]["status"]=="SELECTED" else 1)
+            cached["retrieval_receipt"]["cache_hit"]=True;print(yaml.safe_dump(cached,sort_keys=False));raise SystemExit(0 if cached["retrieval_receipt"]["status"]=="SELECTED" else 4)
     patterns=base.load_all_patterns();ranked=sorted((score_with_registry(pattern,brief,ledger,routes,matched,strong) for pattern in patterns.values()),key=lambda item:(-item["total_score"],item["pattern_id"]));receipt=build_receipt(brief,ranked,ledger,matched,routes);receipt["retrieval_receipt"]["cache_hit"]=False
     if a.gap_report_only:print(yaml.safe_dump(receipt["retrieval_receipt"]["pattern_gap_report"],sort_keys=False));return
-    cache,logged=persist(receipt);receipt["retrieval_receipt"]["cached_to"]=str(cache);receipt["retrieval_receipt"]["logged_to"]=str(logged);print(yaml.safe_dump(receipt,sort_keys=False));raise SystemExit(0 if receipt["retrieval_receipt"]["status"]=="SELECTED" else 1)
+    cache,logged=persist(receipt);receipt["retrieval_receipt"]["cached_to"]=str(cache);receipt["retrieval_receipt"]["logged_to"]=str(logged);print(yaml.safe_dump(receipt,sort_keys=False));raise SystemExit(0 if receipt["retrieval_receipt"]["status"]=="SELECTED" else 4)
 
 if __name__=="__main__":main()

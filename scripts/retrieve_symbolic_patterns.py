@@ -14,14 +14,17 @@ except ImportError:
     print("pyyaml required. pip install pyyaml", file=sys.stderr); raise SystemExit(1)
 SCRIPT_DIR=Path(__file__).resolve().parent
 sys.path.insert(0, str(SCRIPT_DIR))
+from artifact_paths import kubrick_out_dir, write_json_artifact  # noqa: E402
 from provenance import COLLISION_TYPES, HARD_FAIL_COLLISIONS  # noqa: E402
 SKILL_ROOT=SCRIPT_DIR.parent
 PATTERNS_DIR=SKILL_ROOT/"references"/"patterns"
-CACHE_DIR=SKILL_ROOT/"references"/"usage"/"cache"
-RECEIPT_DIR=SKILL_ROOT/"references"/"usage"/"receipts"
 THRESHOLD=0.55
 MAX_SUPPORTING=2
 WEIGHTS={"dramatic_fit":0.24,"character_fit":0.10,"cinematic_fit":0.12,"cultural_fit":0.10,"source_quality":0.10,"mutation_potential":0.14,"continuity_compatibility":0.10,"payoff_compatibility":0.10}
+
+def cache_dir()->Path: return kubrick_out_dir("retrieval","cache")
+
+def receipt_dir()->Path: return kubrick_out_dir("retrieval","receipts")
 
 def canonical_json(value:Any)->str:
     return json.dumps(value,sort_keys=True,separators=(",",":"),default=lambda item:item.isoformat() if hasattr(item,"isoformat") else str(item))
@@ -122,19 +125,18 @@ def build_receipt(brief,ranked,ledger):
     return {"retrieval_receipt":{"request_hash":cache_key(brief,ledger),"algorithm":"deterministic-v0.11","timestamp":datetime.now(timezone.utc).isoformat(),"selected_primary_grammar":primary["pattern_id"] if primary else None,"selected_supporting_grammars":[x["pattern_id"] for x in supporting],"ranked_patterns":ranked[:8] if primary else [],"rejected_patterns":rejected,"confidence":primary["total_score"] if primary else 0.0,"status":"SELECTED" if primary else "NOT_COMPUTABLE","reason_vector":[] if primary else reason_vector(ranked,ledger),"pattern_gap_report":gap_report(brief,ranked),"ledger_snapshot":ledger,"brief":brief}}
 
 def persist(receipt):
-    CACHE_DIR.mkdir(parents=True,exist_ok=True); RECEIPT_DIR.mkdir(parents=True,exist_ok=True); key=receipt["retrieval_receipt"]["request_hash"]
-    cache=CACHE_DIR/f"{key}.json"; logged=RECEIPT_DIR/f"receipt-{key}-{datetime.now(timezone.utc).strftime('%Y%m%d-%H%M%S')}.json"
+    key=receipt["retrieval_receipt"]["request_hash"]; stamp=datetime.now(timezone.utc).strftime('%Y%m%d-%H%M%S')
     payload=json.dumps(receipt,indent=2,default=lambda item:item.isoformat() if hasattr(item,"isoformat") else str(item))+"\n"
-    for p in (cache,logged):p.write_text(payload,encoding="utf-8")
+    cache=write_json_artifact(cache_dir(),f"{key}.json",payload); logged=write_json_artifact(receipt_dir(),f"receipt-{key}-{stamp}.json",payload)
     return cache,logged
 
 def main():
     p=argparse.ArgumentParser();p.add_argument("--brief");p.add_argument("--no-cache",action="store_true");p.add_argument("--gap-report-only",action="store_true");a=p.parse_args()
-    brief=read_brief(a.brief);ledger=ledger_snapshot(brief);key=cache_key(brief,ledger);cache=CACHE_DIR/f"{key}.json"
+    brief=read_brief(a.brief);ledger=ledger_snapshot(brief);key=cache_key(brief,ledger);cache=cache_dir()/f"{key}.json"
     if not a.no_cache and cache.exists():
-        receipt=_load(cache);receipt["retrieval_receipt"]["cache_hit"]=True;print(yaml.safe_dump(receipt,sort_keys=False));raise SystemExit(0 if receipt["retrieval_receipt"]["status"]=="SELECTED" else 1)
+        receipt=_load(cache);receipt["retrieval_receipt"]["cache_hit"]=True;print(yaml.safe_dump(receipt,sort_keys=False));raise SystemExit(0 if receipt["retrieval_receipt"]["status"]=="SELECTED" else 4)
     ranked=sorted((score_pattern(pattern,brief,ledger) for pattern in load_all_patterns().values()),key=lambda x:(-x["total_score"],x["pattern_id"]));receipt=build_receipt(brief,ranked,ledger);receipt["retrieval_receipt"]["cache_hit"]=False
     if a.gap_report_only:print(yaml.safe_dump(receipt["retrieval_receipt"]["pattern_gap_report"],sort_keys=False));return
-    cache_path,logged=persist(receipt);receipt["retrieval_receipt"]["cached_to"]=str(cache_path);receipt["retrieval_receipt"]["logged_to"]=str(logged);print(yaml.safe_dump(receipt,sort_keys=False));raise SystemExit(0 if receipt["retrieval_receipt"]["status"]=="SELECTED" else 1)
+    cache_path,logged=persist(receipt);receipt["retrieval_receipt"]["cached_to"]=str(cache_path);receipt["retrieval_receipt"]["logged_to"]=str(logged);print(yaml.safe_dump(receipt,sort_keys=False));raise SystemExit(0 if receipt["retrieval_receipt"]["status"]=="SELECTED" else 4)
 
 if __name__=="__main__":main()

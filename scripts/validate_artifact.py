@@ -1,24 +1,19 @@
 #!/usr/bin/env python3
 """Validate one Kubrick YAML/JSON artifact against a repository schema."""
 from __future__ import annotations
-import argparse, json
+
+import argparse
+import json
 from pathlib import Path
 
 from io_safety import write_text_bounded
+
 _INSTALL = "python3 -m pip install -r requirements.txt"
-try:
-    import yaml
-except ImportError:
-    raise SystemExit(f"pyyaml required. Install runtime dependencies: {_INSTALL}")
 try:
     from jsonschema import Draft202012Validator
 except ImportError:
     raise SystemExit(f"jsonschema required. Install runtime dependencies: {_INSTALL}")
-
-
-def load(path: Path):
-    text = path.read_text(encoding="utf-8")
-    return json.loads(text) if path.suffix == ".json" else yaml.safe_load(text) or {}
+from structured_io import load_mapping as load
 
 
 def render_path(path) -> str:

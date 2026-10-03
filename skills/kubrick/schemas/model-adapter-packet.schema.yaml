@@ -75,6 +75,8 @@ properties:
         character: {type: string}
         message: {type: string}
         recommendation: {type: string}
+        evidence: {type: string}
+        observed_on: {type: string}
   technique_suggestions:
     type: array
     items:

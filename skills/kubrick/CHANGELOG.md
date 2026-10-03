@@ -1,5 +1,22 @@
 # Changelog — Kubrick
 
+## [0.22.0] — 2026-10-03
+
+### Added
+- #61: CI runs `pytest -q scripts tests tests_audit`, every script test, and the evals under subprocess-aware coverage with a 75% floor, then fails on a dirty tree. `Pygments` and `coverage` are pinned in `requirements-ci.txt`.
+- #65: Manifest `action_requirements` gates dispatch with `DEPENDENCY_MISSING` (exit 4). `do check --action deps` reports readiness.
+- #66: MCP request byte cap, manifest action resolution and dependency check before spawn, and a per-call `MCP_TIMEOUT`.
+- #67: `REFERENCE_CAP_EXCEEDED` above the model `max_references`, `NATIVE_AUDIO_UNSUPPORTED` warnings, and `evidence` on drift warnings.
+- #72: Per-file ruff/mypy lint ratchet (`scripts/check_lint_ratchet.py`) in CI. Shared `structured_io` and `value_coerce` helpers. `surface_compilers.py` split into modules under 500 lines.
+
+### Changed
+- #62: Retrieval cache and receipts write to `<project>/out/kubrick/retrieval/`. NOT_COMPUTABLE exits 4 in retrieve, operate, and govern.
+- #68: Removed `typed_models.py`, the unrouted adapter wrappers, and dead helpers. `compare_frame_state` fails closed. Docs match dispatch.
+
+### Notes
+- Product version is 0.22.0. The production envelope schema id stays `0.16.0`. Retime overlay limits are deferred.
+
+
 ## [0.21.1] — 2026-10-03
 
 ### Fixed

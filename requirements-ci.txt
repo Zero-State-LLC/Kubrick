@@ -6,3 +6,6 @@ jsonschema==4.25.0
 pytest==9.0.3
 ruff==0.12.7
 mypy==1.17.0
+coverage==7.16.2
+# pytest pulls in Pygments; keep it at the >=2.20 floor required by #61.
+Pygments==2.21.0

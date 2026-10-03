@@ -1,23 +1,19 @@
 #!/usr/bin/env python3
 """Compare expected Kubrick frame state with a structured visual observation."""
 from __future__ import annotations
-import argparse, hashlib, json
-from pathlib import Path
+
+import argparse
+import hashlib
+import json
 
 from io_safety import write_text_bounded
-try:
-    import yaml
-except ImportError:
-    raise SystemExit("pyyaml required")
 from prompt_text import field_label
+from structured_io import load_mapping as load
 
 FIELDS = {
     "state": "node_states", "ownership": "motif_ownership", "object": "object_states",
     "light": "light_states", "material": "material_states",
 }
-
-def load(path: str) -> dict:
-    p=Path(path); return json.loads(p.read_text()) if p.suffix==".json" else yaml.safe_load(p.read_text()) or {}
 
 def set_score(expected, observed):
     e={str(x).strip().lower() for x in expected if str(x).strip()}; o={str(x).strip().lower() for x in observed if str(x).strip()}

@@ -112,10 +112,10 @@ def reference_checks(root: Path, version: str) -> dict[str, dict[str, bool]]:
 
 def envelope_schema_versions(root: Path) -> dict[str, str | None]:
     engine = _read(root / "scripts/production_engine.py")
-    compilers = _read(root / "scripts/surface_compilers.py")
+    compilers = _read(root / "scripts/surface_common.py")
     return {
         "scripts/production_engine.py": _search(engine, _ENGINE_SCHEMA),
-        "scripts/surface_compilers.py": _search(compilers, _COMPILER_SCHEMA),
+        "scripts/surface_common.py": _search(compilers, _COMPILER_SCHEMA),
     }
 
 

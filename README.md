@@ -6,7 +6,7 @@
 
 <p align="center">
   <strong>Hermes-Native Symbolic Cinematic Engineering</strong><br>
-  <em>0.21.1 — Drift registry, spend plan, and shot locks</em>
+  <em>0.22.0 — Audit upgrades: hardened platform and production prep</em>
 </p>
 
 <p align="center">
@@ -395,8 +395,8 @@ CI (`.github/workflows/hermes-evals.yml`) runs Hermes evals, outcome governance,
 | [`intent/`](intent/README.md) | Intent template for non-trivial work; then spec.md / plan |
 | [`QUICKSTART.md`](QUICKSTART.md) | Installation and command routing |
 | [`CHANGELOG.md`](CHANGELOG.md) | Release history |
-| [`docs/ROADMAP-v0.21.md`](docs/ROADMAP-v0.21.md) | Current roadmap and next priorities |
-| [`docs/RELEASE-NOTES-v0.21.md`](docs/RELEASE-NOTES-v0.21.md) | v0.21 release notes |
+| [`docs/ROADMAP-v0.22.md`](docs/ROADMAP-v0.22.md) | Current roadmap and next priorities |
+| [`docs/RELEASE-NOTES-v0.22.md`](docs/RELEASE-NOTES-v0.22.md) | v0.22 release notes |
 | [`docs/ROADMAP-v0.20.md`](docs/ROADMAP-v0.20.md) | v0.20 roadmap |
 | [`docs/RELEASE-NOTES-v0.20.md`](docs/RELEASE-NOTES-v0.20.md) | v0.20 release notes |
 | [`docs/ROADMAP-v0.18.md`](docs/ROADMAP-v0.18.md) | v0.18 roadmap |
@@ -448,12 +448,12 @@ CI (`.github/workflows/hermes-evals.yml`) runs Hermes evals, outcome governance,
 
 ## Version
 
-**0.21.1 — Drift registry, spend plan, and shot locks**
+**0.22.0 — Audit upgrades: hardened platform and production prep**
 
-Prep names known model drift, estimates Keyframe credits before spend, and
-writes multi-shot blocks, voice locks, and screen-direction locks. No provider
-is called. See
-[docs/RELEASE-NOTES-v0.21.md](docs/RELEASE-NOTES-v0.21.md).
+CI covers every test with a coverage floor, retrieval writes stay in the
+project, dependencies and MCP calls are gated before spawn, and a lint
+ratchet holds the debt. No provider is called. See
+[docs/RELEASE-NOTES-v0.22.md](docs/RELEASE-NOTES-v0.22.md).
 
 See [CHANGELOG.md](CHANGELOG.md) for full release history.
 
@@ -463,9 +463,9 @@ See [CHANGELOG.md](CHANGELOG.md) for full release history.
   <em>Symbolism should alter the conditions under which a scene is interpreted—without requiring the audience to consciously identify it.</em>
 </p>
 
-See also: [docs/ROADMAP-v0.21.md](docs/ROADMAP-v0.21.md)
+See also: [docs/ROADMAP-v0.22.md](docs/ROADMAP-v0.22.md)
 
-See also: [docs/RELEASE-NOTES-v0.21.md](docs/RELEASE-NOTES-v0.21.md)
+See also: [docs/RELEASE-NOTES-v0.22.md](docs/RELEASE-NOTES-v0.22.md)
 
 
 ## License

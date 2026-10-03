@@ -46,7 +46,7 @@ def test_b2_ci_runs_pytest_and_every_script_test() -> None:
     ci = (ROOT / ".github/workflows/ci.yml").read_text(encoding="utf-8")
     hermes = (ROOT / ".github/workflows/hermes-evals.yml").read_text(encoding="utf-8")
     assert "requirements-ci.txt" in ci
-    assert "python -m pytest -q scripts" in ci
+    assert "pytest -q scripts tests tests_audit" in ci
     assert "set -euo pipefail" in ci
     assert "for test in scripts/test_*.py" in ci
     assert "stdlib-contract" in hermes and "validation-eval" in hermes

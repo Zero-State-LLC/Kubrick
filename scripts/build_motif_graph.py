@@ -1,21 +1,26 @@
 #!/usr/bin/env python3
 """Build and validate Kubrick's latent motif/structure graph IR."""
 from __future__ import annotations
-import argparse, json, re, sys
+
+import argparse
+import json
+import re
+import sys
 from pathlib import Path
 from typing import Any, Dict, List
 
 from io_safety import write_text_bounded
+
 try:
     import yaml
 except ImportError:
     print("pyyaml required. pip install pyyaml", file=sys.stderr); raise SystemExit(1)
-from layer_leakage import leakage_findings
 from brief_constraints import copy_carried_fields
+from layer_leakage import leakage_findings
+from structured_io import load_mapping as load
+
 LAYER_KEYS=("layout_geometry","semantics_function","attributes_states")
 NAMED_ESOTERICA={"nigredo","albedo","rubedo","athanor","rebis","ouroboros","sephirot","tarot","qabalah","kabbalah","hermetic","alchemy","alchemical","syzygy","egregore"}
-def load(path:Path)->Dict[str,Any]:
-    with path.open("r",encoding="utf-8") as h:return json.load(h) if path.suffix==".json" else yaml.safe_load(h) or {}
 def tokens(value:Any)->set[str]:return set(re.findall(r"[a-z0-9_]+",json.dumps(value).lower()))
 def empty_surface()->Dict[str,Any]:
     return {"audience_prompt":"","geometry":[],"light":[],"material":[],"state_differentials":[],"convergence":[],"residue":[]}

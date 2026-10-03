@@ -24,6 +24,7 @@ FIRST_CLASS_PRODUCTION_SURFACES = {"design", "script", "image", "video"}
 
 sys.path.insert(0, str(SCRIPTS))
 import intent_router as ir  # noqa: E402
+import runtime_deps  # noqa: E402
 from diagnostics import abort, diagnostic  # noqa: E402
 
 
@@ -57,6 +58,17 @@ def _wizard_flags(argv: list[str]) -> list[str]:
         return argv[1:]
     # do wizard [flags]
     return argv[2:]
+
+
+def _child_env() -> dict[str, str]:
+    """Record the caller's cwd before the child runs with cwd=ROOT (#62).
+
+    Only artifact placement reads it; path policy still keys off KUBRICK_PROJECT_DIR.
+    """
+    env = dict(os.environ)
+    if not env.get("KUBRICK_CALLER_CWD"):
+        env["KUBRICK_CALLER_CWD"] = os.getcwd()
+    return env
 
 
 def _dispatch_smoke(call: ir.IntentCall) -> None:
@@ -191,9 +203,11 @@ def main() -> None:
     if call.intent == "check" and call.action == "smoke":
         _dispatch_smoke(call)
 
+    runtime_deps.check_action(ir.MANIFEST, call.intent, call.action)
     result = subprocess.run(
         [PY, str(call.script), *_execution_argv(call)],
         cwd=ROOT,
+        env=_child_env(),
     )
     raise SystemExit(result.returncode)
 

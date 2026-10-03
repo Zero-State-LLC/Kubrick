@@ -45,9 +45,6 @@ def copy_identity_surface(destination: Path) -> None:
             "build_model_adapter_packet.py",
             "adapt_provider.py",
             "adapt_grok_imagine.py",
-            "adapt_flux.py",
-            "adapt_sd3.py",
-            "adapt_midjourney.py",
         )
     )
     for source in paths:
@@ -88,7 +85,7 @@ def test_bundle_mutations_change_only_relevant_identities() -> None:
         schema_path.write_text(schema_path.read_text(encoding="utf-8") + "\n# identity mutation\n", encoding="utf-8")
         assert schema_bundle_identity(clone) != schema_before
 
-        adapter_path = clone / "scripts/adapt_flux.py"
+        adapter_path = clone / "scripts/adapt_provider.py"
         adapter_path.write_text(adapter_path.read_text(encoding="utf-8") + "\n# identity mutation\n", encoding="utf-8")
         assert provider_adapter_identity("flux", clone) != adapter_before
 

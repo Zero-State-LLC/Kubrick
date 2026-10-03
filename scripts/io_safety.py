@@ -110,8 +110,6 @@ def _protected_skill_write(path: Path) -> bool:
     # Mutable overlays allowed inside the skill tree.
     if rel == "out" or rel.startswith("out/"):
         return False
-    if rel == "references/usage" or rel.startswith("references/usage/"):
-        return False
     for prefix in PROTECTED_WRITE_PREFIXES:
         if rel == prefix or rel.startswith(prefix + "/"):
             return True

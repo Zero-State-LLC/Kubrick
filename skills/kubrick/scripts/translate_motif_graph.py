@@ -1,17 +1,21 @@
 #!/usr/bin/env python3
 """Translate a validated latent motif graph into observable Hermes output constraints."""
 from __future__ import annotations
-import argparse, json, sys
+
+import argparse
+import sys
 from pathlib import Path
 from typing import Any, Dict
 
 from io_safety import write_text_bounded
+
 try:
     import yaml
 except ImportError:
     print("pyyaml required. pip install pyyaml", file=sys.stderr); raise SystemExit(1)
-def load(path:Path)->Dict[str,Any]:
-    with path.open("r",encoding="utf-8") as h:return json.load(h) if path.suffix==".json" else yaml.safe_load(h) or {}
+from structured_io import load_mapping as load
+
+
 def translate(graph:Dict[str,Any], mode:str)->Dict[str,Any]:
     validation=graph.get("validation",{})
     if validation.get("status")!="VALID":

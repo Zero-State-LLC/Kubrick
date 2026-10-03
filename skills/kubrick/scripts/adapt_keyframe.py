@@ -14,6 +14,7 @@ from typing import cast
 from brief_constraints import aspect_ratio_from, packet_locks, plain_speech_lines
 from prompt_text import is_blank, join_clauses
 from reference_lint import bound_positive
+from value_coerce import as_float as _as_float
 
 MIN_SECONDS = 3.0
 MAX_SECONDS = 60.0
@@ -45,15 +46,6 @@ def _as_seconds(value: float) -> int | float:
     if float(value).is_integer():
         return int(value)
     return float(value)
-
-
-def _as_float(value: object) -> float | None:
-    if isinstance(value, bool) or not isinstance(value, (int, float, str)):
-        return None
-    try:
-        return float(value)
-    except ValueError:
-        return None
 
 
 def _duration(frame: Mapping[str, object], frame_id: str) -> tuple[float | None, str | None]:
@@ -471,7 +463,9 @@ def build_create_movie(packet: Mapping[str, object]) -> dict[str, object]:
     ref_errors = reference_block(warnings, strict_enabled(document))
     if ref_errors:
         movie["validation"] = {"status": "INVALID", "errors": ref_errors}
-    return movie
+    from capability_caps import enforce
+
+    return enforce(movie, document, lambda e: _refuse(e, mapped, directives, warnings, techniques))
 
 
 def adapt_keyframe_packet(packet: Mapping[str, object]) -> dict[str, object]:
