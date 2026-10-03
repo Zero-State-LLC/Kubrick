@@ -246,6 +246,75 @@ def test_b13_no_noema_workflows() -> None:
             assert token not in text, (path.name, token)
 
 
+def test_b12_coverage_output_is_bounded() -> None:
+    forbidden = ROOT / "references" / "b12-coverage-forbidden.json"
+    if forbidden.exists():
+        forbidden.unlink()
+    result = subprocess.run(
+        [PY, str(SCRIPTS / "audit_corpus_coverage.py"), "--output", str(forbidden)],
+        cwd=ROOT,
+        capture_output=True,
+        text=True,
+    )
+    try:
+        assert result.returncode != 0, result.stdout + result.stderr
+        assert not forbidden.exists()
+    finally:
+        if forbidden.exists():
+            forbidden.unlink()
+    with tempfile.TemporaryDirectory() as tmp:
+        allowed = Path(tmp) / "coverage.json"
+        subprocess.run(
+            [PY, str(SCRIPTS / "audit_corpus_coverage.py"), "--output", str(allowed)],
+            cwd=ROOT,
+            capture_output=True,
+            text=True,
+        )
+        assert allowed.exists()
+
+
+def test_b12_review_bundle_validates_out_before_copy() -> None:
+    import shutil
+
+    import yaml
+
+    forbidden = ROOT / "references" / "b12-bundle-forbidden"
+    if forbidden.exists():
+        shutil.rmtree(forbidden)
+    with tempfile.TemporaryDirectory() as tmp:
+        grok = Path(tmp) / "grok.yaml"
+        expected = Path(tmp) / "expected.yaml"
+        grok.write_text(
+            yaml.safe_dump({"validation": {"status": "VALID"}, "source_graph_id": "g1"}),
+            encoding="utf-8",
+        )
+        expected.write_text(
+            yaml.safe_dump({"graph_id": "g1", "frames": [{"frame_id": "f1"}]}),
+            encoding="utf-8",
+        )
+        result = subprocess.run(
+            [
+                PY,
+                str(SCRIPTS / "build_grok_review_bundle.py"),
+                "--grok-packet",
+                str(grok),
+                "--expected-state",
+                str(expected),
+                "--out",
+                str(forbidden),
+            ],
+            cwd=ROOT,
+            capture_output=True,
+            text=True,
+        )
+    try:
+        assert result.returncode != 0, result.stdout + result.stderr
+        assert not forbidden.exists()
+    finally:
+        if forbidden.exists():
+            shutil.rmtree(forbidden)
+
+
 def main() -> None:
     test_b6_mcp_jsonrpc_errors_keep_serving()
     test_b8_wizard_action_plan_and_refusal()
@@ -253,6 +322,8 @@ def main() -> None:
     test_b10_budget_cap_unverifiable_when_estimate_missing()
     test_b11_planned_duration_default_and_warning()
     test_b12_takes_answers_and_bounded_writers()
+    test_b12_coverage_output_is_bounded()
+    test_b12_review_bundle_validates_out_before_copy()
     test_b13_no_noema_workflows()
     print("audit B8-B13 tests: PASS")
 

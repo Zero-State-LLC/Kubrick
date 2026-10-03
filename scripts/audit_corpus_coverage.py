@@ -10,9 +10,12 @@ from __future__ import annotations
 import argparse
 import json
 import re
+import sys
 from collections import Counter, defaultdict
 from collections.abc import Mapping
 from pathlib import Path
+
+from io_safety import PathSafetyError, write_text_bounded
 
 ROOT = Path(__file__).resolve().parent.parent
 PATTERNS = ROOT / "references" / "patterns"
@@ -72,9 +75,12 @@ def _emit_report(report: Mapping[str, object], argv: list[str] | None) -> None:
     parser.add_argument("--output", default=None)
     args = parser.parse_args(argv)
     destination = Path(args.output) if args.output else REPORT
-    destination.parent.mkdir(parents=True, exist_ok=True)
     text = json.dumps(report, indent=2) + "\n"
-    destination.write_text(text, encoding="utf-8")
+    try:
+        write_text_bounded(destination, text)
+    except PathSafetyError as exc:
+        print(f"error: {exc}", file=sys.stderr)
+        raise SystemExit(2) from exc
     print(text, end="")
 
 
