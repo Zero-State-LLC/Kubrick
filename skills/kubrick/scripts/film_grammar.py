@@ -16,6 +16,8 @@ _ROOT = Path(__file__).resolve().parent.parent
 _PATH = _ROOT / "assets" / "grammar" / "film_grammar.yaml"
 _SCHEMA = _ROOT / "schemas" / "film-grammar.schema.json"
 _SPLIT = re.compile(r"\s*(?:,|;|\+|\band\b)\s*")
+_NEGATION = re.compile(r"\b(?:no|not|non|never|without|avoid|dont)\b")
+_FIELD_ID_PART = {"focus": "focus"}  # camera.focus may only resolve focus entries
 _CHAIN_CONFLICT = "chain_from_start_frame"
 CAMERA_KEYS = ("size", "angle", "lens_mm", "move", "focus")
 _TEXT_FIELDS = (
@@ -194,9 +196,7 @@ def _lens_number(value: object) -> int | float | None:
     parsed = as_float(value)
     if parsed is None or parsed <= 0:
         return None
-    if float(parsed).is_integer():
-        return int(parsed)
-    return float(parsed)
+    return int(parsed) if float(parsed).is_integer() else float(parsed)
 
 
 def carried_camera(value: object) -> dict[str, object] | None:
@@ -244,16 +244,22 @@ def _match(
     text: str,
     category: str,
     index: Mapping[tuple[str, str], Mapping[str, object]],
+    field: str = "",
 ) -> Mapping[str, object] | None:
     norm = _norm(text)
+    if _NEGATION.search(norm):
+        return None  # "no push-in" must not resolve to push-in
+    part = _FIELD_ID_PART.get(field, "")
     exact = index.get((category, norm))
-    if exact is not None:
+    if exact is not None and part in str(exact.get("id", "")):
         return exact
     best: Mapping[str, object] | None = None
     best_len = 0
     padded = f" {norm} "
     for (cat, alias), entry in index.items():
         if cat != category or not alias or len(alias) <= best_len:
+            continue
+        if part not in str(entry.get("id", "")):
             continue
         if f" {alias} " in padded:
             best = entry
@@ -262,11 +268,12 @@ def _match(
 
 
 def _term_warning(shot: str, field: str, value: object) -> WarningRow:
+    negated = "negated " if _NEGATION.search(_norm(str(value))) else ""
     return warning(
         "UNKNOWN_GRAMMAR_TERM",
         shot,
-        f"unknown {field} term {str(value).strip()!r}",
-        "use an id from assets/grammar/film_grammar.yaml",
+        f"unknown {negated}{field} term {str(value).strip()!r}",
+        "use an id from assets/grammar/film_grammar.yaml; omit a move instead of negating it",
     )
 
 
@@ -284,7 +291,7 @@ def _phrases_for(
     matched: list[Mapping[str, object]] = []
     warns: list[WarningRow] = []
     for part in parts:
-        entry = _match(part, category, library.index)
+        entry = _match(part, category, library.index, field)
         if entry is None:
             warns.append(_term_warning(shot, field, part))
             continue
@@ -296,18 +303,12 @@ def _phrases_for(
 
 
 def _band_for(millimetres: float, library: Library) -> Mapping[str, object] | None:
-    found: list[Mapping[str, object]] = []
-    for entry in library.entries:
-        if str(entry.get("category") or "") != "lens_band":
-            continue
-        bounds = _band_bounds(entry)
-        if bounds is None:
-            continue
-        if bounds[0] <= millimetres <= bounds[1]:
-            found.append(entry)
-    if len(found) == 1:
-        return found[0]
-    return None
+    found = [
+        entry for entry in library.entries
+        if str(entry.get("category") or "") == "lens_band"
+        and (bounds := _band_bounds(entry)) is not None and bounds[0] <= millimetres <= bounds[1]
+    ]
+    return found[0] if len(found) == 1 else None
 
 
 def _lens_clauses(

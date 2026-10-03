@@ -303,6 +303,22 @@ def test_unknown_term_and_chain_conflict() -> None:
     assert movie.get("status") != "NOT_COMPUTABLE"
 
 
+def test_negated_and_focus_terms_do_not_borrow_moves() -> None:
+    negated = _frame("frame-001", camera={"move": "no push-in"})
+    warns = frame_prep_warnings([negated, _frame("frame-002")])
+    assert any(
+        item.get("code") == "UNKNOWN_GRAMMAR_TERM" and "negated" in str(item.get("message"))
+        for item in warns
+    )
+    assert "push" not in " ".join(direction_clauses(negated))
+    wrong_focus = _frame("frame-001", camera={"focus": "push-in"})
+    assert "UNKNOWN_GRAMMAR_TERM" in _warning_codes([wrong_focus, _frame("frame-002")])
+    assert "push" not in " ".join(direction_clauses(wrong_focus))
+    rack = _frame("frame-001", camera={"focus": "rack focus"})
+    assert "UNKNOWN_GRAMMAR_TERM" not in _warning_codes([rack, _frame("frame-002")])
+    assert "rack focus" in " ".join(direction_clauses(rack))
+
+
 def test_myslef_example_carries_the_shot_map() -> None:
     plan = _load(EXAMPLE)
     packet = adapter_packet_from_document(plan, provider="generic")
@@ -339,6 +355,7 @@ def main() -> None:
     test_frames_without_camera_keep_current_output()
     test_unknown_field_warns_and_is_not_copied()
     test_unknown_term_and_chain_conflict()
+    test_negated_and_focus_terms_do_not_borrow_moves()
     test_myslef_example_carries_the_shot_map()
     print("film grammar tests: PASS")
 
