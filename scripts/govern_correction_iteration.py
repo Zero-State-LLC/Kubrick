@@ -1,9 +1,10 @@
 #!/usr/bin/env python3
 """Compare fidelity reports and govern bounded correction-loop continuation."""
 from __future__ import annotations
-import argparse, hashlib, json
+import argparse, hashlib, json, sys
 from pathlib import Path
 
+import diagnostics
 from io_safety import write_text_bounded
 try:
     import yaml
@@ -18,7 +19,10 @@ def score_map(report): return {k:float(v.get("score",0)) for k,v in report.get("
 def main():
     p=argparse.ArgumentParser(); p.add_argument("--current",required=True); p.add_argument("--previous"); p.add_argument("--iteration",type=int,required=True); p.add_argument("--max-iterations",type=int,default=3); p.add_argument("--output",required=True); a=p.parse_args()
     current=load(a.current); previous=load(a.previous) if a.previous else None
-    if current.get("overall_status")=="NOT_COMPUTABLE": raise SystemExit("current fidelity report is NOT_COMPUTABLE")
+    if current.get("overall_status")=="NOT_COMPUTABLE":
+        diagnostics.abort(diagnostics.diagnostic(status="NOT_COMPUTABLE",code="FIDELITY_NOT_COMPUTABLE",exit_code=4,
+            message="current fidelity report is NOT_COMPUTABLE; correction iteration cannot be governed",
+            context={"current":a.current}),stream=sys.stderr)
     cur=score_map(current); prev=score_map(previous) if previous else {}
     improved=sorted(k for k,v in cur.items() if k in prev and v>prev[k]+1e-9)
     regressed=sorted(k for k,v in cur.items() if k in prev and v<prev[k]-1e-9)

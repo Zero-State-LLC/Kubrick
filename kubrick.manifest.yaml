@@ -184,7 +184,8 @@
         "release": "audit_release_version.py",
         "eval": "run_hermes_evals.py",
         "smoke": "validate_hermes_skill.py",
-        "hub-sync": "check_hub_sync.py"
+        "hub-sync": "check_hub_sync.py",
+        "deps": "check_deps.py"
       }
     },
     "operate": {
@@ -610,5 +611,92 @@
     "2": "invalid command, intent, action, or arguments",
     "3": "optional dependency unavailable with no useful degraded operation",
     "4": "NOT_COMPUTABLE due to insufficient or contradictory evidence"
+  },
+  "action_requirements": {
+    "adapt.build": [
+      "yaml"
+    ],
+    "adapt.provider": [
+      "yaml"
+    ],
+    "bundle.build": [
+      "yaml"
+    ],
+    "check.artifact": [
+      "jsonschema",
+      "yaml"
+    ],
+    "check.eval": [
+      "yaml"
+    ],
+    "learn.evolve": [
+      "yaml"
+    ],
+    "learn.forge-signals": [
+      "yaml"
+    ],
+    "learn.outcome": [
+      "yaml"
+    ],
+    "ledger.apply-forge": [
+      "yaml"
+    ],
+    "ledger.audit": [
+      "yaml"
+    ],
+    "ledger.export-retrieval": [
+      "yaml"
+    ],
+    "ledger.init": [
+      "yaml"
+    ],
+    "ledger.mutate": [
+      "yaml"
+    ],
+    "ledger.record-pattern": [
+      "yaml"
+    ],
+    "ledger.rehydrate": [
+      "yaml"
+    ],
+    "operate.convergence-lock": [
+      "yaml"
+    ],
+    "operate.counterpoint": [
+      "yaml"
+    ],
+    "operate.motif-mutation": [
+      "yaml"
+    ],
+    "operate.saturation-score": [
+      "yaml"
+    ],
+    "operate.surface-occult-audit": [
+      "yaml"
+    ],
+    "operate.symbolic-architecture-export": [
+      "yaml"
+    ],
+    "retrieve.retrieve": [
+      "yaml"
+    ],
+    "storyboard.propagate": [
+      "yaml"
+    ],
+    "visual.closed-loop": [
+      "yaml"
+    ],
+    "visual.compare": [
+      "yaml"
+    ],
+    "visual.correct": [
+      "yaml"
+    ],
+    "visual.govern": [
+      "yaml"
+    ],
+    "visual.normalize": [
+      "yaml"
+    ]
   }
 }

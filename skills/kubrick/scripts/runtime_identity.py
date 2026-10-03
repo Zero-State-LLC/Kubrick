@@ -80,9 +80,9 @@ def provider_adapter_identity(provider: str, root: Path = ROOT) -> str:
     provider_scripts = {
         "generic": [root / "scripts/adapt_provider.py"],
         "grok-imagine": [root / "scripts/adapt_provider.py", root / "scripts/adapt_grok_imagine.py"],
-        "flux": [root / "scripts/adapt_provider.py", root / "scripts/adapt_flux.py"],
-        "sd3": [root / "scripts/adapt_provider.py", root / "scripts/adapt_sd3.py"],
-        "midjourney": [root / "scripts/adapt_provider.py", root / "scripts/adapt_midjourney.py"],
+        "flux": [root / "scripts/adapt_provider.py"],
+        "sd3": [root / "scripts/adapt_provider.py"],
+        "midjourney": [root / "scripts/adapt_provider.py"],
         "keyframe": [root / "scripts/adapt_provider.py", root / "scripts/adapt_keyframe.py"],
     }
     return f"sha256:{file_bundle_digest(root, common + provider_scripts.get(provider, []))}"

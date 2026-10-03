@@ -471,7 +471,9 @@ def build_create_movie(packet: Mapping[str, object]) -> dict[str, object]:
     ref_errors = reference_block(warnings, strict_enabled(document))
     if ref_errors:
         movie["validation"] = {"status": "INVALID", "errors": ref_errors}
-    return movie
+    from capability_caps import enforce
+
+    return enforce(movie, document, lambda e: _refuse(e, mapped, directives, warnings, techniques))
 
 
 def adapt_keyframe_packet(packet: Mapping[str, object]) -> dict[str, object]:

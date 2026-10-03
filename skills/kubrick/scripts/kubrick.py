@@ -24,6 +24,7 @@ FIRST_CLASS_PRODUCTION_SURFACES = {"design", "script", "image", "video"}
 
 sys.path.insert(0, str(SCRIPTS))
 import intent_router as ir  # noqa: E402
+import runtime_deps  # noqa: E402
 from diagnostics import abort, diagnostic  # noqa: E402
 
 
@@ -191,6 +192,7 @@ def main() -> None:
     if call.intent == "check" and call.action == "smoke":
         _dispatch_smoke(call)
 
+    runtime_deps.check_action(ir.MANIFEST, call.intent, call.action)
     result = subprocess.run(
         [PY, str(call.script), *_execution_argv(call)],
         cwd=ROOT,

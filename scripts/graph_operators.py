@@ -390,7 +390,10 @@ def main() -> None:
         raise SystemExit(f"unknown command {args.cmd}")
 
     dump(receipt, out)
-    raise SystemExit(0 if receipt["status"] in {"OK", "PASS", "WARN"} else 1)
+    status = receipt["status"]
+    if status == "NOT_COMPUTABLE":
+        raise SystemExit(4)
+    raise SystemExit(0 if status in {"OK", "PASS", "WARN"} else 1)
 
 
 if __name__ == "__main__":

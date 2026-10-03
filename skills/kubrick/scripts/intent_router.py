@@ -57,11 +57,6 @@ ALIAS_TABLE: dict[str, AliasSpec] = {
     for name, spec in MANIFEST["legacy_aliases"].items()
 }
 
-def all_legacy_commands() -> set[str]:
-    """Return the set of legacy top-level command names."""
-    return set(ALIAS_TABLE)
-
-
 # Human sugar: expand to full ``do …`` argv for resolve() (not shell).
 RECIPES: dict[str, list[str]] = {
     name: list(argv) for name, argv in MANIFEST["recipes"].items()

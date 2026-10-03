@@ -22,7 +22,6 @@ from production_engine import (  # noqa: E402
     build_surface,
     write_artifact_tree,
 )
-from surface_compilers import compile_surface  # noqa: E402
 
 VALID_SURFACES = {"design", "script", "image", "video"}
 
@@ -252,11 +251,3 @@ def run(surface: str, actions: set[str]) -> int:
     if artifact.get("status") == "NOT_COMPUTABLE":
         return 4
     return 0
-
-
-# Back-compat for direct imports used by older foundation tests.
-def build_artifact(surface: str, action: str, args: argparse.Namespace) -> dict[str, Any]:
-    setattr(args, "_loaded_input", getattr(args, "_loaded_input", None))
-    setattr(args, "_loaded_evidence", getattr(args, "_loaded_evidence", None))
-    setattr(args, "_loaded_design", getattr(args, "_loaded_design", None))
-    return compile_surface(surface, action, args)

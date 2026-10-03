@@ -134,7 +134,9 @@ Prefer the wizard when unsure; use `do <intent>` when flags are already known.
 Task aliases: `create` → compile, `revise` → design improve, `inspect` → operate,
 `validate` → check smoke.
 
-Providers: `none`, `generic`, `grok-imagine`, `flux`, `sd3`, `midjourney`, and `keyframe`.
+Adapter providers: `generic`, `grok-imagine`, `flux`, `sd3`, `midjourney`, and `keyframe`. `compile --provider none` (the default) skips adaptation.
+
+CLI sugar: `kubrick qa <surface>` runs `do <surface> --action qa`; `kubrick validate design|script|image|video` runs design validate, script diagnose, or image/video qa; `kubrick receipts` lists receipts under `out/`.
 
 Brief fields follow `examples/authority-transfer-storyboard/brief.yaml`: dramatic problem, desired state change, character pressure, observable evidence, layers, and production constraints. Optional `character_locks` is a list of identity constraints (`no nose`, `hairless scalp`). A `production_constraints` item prefixed `character-lock:` or `identity-lock:` is the same lock. `aspect_ratio`, or the first `N:M` token in `production_constraints`, sets Keyframe `aspectRatio`. The fallback is `16:9`.
 

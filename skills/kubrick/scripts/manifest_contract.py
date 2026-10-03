@@ -47,6 +47,41 @@ def load_manifest(path: Path = MANIFEST_PATH) -> dict[str, Any]:
     return data
 
 
+_REQUIREMENT_MODULES = frozenset({"yaml", "jsonschema"})
+
+
+def _declared_action(key: str, intents: dict[str, object]) -> bool:
+    intent, sep, action = key.partition(".")
+    spec = intents.get(intent)
+    if not sep or not isinstance(spec, dict):
+        return False
+    actions = spec.get("actions")
+    return isinstance(actions, dict) and action in actions
+
+
+def _requirement_errors(data: dict[str, object], intents: dict[str, object]) -> list[str]:
+    if "action_requirements" not in data:
+        return []
+    table = data["action_requirements"]
+    if not isinstance(table, dict):
+        return ["action_requirements must be an object"]
+    errors: list[str] = []
+    allowed = ", ".join(sorted(_REQUIREMENT_MODULES))
+    for key, modules in table.items():
+        if not isinstance(key, str) or not _declared_action(key, intents):
+            errors.append(f"action_requirements key {key!r} does not name a declared intent action")
+        valid = (
+            isinstance(modules, list)
+            and bool(modules)
+            and all(isinstance(m, str) and m in _REQUIREMENT_MODULES for m in modules)
+        )
+        if not valid:
+            errors.append(
+                f"action_requirements {key!r} must be a non-empty list drawn from {allowed}"
+            )
+    return errors
+
+
 def validate_manifest(data: object, root: Path = ROOT) -> list[str]:
     errors: list[str] = []
     if not isinstance(data, dict):
@@ -86,6 +121,7 @@ def validate_manifest(data: object, root: Path = ROOT) -> list[str]:
         for action, script in actions.items():
             if not isinstance(script, str) or not (root / "scripts" / script).is_file():
                 errors.append(f"intent {intent!r} action {action!r} references missing script {script!r}")
+    errors.extend(_requirement_errors(data, intents))
 
     aliases = data.get("legacy_aliases")
     if not isinstance(aliases, dict):

@@ -1,0 +1,10 @@
+# Subprocess-aware coverage for CI (issue #61). Paths are absolute so child
+# processes started from temporary working directories still report.
+[run]
+source = ${KUBRICK_COVERAGE_ROOT-.}/scripts
+data_file = ${KUBRICK_COVERAGE_ROOT-.}/out/coverage/.coverage
+parallel = true
+omit = */scripts/test_*.py
+
+[report]
+skip_empty = true

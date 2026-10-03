@@ -64,7 +64,9 @@
           "shot": {"type": ["string", "null"]},
           "character": {"type": "string"},
           "message": {"type": "string"},
-          "recommendation": {"type": "string"}
+          "recommendation": {"type": "string"},
+          "evidence": {"type": "string"},
+          "observed_on": {"type": "string"}
         }
       }
     },

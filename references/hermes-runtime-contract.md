@@ -73,7 +73,9 @@ The unified CLI (`scripts/kubrick.py`) is the authoritative local operator surfa
 python scripts/kubrick.py do <intent> [--action <action>] [flags]
 ```
 
-**Intents:** `compile`, `retrieve`, `ledger`, `design`, `storyboard`, `adapt`, `visual`, `learn`, `check`, `operate`, `mcp`, `bundle`
+**Intents:** `compile`, `retrieve`, `ledger`, `design`, `script`, `image`, `video`, `storyboard`, `adapt`, `visual`, `learn`, `check`, `operate`, `mcp`, `bundle`, `wizard`
+
+**Sugar:** `kubrick qa <surface>`, `kubrick validate <surface>`, `kubrick receipts`, and bare `kubrick <surface> <action>` expand to `do` calls. Actions that need PyYAML or jsonschema are listed in the manifest `action_requirements`; a missing package stops dispatch with `DEPENDENCY_MISSING` (exit 4). `do check --action deps` reports readiness.
 
 **MCP:** optional stdio server exposes a single tool, `kubrick_do`, over the same router. MCP is never authoritative.
 
@@ -97,7 +99,7 @@ This contract describes the **Hermes** skill on `main`. An OpenClaw Agent Skill 
 | symbolic intent | `PROPOSED` | user project or response |
 | motif registry | `PROPOSED` | user project or response |
 | motif graph | `PROPOSED` | `out/kubrick/` or explicit path |
-| retrieval receipt | observational | `out/kubrick/receipts/` or explicit path |
+| retrieval receipt and cache | observational | `$KUBRICK_PROJECT_DIR/out/kubrick/retrieval/` (default `./out/kubrick/retrieval/`) |
 | evolution receipt | maintenance proposal | explicit maintenance output |
 | Forge receipt | authoritative according to returned status | project continuity store |
 
