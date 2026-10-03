@@ -214,6 +214,35 @@ def attach_shot_locks(shot: dict[str, object], *texts: str | None) -> None:
         shot["aspect_ratio"] = ratio
 
 
+def _mapped_speech(item: Mapping[str, object]) -> str | None:
+    raw = item.get("line")
+    if raw is None:
+        raw = item.get("text")
+    if isinstance(raw, str) and not _blank(raw):
+        return raw.strip()
+    return None
+
+
+def plain_speech_lines(raw: object) -> list[str]:
+    """Spoken text. A ``{character, line}`` mapping contributes its line."""
+    if isinstance(raw, str):
+        return [] if _blank(raw) else [raw.strip()]
+    if isinstance(raw, Mapping):
+        spoken = _mapped_speech(raw)
+        return [] if spoken is None else [spoken]
+    if isinstance(raw, (bytes, bytearray)) or not isinstance(raw, Sequence):
+        return []
+    found: list[str] = []
+    for item in raw:
+        if isinstance(item, (str, Mapping)):
+            found.extend(plain_speech_lines(item))
+        elif not _blank(item):
+            text = str(item).strip()
+            if text:
+                found.append(text)
+    return found
+
+
 def optional_frame_fields(spec: Mapping[str, object]) -> dict[str, object]:
     extra: dict[str, object] = {}
     for key in _FRAME_KEYS:
@@ -237,6 +266,9 @@ def frame_parameters(frame: Mapping[str, object]) -> dict[str, object]:
             params[str(key)] = value
     for key, value in optional_frame_fields(frame).items():
         params.setdefault(key, value)
+    speech = params.get("speech_lines")
+    if speech is not None:
+        params["speech_lines"] = plain_speech_lines(speech)
     return params
 
 

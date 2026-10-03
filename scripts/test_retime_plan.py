@@ -188,6 +188,23 @@ def test_final_clock_is_the_sum_of_edit_windows() -> None:
     assert flagged["status"] == "PROPOSED" and flagged["final_clock"] == 5
 
 
+def test_model_overlay_does_not_change_retime() -> None:
+    frames = [
+        {"frame_id": "frame-001", "duration_seconds": 4},
+        {
+            "frame_id": "frame-002",
+            "duration_seconds": 1,
+            "join": {"chain_from": "frame-001"},
+        },
+    ]
+    plain = retime({"frames": frames}, "keyframe")
+    overlaid = retime({"frames": frames, "model": "seedance-lab"}, "keyframe")
+    held = retime({"frames": frames, "input_mode": "lab-hold"}, "keyframe")
+    assert overlaid == plain == held
+    edits = {str(row["shot"]): row for row in _rows(plain["edit_plan"])}
+    assert (edits["frame-002"]["in"], edits["frame-002"]["out"]) == (1.6, 2.6)
+
+
 def test_fail_closed_and_no_provider_call() -> None:
     flux = retime(_plan(4), "flux")
     assert flux["code"] == "NO_FEASIBLE_PLAN" and "does not support video" in str(flux["message"])
@@ -262,6 +279,7 @@ def main() -> None:
     test_chain_breaks_a_group_and_threshold_overrides()
     test_reuse_takes_and_clock_delta()
     test_final_clock_is_the_sum_of_edit_windows()
+    test_model_overlay_does_not_change_retime()
     test_fail_closed_and_no_provider_call()
     print("retime tests: PASS")
 

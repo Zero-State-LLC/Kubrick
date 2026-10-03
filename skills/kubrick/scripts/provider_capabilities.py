@@ -151,6 +151,39 @@ def parse_iso_date(value: object) -> date | None:
         return None
 
 
+def require_calendar_date(value: object, label: str) -> date:
+    parsed = parse_iso_date(value)
+    if parsed is None:
+        raise ValueError(f"{label} {value} is not a calendar date")
+    return parsed
+
+
+def _require_dates(loaded: Mapping[str, object]) -> None:
+    providers = loaded.get("providers")
+    if not isinstance(providers, Mapping):
+        return
+    for name, record in providers.items():
+        if isinstance(record, Mapping):
+            _require_record_dates(str(name), record)
+
+
+def _require_record_dates(provider: str, record: Mapping[str, object]) -> None:
+    pricing = record.get("pricing")
+    if isinstance(pricing, Mapping):
+        require_calendar_date(pricing.get("observed_on"), f"pricing for {provider} observed_on")
+    models = record.get("models")
+    if not isinstance(models, Mapping):
+        return
+    for model, spec in models.items():
+        blocks = spec.get("blocks") if isinstance(spec, Mapping) else None
+        if not isinstance(blocks, Sequence) or isinstance(blocks, (str, bytes)):
+            continue
+        label = f"capability block for {model} verified_on"
+        for block in blocks:
+            if isinstance(block, Mapping):
+                require_calendar_date(block.get("verified_on"), label)
+
+
 def reference_date(explicit: date | None, document: Mapping[str, object] | None) -> date:
     """Injected date, else document ``as_of``, else today. Tests pass ``explicit``."""
     if explicit is not None:
@@ -187,7 +220,7 @@ def _text(source: Mapping[str, object] | None, key: str) -> str | None:
 
 
 def load_model_capabilities(path: Path | None = None) -> dict[str, object]:
-    """Validate the model file. A schema failure raises ValueError."""
+    """Validate the model file. A schema failure or impossible date raises ValueError."""
     global _CACHE
     import jsonschema
     import yaml
@@ -203,6 +236,7 @@ def load_model_capabilities(path: Path | None = None) -> dict[str, object]:
         jsonschema.validate(loaded, schema)
     except jsonschema.ValidationError as exc:
         raise ValueError(f"model capabilities schema invalid: {exc.message}") from exc
+    _require_dates(loaded)
     record = {str(key): value for key, value in loaded.items()}
     if path is None:
         _CACHE = record

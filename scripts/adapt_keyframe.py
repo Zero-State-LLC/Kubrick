@@ -11,7 +11,7 @@ from __future__ import annotations
 from collections.abc import Mapping, Sequence
 from typing import cast
 
-from brief_constraints import aspect_ratio_from, packet_locks
+from brief_constraints import aspect_ratio_from, packet_locks, plain_speech_lines
 from prompt_text import is_blank, join_clauses
 from reference_lint import bound_positive
 
@@ -100,10 +100,7 @@ def _unique(items: Sequence[str]) -> list[str]:
 
 
 def _extend_lines(found: list[str], raw: object) -> None:
-    if isinstance(raw, str) and not is_blank(raw):
-        found.append(raw.strip())
-    elif isinstance(raw, Sequence) and not isinstance(raw, (str, bytes)):
-        found.extend(str(item).strip() for item in raw if not is_blank(item))
+    found.extend(plain_speech_lines(raw))
 
 
 def _frame_sources(frame: Mapping[str, object]) -> list[Mapping[str, object]]:

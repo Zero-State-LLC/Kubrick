@@ -21,6 +21,7 @@ from provider_capabilities import (
     default_model,
     parse_iso_date,
     reference_date,
+    require_calendar_date,
 )
 
 _ROOT = Path(__file__).resolve().parent.parent
@@ -75,8 +76,9 @@ def _require_entries(loaded: Mapping[str, object]) -> None:
     for item in raw:
         if not isinstance(item, Mapping):
             raise ValueError("drift entry must be an object")
-        if parse_iso_date(item.get("observed_on")) is None:
-            raise ValueError(f"drift entry {item.get('id')} has an invalid observed_on")
+        require_calendar_date(
+            item.get("observed_on"), f"drift entry {item.get('id')} observed_on",
+        )
         trigger = item.get("trigger")
         if not isinstance(trigger, Mapping):
             raise ValueError(f"drift entry {item.get('id')} trigger must be an object")
@@ -123,14 +125,13 @@ def _resolved_model(
     document: Mapping[str, object],
     provider: str,
     model: str | None,
-    path: Path | None,
 ) -> str:
     if isinstance(model, str) and model.strip():
         return model.strip()
     named = _text(document.get("model"))
     if named:
         return named
-    return default_model(provider, path) or ""
+    return default_model(provider) or ""
 
 
 def _warn(
@@ -358,7 +359,7 @@ def registry_warnings(
     path: Path | None = None,
 ) -> list[dict[str, str | None]]:
     """Known-drift warnings, then one stale warning per old entry that matched the model."""
-    chosen = _resolved_model(document, provider, model, path)
+    chosen = _resolved_model(document, provider, model)
     when = reference_date(as_of, document)
     max_age = configured_age(max_age_days, document, "drift_max_age_days")
     found: list[dict[str, str | None]] = []

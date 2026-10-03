@@ -6,6 +6,7 @@ import copy
 import subprocess
 import sys
 import tempfile
+from collections.abc import Callable
 from datetime import date, timedelta
 from pathlib import Path
 
@@ -239,6 +240,74 @@ def test_keyframe_capabilities_regression_and_overlay() -> None:
     assert "is false" not in _recommendation("keyframe", {"model": "seedance-effective"})
 
 
+def _raises(action: Callable[[], object], *needles: str) -> None:
+    try:
+        action()
+    except ValueError as exc:
+        text = str(exc)
+        assert all(needle in text for needle in needles), text
+        return
+    raise AssertionError("expected ValueError")
+
+
+def _drift_yaml(ident: str, observed: str) -> str:
+    return (
+        "version: '1'\nentries:\n"
+        f"  - id: {ident}\n"
+        "    model: seedance-2.5\n"
+        "    trigger:\n"
+        "      kind: chained_start\n"
+        "    effect: late start\n"
+        "    mitigations:\n"
+        "      - trim the hold\n"
+        "    failed_mitigations: []\n"
+        "    evidence: fixture\n"
+        f"    observed_on: '{observed}'\n"
+    )
+
+
+def _caps_yaml(day: str) -> str:
+    return (
+        "version: '1'\nproviders:\n  keyframe:\n    models:\n      seedance-lab:\n"
+        "        blocks:\n          - source: observed\n"
+        f"            verified_on: '{day}'\n"
+        "            start_frame_hold_seconds: 0.5\n"
+    )
+
+
+def test_impossible_calendar_dates_fail_closed() -> None:
+    for day in ("2026-99-99", "2026-02-30"):
+        with tempfile.TemporaryDirectory() as directory:
+            root = Path(directory)
+            caps = root / "models.yaml"
+            caps.write_text(_caps_yaml(day), encoding="utf-8")
+            _raises(lambda: load_model_capabilities(caps), "seedance-lab", day, "calendar date")
+            drift = root / "drift.yaml"
+            drift.write_text(_drift_yaml("bad-date", day), encoding="utf-8")
+            _raises(lambda: load_registry(drift), "bad-date", day, "calendar date")
+    with tempfile.TemporaryDirectory() as directory:
+        leap = Path(directory) / "leap.yaml"
+        leap.write_text(_caps_yaml("2024-02-29"), encoding="utf-8")
+        loaded = load_model_capabilities(leap)
+        assert loaded["version"] == "1"
+
+
+def test_registry_warnings_uses_drift_path_only() -> None:
+    with tempfile.TemporaryDirectory() as directory:
+        path = Path(directory) / "drift.yaml"
+        path.write_text(_drift_yaml("alt-hold", "2026-10-02"), encoding="utf-8")
+        found = registry_warnings(
+            {},
+            [_frame("frame-002", join={"chain_from": "frame-001"})],
+            "keyframe",
+            as_of=AS_OF,
+            path=path,
+        )
+    text = " ".join(_ids(_codes(found, "KNOWN_DRIFT")))
+    assert "alt-hold" in text
+    assert "start-frame-hold" not in text
+
+
 def test_capability_staleness_and_schema() -> None:
     fresh = capability_warnings("keyframe", as_of=AS_OF)
     stale = capability_warnings("keyframe", {"model": "seedance-stale"}, as_of=AS_OF)
@@ -403,6 +472,8 @@ def main() -> None:
     test_each_new_drift_entry()
     test_stale_drift_uses_injected_date()
     test_keyframe_capabilities_regression_and_overlay()
+    test_impossible_calendar_dates_fail_closed()
+    test_registry_warnings_uses_drift_path_only()
     test_capability_staleness_and_schema()
     test_spend_estimate_budget_and_checklist()
     test_budget_boundary_shared_clips_and_missing_price()

@@ -37,8 +37,16 @@ properties:
           description: Optional Keyframe audio.sound. Omitted sound uses evidenced room presence.
         speech_lines:
           type: array
-          items: {type: string}
-          description: Optional dialogue lines. Speech is omitted when this list is empty.
+          items:
+            oneOf:
+              - {type: string}
+              - type: object
+                additionalProperties: false
+                required: [character, line]
+                properties:
+                  character: {type: string, minLength: 1}
+                  line: {type: string}
+          description: Optional dialogue. A string or a character and line mapping. Speech is omitted when empty.
         join:
           description: Optional cut, or a chain_from object pointing at an earlier frame.
           oneOf:

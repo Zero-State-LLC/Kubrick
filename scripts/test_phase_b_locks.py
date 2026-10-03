@@ -5,6 +5,7 @@ from __future__ import annotations
 import sys
 from pathlib import Path
 
+import jsonschema
 import yaml
 
 ROOT = Path(__file__).resolve().parent.parent
@@ -153,6 +154,82 @@ def test_dialogue_length() -> None:
     assert _codes(lint(flagged, slow)[0], "DIALOGUE_TOO_LONG") == []
 
 
+def test_mapped_speech_line_is_plain_text_and_attributed() -> None:
+    mapped = [{"character": "minder", "line": "hello"}]
+    silent = {"characters": {"minder": {"voice": {"speaks": False}}}}
+    _warnings, errors = lint(silent, [_frame(
+        "frame-002", characters=["minder"], speech_lines=mapped,
+    )])
+    assert len(errors) == 1
+    assert "VOICE_LOCK_VIOLATION" in errors[0]
+    assert "minder" in errors[0] and "frame-002" in errors[0]
+    story = _load(EXAMPLE / "storyboard-plan.yaml")
+    raw_frames = story["frames"]
+    assert isinstance(raw_frames, list)
+    second = dict(raw_frames[1])
+    second["speech_lines"] = mapped
+    raw_frames[1] = second
+    packet = adapter_packet_from_document(story)
+    packet_frames = packet["frames"]
+    assert isinstance(packet_frames, list)
+    shot = packet_frames[1]
+    assert isinstance(shot, dict)
+    params = shot["provider_parameters"]
+    assert isinstance(params, dict)
+    assert params["speech_lines"] == ["hello"]
+    movie = adapt(packet, "keyframe")
+    shots = movie["shots"]
+    assert isinstance(shots, list)
+    rendered = shots[1]
+    assert isinstance(rendered, dict)
+    audio = rendered["audio"]
+    assert isinstance(audio, dict)
+    speech = audio["speech"]
+    assert isinstance(speech, dict)
+    assert speech["lines"] == ["hello"]
+    params["speech_lines"] = [{"character": "minder", "line": "hello"}]
+    direct = adapt(packet, "keyframe")
+    direct_shots = direct["shots"]
+    assert isinstance(direct_shots, list)
+    direct_shot = direct_shots[1]
+    assert isinstance(direct_shot, dict)
+    direct_audio = direct_shot["audio"]
+    assert isinstance(direct_audio, dict)
+    direct_speech = direct_audio["speech"]
+    assert isinstance(direct_speech, dict)
+    assert direct_speech["lines"] == ["hello"]
+
+
+def _storyboard_frame(frame_id: str, ordinal: int, lines: object) -> dict[str, object]:
+    return {
+        "frame_id": frame_id,
+        "ordinal": ordinal,
+        "node_states": {"observed_1": "present"},
+        "motif_ownership": {"observed_1": None},
+        "residue": [],
+        "convergence_sites": ["primary"],
+        "prohibited_resets": [],
+        "speech_lines": lines,
+    }
+
+
+def test_storyboard_schema_accepts_mapped_speech() -> None:
+    schema = yaml.safe_load(
+        (ROOT / "schemas/storyboard-symbolic-state.schema.yaml").read_text(encoding="utf-8"),
+    )
+    board = {
+        "schema_version": "1.0.0",
+        "storyboard_id": "mapped-speech",
+        "graph_id": "mapped-speech",
+        "frames": [
+            _storyboard_frame("frame-001", 1, [{"character": "minder", "line": "hello"}]),
+            _storyboard_frame("frame-002", 2, ["minder: hello"]),
+        ],
+        "validation": {"status": "VALID", "errors": [], "warnings": [], "frame_count": 2},
+    }
+    jsonschema.validate(board, schema)
+
+
 def test_muted_native_and_example_line() -> None:
     story = _load(EXAMPLE / "storyboard-plan.yaml")
     packet = adapter_packet_from_document(story)
@@ -250,6 +327,8 @@ def main() -> None:
     test_voice_lock_fails_closed()
     test_never_clone_fails_closed()
     test_dialogue_length()
+    test_mapped_speech_line_is_plain_text_and_attributed()
+    test_storyboard_schema_accepts_mapped_speech()
     test_muted_native_and_example_line()
     test_asymmetry_once_on_generic_and_keyframe()
     test_screen_direction_and_mirrored_reference()
