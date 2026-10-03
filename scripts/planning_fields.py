@@ -27,6 +27,7 @@ FRAME_KEYS = (
     "axis_change",
     "light_states",
     "object_states",
+    "keep",
 )
 PREP_KEYS = (
     "audio_strategy",
@@ -44,6 +45,7 @@ ROOT_KEYS = (
     "location",
     "counts",
     "locks",
+    "keep",
     *PREP_KEYS,
 )
 
@@ -78,6 +80,7 @@ def document_from_packet(packet: Mapping[str, object]) -> dict[str, object]:
     doc: dict[str, object] = {}
     _copy_maps(packet, doc, ("characters", "props", "location", "counts"))
     _copy_list(packet, doc, "locks")
+    _copy_list(packet, doc, "keep")
     locks = packet_locks(packet)
     if locks:
         doc["character_locks"] = locks

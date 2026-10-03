@@ -75,6 +75,10 @@ properties:
           type: object
           additionalProperties: {enum: [left, right, center]}
         axis_change: {type: boolean}
+        keep:
+          type: array
+          items: {type: string, minLength: 1}
+          description: Names a flicker or clear must not remove from this frame.
         start_frame:
           type: object
           additionalProperties: true
@@ -91,6 +95,10 @@ properties:
     type: object
     additionalProperties: true
     description: Optional character wardrobe and author-supplied reference manifests.
+  keep:
+    type: array
+    items: {type: string, minLength: 1}
+    description: Names a flicker or clear must not remove from any frame.
   short_beat_threshold_seconds: {type: number, exclusiveMinimum: 0}
   audio_strategy: {enum: [native, external, muted_native]}
   budget_cap_credits: {type: number, minimum: 0}

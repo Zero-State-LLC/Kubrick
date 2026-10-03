@@ -32,6 +32,12 @@ _SNAP = re.compile(
     r"\b(?:snap[\s-]?pan|whip[\s-]?pan|snaps?|whips?|whipped|whipping)\b",
     re.IGNORECASE,
 )
+# Action prose needs camera context: "the twig snaps" is not a snap pan.
+_SNAP_MOVE = re.compile(
+    r"\b(?:snap|whip)(?:s|ped|ping)?[\s-]?(?:pans?|panned|panning|tilts?|zooms?)\b"
+    r"|\bcamera\s+(?:snaps?|whips?|snapped|whipped)\b",
+    re.IGNORECASE,
+)
 _FLICKER_WORD = re.compile(
     r"\b(?:flicker|flickers|flickering|black[\s-]?out)\b",
     re.IGNORECASE,
@@ -160,7 +166,7 @@ def _close_framing(frame: Mapping[str, object]) -> bool:
 
 def _dim_practical(frame: Mapping[str, object]) -> bool:
     text = " ".join(_flatten(frame_field(frame, "light_states")))
-    return _DIM.search(text) is not None or _PRACTICAL.search(text) is not None
+    return _DIM.search(text) is not None and _PRACTICAL.search(text) is not None
 
 
 def _startle(frame: Mapping[str, object]) -> bool:
@@ -169,13 +175,12 @@ def _startle(frame: Mapping[str, object]) -> bool:
     return _STARTLE.search(text) is not None
 
 
-def _snap_text(value: object) -> bool:
-    return isinstance(value, str) and _SNAP.search(value) is not None
+def _snap_text(value: object, pattern: re.Pattern[str] = _SNAP) -> bool:
+    return isinstance(value, str) and pattern.search(value) is not None
 
 
 def _snap_whip(frame: Mapping[str, object]) -> bool:
-    action = frame_field(frame, "action")
-    if _snap_text(action):
+    if _snap_text(frame_field(frame, "action"), _SNAP_MOVE):
         return True
     camera = _mapping(frame, "camera")
     if camera is None:
@@ -198,22 +203,13 @@ def _explicit_flicker(frame: Mapping[str, object]) -> bool:
     return False
 
 
-def _flicker_active(
-    frame: Mapping[str, object], frames: Sequence[Mapping[str, object]],
-) -> bool:
-    if _explicit_flicker(frame):
-        return True
-    return _removes(frame, frames)
-
-
 def _keep_names(
     frame: Mapping[str, object], document: Mapping[str, object] | None,
 ) -> list[str]:
     found: list[str] = []
-    for key in ("keep", "keep_list"):
-        found.extend(_strings(frame_field(frame, key)))
-        if isinstance(document, Mapping):
-            found.extend(_strings(document.get(key)))
+    found.extend(_strings(frame_field(frame, "keep")))
+    if isinstance(document, Mapping):
+        found.extend(_strings(document.get("keep")))
     ordered: list[str] = []
     for name in found:
         if name not in ordered:
@@ -228,22 +224,17 @@ def cleared_keep_names(
 ) -> list[str]:
     """Kept names a flicker would drop. Unknown casts yield nothing."""
     keep = _keep_names(frame, document)
-    if not keep or not _flicker_active(frame, frames):
+    if not keep or not _explicit_flicker(frame):  # a cast cut alone is not a flicker
         return []
     current = _names(frame)
     if current is None:
         return []
     source = _chain_source(frame)
-    if source is not None:
-        before = _names(_prior(source, frames))
-        if before is not None:
-            gone = set(before) - set(current)
-            return [name for name in keep if name in gone]
-        if not _explicit_flicker(frame):
-            return []
-    if _explicit_flicker(frame):
-        return [name for name in keep if name not in current]
-    return []
+    before = _names(_prior(source, frames)) if source is not None else None
+    if before is not None:
+        gone = set(before) - set(current)
+        return [name for name in keep if name in gone]
+    return [name for name in keep if name not in current]
 
 
 def _frame_hits(
@@ -414,7 +405,7 @@ def _extended_ok(
     document: Mapping[str, object] | None,
     index: int | None,
 ) -> bool:
-    flicker = _flicker_active(frame, frames)
+    flicker = _explicit_flicker(frame)
     checks = (
         _flag_ok(triggers, "flicker_clear", flicker),
         _flag_ok(triggers, "keep_list", bool(_keep_names(frame, document))),

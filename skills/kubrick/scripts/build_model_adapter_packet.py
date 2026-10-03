@@ -188,6 +188,7 @@ def build(graph: dict, storyboard: dict | None, provider: str) -> dict:
         location=document.get("location"),
         counts=document.get("counts"),
         locks=document.get("locks"),
+        keep=document.get("keep"),
         short_beat_threshold_seconds=document.get("short_beat_threshold_seconds"),
         **prep_fields(document),
     )

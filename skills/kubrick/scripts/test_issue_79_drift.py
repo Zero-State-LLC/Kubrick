@@ -8,13 +8,18 @@ import sys
 from datetime import date
 from pathlib import Path
 
+import jsonschema
 import yaml
 
 ROOT = Path(__file__).resolve().parent.parent
 sys.path.insert(0, str(ROOT / "scripts"))
 
 from adapt_provider import adapt  # noqa: E402
+from build_model_adapter_packet import build as build_packet  # noqa: E402
+from build_motif_graph import build as build_graph  # noqa: E402
 from drift_registry import load_registry, registry_warnings  # noqa: E402
+from planning_fields import document_from_packet  # noqa: E402
+from propagate_graph_state import propagate  # noqa: E402
 from shot_plan import collect_prep, load_techniques, match_techniques  # noqa: E402
 from storyboard_prompts import adapter_packet_from_document  # noqa: E402
 
@@ -115,7 +120,10 @@ def test_close_framing_and_brightness() -> None:
     practical = [_frame("s", light_states={"room": "one practical"})]
     bright = [_frame("s", light_states={"room": "noon sun"})]
     assert "brightness-over-directed" in _text(_drift({}, dim))
-    assert "brightness-over-directed" in _text(_drift({}, practical))
+    # The drift is dim *practicals* rendering bright: one cue alone does not match.
+    assert "brightness-over-directed" not in _text(_drift({}, practical))
+    dim_only = [_frame("s", light_states={"room": "dim moonlight"})]
+    assert "brightness-over-directed" not in _text(_drift({}, dim_only))
     assert "brightness-over-directed" not in _text(_drift({}, bright))
     assert "brightness-over-directed" not in _text(_drift({}, [_frame("s")]))
 
@@ -138,10 +146,16 @@ def test_startle_and_chained_snap() -> None:
         _frame("b", join={"chain_from": "a"}, camera={"move": "whip-pan"}),
     ]
     loose = [_frame("a", action="snap pan")]
+    twig = [_frame("a"), _frame("b", join={"chain_from": "a"}, action="a twig snaps underfoot")]
+    whip_prose = [
+        _frame("a"), _frame("b", join={"chain_from": "a"}, action="the camera whips left"),
+    ]
     held = [_frame("a"), _frame("b", join={"chain_from": "a"}, action="springs", camera=None)]
     assert "chained-start-suppresses-move" in _text(_drift({}, snap))
     assert "chained-start-suppresses-move" in _text(_drift({}, whip))
     assert "chained-start-suppresses-move" not in _text(_drift({}, loose))
+    assert "chained-start-suppresses-move" not in _text(_drift({}, twig))
+    assert "chained-start-suppresses-move" in _text(_drift({}, whip_prose))
     assert "chained-start-suppresses-move" not in _text(_drift({}, held))
 
 
@@ -158,9 +172,19 @@ def test_flicker_keep_drift_and_warning() -> None:
     assert kept[0]["observed_on"] == "2026-10-02"
     frame_keep = [
         _frame("a", characters=["minder", "myslef"]),
-        _frame("b", characters=["minder"], join={"chain_from": "a"}, keep=["myslef"]),
+        _frame(
+            "b", characters=["minder"], join={"chain_from": "a"},
+            keep=["myslef"], action="the lights flicker",
+        ),
     ]
     assert "flicker-clears-all-figures" in _text(_drift({}, frame_keep))
+    # A cast reduction with no flicker evidence is an ordinary edit, not a flicker.
+    cut_only = [
+        _frame("a", characters=["minder", "myslef"]),
+        _frame("b", characters=["minder"], join={"chain_from": "a"}, keep=["myslef"]),
+    ]
+    assert "flicker-clears-all-figures" not in _text(_drift({}, cut_only))
+    assert "scoped-flicker" not in _by_shot(cut_only, {"keep": ["myslef"]}).get("b", [])
     stays = [
         _frame("a", characters=["minder", "myslef"]),
         _frame("b", characters=["myslef"], join={"chain_from": "a"}, action="flicker"),
@@ -178,6 +202,40 @@ def test_flicker_keep_drift_and_warning() -> None:
     assert "scoped-flicker" in suggested["b"]
     assert "clear-characters-by-flicker" in suggested["b"]
     assert "scoped-flicker" not in _by_shot(frames).get("b", [])
+
+
+def test_keep_is_carried_by_compiled_artifacts() -> None:
+    example = ROOT / "examples" / "myslef-minder"
+    graph = build_graph(_load(example / "brief.yaml"))
+    plan = _load(example / "storyboard-plan.yaml")
+    plan["keep"] = ["myslef"]
+    frames = plan["frames"]
+    assert isinstance(frames, list)
+    exit_frame = frames[3]
+    assert isinstance(exit_frame, dict) and exit_frame["frame_id"] == "frame-004"
+    exit_frame["keep"] = ["myslef"]
+    exit_frame["action"] = "the lights flicker as the minder walks out of frame right"
+    board = propagate(graph, plan)
+    assert board["validation"]["status"] == "VALID", board["validation"]
+    assert board["keep"] == ["myslef"]
+    assert board["frames"][3]["keep"] == ["myslef"]
+    board_schema = yaml.safe_load(
+        (ROOT / "schemas" / "storyboard-symbolic-state.schema.yaml").read_text(encoding="utf-8")
+    )
+    jsonschema.validate(board, board_schema)
+    packet = build_packet(graph, board, "keyframe")
+    packet_schema = yaml.safe_load(
+        (ROOT / "schemas" / "model-adapter-packet.schema.yaml").read_text(encoding="utf-8")
+    )
+    jsonschema.validate(packet, packet_schema)
+    assert packet["keep"] == ["myslef"]
+    assert document_from_packet(packet)["keep"] == ["myslef"]
+    assert any(
+        item.get("code") == "FLICKER_CLEARS_KEEP" and item.get("shot") == "frame-004"
+        for item in packet["prep_warnings"]
+    )
+    suggested = {(item["shot"], item["id"]) for item in packet["technique_suggestions"]}
+    assert ("frame-004", "scoped-flicker") in suggested
 
 
 def test_sound_peak_angle_and_offscreen() -> None:
@@ -274,6 +332,7 @@ def main() -> None:
     test_close_framing_and_brightness()
     test_startle_and_chained_snap()
     test_flicker_keep_drift_and_warning()
+    test_keep_is_carried_by_compiled_artifacts()
     test_sound_peak_angle_and_offscreen()
     test_myslef_regression_shows_applicable_warnings()
     print("issue 79 drift and technique tests: PASS")
