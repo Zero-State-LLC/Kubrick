@@ -15,7 +15,7 @@
 - #82: `kubrick do ledger --action init` routes like `do ledger init`; `operate` takes `--action` too. Relative path flags resolve against `KUBRICK_CALLER_CWD`; an inline `--brief` stays prose. `production_engine.py` is split under 500 lines (`production_artifacts.py`). The failing CodeQL and Pages workflows are removed (see `docs/ci/README.md`).
 
 ### Notes
-- Product version is 0.23.0. The production envelope schema id stays `0.16.0`. `corpus_version` stays 0.11.5; `corpus_digest` and `schema_bundle_version` change with the corpus bytes. No provider is called.
+- Product version is 0.23.0. The production envelope schema id stays `0.16.0`. `corpus_version` stays 0.11.5; `corpus_digest` changes with the corpus bytes (#80, #81). `schema_bundle_version` changes separately because the manifest-listed schemas changed: the new film-grammar schema and the `keep`, `camera`, and `cut` properties on the storyboard and adapter-packet schemas. No provider is called.
 
 
 ## [0.22.0] — 2026-10-03
