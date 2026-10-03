@@ -7,18 +7,17 @@ from collections.abc import Callable, Mapping, Sequence
 from dataclasses import dataclass
 from pathlib import Path
 
-from brief_constraints import collect_character_locks, frame_parameters, packet_locks
+from brief_constraints import frame_parameters
 from continuity_locks import (
     frame_field,
     frame_id,
-    planning_frame_fields,
-    planning_root_fields,
     prop_assignments,
     reference_warnings,
     render_with_locks,
-    wardrobe_lines,
     warning,
 )
+from planning_fields import planning_frame_fields
+from reference_lint import extra_warnings, prompt_lines
 
 _ROOT = Path(__file__).resolve().parent.parent
 _TECHNIQUE_PATH = _ROOT / "assets" / "techniques" / "techniques.yaml"
@@ -308,7 +307,7 @@ def collect_prep(
     opted: dict[str, list[str]] = {}
     for index, frame in enumerate(frames, start=1):
         shot = frame_id(frame, index)
-        lock_map[shot] = [*wardrobe_lines(merged, frame), *prop_lines.get(shot, [])]
+        lock_map[shot] = prompt_lines(merged, frame, prop_lines.get(shot, []))
         wanted = _string_list(frame_field(frame, "apply_techniques"))
         opted[shot] = opted_clauses(techniques, shot, wanted)
     from continuity_locks import drift_warnings
@@ -320,6 +319,7 @@ def collect_prep(
         *short_beat_warnings(frames, provider, document=merged, default_duration=default_duration),
         *drift_warnings(merged, frames, provider, entries),
         *reference_warnings(merged),
+        *extra_warnings(merged, frames, provider),
     ]
     return Prep(warnings, [*validate_joins(frames), *prop_errors], lock_map, opted, techniques)
 def enrich_prompts(
@@ -461,39 +461,3 @@ def merged_warnings(
 ) -> list[dict[str, str | None]]:
     kept = [item for item in warnings_in(packet) if item.get("code") not in _PROVIDER_CODES]
     return dedupe_warnings([*kept, *fresh])
-def _copy_maps(source: Mapping[str, object], doc: dict[str, object], keys: Sequence[str]) -> None:
-    for key in keys:
-        if key not in doc and isinstance(source.get(key), Mapping):
-            doc[key] = source[key]
-
-def document_from_packet(packet: Mapping[str, object]) -> dict[str, object]:
-    doc: dict[str, object] = {}
-    _copy_maps(packet, doc, ("characters", "props"))
-    locks = packet_locks(packet)
-    if locks:
-        doc["character_locks"] = locks
-    if packet.get("strict") is True:
-        doc["strict"] = True
-    threshold = packet.get("short_beat_threshold_seconds")
-    if isinstance(threshold, (int, float)) and not isinstance(threshold, bool):
-        doc["short_beat_threshold_seconds"] = threshold
-    return doc
-def document_from_sources(
-    graph: Mapping[str, object], storyboard: Mapping[str, object] | None,
-) -> dict[str, object]:
-    doc: dict[str, object] = {}
-    locks = collect_character_locks(graph)
-    if isinstance(storyboard, Mapping):
-        doc.update(planning_root_fields(storyboard))
-        if storyboard.get("strict") is True:
-            doc["strict"] = True
-        locks.extend(collect_character_locks(storyboard))
-    if locks:
-        doc["character_locks"] = list(dict.fromkeys(locks))
-    _copy_maps(graph, doc, ("characters", "props"))
-    if graph.get("strict") is True:
-        doc["strict"] = True
-    threshold = graph.get("short_beat_threshold_seconds")
-    if "short_beat_threshold_seconds" not in doc and threshold is not None:
-        doc["short_beat_threshold_seconds"] = threshold
-    return doc

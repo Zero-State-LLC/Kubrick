@@ -245,6 +245,27 @@ def shots_from_text(text: str | None, duration: float = 8.0) -> list[dict[str, o
     return shots_from_document(data, duration)
 
 
+def _mapping_field(data: Mapping[str, object], key: str) -> Mapping[str, object] | None:
+    value = data.get(key)
+    if isinstance(value, Mapping):
+        return value
+    return None
+
+
+def _lock_field(data: Mapping[str, object]) -> list[object] | None:
+    value = data.get("locks")
+    if isinstance(value, list) and value:
+        return value
+    return None
+
+
+def _beat_threshold(data: Mapping[str, object]) -> int | float | None:
+    threshold = data.get("short_beat_threshold_seconds")
+    if isinstance(threshold, bool) or not isinstance(threshold, (int, float)):
+        return None
+    return threshold
+
+
 def adapter_packet_from_document(
     data: Mapping[str, object],
     provider: str = "generic",
@@ -304,16 +325,16 @@ def adapter_packet_from_document(
     constraints = packet["shared_constraints"]
     if isinstance(constraints, dict):
         constraints.update(carried_shared(data))
-    threshold = data.get("short_beat_threshold_seconds")
-    if isinstance(threshold, bool) or not isinstance(threshold, (int, float)):
-        threshold = None
     attach_plan(
         packet,
         prep_warnings=getattr(prep, "warnings", []),
         technique_suggestions=getattr(prep, "techniques", []),
-        characters=data.get("characters") if isinstance(data.get("characters"), Mapping) else None,
-        props=data.get("props") if isinstance(data.get("props"), Mapping) else None,
-        short_beat_threshold_seconds=threshold,
+        characters=_mapping_field(data, "characters"),
+        props=_mapping_field(data, "props"),
+        location=_mapping_field(data, "location"),
+        counts=_mapping_field(data, "counts"),
+        locks=_lock_field(data),
+        short_beat_threshold_seconds=_beat_threshold(data),
     )
     if data.get("strict") is True:
         packet["strict"] = True

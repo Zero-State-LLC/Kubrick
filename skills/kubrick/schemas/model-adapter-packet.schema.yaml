@@ -51,6 +51,9 @@ properties:
       lexicon_links_exposed: {const: false}
   characters: {type: object, additionalProperties: true}
   props: {type: object, additionalProperties: true}
+  location: {type: object, additionalProperties: true}
+  counts: {type: object, additionalProperties: {type: integer, minimum: 0}}
+  locks: {type: array, items: {type: object, additionalProperties: true}}
   strict: {type: boolean}
   short_beat_threshold_seconds: {type: number, exclusiveMinimum: 0}
   prep_warnings:

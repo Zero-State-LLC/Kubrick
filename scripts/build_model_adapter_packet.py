@@ -12,6 +12,7 @@ except ImportError:
     raise SystemExit("pyyaml required")
 
 from brief_constraints import carried_shared  # noqa: E402
+from planning_fields import document_from_sources  # noqa: E402
 from prompt_text import (  # noqa: E402
     continuity_clauses,
     continuity_for_frame,
@@ -19,12 +20,7 @@ from prompt_text import (  # noqa: E402
     node_state_constraints,
     render_frame_prompt,
 )
-from shot_plan import (  # noqa: E402
-    attach_plan,
-    document_from_sources,
-    enrich_prompts,
-    prompted_parameters,
-)
+from shot_plan import attach_plan, enrich_prompts, prompted_parameters  # noqa: E402
 
 
 def load(path: str) -> dict:
@@ -47,6 +43,12 @@ def save(path: str, data: dict) -> None:
     p = Path(path)
     p.parent.mkdir(parents=True, exist_ok=True)
     p.write_text(yaml.safe_dump(data, sort_keys=False), encoding="utf-8")
+
+
+def _copied_list(value: object) -> list[object]:
+    if isinstance(value, (str, bytes)) or not isinstance(value, Sequence):
+        return []
+    return list(value)
 
 
 def _labels(graph: Mapping[str, object]) -> dict[str, str]:
@@ -77,7 +79,7 @@ def _fallback_frame(graph: Mapping[str, object]) -> dict[str, object]:
         "object_states": {},
         "light_states": {},
         "material_states": {},
-        "residue": list(graph.get("residue") or []),
+        "residue": _copied_list(graph.get("residue")),
         "convergence_sites": sites,
         "prohibited_resets": [],
     }
@@ -184,6 +186,9 @@ def build(graph: dict, storyboard: dict | None, provider: str) -> dict:
         technique_suggestions=prep.techniques,
         characters=document.get("characters"),
         props=document.get("props"),
+        location=document.get("location"),
+        counts=document.get("counts"),
+        locks=document.get("locks"),
         short_beat_threshold_seconds=document.get("short_beat_threshold_seconds"),
     )
     if document.get("strict") is True:

@@ -11,17 +11,11 @@ from prompt_text import character_lock_feature, join_clauses
 
 _STRICT: ContextVar[bool] = ContextVar("kubrick_prep_strict", default=False)
 REFERENCE_CODE = "REFERENCE_LOCK_CONTRADICTION"
-_FRAME_KEYS = (
-    "join",
-    "opens_with",
-    "prop_states",
-    "characters",
-    "wardrobe",
-    "apply_techniques",
-    "action",
-    "reference_images",
-)
-_ROOT_KEYS = ("props", "characters", "short_beat_threshold_seconds")
+_BLOCKING_CODES = frozenset({
+    REFERENCE_CODE,
+    "LOCATION_REFERENCE_CONTRADICTION",
+    "START_FRAME_MISSING",
+})
 _ARROW = "->"
 _MOTION = (
     "stand", "stands", "standing", "jump", "jumps", "jumping", "spring", "springs",
@@ -89,12 +83,9 @@ def frame_field(frame: Mapping[str, object], key: str) -> object:
     return None
 
 
-def planning_frame_fields(spec: Mapping[str, object]) -> dict[str, object]:
-    return {key: spec.get(key) for key in _FRAME_KEYS if key in spec and spec.get(key) is not None}
-
-
-def planning_root_fields(plan: Mapping[str, object]) -> dict[str, object]:
-    return {key: plan.get(key) for key in _ROOT_KEYS if key in plan and plan.get(key) is not None}
+def resolve_state(states: Mapping[str, str], token: str) -> str | None:
+    """Public alias for the #28 state resolver."""
+    return _resolve_state(states, token)
 
 
 def _norm(text: str) -> str:
@@ -487,7 +478,7 @@ def reference_block(warnings: Sequence[Mapping[str, object]], enabled: bool) -> 
         return []
     messages: list[str] = []
     for item in warnings:
-        if item.get("code") != REFERENCE_CODE:
+        if item.get("code") not in _BLOCKING_CODES:
             continue
         message = str(item.get("message") or "")
         if message and message not in messages:

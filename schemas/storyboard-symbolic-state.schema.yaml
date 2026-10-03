@@ -60,6 +60,17 @@ properties:
         apply_techniques: {type: array, items: {type: string}}
         action: {type: string}
         reference_images: {type: array, items: {type: string, minLength: 1}}
+        cast: {type: array, items: {type: string}}
+        counts: {type: object, additionalProperties: {type: integer, minimum: 0}}
+        shot_id: {type: string}
+        start_frame:
+          type: object
+          additionalProperties: true
+          properties:
+            source_take: {type: string}
+            at_seconds: {type: number}
+            asset: {type: string}
+            verified: {type: boolean}
   props:
     type: object
     additionalProperties: true
@@ -70,6 +81,18 @@ properties:
     description: Optional character wardrobe and author-supplied reference manifests.
   short_beat_threshold_seconds: {type: number, exclusiveMinimum: 0}
   strict: {type: boolean}
+  location:
+    type: object
+    additionalProperties: true
+    description: Optional room locks and location references. Read from the storyboard plan.
+  counts:
+    type: object
+    additionalProperties: {type: integer, minimum: 0}
+    description: Optional count locks. A frame counts entry overrides one key.
+  locks:
+    type: array
+    description: Optional critical locks that are not character locks.
+    items: {type: object, additionalProperties: true}
   validation:
     type: object
     additionalProperties: false

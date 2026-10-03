@@ -1,0 +1,19 @@
+# OBSERVATION. Human-entered takes. Kubrick does not write these back onto the storyboard.
+- shot: "04"
+  take_id: shot-04-v8
+  source_clip: shot-04-v8.mp4
+  trim:
+    in: 0.0
+    out: 1.0
+  observed_end_state:
+    props:
+      chair: "C3 far end"
+- shot: "06"
+  take_id: shot-06-v7
+  source_clip: shot-06-v7.mp4
+  trim:
+    in: 0.0
+    out: 1.0
+  observed_start_state:
+    props:
+      chair: beside the desk

@@ -1,5 +1,47 @@
 # Changelog — Kubrick
 
+## [0.20.0] — 2026-10-02
+
+### Added
+- #33: Optional `applies_to` scopes a character reference. An attached reference on a two-person frame that is not scoped to exactly one on-screen id warns `REFERENCE_BLEED_RISK`. A scoped reference adds one binding line. `scope` without `applies_to` does not scope the reference.
+- #34: Storyboard `location` references are linted against location locks and `counts`. A contradiction warns `LOCATION_REFERENCE_CONTRADICTION`. `--strict` exits non-zero. Counts compile to `exactly N name` lines, and a frame count overrides that key. `cast: []` compiles to `nobody is in frame` and drops wardrobe and identity lines.
+- #35: Adapter output carries `lock_carriers` (`start_frame`, `reference`, `prompt_positive`, `prompt_negative_only`). A critical lock carried only by a negative warns `NEGATIVE_ONLY_LOCK`. Provider capabilities add `negative_prompt_effective` (false for Keyframe).
+- #36: `video --action retime` proposes a generation plan, an edit plan, and script versus final clock. Short, chained, or reused shots are separate generations. Contiguous long beats can share one clip. A non-zero delta without `accept_clock_delta` is `CLOCK_DELTA_UNACCEPTED`. No provider call.
+- #37: `storyboard --action impact` reads `takes.yaml` as OBSERVATION and warns `STALE_TAKE` when a downstream take does not continue the retake's observed end. Observations are not written back.
+- #38: A chained Keyframe shot without `start_frame.asset` warns `START_FRAME_MISSING` and includes an ffmpeg handoff string. `--strict` exits non-zero. An unverified asset warns `START_FRAME_UNVERIFIED`. Kubrick does not run ffmpeg.
+
+### Notes
+- The production envelope schema id stays `0.16.0`. The installer receipt schema id stays `1.0.0`.
+- Issues #39–#44 are roadmap-only in this release.
+- MYSLEF shots 03–06 are the example under `examples/myslef-minder/`. Generic compile:
+
+```bash
+python3 scripts/kubrick.py compile \
+  --brief examples/myslef-minder/brief.yaml \
+  --mode storyboard \
+  --storyboard-plan examples/myslef-minder/storyboard-plan.yaml \
+  --provider generic \
+  --out /tmp/myslef-minder-generic
+```
+
+- Keyframe adapt, retime, and take impact of that plan:
+
+```bash
+python3 scripts/kubrick.py video --action adapt \
+  --provider keyframe \
+  --input examples/myslef-minder/storyboard-plan.yaml \
+  --output /tmp/myslef-minder-keyframe.yaml
+python3 scripts/kubrick.py video --action retime \
+  --provider keyframe \
+  --input examples/myslef-minder/storyboard-plan.yaml \
+  --output /tmp/myslef-minder-retime.yaml
+python3 scripts/kubrick.py storyboard --action impact \
+  --storyboard examples/myslef-minder/storyboard-plan.yaml \
+  --takes examples/myslef-minder/takes.yaml \
+  --retake 04 \
+  --output /tmp/myslef-minder-impact.yaml
+```
+
 ## [0.19.0] — 2026-10-02
 
 ### Added

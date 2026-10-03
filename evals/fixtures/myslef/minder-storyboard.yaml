@@ -15,11 +15,34 @@ characters:
     references:
       - path: head-lock-short-flush.png
         role: character
+        scope: subject
+        applies_to: [myslef]
         declares:
           - nose
 character_locks:
   - no nose
 aspect_ratio: "9:16"
+accept_clock_delta: true
+location:
+  locks:
+    - no lit doorway
+  references:
+    - path: location-ref-v1
+      declares:
+        - lit doorway
+        - laptop x4
+    - path: location-ref-v2
+      declares:
+        - dim racks
+        - one laptop
+counts:
+  laptop: 1
+locks:
+  - id: red-chest-light
+    kind: light
+    critical: true
+    character: myslef
+    negative: no red light on the head or chest
 props:
   chair:
     states:
@@ -30,6 +53,7 @@ props:
       C4: "on its side at the far end of the aisle by the rack gap; it does not move"
 frames:
   - frame_id: frame-001
+    shot_id: "03"
     duration_seconds: 2.0
     join: cut
     characters: [minder, myslef]
@@ -55,10 +79,16 @@ frames:
     residue_add:
       - laptop cartoon audio under the hum
   - frame_id: frame-002
+    shot_id: "04"
     duration_seconds: 1.0
     join:
       chain_from: frame-001
       at_seconds: 2.0
+    start_frame:
+      source_take: shot-04-v8.mp4
+      at_seconds: 2.958
+      asset: starts/shot-04.png
+      verified: true
     characters: [minder, myslef]
     prop_states:
       chair: C1->C3
@@ -79,6 +109,7 @@ frames:
       optic: crack visible
     convergence_sites: [primary]
   - frame_id: frame-003
+    shot_id: "05"
     duration_seconds: 2.0
     join: cut
     characters: [myslef]
@@ -100,11 +131,16 @@ frames:
       optic: crack visible
     convergence_sites: [primary]
   - frame_id: frame-004
+    shot_id: "06"
     duration_seconds: 1.0
     join:
       chain_from: frame-002
     opens_with: exit
     characters: []
+    cast: []
+    start_frame:
+      source_take: shot-04-v8.mp4
+      at_seconds: 3.583
     prop_states:
       chair: C3->C4
     action: the minder walks out of frame right

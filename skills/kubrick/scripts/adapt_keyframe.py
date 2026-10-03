@@ -12,7 +12,8 @@ from collections.abc import Mapping, Sequence
 from typing import cast
 
 from brief_constraints import aspect_ratio_from, packet_locks
-from prompt_text import is_blank, join_clauses, positive_prompt
+from prompt_text import is_blank, join_clauses
+from reference_lint import bound_positive
 
 MIN_SECONDS = 3.0
 MAX_SECONDS = 60.0
@@ -150,13 +151,15 @@ def _prompts(
     frame: Mapping[str, object],
     negatives: Sequence[str],
     locks: Sequence[str],
+    packet: Mapping[str, object],
 ) -> tuple[str, str]:
     source = str(frame.get("prompt") or "").strip()
-    image = positive_prompt(source, [], negatives, locks) or source or "evidenced frame"
+    image = bound_positive(source, [], negatives, locks, packet, frame)
+    image = image or source or "evidenced frame"
     continuity = _string_list(frame.get("continuity_from_previous"))
     constraints = _string_list(frame.get("state_constraints"))
     if continuity or constraints:
-        video = positive_prompt(source, [*continuity, *constraints], negatives, locks)
+        video = bound_positive(source, [*continuity, *constraints], negatives, locks, packet, frame)
     else:
         video = image
     return image, video or image
@@ -280,7 +283,7 @@ def _one_shot(
     range_error = _range_error(frame_id, seconds)
     if range_error:
         return None, range_error
-    image, video = _prompts(frame, negatives, packet_locks(packet))
+    image, video = _prompts(frame, negatives, packet_locks(packet), packet)
     audio: dict[str, object] = {"sound": _sound(frame)}
     lines = _dialogue(frame)
     if lines:
@@ -311,13 +314,8 @@ def _keyframe_plan(
     packet: Mapping[str, object], frames: Sequence[Mapping[str, object]],
 ) -> tuple[Mapping[str, object], object, list[dict[str, str | None]], list[dict[str, object]],
            list[str]]:
-    from shot_plan import (
-        collect_prep,
-        document_from_packet,
-        merged_warnings,
-        padding_errors,
-        shot_directives,
-    )
+    from planning_fields import document_from_packet
+    from shot_plan import collect_prep, merged_warnings, padding_errors, shot_directives
 
     document = document_from_packet(packet)
     prep = collect_prep(document, frames, "keyframe", default_duration=DEFAULT_SECONDS)
@@ -355,6 +353,7 @@ def _plan_sections(
     warnings: Sequence[Mapping[str, object]],
     techniques: object,
     prompts: Sequence[str] | None = None,
+    carriers: Sequence[Mapping[str, object]] | None = None,
 ) -> dict[str, object]:
     from shot_plan import cut_list, dropped_references
 
@@ -365,6 +364,8 @@ def _plan_sections(
     }
     if prompts is not None:
         sections["planned_prompts"] = list(prompts)
+    if carriers:
+        sections["lock_carriers"] = [dict(item) for item in carriers]
     if _needs_cut(directives):
         sections["cut_list"] = cut_list(directives)
     if any(item.get("chained") for item in directives):
@@ -434,6 +435,9 @@ def build_create_movie(packet: Mapping[str, object]) -> dict[str, object]:
             reason = error or f"keyframe shot {index} is not computable"
             return _refuse(reason, mapped, directives, warnings, techniques)
         _apply_directive(shot, directive)
+        from start_frame_gate import stamp_asset
+
+        stamp_asset(shot, prepared)
         shots.append(shot)
     graph_id = str(packet.get("source_graph_id") or "unknown")
     movie: dict[str, object] = {
@@ -449,7 +453,10 @@ def build_create_movie(packet: Mapping[str, object]) -> dict[str, object]:
         refs = _references(packet)
         if refs:
             movie["referenceImages"] = refs
-    attach_plan(movie, **_plan_sections(directives, warnings, techniques))
+    from lock_carriers import lock_table
+
+    carriers = lock_table(document, mapped)
+    attach_plan(movie, **_plan_sections(directives, warnings, techniques, carriers=carriers))
     ref_errors = reference_block(warnings, strict_enabled(document))
     if ref_errors:
         movie["validation"] = {"status": "INVALID", "errors": ref_errors}
