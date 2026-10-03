@@ -20,6 +20,7 @@ PROVIDER_CAPABILITIES: dict[str, dict[str, Any]] = {
         "multi_shot": True,
         "physics_hints": True,
         "identity_lock": True,
+        "negative_prompt_effective": True,
     },
     "flux": {
         "image": True,
@@ -30,6 +31,7 @@ PROVIDER_CAPABILITIES: dict[str, dict[str, Any]] = {
         "multi_shot": False,
         "physics_hints": False,
         "identity_lock": True,
+        "negative_prompt_effective": True,
     },
     "sd3": {
         "image": True,
@@ -40,6 +42,7 @@ PROVIDER_CAPABILITIES: dict[str, dict[str, Any]] = {
         "multi_shot": False,
         "physics_hints": False,
         "identity_lock": True,
+        "negative_prompt_effective": True,
     },
     "midjourney": {
         "image": True,
@@ -50,6 +53,7 @@ PROVIDER_CAPABILITIES: dict[str, dict[str, Any]] = {
         "multi_shot": False,
         "physics_hints": False,
         "identity_lock": True,
+        "negative_prompt_effective": True,
     },
     "grok-imagine": {
         "image": True,
@@ -60,6 +64,7 @@ PROVIDER_CAPABILITIES: dict[str, dict[str, Any]] = {
         "multi_shot": False,
         "physics_hints": True,
         "identity_lock": True,
+        "negative_prompt_effective": True,
     },
     "keyframe": {
         "image": True,
@@ -81,6 +86,7 @@ PROVIDER_CAPABILITIES: dict[str, dict[str, Any]] = {
                 "references dropped on shot {shot}"
             ),
         },
+        "negative_prompt_effective": False,
         "known_drift": [
             {
                 "id": "plain-top-motion-logo",
@@ -112,6 +118,7 @@ def capabilities_for(provider: str | None) -> dict[str, Any]:
         "multi_shot": False,
         "physics_hints": False,
         "identity_lock": True,
+        "negative_prompt_effective": False,
         "unknown_provider": True,
     }
 
@@ -121,13 +128,17 @@ def check_image_adapt(provider: str | None) -> dict[str, Any] | None:
     if not caps.get("image"):
         return {
             "code": "PROVIDER_CAPABILITY",
-            "message": f"provider `{normalize_provider(provider)}` does not support image adaptation",
+            "message": (
+                f"provider `{normalize_provider(provider)}` does not support image adaptation"
+            ),
             "capabilities": caps,
         }
     return None
 
 
-def check_video_adapt(provider: str | None, *, duration: float | None = None) -> dict[str, Any] | None:
+def check_video_adapt(
+    provider: str | None, *, duration: float | None = None,
+) -> dict[str, Any] | None:
     caps = capabilities_for(provider)
     name = normalize_provider(provider)
     if not caps.get("video"):
@@ -158,7 +169,9 @@ def check_video_adapt(provider: str | None, *, duration: float | None = None) ->
     return None
 
 
-def check_video_shot(provider: str | None, *, duration: float, wants_camera_motion: bool = False) -> dict[str, Any] | None:
+def check_video_shot(
+    provider: str | None, *, duration: float, wants_camera_motion: bool = False,
+) -> dict[str, Any] | None:
     """Optional advisory when compiling shots toward a known provider."""
     if not provider or normalize_provider(provider) == "generic":
         return None
@@ -167,7 +180,9 @@ def check_video_shot(provider: str | None, *, duration: float, wants_camera_moti
     if not caps.get("video"):
         return {
             "code": "PROVIDER_CAPABILITY",
-            "message": f"provider `{name}` cannot execute video shots; keep packet provider-neutral",
+            "message": (
+                f"provider `{name}` cannot execute video shots; keep packet provider-neutral"
+            ),
             "capabilities": caps,
         }
     if "min_duration_seconds" in caps and float(duration) < float(caps["min_duration_seconds"]):

@@ -68,6 +68,21 @@
         }
       }
     },
+    "lock_carriers": {
+      "type": "array",
+      "items": {
+        "type": "object",
+        "additionalProperties": false,
+        "required": ["shot", "lock", "kind", "carrier"],
+        "properties": {
+          "shot": {"type": "string"},
+          "lock": {"type": "string"},
+          "kind": {"type": "string"},
+          "carrier": {"type": "string"},
+          "critical": {"type": "boolean"}
+        }
+      }
+    },
     "technique_suggestions": {
       "type": "array",
       "items": {
@@ -113,7 +128,8 @@
             "required": ["sourceFrame"],
             "properties": {
               "sourceFrame": {"type": "string", "minLength": 1},
-              "atSeconds": {"type": "number"}
+              "atSeconds": {"type": "number"},
+              "asset": {"type": "string", "minLength": 1}
             }
           },
           "referenceImages": {

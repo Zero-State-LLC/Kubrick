@@ -6,7 +6,7 @@
 
 <p align="center">
   <strong>Hermes-Native Symbolic Cinematic Engineering</strong><br>
-  <em>0.19.0 — Shot prep and continuity locks</em>
+  <em>0.20.0 — Reference scope, retime, and take impact</em>
 </p>
 
 <p align="center">
@@ -88,7 +88,7 @@ Think of `<job>` as *what you want done*, not a pile of script names:
 | `check` | Validate the skill, corpus, or run smoke tests |
 | `operate` | Score saturation, lock convergence, audit for named esoterica, export architecture |
 | `design` | Compile a governed design specification from project evidence |
-| `storyboard` | Propagate or compare multi-frame state |
+| `storyboard` | Propagate, compare, or report take impact for multi-frame state |
 | `bundle` | Package a Grok-oriented review workflow |
 | `mcp` | Optional machine interface over the same tools |
 
@@ -105,7 +105,7 @@ python scripts/kubrick.py help adapt
    A `production_constraints` item prefixed `character-lock:` or `identity-lock:` is the same lock.
    `aspect_ratio`, or an `N:M` token in `production_constraints` such as `9:16 vertical`, sets the Keyframe aspect ratio. The fallback is `16:9`.
    Storyboard plan frames may also carry optional `duration_seconds`, `title`, `scene`, `sound`, and `speech_lines`. Keyframe uses those values. When `sound` is omitted, the shot uses evidenced room presence and no scored music.
-   Optional `props`, `prop_states`, `join`, `opens_with`, `characters` (`wardrobe`, `references`), frame `wardrobe`, `apply_techniques`, and `short_beat_threshold_seconds` are prep fields. See `examples/myslef-minder/`.
+   Optional `props`, `prop_states`, `join`, `opens_with`, `characters` (`wardrobe`, `references` with `scope` and `applies_to`), frame `wardrobe`, `cast`, `counts`, `start_frame`, `shot_id`, `apply_techniques`, and `short_beat_threshold_seconds` are prep fields. A plan may also set `location`, `counts`, `locks`, and `accept_clock_delta`. See `examples/myslef-minder/`.
    Example layout: `examples/authority-transfer-storyboard/brief.yaml`
 2. **Optionally keep a ledger** of active motifs for the project.  
    Example: `examples/authority-transfer-storyboard/symbolic-ledger.yaml`
@@ -283,7 +283,7 @@ python scripts/kubrick.py do <intent> [--action <action>] [flags]
 | `retrieve` | Registry-aware deterministic retrieval |
 | `ledger` | Project symbolic ledger (init / audit / mutate / rehydrate / apply-forge) |
 | `design` | Governed design-specification compilation |
-| `storyboard` | Multi-frame state propagate / compare |
+| `storyboard` | Multi-frame state propagate / compare / impact |
 | `adapt` | Neutral adapter packet and provider syntax translation |
 | `visual` | Visual QA loop (normalize / compare / correct / govern / closed-loop) |
 | `learn` | Outcome receipts, multi-signal evolution, Forge signal extraction |
@@ -395,8 +395,8 @@ CI (`.github/workflows/hermes-evals.yml`) runs Hermes evals, outcome governance,
 | [`intent/`](intent/README.md) | Intent template for non-trivial work; then spec.md / plan |
 | [`QUICKSTART.md`](QUICKSTART.md) | Installation and command routing |
 | [`CHANGELOG.md`](CHANGELOG.md) | Release history |
-| [`docs/ROADMAP-v0.19.md`](docs/ROADMAP-v0.19.md) | Current roadmap and next priorities |
-| [`docs/RELEASE-NOTES-v0.19.md`](docs/RELEASE-NOTES-v0.19.md) | v0.19 release notes |
+| [`docs/ROADMAP-v0.20.md`](docs/ROADMAP-v0.20.md) | Current roadmap and next priorities |
+| [`docs/RELEASE-NOTES-v0.20.md`](docs/RELEASE-NOTES-v0.20.md) | v0.20 release notes |
 | [`docs/ROADMAP-v0.18.md`](docs/ROADMAP-v0.18.md) | v0.18 roadmap |
 | [`docs/RELEASE-NOTES-v0.18.md`](docs/RELEASE-NOTES-v0.18.md) | v0.18 release notes |
 | [`docs/RELEASE-CHECKLIST-v0.18.md`](docs/RELEASE-CHECKLIST-v0.18.md) | v0.18 release gates |
@@ -446,11 +446,12 @@ CI (`.github/workflows/hermes-evals.yml`) runs Hermes evals, outcome governance,
 
 ## Version
 
-**0.19.0 — Shot prep and continuity locks**
+**0.20.0 — Reference scope, retime, and take impact**
 
-Shot prep warns on short beats, chains start frames, and locks prop state,
-wardrobe, and reference contradictions before spend. See
-[docs/RELEASE-NOTES-v0.19.md](docs/RELEASE-NOTES-v0.19.md).
+Prep warns on reference bleed, location contradictions, negative-only locks,
+and missing start frames before spend. `video retime` and `storyboard impact`
+are proposal-only. See
+[docs/RELEASE-NOTES-v0.20.md](docs/RELEASE-NOTES-v0.20.md).
 
 See [CHANGELOG.md](CHANGELOG.md) for full release history.
 
@@ -460,9 +461,9 @@ See [CHANGELOG.md](CHANGELOG.md) for full release history.
   <em>Symbolism should alter the conditions under which a scene is interpreted—without requiring the audience to consciously identify it.</em>
 </p>
 
-See also: [docs/ROADMAP-v0.19.md](docs/ROADMAP-v0.19.md)
+See also: [docs/ROADMAP-v0.20.md](docs/ROADMAP-v0.20.md)
 
-See also: [docs/RELEASE-NOTES-v0.19.md](docs/RELEASE-NOTES-v0.19.md)
+See also: [docs/RELEASE-NOTES-v0.20.md](docs/RELEASE-NOTES-v0.20.md)
 
 
 ## License

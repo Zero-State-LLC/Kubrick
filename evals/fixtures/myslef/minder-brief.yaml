@@ -14,8 +14,24 @@ characters:
     references:
       - path: head-lock-short-flush.png
         role: character
+        scope: subject
+        applies_to: [myslef]
         declares:
           - nose
+location:
+  locks:
+    - no lit doorway
+  references:
+    - path: location-ref-v1
+      declares:
+        - lit doorway
+        - laptop x4
+    - path: location-ref-v2
+      declares:
+        - dim racks
+        - one laptop
+counts:
+  laptop: 1
 observable_evidence:
   - empty command chair
   - cracked access badge
