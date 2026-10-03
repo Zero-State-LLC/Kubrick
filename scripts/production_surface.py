@@ -27,6 +27,10 @@ from surface_compilers import compile_surface  # noqa: E402
 VALID_SURFACES = {"design", "script", "image", "video"}
 
 
+def _is_directory_output(out: Path, output: str) -> bool:
+    return (out.exists() and out.is_dir()) or output.endswith("/")
+
+
 def _load_optional(path: str | None) -> str | None:
     if not path:
         return None
@@ -58,7 +62,7 @@ def _write_artifact(artifact: dict[str, Any], output: str | None) -> None:
     if output:
         out = resolve_bounded_path(output, for_write=True)
         # Directory output → canonical artifact tree
-        if out.exists() and out.is_dir() or str(output).endswith("/"):
+        if _is_directory_output(out, output):
             out.mkdir(parents=True, exist_ok=True)
             # Rebuild result object for tree writer via engine envelope already present
             payload = json.dumps(artifact, indent=2, sort_keys=True, ensure_ascii=False) + "\n"
@@ -87,17 +91,15 @@ def _write_artifact(artifact: dict[str, Any], output: str | None) -> None:
             )
             return
         if out.suffix.lower() in {".yaml", ".yml"}:
-            try:
-                import yaml  # type: ignore[import-untyped]
-            except ImportError as exc:
-                raise SystemExit("PyYAML required for YAML surface outputs") from exc
-            payload = (
+            from runtime_deps import yaml_dump
+
+            document = (
                 result.get("shot")
                 or result.get("packet")
                 or result.get("motion_contract")
                 or artifact
             )
-            write_text_bounded(out, yaml.safe_dump(payload, sort_keys=False))
+            write_text_bounded(out, yaml_dump(document, sort_keys=False))
             return
         write_text_bounded(
             out,

@@ -7,17 +7,22 @@ import json
 from pathlib import Path
 from typing import Any
 
-try:
-    import yaml
-except ImportError as exc:  # pragma: no cover
-    raise SystemExit("PyYAML is required: python -m pip install pyyaml") from exc
-
 
 def load_data(path: Path) -> dict[str, Any]:
     text = path.read_text(encoding="utf-8")
-    data = json.loads(text) if path.suffix.lower() == ".json" else yaml.safe_load(text)
-    if not isinstance(data, dict):
+    if path.suffix.lower() == ".json":
+        loaded: object = json.loads(text)
+    else:
+        from runtime_deps import yaml_load
+
+        loaded = yaml_load(text)
+    if not isinstance(loaded, dict):
         raise ValueError("design specification root must be an object")
+    data: dict[str, Any] = {}
+    for key, value in loaded.items():
+        if not isinstance(key, str):
+            raise ValueError("design specification keys must be strings")
+        data[key] = value
     return data
 
 
@@ -190,10 +195,11 @@ def main() -> None:
     parser.add_argument("--input", required=True, type=Path)
     parser.add_argument("--output", required=True, type=Path)
     args = parser.parse_args()
+    from io_safety import write_text_bounded
+
     data = load_data(args.input)
     markdown = compile_markdown(data)
-    args.output.parent.mkdir(parents=True, exist_ok=True)
-    args.output.write_text(markdown, encoding="utf-8")
+    write_text_bounded(args.output, markdown)
     print(json.dumps({"status": "PROPOSED", "output": str(args.output), "project": data["project"]["name"]}, sort_keys=True))
 
 

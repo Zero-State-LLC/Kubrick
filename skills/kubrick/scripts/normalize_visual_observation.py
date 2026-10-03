@@ -3,6 +3,8 @@
 from __future__ import annotations
 import argparse, hashlib, json
 from pathlib import Path
+
+from io_safety import write_text_bounded
 try:
     import yaml
 except ImportError:
@@ -17,5 +19,5 @@ def main():
     normalized={"geometry":list(observed.get("geometry",[])),"node_states":dict(observed.get("node_states",observed.get("states",{}))),"motif_ownership":dict(observed.get("motif_ownership",observed.get("ownership",{}))),"object_states":dict(observed.get("object_states",observed.get("objects",{}))),"light_states":dict(observed.get("light_states",observed.get("lighting",{}))),"material_states":dict(observed.get("material_states",observed.get("materials",{}))),"residue":list(observed.get("residue",[])),"convergence_sites":list(observed.get("convergence_sites",observed.get("convergence",[])))}
     payload={"schema_version":"1.0.0","source_graph_id":a.source_graph_id,"frame_id":a.frame_id,"observed":normalized,"confidence":max(0,min(1,a.confidence)),"ambiguities":list(raw.get("ambiguities",[])),"provenance":{"observer":a.observer,"method":a.method,"model":a.model}}
     payload["observation_id"]=hashlib.sha256(json.dumps(payload,sort_keys=True).encode()).hexdigest()[:16]
-    out=Path(a.output); out.parent.mkdir(parents=True,exist_ok=True); out.write_text(yaml.safe_dump(payload,sort_keys=False),encoding="utf-8"); print(yaml.safe_dump(payload,sort_keys=False))
+    text=yaml.safe_dump(payload,sort_keys=False); write_text_bounded(a.output, text); print(text)
 if __name__=="__main__": main()

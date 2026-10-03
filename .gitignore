@@ -24,6 +24,7 @@ Thumbs.db
 
 # Mutable skill overlays generated at runtime
 references/usage/
+references/reports/
 
 # Ephemeral agent / local PR scratch (never commit)
 PR_BODY.md

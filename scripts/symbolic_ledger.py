@@ -18,6 +18,8 @@ try:
 except ImportError:
     raise SystemExit("pyyaml required")
 
+from io_safety import write_text_bounded  # noqa: E402
+
 
 def load(path: Path) -> dict[str, Any]:
     if not path.exists():
@@ -31,8 +33,7 @@ def load(path: Path) -> dict[str, Any]:
 def dump(data: dict[str, Any], path: Path | None = None) -> None:
     text = yaml.safe_dump(data, sort_keys=False)
     if path:
-        path.parent.mkdir(parents=True, exist_ok=True)
-        path.write_text(text, encoding="utf-8")
+        write_text_bounded(path, text)
     else:
         print(text)
 

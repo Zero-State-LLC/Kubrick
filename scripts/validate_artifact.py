@@ -3,6 +3,8 @@
 from __future__ import annotations
 import argparse, json
 from pathlib import Path
+
+from io_safety import write_text_bounded
 _INSTALL = "python3 -m pip install -r requirements.txt"
 try:
     import yaml
@@ -39,7 +41,7 @@ def main() -> None:
         errors.append({"path":render_path(error.absolute_path),"message":error.message,"validator":error.validator})
     result={"status":"VALID" if not errors else "INVALID","artifact":a.artifact,"schema":a.schema,"error_count":len(errors),"errors":errors}
     text=json.dumps(result,indent=2)
-    if a.output: Path(a.output).write_text(text,encoding="utf-8")
+    if a.output: write_text_bounded(a.output, text)
     print(text)
     raise SystemExit(0 if not errors else 1)
 

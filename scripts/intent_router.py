@@ -371,6 +371,16 @@ def _resolve_alias(name: str, rest: list[str]) -> IntentCall:
             argv=list(rest),
             legacy_name=name,
         )
+    # design-build renders templates/design-specification.yaml. The design
+    # surface build action stays on design_surface.py.
+    if name == "design-build":
+        return IntentCall(
+            intent=intent,
+            action=alias.action,
+            script=SCRIPTS / "generate_design_spec.py",
+            argv=list(rest),
+            legacy_name=name,
+        )
 
     flags = list(alias.fixed_flags) + list(rest)
     # Allow optional --action override on aliases; strip router-only flag

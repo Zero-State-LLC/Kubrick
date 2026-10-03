@@ -2,10 +2,12 @@
 """Retake impact against observed takes. Issue #37.
 
 Takes are OBSERVATION. They are never written back onto the storyboard.
-A downstream take's ``observed_start_state`` is what that take was cut against.
-When it is omitted, the declared storyboard start is used. Equal text, or the
-same resolved state id, is a match. A token that starts with a state id and a
-space resolves to that id. ``prop_assignments`` errors fail closed.
+A downstream shot with no take uses the declared storyboard start. A compared
+take with no observation object is OBSERVATION_MISSING. Several takes for one
+shot and not exactly one ``selected: true`` is TAKE_AMBIGUOUS. Either blocker
+is NOT_COMPUTABLE. Equal text, or the same resolved state id, is a match. A
+token that starts with a state id and a space resolves to that id.
+``prop_assignments`` errors fail closed.
 """
 from __future__ import annotations
 
@@ -100,17 +102,78 @@ def _find(
     return None
 
 
-def _take_for(
+def _matches(
     takes: Sequence[Mapping[str, object]],
     frame: Mapping[str, object],
     index: int,
-) -> Mapping[str, object] | None:
+) -> list[Mapping[str, object]]:
     labels = _labels(frame, index)
+    found: list[Mapping[str, object]] = []
     for take in takes:
         shot = take.get("shot")
         if isinstance(shot, str) and shot.strip() in labels:
-            return take
+            found.append(take)
+    return found
+
+
+def _pick(
+    matches: Sequence[Mapping[str, object]],
+    shot: str,
+) -> tuple[Mapping[str, object] | None, dict[str, str | None] | None]:
+    if len(matches) <= 1:
+        return (matches[0] if matches else None), None
+    selected = [take for take in matches if take.get("selected") is True]
+    if len(selected) == 1:
+        return selected[0], None
+    return None, warning(
+        "TAKE_AMBIGUOUS",
+        shot,
+        f"shot {shot} has several takes and none is selected",
+        "set selected true on exactly one take for this shot",
+    )
+
+
+def _has_observation(take: Mapping[str, object], field: str) -> bool:
+    raw = take.get(field)
+    return isinstance(raw, Mapping) and bool(raw)
+
+
+def _missing(shot: str, field: str) -> dict[str, str | None]:
+    return warning(
+        "OBSERVATION_MISSING",
+        shot,
+        f"shot {shot} has no {field}",
+        f"record {field} on the take before comparing continuity",
+    )
+
+
+_BLOCKERS = {"OBSERVATION_MISSING", "TAKE_AMBIGUOUS"}
+
+
+def _blocker(items: Sequence[Mapping[str, object]]) -> Mapping[str, object] | None:
+    for item in items:
+        if item.get("code") in _BLOCKERS:
+            return item
     return None
+
+
+def _refused(
+    retake: str,
+    warnings: list[dict[str, str | None]],
+    blocked: Mapping[str, object],
+) -> dict[str, object]:
+    code = blocked.get("code")
+    message = blocked.get("message")
+    return {
+        "status": "NOT_COMPUTABLE",
+        "authority": "NOT_COMPUTABLE",
+        "action": "impact",
+        "label": "OBSERVATION",
+        "retake": retake,
+        "code": code if isinstance(code, str) else "NOT_COMPUTABLE",
+        "message": message if isinstance(message, str) else "",
+        "prep_warnings": warnings,
+    }
 
 
 def _frames(document: Mapping[str, object]) -> list[Mapping[str, object]]:
@@ -191,12 +254,37 @@ def _closed(message: str, retake: str) -> dict[str, object]:
     }
 
 
+def _downstream(
+    storyboard: Mapping[str, object],
+    frames: Sequence[Mapping[str, object]],
+    takes: Sequence[Mapping[str, object]],
+    index: int,
+    end_props: Mapping[str, str],
+    end_wardrobe: Mapping[str, str],
+    label: str,
+) -> list[dict[str, str | None]]:
+    found: list[dict[str, str | None]] = []
+    later = frames[index + 1:]
+    for later_index, frame in enumerate(later, start=index + 2):
+        shot = _shot_name(frame, later_index)
+        take, ambiguous = _pick(_matches(takes, frame, later_index), shot)
+        if ambiguous is not None:
+            found.append(ambiguous)
+            continue
+        if take is not None and not _has_observation(take, "observed_start_state"):
+            found.append(_missing(shot, "observed_start_state"))
+            continue
+        found.extend(_compare_props(storyboard, frame, later_index, take, end_props, label))
+        found.extend(_compare_wardrobe(frame, later_index, take, end_wardrobe, label))
+    return found
+
+
 def impact(
     storyboard: Mapping[str, object],
     takes: Sequence[Mapping[str, object]],
     retake: str,
 ) -> dict[str, object]:
-    """PROPOSED impact report. Does not mutate ``storyboard``."""
+    """Impact report. Does not mutate ``storyboard``."""
     frames = _frames(storyboard)
     _lines, errors = prop_assignments(storyboard, frames)
     if errors:
@@ -204,19 +292,28 @@ def impact(
     index = _find(frames, retake)
     if index is None:
         return _closed(f"retake {retake} is not on the storyboard", retake)
-    source = _take_for(takes, frames[index], index + 1)
+    label = _shot_name(frames[index], index + 1)
+    source, ambiguous = _pick(_matches(takes, frames[index], index + 1), label)
+    if ambiguous is not None:
+        return _refused(label, [ambiguous], ambiguous)
     if source is None:
         return _closed(f"retake {retake} has no take", retake)
-    end_props = _bucket(source, "observed_end_state", "props")
-    end_wardrobe = _bucket(source, "observed_end_state", "wardrobe")
-    label = _shot_name(frames[index], index + 1)
     warnings: list[dict[str, str | None]] = []
-    for later_index, frame in enumerate(frames[index + 1:], start=index + 2):
-        later_take = _take_for(takes, frame, later_index)
-        warnings.extend(_compare_props(
-            storyboard, frame, later_index, later_take, end_props, label,
+    if not _has_observation(source, "observed_end_state"):
+        warnings.append(_missing(label, "observed_end_state"))
+    else:
+        warnings.extend(_downstream(
+            storyboard,
+            frames,
+            takes,
+            index,
+            _bucket(source, "observed_end_state", "props"),
+            _bucket(source, "observed_end_state", "wardrobe"),
+            label,
         ))
-        warnings.extend(_compare_wardrobe(frame, later_index, later_take, end_wardrobe, label))
+    blocked = _blocker(warnings)
+    if blocked is not None:
+        return _refused(label, warnings, blocked)
     return {
         "status": "PROPOSED",
         "authority": "PROPOSED",
@@ -258,9 +355,9 @@ def main(argv: Sequence[str] | None = None) -> int:
     if args.output:
         write_structured(args.output, result)
     else:
-        import yaml
+        from runtime_deps import yaml_dump
 
-        print(yaml.safe_dump(result, sort_keys=False))
+        print(yaml_dump(result, sort_keys=False))
     return 0 if result.get("status") == "PROPOSED" else 4
 
 

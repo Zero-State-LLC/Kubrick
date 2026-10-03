@@ -6,7 +6,7 @@
 
 <p align="center">
   <strong>Hermes-Native Symbolic Cinematic Engineering</strong><br>
-  <em>0.21.0 — Drift registry, spend plan, and shot locks</em>
+  <em>0.21.1 — Drift registry, spend plan, and shot locks</em>
 </p>
 
 <p align="center">
@@ -448,7 +448,7 @@ CI (`.github/workflows/hermes-evals.yml`) runs Hermes evals, outcome governance,
 
 ## Version
 
-**0.21.0 — Drift registry, spend plan, and shot locks**
+**0.21.1 — Drift registry, spend plan, and shot locks**
 
 Prep names known model drift, estimates Keyframe credits before spend, and
 writes multi-shot blocks, voice locks, and screen-direction locks. No provider

@@ -6,7 +6,7 @@ provider that is not multi-shot is its own generation. Two or more remaining
 contiguous beats share one clip. `final_clock` is the edited runtime, the sum
 of edit-plan out minus in. `generated_clock` sums generated seconds and counts
 each shared clip once. This module does not call a provider, ffmpeg, or the
-network. Missing duration uses 4.0 seconds.
+network. Missing duration uses 8.0 seconds and adds DURATION_MISSING.
 """
 from __future__ import annotations
 
@@ -17,23 +17,19 @@ from collections.abc import Mapping, Sequence
 from continuity_locks import frame_field, frame_id
 from io_safety import load_structured, write_structured
 from provider_capabilities import capabilities_for
-from shot_plan import chain_source, generation_seconds, opens_with_exit
-
-_DEFAULT_SECONDS = 4.0
+from shot_plan import (
+    chain_source,
+    duration_warnings,
+    generation_seconds,
+    opens_with_exit,
+    planned_duration,
+)
 
 
 def _number(value: object) -> float | None:
     if isinstance(value, bool) or not isinstance(value, (int, float)):
         return None
     return float(value)
-
-
-def _planned(frame: Mapping[str, object]) -> float:
-    for key in ("duration_seconds", "durationSeconds", "duration"):
-        parsed = _number(frame_field(frame, key))
-        if parsed is not None:
-            return parsed
-    return _DEFAULT_SECONDS
 
 
 def _threshold(provider: str, document: Mapping[str, object]) -> float:
@@ -92,7 +88,7 @@ def _separate(
     if reused or chain_source(frame) is not None:
         return True
     caps = capabilities_for(provider)
-    if caps.get("is_multi_shot_single_clip") and _planned(frame) <= threshold:
+    if caps.get("is_multi_shot_single_clip") and planned_duration(frame) <= threshold:
         return True
     return not bool(caps.get("multi_shot"))
 
@@ -148,7 +144,7 @@ def _groups(
     groups: list[list[tuple[int, Mapping[str, object], Mapping[str, object] | None]]] = []
     current: list[tuple[int, Mapping[str, object], Mapping[str, object] | None]] = []
     for index, frame in enumerate(frames, start=1):
-        planned = _planned(frame)
+        planned = planned_duration(frame)
         take = _take_for(takes, frame, index, planned)
         reused = take is not None
         if _separate(frame, provider, threshold, reused):
@@ -169,7 +165,7 @@ def _one_shot(
     frame: Mapping[str, object],
     take: Mapping[str, object] | None,
 ) -> tuple[dict[str, object], dict[str, object], float]:
-    planned = _planned(frame)
+    planned = planned_duration(frame)
     shot = _shot_name(frame, index)
     frame_key = frame_id(frame, index)
     if take is not None:
@@ -214,7 +210,7 @@ def _shared(
     members: Sequence[tuple[int, Mapping[str, object], Mapping[str, object] | None]],
     clip_id: str,
 ) -> tuple[list[dict[str, object]], list[dict[str, object]], float]:
-    planned_sum = round(sum(_planned(frame) for _index, frame, _take in members), 4)
+    planned_sum = round(sum(planned_duration(frame) for _index, frame, _take in members), 4)
     generated = _clip_seconds(provider, planned_sum)
     blocked = _too_long(provider, generated)
     if blocked:
@@ -223,7 +219,7 @@ def _shared(
     edits: list[dict[str, object]] = []
     cursor = 0.0
     for index, frame, _take in members:
-        planned = _planned(frame)
+        planned = planned_duration(frame)
         end = round(cursor + planned, 4)
         shot = _shot_name(frame, index)
         rows.append(_entry(
@@ -268,6 +264,15 @@ def _closed(provider: str, code: str, message: str, **fields: object) -> dict[st
     return payload
 
 
+def _note(
+    missing: list[dict[str, str | None]],
+    payload: dict[str, object],
+) -> dict[str, object]:
+    if missing:
+        payload["prep_warnings"] = missing
+    return payload
+
+
 def retime(
     document: Mapping[str, object],
     provider: str,
@@ -287,17 +292,21 @@ def retime(
     ] if isinstance(raw_frames, Sequence) and not isinstance(raw_frames, (str, bytes)) else []
     if not frames:
         return _closed(name, "NO_FEASIBLE_PLAN", "retime needs at least one frame")
+    missing = duration_warnings(frames)
     usable = [item for item in (takes or []) if isinstance(item, Mapping)]
     threshold = _threshold(name, document)
-    script = round(sum(_planned(frame) for frame in frames), 4)
+    script = round(sum(planned_duration(frame) for frame in frames), 4)
     try:
         generation, edits, generated_clock = _assemble(frames, name, usable, threshold)
     except _Refuse as refused:
-        return _closed(name, "NO_FEASIBLE_PLAN", refused.message, script_clock=script)
+        return _note(
+            missing,
+            _closed(name, "NO_FEASIBLE_PLAN", refused.message, script_clock=script),
+        )
     final = _edited_runtime(edits)
     delta = round(final - script, 4)
     if abs(delta) > 1e-6 and not _accepted(document, accept_clock_delta):
-        return _closed(
+        return _note(missing, _closed(
             name,
             "CLOCK_DELTA_UNACCEPTED",
             (
@@ -310,8 +319,8 @@ def retime(
             delta=delta,
             generation_plan=generation,
             edit_plan=edits,
-        )
-    return {
+        ))
+    return _note(missing, {
         "status": "PROPOSED",
         "authority": "PROPOSED",
         "action": "retime",
@@ -323,7 +332,7 @@ def retime(
         "accept_clock_delta": _accepted(document, accept_clock_delta),
         "generation_plan": generation,
         "edit_plan": edits,
-    }
+    })
 
 
 def _assemble(
@@ -386,9 +395,9 @@ def main(argv: Sequence[str] | None = None) -> int:
     if args.output:
         write_structured(args.output, result)
     else:
-        import yaml
+        from runtime_deps import yaml_dump
 
-        print(yaml.safe_dump(result, sort_keys=False))
+        print(yaml_dump(result, sort_keys=False))
     return 0 if result.get("status") == "PROPOSED" else 4
 
 

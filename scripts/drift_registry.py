@@ -48,20 +48,23 @@ def join_mitigations(items: Sequence[str], failed: Sequence[str] = ()) -> str:
 def load_registry(path: Path | None = None) -> dict[str, object]:
     """Validate the registry. An invalid file raises ValueError."""
     global _CACHE
-    import jsonschema
-    import yaml
+    from runtime_deps import require_module, yaml_load
 
     target = path or _PATH
     if path is None and _CACHE is not None:
         return _CACHE
-    loaded = yaml.safe_load(target.read_text(encoding="utf-8"))
+    loaded = yaml_load(target.read_text(encoding="utf-8"))
     schema = json.loads(_SCHEMA.read_text(encoding="utf-8"))
     if not isinstance(loaded, dict):
         raise ValueError("drift registry must be an object")
     try:
-        jsonschema.validate(loaded, schema)
-    except jsonschema.ValidationError as exc:
-        raise ValueError(f"drift registry schema invalid: {exc.message}") from exc
+        getattr(require_module("jsonschema"), "validate")(loaded, schema)
+    except Exception as exc:
+        if exc.__class__.__name__ != "ValidationError":
+            raise
+        detail = getattr(exc, "message", None)
+        text = detail if isinstance(detail, str) and detail else str(exc)
+        raise ValueError(f"drift registry schema invalid: {text}") from exc
     _require_entries(loaded)
     record = {str(key): value for key, value in loaded.items()}
     if path is None:
@@ -300,7 +303,7 @@ def _short(
     frames: Sequence[Mapping[str, object]],
     provider: str,
 ) -> list[dict[str, str | None]]:
-    from shot_plan import _duration, _threshold
+    from shot_plan import _threshold, planned_duration
 
     caps = capabilities_for_document(provider, document)
     if not caps.get("is_multi_shot_single_clip") or len(frames) < 2:
@@ -308,7 +311,7 @@ def _short(
     limit = _threshold(provider, document)
     found: list[dict[str, str | None]] = []
     for index, frame in enumerate(frames, start=1):
-        if _duration(frame, 8.0) > limit:
+        if planned_duration(frame) > limit:
             continue
         found.append(_warn(entry, frame_id(frame, index), None))
     return found

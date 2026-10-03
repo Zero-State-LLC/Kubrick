@@ -56,12 +56,22 @@ def _string_list(value: object) -> list[str]:
     if not isinstance(value, Sequence) or isinstance(value, (str, bytes)):
         return []
     return [str(item).strip() for item in value if str(item).strip()]
-def _duration(frame: Mapping[str, object], default: float) -> float:
+def planned_duration(frame: Mapping[str, object], default: float = 8.0) -> float:
     for key in ("duration_seconds", "durationSeconds", "duration"):
         parsed = _as_float(frame_field(frame, key))
         if parsed is not None:
             return parsed
     return default
+def duration_warnings(frames: Sequence[Mapping[str, object]]) -> list[dict[str, str | None]]:
+    keys = ("duration_seconds", "durationSeconds", "duration")
+    found: list[dict[str, str | None]] = []
+    for index, frame in enumerate(frames, start=1):
+        if any(_as_float(frame_field(frame, key)) is not None for key in keys):
+            continue
+        shot = frame_id(frame, index)
+        text = f"shot {shot} has no duration; using {planned_duration(frame)}s"
+        found.append(warning("DURATION_MISSING", shot, text, "set duration_seconds on the frame"))
+    return found
 def _threshold(provider: str, document: Mapping[str, object] | None) -> float:
     if document is not None:
         override = _as_float(document.get("short_beat_threshold_seconds"))
@@ -85,7 +95,7 @@ def short_beat_warnings(
     floor = _seconds_text(minimum) if minimum is not None else "the provider minimum"
     found: list[dict[str, str | None]] = []
     for index, frame in enumerate(frames, start=1):
-        duration = _duration(frame, default_duration)
+        duration = planned_duration(frame, default_duration)
         if duration > limit:
             continue
         shot, shown = frame_id(frame, index), _seconds_text(duration)
@@ -192,7 +202,7 @@ def padding_errors(
 ) -> list[str]:
     errors: list[str] = []
     for index, frame in enumerate(frames, start=1):
-        planned = _duration(frame, default_duration)
+        planned = planned_duration(frame, default_duration)
         generated, hold = generation_seconds(
             planned, chained=chain_source(frame) is not None,
             exit_open=opens_with_exit(frame), provider=provider, document=document,
@@ -213,13 +223,13 @@ def frame_references(frame: Mapping[str, object]) -> list[str]:
 def load_techniques(path: Path | None = None) -> dict[str, object]:
     import json
 
-    import jsonschema
-    import yaml
-    loaded = yaml.safe_load((path or _TECHNIQUE_PATH).read_text(encoding="utf-8"))
+    from runtime_deps import require_module, yaml_load
+
+    loaded = yaml_load((path or _TECHNIQUE_PATH).read_text(encoding="utf-8"))
     schema = json.loads(_TECHNIQUE_SCHEMA.read_text(encoding="utf-8"))
     if not isinstance(loaded, dict):
         raise ValueError("technique library must be an object")
-    jsonschema.validate(loaded, schema)
+    getattr(require_module("jsonschema"), "validate")(loaded, schema)
     return loaded
 def _library() -> list[Mapping[str, object]]:
     raw = load_techniques().get("techniques")
@@ -329,6 +339,7 @@ def collect_prep(
 
     audio_warnings, voice_errors = audio_screen_lint(merged, frames)
     warnings = [
+        *duration_warnings(frames),
         *short_beat_warnings(frames, provider, document=merged, default_duration=default_duration),
         *registry_warnings(merged, frames, provider),
         *reference_warnings(merged),
@@ -383,7 +394,7 @@ def _one_directive(
     document: Mapping[str, object] | None = None,
 ) -> dict[str, object]:
     shot, source = frame_id(frame, index), chain_source(frame)
-    planned = _duration(frame, default_duration)
+    planned = planned_duration(frame, default_duration)
     generated, hold = generation_seconds(
         planned, chained=source is not None, exit_open=opens_with_exit(frame),
         provider=provider, document=document,

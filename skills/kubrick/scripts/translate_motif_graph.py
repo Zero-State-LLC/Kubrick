@@ -4,6 +4,8 @@ from __future__ import annotations
 import argparse, json, sys
 from pathlib import Path
 from typing import Any, Dict
+
+from io_safety import write_text_bounded
 try:
     import yaml
 except ImportError:
@@ -33,7 +35,7 @@ def translate(graph:Dict[str,Any], mode:str)->Dict[str,Any]:
     return output
 def main()->None:
     p=argparse.ArgumentParser();p.add_argument("--graph",required=True);p.add_argument("--mode",choices=["single-frame","scene","storyboard","diagnostic"],default="single-frame");p.add_argument("--output");a=p.parse_args();o=translate(load(Path(a.graph)),a.mode);text=yaml.safe_dump(o,sort_keys=False)
-    if a.output: Path(a.output).write_text(text,encoding="utf-8")
+    if a.output: write_text_bounded(a.output, text)
     else: print(text)
     raise SystemExit(0 if o["status"]=="TRANSLATED" else 1)
 if __name__=="__main__":main()

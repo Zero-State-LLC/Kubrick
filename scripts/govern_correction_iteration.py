@@ -3,6 +3,8 @@
 from __future__ import annotations
 import argparse, hashlib, json
 from pathlib import Path
+
+from io_safety import write_text_bounded
 try:
     import yaml
 except ImportError:
@@ -30,5 +32,5 @@ def main():
     else: decision="CONTINUE"
     payload={"schema_version":"1.0.0","source_graph_id":current.get("source_graph_id","unknown"),"frame_id":current.get("frame_id","unknown"),"previous_report_id":previous.get("report_id") if previous else None,"current_report_id":current.get("report_id","unknown"),"iteration":a.iteration,"max_iterations":a.max_iterations,"improved":improved,"regressed":regressed,"unchanged_failures":unchanged,"decision":decision,"reason_vector":reasons}
     payload["iteration_id"]=hashlib.sha256(json.dumps(payload,sort_keys=True).encode()).hexdigest()[:16]
-    out=Path(a.output); out.parent.mkdir(parents=True,exist_ok=True); out.write_text(yaml.safe_dump(payload,sort_keys=False),encoding="utf-8"); print(yaml.safe_dump(payload,sort_keys=False)); raise SystemExit(0 if decision in {"PASS","CONTINUE"} else 2)
+    text=yaml.safe_dump(payload,sort_keys=False); write_text_bounded(a.output, text); print(text); raise SystemExit(0 if decision in {"PASS","CONTINUE"} else 2)
 if __name__=="__main__": main()

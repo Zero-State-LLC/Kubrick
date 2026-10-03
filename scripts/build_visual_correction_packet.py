@@ -3,6 +3,8 @@
 from __future__ import annotations
 import argparse, json
 from pathlib import Path
+
+from io_safety import write_text_bounded
 try:
     import yaml
 except ImportError:
@@ -28,7 +30,7 @@ def main():
     }
     text=yaml.safe_dump(result,sort_keys=False)
     if a.output:
-        out=Path(a.output); out.parent.mkdir(parents=True,exist_ok=True); out.write_text(text,encoding="utf-8")
+        write_text_bounded(a.output, text)
     else: print(text)
     raise SystemExit(0 if not errors else 1)
 if __name__=="__main__": main()

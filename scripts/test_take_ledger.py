@@ -125,7 +125,9 @@ def test_observations_do_not_overwrite_and_edges_fail_closed() -> None:
     original = copy.deepcopy(board)
     empty = [{"shot": "04", "take_id": "v8"}]
     quiet = impact(board, empty, "04")
-    assert quiet["status"] == "PROPOSED" and _warnings(quiet) == []
+    assert quiet["status"] == "NOT_COMPUTABLE"
+    assert quiet["code"] == "OBSERVATION_MISSING"
+    assert any(item.get("code") == "OBSERVATION_MISSING" for item in _warnings(quiet))
     assert board == original
     wardrobe = {
         "frames": [
@@ -142,7 +144,10 @@ def test_observations_do_not_overwrite_and_edges_fail_closed() -> None:
     takes[1] = {"shot": "06", "observed_start_state": {"wardrobe": {"minder": "Black Hoodie"}}}
     assert _warnings(impact(wardrobe, takes, "04")) == []
     takes[1] = {"shot": "06"}
-    assert _warnings(impact(wardrobe, takes, "04")) == []
+    missing_start = impact(wardrobe, takes, "04")
+    assert missing_start["status"] == "NOT_COMPUTABLE"
+    assert missing_start["code"] == "OBSERVATION_MISSING"
+    assert any(item.get("code") == "OBSERVATION_MISSING" for item in _warnings(missing_start))
     both = [
         {"shot": "04", "observed_end_state": {
             "props": {"chair": "C3 far end"}, "wardrobe": {"minder": "black hoodie"},
