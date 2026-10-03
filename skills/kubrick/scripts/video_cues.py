@@ -67,12 +67,15 @@ def resolve_voice(
         return None, None
     if voice.get("speaks") is False:
         return None, f"speaker {speaker!r} is locked silent but speaks in shot {shot!r}"
+    raw_banned = voice.get("never_clone_of")
+    banned = {str(b).casefold() for b in raw_banned} if isinstance(raw_banned, list) else set()
+    for key in ("library_id", "voice_id", "name"):
+        ident = voice.get(key)
+        if isinstance(ident, str) and ident and ident.casefold() in banned:
+            return None, f"voice {ident!r} for {speaker!r} in shot {shot!r} is in never_clone_of"
     vid = voice.get("library_id") or voice.get("voice_id")
     if not isinstance(vid, str) or not vid:
         return None, None
-    banned = voice.get("never_clone_of")
-    if isinstance(banned, list) and vid.casefold() in {str(b).casefold() for b in banned}:
-        return None, f"voice {vid!r} for {speaker!r} in shot {shot!r} is in never_clone_of"
     return vid, None
 
 

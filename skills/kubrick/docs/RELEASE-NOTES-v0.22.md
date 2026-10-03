@@ -40,10 +40,13 @@ receipt schema id stays `1.0.0`. No provider is called.
 ## Production (#63, #64, #69, #70, #71)
 
 - #63: `sequence_adapt.py` builds one Keyframe packet for a multi-shot
-  sequence, covering every shot. Video adapt no longer fails closed on it.
+  sequence, covering every shot. Shots whose shared constraints (negatives,
+  locks) differ fail closed by name, because those constraints apply to every
+  frame.
 - #64: `--take SHOT=TAKE_ID` on `storyboard impact` and `video retime`
-  picks a take. Unknown and ambiguous ids fail closed with `TAKE_NOT_FOUND`
-  and `TAKE_AMBIGUOUS`.
+  picks a take. Unknown shots or ids, ambiguous takes, and a selected take
+  that is too short fail closed with `TAKE_NOT_FOUND`, `TAKE_AMBIGUOUS`, and
+  `TAKE_UNUSABLE`. `--retake` on the runbook regenerates a reused take.
 - #69: `video --action runbook [--retake SHOT]` lists PROPOSED Keyframe ops.
   A shot in a shared clip regenerates the whole clip. Unchanged shots are
   reused and the rejoin costs 0 credits. Spend is INFERRED and refused above

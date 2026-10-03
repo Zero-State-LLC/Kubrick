@@ -1,5 +1,5 @@
 #!/usr/bin/env python3
-"""Tests for sequence take selection (#64)."""
+"""Tests for sequence adapt (#63) and take selection (#64)."""
 from __future__ import annotations
 
 import sys
@@ -9,6 +9,7 @@ from pathlib import Path
 sys.path.insert(0, str(Path(__file__).resolve().parent))
 
 from retime_plan import retime  # noqa: E402
+from sequence_adapt import sequence_adapter_packet  # noqa: E402
 from take_ledger import impact  # noqa: E402
 from take_select import parse_take_overrides, select_take  # noqa: E402
 
@@ -75,6 +76,53 @@ class TakeSelectTests(unittest.TestCase):
         closed = retime(doc, "generic", takes)
         self.assertEqual(closed["status"], "NOT_COMPUTABLE")
         self.assertEqual(closed["code"], "TAKE_AMBIGUOUS")
+
+    def test_unknown_override_shot(self) -> None:
+        doc: dict[str, object] = {
+            "frames": [{"frame_id": "a", "shot_id": "01", "duration_seconds": 4}]
+        }
+        result = retime(doc, "generic", [], overrides={"99": "t9"})
+        self.assertEqual(result["code"], "TAKE_NOT_FOUND")
+        stray = impact(_BOARD, _takes(), "01", {"01": "t1", "99": "t9"})
+        self.assertEqual(stray["status"], "NOT_COMPUTABLE")
+        self.assertEqual(stray["code"], "TAKE_NOT_FOUND")
+
+    def test_unusable_selected_take_refuses(self) -> None:
+        doc: dict[str, object] = {
+            "frames": [{"frame_id": "a", "shot_id": "01", "duration_seconds": 4}]
+        }
+        takes: list[dict[str, object]] = [
+            {"shot": "01", "take_id": "t1", "trim": {"in": 0, "out": 4}},
+            {"shot": "01", "take_id": "t2", "trim": {"in": 0, "out": 2}},
+        ]
+        result = retime(doc, "generic", takes, overrides={"01": "t2"})
+        self.assertEqual(result["status"], "NOT_COMPUTABLE")
+        self.assertEqual(result["code"], "TAKE_UNUSABLE")
+
+
+class SequenceAdaptTests(unittest.TestCase):
+    @staticmethod
+    def _packet(shot: dict[str, object]) -> dict[str, object]:
+        return {
+            "frames": [{"frame_id": str(shot["frame_id"]), "prompt": "p"}],
+            "shared_constraints": {"negative_constraints": shot.get("neg", [])},
+        }
+
+    def test_same_constraints_combine(self) -> None:
+        shots: list[object] = [
+            {"frame_id": "a", "neg": ["rain"]},
+            {"frame_id": "b", "neg": ["rain"]},
+        ]
+        packet, _longest = sequence_adapter_packet(shots, self._packet)
+        frames = packet["frames"]
+        assert isinstance(frames, list)
+        self.assertEqual([f["frame_id"] for f in frames], ["a", "b"])
+        self.assertEqual(packet["shared_constraints"], {"negative_constraints": ["rain"]})
+
+    def test_diverging_constraints_fail_closed(self) -> None:
+        shots: list[object] = [{"frame_id": "a", "neg": ["rain"]}, {"frame_id": "b"}]
+        with self.assertRaisesRegex(ValueError, "negative_constraints differ from shot a"):
+            sequence_adapter_packet(shots, self._packet)
 
 
 if __name__ == "__main__":

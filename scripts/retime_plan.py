@@ -26,7 +26,7 @@ from shot_plan import (
     opens_with_exit,
     planned_duration,
 )
-from take_select import parse_take_overrides, select_take
+from take_select import parse_take_overrides, select_take, unknown_override
 from value_coerce import as_number as _number
 
 
@@ -84,8 +84,13 @@ def _take_for(
     chosen, issue = select_take(matches, labels, frame_id(frame, index), overrides)
     if issue is not None:
         raise _Refuse(f"{issue.get('code')}: {issue.get('message')}")
-    if chosen is None or not _usable(chosen, planned):
+    if chosen is None:
         return None
+    if not _usable(chosen, planned):
+        raise _Refuse(
+            f"TAKE_UNUSABLE: selected take {chosen.get('take_id')} for shot "
+            f"{frame_id(frame, index)} has no trim covering {planned}s"
+        )
     return chosen
 
 
@@ -304,6 +309,10 @@ def retime(
     ] if isinstance(raw_frames, Sequence) and not isinstance(raw_frames, (str, bytes)) else []
     if not frames:
         return _closed(name, "NO_FEASIBLE_PLAN", "retime needs at least one frame")
+    known = set().union(*(_labels(frame, i) for i, frame in enumerate(frames, start=1)))
+    stray = unknown_override(dict(overrides or {}), known)
+    if stray is not None:
+        return _closed(name, "TAKE_NOT_FOUND", str(stray.get("message")))
     missing = duration_warnings(frames)
     usable = [item for item in (takes or []) if isinstance(item, Mapping)]
     threshold = _threshold(name, document)

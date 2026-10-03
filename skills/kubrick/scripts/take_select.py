@@ -21,6 +21,21 @@ def parse_take_overrides(values: Sequence[str] | None) -> dict[str, str]:
     return found
 
 
+def unknown_override(
+    overrides: Mapping[str, str], known: set[str]
+) -> dict[str, str | None] | None:
+    """TAKE_NOT_FOUND when a --take shot key names no storyboard frame."""
+    unknown = sorted(key for key in overrides if key not in known)
+    if not unknown:
+        return None
+    return warning(
+        "TAKE_NOT_FOUND",
+        unknown[0],
+        f"--take names shot(s) not on the storyboard: {', '.join(unknown)}",
+        "use a frame_id or shot_id from the storyboard",
+    )
+
+
 def take_id(take: Mapping[str, object]) -> str | None:
     raw = take.get("take_id")
     if isinstance(raw, str) and raw.strip():

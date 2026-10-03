@@ -107,6 +107,25 @@ class AuditU9U11(unittest.TestCase):
         self.assertEqual(len(regen), 1)
         self.assertEqual(regen[0]["shots"], ["01", "02"])
 
+    def test_runbook_retake_regenerates_reused_take(self) -> None:
+        with tempfile.TemporaryDirectory() as tmp:
+            takes = Path(tmp) / "takes.json"
+            takes.write_text(
+                json.dumps([{"shot": "01", "take_id": "t1", "trim": {"in": 0, "out": 4}}]),
+                encoding="utf-8",
+            )
+            _, kept = self.run_script("video_runbook", P, "--takes", str(takes))
+            kept_ops = _rows(kept["ops"])
+            self.assertTrue(any(o["op"] == "reuse" and o["shot"] == "01" for o in kept_ops))
+            code, data = self.run_script(
+                "video_runbook", P, "--takes", str(takes), "--retake", "01"
+            )
+        self.assertEqual(code, 0)
+        ops = _rows(data["ops"])
+        self.assertFalse(any(o["op"] == "reuse" and o["shot"] == "01" for o in ops))
+        regen = [o for o in ops if o["op"] == "regenerate"]
+        self.assertTrue(any(o.get("shot") == "01" or "01" in str(o.get("shots")) for o in regen))
+
     def test_runbook_unknown_retake(self) -> None:
         code, data = self.run_script("video_runbook", P, "--retake", "99")
         self.assertEqual(code, 4)
@@ -154,6 +173,14 @@ class AuditU9U11(unittest.TestCase):
         frames[1]["speech_lines"] = ["myslef: I should not talk"]
         code, data = self.run_script("video_cues", plan)
         self.assertEqual(code, 4)
+
+    def test_cues_name_clone_lock(self) -> None:
+        plan = copy.deepcopy(P)
+        chars = _map(plan["characters"])
+        chars["minder"] = {"voice": {"speaks": True, "name": "danny", "never_clone_of": ["Danny"]}}
+        code, data = self.run_script("video_cues", plan)
+        self.assertEqual(code, 4)
+        self.assertEqual(data["code"], "VOICE_LOCK_VIOLATION")
         self.assertEqual(data["code"], "VOICE_LOCK_VIOLATION")
 
     def test_cues_cap(self) -> None:

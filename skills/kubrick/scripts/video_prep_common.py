@@ -7,7 +7,7 @@ output is a PROPOSED plan or a NOT_COMPUTABLE refusal.
 from __future__ import annotations
 
 import argparse
-from collections.abc import Mapping
+from collections.abc import Mapping, Sequence
 
 PrepResult = tuple[dict[str, object], dict[str, object]] | dict[str, object]
 
@@ -41,7 +41,17 @@ def number(value: object) -> float | None:
     return float(value)
 
 
-def prepare(args: argparse.Namespace) -> PrepResult:
+def _retake_labels(document: Mapping[str, object], shots: Sequence[str]) -> set[str]:
+    """Every frame_id/shot_id of the frames named by ``shots``."""
+    labels = {str(s) for s in shots}
+    for frame in rows_of(document.get("frames")):
+        if any(frame_label_matches(frame, shot) for shot in shots):
+            labels.update(str(frame.get(k)) for k in ("frame_id", "shot_id") if frame.get(k))
+    return labels
+
+
+def prepare(args: argparse.Namespace, regenerate: Sequence[str] | None = None) -> PrepResult:
+    """Load and retime the plan. Shots in ``regenerate`` ignore existing takes."""
     from io_safety import load_structured
     from retime_plan import _load_takes, retime
     from take_select import parse_take_overrides
@@ -61,6 +71,11 @@ def prepare(args: argparse.Namespace) -> PrepResult:
         takes = _load_takes(args.takes)
     except (OSError, ValueError) as exc:
         return closed("", "INPUT_INVALID", f"cannot load takes: {exc}")
+    if regenerate:
+        drop = _retake_labels(document, regenerate)
+        if drop & set(overrides):
+            return closed("", "TAKE_OVERRIDE_INVALID", "--take and --retake name the same shot")
+        takes = [t for t in takes if str(t.get("shot", "")).strip() not in drop]
     plan = retime(
         document,
         args.provider,

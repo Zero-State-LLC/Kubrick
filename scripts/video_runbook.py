@@ -151,7 +151,7 @@ def main(argv: Sequence[str] | None = None) -> int:
     parser = build_parser("PROPOSED Keyframe retake runbook (prep only)")
     parser.add_argument("--retake", action="append", default=None, help="shot to regenerate")
     args = parser.parse_args(argv)
-    prepared = prepare(args)
+    prepared = prepare(args, args.retake)
     if isinstance(prepared, dict):
         return emit(args, ACTION, prepared)
     document, plan = prepared

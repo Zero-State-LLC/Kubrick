@@ -1,11 +1,14 @@
 #!/usr/bin/env python3
 """Adapt every shot of a sequence into one adapter packet. Issue #63.
 
-Each shot is adapted in order. A shot that is not an object, or whose frame
-has no usable prompt, fails the whole adapt and the message names the shot.
+Each shot is adapted in order. A shot that is not an object, whose frame has
+no usable prompt, or whose packet-wide shared constraints (negatives, locks)
+differ from the first shot fails the whole adapt and the message names the
+shot, because the provider applies shared constraints to every frame.
 """
 from __future__ import annotations
 
+import json
 from collections.abc import Callable
 
 
@@ -43,21 +46,20 @@ def _duration(raw: object) -> float | None:
     return None
 
 
-def _merge_shared(combined: dict[str, object], later: object) -> None:
-    if not isinstance(later, dict):
-        return
-    for key, value in later.items():
-        if not isinstance(value, list):
-            continue
-        existing = combined.get(key)
-        if existing is None:
-            combined[key] = list(value)
-            continue
-        if not isinstance(existing, list):
-            continue
-        for item in value:
-            if item not in existing:
-                existing.append(item)
+def _norm(value: object) -> object:
+    if isinstance(value, list):
+        return sorted(json.dumps(item, sort_keys=True, default=str) for item in value)
+    return value
+
+
+def _diverging_keys(base: object, later: object) -> list[str]:
+    """Keys whose shared constraints differ between two shots (missing == empty)."""
+    first = base if isinstance(base, dict) else {}
+    second = later if isinstance(later, dict) else {}
+    keys = {str(k) for k in first} | {str(k) for k in second}
+    return sorted(
+        key for key in keys if _norm(first.get(key) or []) != _norm(second.get(key) or [])
+    )
 
 
 def _unique_ids(frames: list[tuple[int, dict[str, object]]]) -> list[dict[str, object]]:
@@ -80,7 +82,7 @@ def sequence_adapter_packet(
 ) -> tuple[dict[str, object], float | None]:
     """Combine every shot's adapter packet in order; ValueError names a failing shot."""
     combined: dict[str, object] = {}
-    shared: dict[str, object] = {}
+    first_name = ""
     frames: list[tuple[int, dict[str, object]]] = []
     longest: float | None = None
     for index, shot in enumerate(shots):
@@ -91,15 +93,20 @@ def sequence_adapter_packet(
         frames.extend((index, frame) for frame in _shot_frames(packet, name))
         if index == 0:
             combined = dict(packet)
-            base = packet.get("shared_constraints")
-            if isinstance(base, dict):
-                shared = {k: (list(v) if isinstance(v, list) else v) for k, v in base.items()}
+            first_name = name
         else:
-            _merge_shared(shared, packet.get("shared_constraints"))
+            diverging = _diverging_keys(
+                combined.get("shared_constraints"), packet.get("shared_constraints")
+            )
+            if diverging:
+                raise ValueError(
+                    f"sequence shot {name} is not adaptable: shared constraints "
+                    f"{', '.join(diverging)} differ from shot {first_name}; "
+                    "adapt these shots separately"
+                )
         seconds = _duration(shot.get("duration_seconds"))
         if seconds is not None and (longest is None or seconds > longest):
             longest = seconds
     combined["frames"] = _unique_ids(frames)
-    combined["shared_constraints"] = shared
     combined.pop("duration_seconds", None)
     return combined, longest

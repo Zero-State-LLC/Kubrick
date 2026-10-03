@@ -19,7 +19,7 @@ from collections.abc import Mapping, Sequence
 
 from continuity_locks import frame_field, frame_id, prop_assignments, resolve_state, warning
 from io_safety import load_structured, write_structured
-from take_select import parse_take_overrides, select_take
+from take_select import parse_take_overrides, select_take, unknown_override
 
 _ARROW = "->"
 
@@ -284,6 +284,10 @@ def impact(
     index = _find(frames, retake)
     if index is None:
         return _closed(f"retake {retake} is not on the storyboard", retake)
+    known = set().union(*(_labels(frame, i + 1) for i, frame in enumerate(frames)))
+    stray = unknown_override(chosen, known)
+    if stray is not None:
+        return _refused(retake, [stray], stray)
     label = _shot_name(frames[index], index + 1)
     source, ambiguous = select_take(
         _matches(takes, frames[index], index + 1), _labels(frames[index], index + 1), label, chosen

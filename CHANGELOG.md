@@ -7,8 +7,8 @@
 - #65: Manifest `action_requirements` gates dispatch with `DEPENDENCY_MISSING` (exit 4). `do check --action deps` reports readiness.
 - #66: MCP request byte cap, manifest action resolution and dependency check before spawn, and a per-call `MCP_TIMEOUT`.
 - #67: `REFERENCE_CAP_EXCEEDED` above the model `max_references`, `NATIVE_AUDIO_UNSUPPORTED` warnings, and `evidence` on drift warnings.
-- #63: Video adapt of a multi-shot sequence builds one Keyframe packet covering every shot instead of failing closed.
-- #64: `--take SHOT=TAKE_ID` selects a take in `storyboard impact` and `video retime`. An unknown or ambiguous take fails closed with `TAKE_NOT_FOUND` or `TAKE_AMBIGUOUS`.
+- #63: Video adapt of a multi-shot sequence builds one Keyframe packet covering every shot. Shots whose shared constraints differ still fail closed and are named.
+- #64: `--take SHOT=TAKE_ID` selects a take in `storyboard impact` and `video retime`. An unknown shot or take, an ambiguous take, or a selected take whose trim is too short fails closed with `TAKE_NOT_FOUND`, `TAKE_AMBIGUOUS`, or `TAKE_UNUSABLE`.
 - #69: `video --action runbook` emits PROPOSED Keyframe retake ops: regenerate, wait up to 45s on `processingJobId`, check credits, reuse, and a 0-credit rejoin. Spend is INFERRED and stops at `budget_cap_credits`.
 - #70: `video --action cut-qa` emits ffmpeg frame-grab, scene-detect, and start-frame luma-MAE commands for the expected cuts. `executes` is false.
 - #71: `video --action cues` emits a cue sheet, voice locks, ducked and muted mix variants at -14 LUFS / -1 dBTP, and a capped INFERRED ElevenLabs estimate.
