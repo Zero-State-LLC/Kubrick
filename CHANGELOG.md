@@ -1,5 +1,23 @@
 # Changelog — Kubrick
 
+## [0.23.0] — 2026-10-03
+
+### Added
+- #78: `assets/grammar/film_grammar.yaml` with 66 hand-written entries (shot size, angle, lens band, move, lighting, edit, 9:16 composition), its schema, and `scripts/film_grammar.py`. Known terms expand to their prompt phrase and `lens_mm` maps to a lens band. New warnings `UNKNOWN_GRAMMAR_TERM`, `LENS_BAND_UNMAPPED`, and `MOVE_CHAIN_CONFLICT`. Negated terms ("no push-in") never resolve, and `camera.focus` only resolves focus entries.
+- #77: Storyboard frames carry optional `camera` {`size`, `angle`, `lens_mm`, `move`, `focus`} and `cut` into generic per-shot prompts and Keyframe `videoPrompt` / `multi_shot_prompt`. An unknown frame key warns `UNKNOWN_FIELD`. The MYSLEF example plan carries the EP-01 camera blocks.
+- #79: Seedance 2.5 drift entries from MYSLEF EP-01: `framing-wider-than-asked`, `brightness-over-directed` (dim and practical), `weak-action-intensity`, `chained-start-suppresses-move` (camera-context snap or whip only), and `flicker-clears-all-figures` (explicit flicker only). Techniques `scoped-flicker`, `cut-on-sound-peak`, `new-angle-after-cut` (≥ 30°), and `offscreen-event`. Matchers live in `scripts/plan_cues.py`.
+- #79: Schema-backed `keep` list on storyboard frames, the storyboard root, and the adapter packet. A flicker that would clear a kept name warns `FLICKER_CLEARS_KEEP`.
+- #81: Six targeted sidecars in a `wave3` manifest: withheld cause, dormant background watcher, uncanny near-human double, anempathetic playback, power-failure response, and the domestic trap. The MYSLEF example brief now describes the actual EP-01 scene and is a retrieval regression.
+
+### Changed
+- #76: Both retrievers share one stop-word set for token overlap and route matching. `SELECTED` needs `dramatic_fit >= 0.15`; weaker evidence is `NOT_COMPUTABLE` with `LOW_DRAMATIC_FIT`. Function-word-only briefs no longer select. The receipt lists the selected primary and supporting grammars first. Cache keys carry the selection policy, so older SELECTED receipts are not replayed.
+- #80: Every sidecar is indexed, registered, and manifested. Duplicates are merged, directories match domains, dead lexicon links are repaired, and thin sidecars (missing fields or empty lists) are filled. Fixture models moved to `evals/fixtures/models/`. `audit_corpus_coverage.py` fails closed and runs in CI. The unused `schemas/cinematic-pattern.schema.json` is removed.
+- #82: `kubrick do ledger --action init` routes like `do ledger init`; `operate` takes `--action` too. Relative path flags resolve against `KUBRICK_CALLER_CWD`; an inline `--brief` stays prose. `production_engine.py` is split under 500 lines (`production_artifacts.py`). The failing CodeQL and Pages workflows are removed (see `docs/ci/README.md`).
+
+### Notes
+- Product version is 0.23.0. The production envelope schema id stays `0.16.0`. `corpus_version` stays 0.11.5; `corpus_digest` and `schema_bundle_version` change with the corpus bytes. No provider is called.
+
+
 ## [0.22.0] — 2026-10-03
 
 ### Added
