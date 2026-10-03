@@ -34,7 +34,12 @@
               "motion_verbs": {
                 "type": "array",
                 "items": {"type": "string", "minLength": 1}
-              }
+              },
+              "flicker_clear": {"type": "boolean"},
+              "keep_list": {"type": "boolean"},
+              "sound_peak": {"type": "boolean"},
+              "min_angle_degrees": {"type": "number", "minimum": 0},
+              "offscreen_event": {"type": "boolean"}
             }
           },
           "providers": {

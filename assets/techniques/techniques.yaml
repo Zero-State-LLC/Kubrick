@@ -17,3 +17,36 @@ techniques:
     prompt_template: show the distance, the path, and the end state of the action
     trim_guidance: keep the action path; trim only the hold before contact
     evidence: MYSLEF EP-01 shot 04, 2026-10-02
+  - id: scoped-flicker
+    intent: Clear figures with a flicker while every name on the keep list stays in frame.
+    triggers:
+      flicker_clear: true
+      keep_list: true
+    providers: [keyframe, generic]
+    prompt_template: flicker to black, then bring back only the figures named on the keep list
+    trim_guidance: cut in after the picture returns and confirm each kept figure is still there
+    evidence: MYSLEF EP-01 v8 flicker, 2026-10-02
+  - id: cut-on-sound-peak
+    intent: Land the cut on a sound peak instead of a visual pause.
+    triggers:
+      sound_peak: true
+    providers: [keyframe, generic]
+    prompt_template: cut on the sound peak
+    trim_guidance: place the cut on the peak and drop the ring that follows it
+    evidence: MYSLEF EP-01 bass peak, 2026-10-02
+  - id: new-angle-after-cut
+    intent: After a cut, show a new angle at least 30 degrees from the previous setup.
+    triggers:
+      min_angle_degrees: 30
+    providers: [keyframe, generic]
+    prompt_template: new angle after the cut, at least 30 degrees off the previous setup
+    trim_guidance: hold the new angle through the shot
+    evidence: MYSLEF EP-01 shot 06 new angle, 2026-10-02
+  - id: offscreen-event
+    intent: Play an event as sound only, with the cause kept off screen.
+    triggers:
+      offscreen_event: true
+    providers: [keyframe, generic]
+    prompt_template: the event is heard and stays off screen
+    trim_guidance: do not cut to the event; leave it off screen
+    evidence: MYSLEF EP-01 chair tip, 2026-10-02

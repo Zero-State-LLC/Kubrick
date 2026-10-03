@@ -35,6 +35,11 @@ Ledger `--action` matches the positional subcommand. Relative path flags on rout
 2. Remove the `skills/kubrick` mirror once hub packaging allows it (owner-gated).
 3. Land the official Hermes optional-skills submission against the current release.
 
+## In progress (#79)
+
+- Known-drift entries for framing wider than asked, brightness above a dim practical, a weak startle, a chained start that drops a snap or whip, and a flicker that clears a kept figure.
+- Technique triggers for a scoped flicker keep list, a cut on a sound peak, a new angle of at least 30 degrees after a cut, and an off-screen event that is heard and not shown.
+
 ## In progress (#76)
 
 Retrieval ignores stop-words in token overlap and registry route matching. `SELECTED` requires dramatic fit of at least 0.15. Weaker evidence stays `NOT_COMPUTABLE` with `LOW_DRAMATIC_FIT`.

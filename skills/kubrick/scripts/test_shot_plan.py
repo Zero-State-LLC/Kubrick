@@ -291,7 +291,10 @@ def test_techniques_are_suggestions_until_opt_in() -> None:
         library, json.loads((ROOT / "schemas/techniques.schema.json").read_text(encoding="utf-8"))
     )
     ids = [str(item["id"]) for item in _rows(library["techniques"])]
-    assert ids == ["clear-characters-by-flicker", "physical-action-distance-path"]
+    assert ids == [
+        "clear-characters-by-flicker", "physical-action-distance-path", "scoped-flicker",
+        "cut-on-sound-peak", "new-angle-after-cut", "offscreen-event",
+    ]
     frames: list[dict[str, object]] = [
         {"frame_id": "frame-001", "characters": ["minder", "myslef"], "action": "sits"},
         {
@@ -437,11 +440,11 @@ def _myslef_cuts(movie: dict[str, object], shots: list[dict[str, object]]) -> No
     assert dropped["frame-002"]["references"] == ["ref://chair"]
     assert dropped["frame-004"]["references"] == ["ref://exit"]
     assert "Seedance 2.5" in str(dropped["frame-002"]["reason"])
-    suggestions = {str(item["shot"]): item for item in _rows(movie["technique_suggestions"])}
-    assert suggestions["frame-002"]["id"] == "physical-action-distance-path"
-    assert suggestions["frame-004"]["id"] == "clear-characters-by-flicker"
-    assert all(item["applied"] is False for item in suggestions.values())
-
+    rows = _rows(movie["technique_suggestions"])
+    pairs = {(str(item["shot"]), str(item["id"])) for item in rows}
+    assert ("frame-002", "physical-action-distance-path") in pairs
+    assert {("frame-004", "clear-characters-by-flicker"), ("frame-004", "offscreen-event")} <= pairs
+    assert all(item["applied"] is False for item in rows)
 
 def test_myslef_video_and_unreachable_prop() -> None:
     video = video_adapt(
@@ -477,9 +480,7 @@ def test_myslef_video_and_unreachable_prop() -> None:
         for item in bad["validation"]["errors"]
     )
 
-
 STABLE_PIECE = "on its side at the far end of the aisle by the rack gap; it does not move"
-
 
 def main() -> None:
     test_short_beat_threshold_edges()

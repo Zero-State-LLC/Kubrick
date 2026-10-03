@@ -93,6 +93,11 @@ def test_registry_validates_and_invalid_fails() -> None:
         "location-ref-overrides-prompt",
         "start-frame-hold",
         "multi-shot-merges-short-beats",
+        "framing-wider-than-asked",
+        "brightness-over-directed",
+        "weak-action-intensity",
+        "chained-start-suppresses-move",
+        "flicker-clears-all-figures",
     ]
     plain = entries[0]
     assert isinstance(plain, dict)
