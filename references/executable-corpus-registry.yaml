@@ -7,6 +7,7 @@ source_manifests:
 - references/pattern-manifests/wave1-batch4.yaml
 - references/pattern-manifests/wave1-batch5.yaml
 - references/pattern-manifests/wave2.yaml
+- references/pattern-manifests/wave3.yaml
 selection_policy:
   primary_limit: 1
   supporting_limit: 2
@@ -27,6 +28,7 @@ default_routes:
   - alchemical_nigredo_putrefaction
   - kubrick_monolith
   - propp_villainy_lack_mediation
+  - automaton_uncanny_double
   authority_and_institutions:
   - kubrick_center_transfer_authority
   - interface_badge_authority_transfer
@@ -50,6 +52,7 @@ default_routes:
   - indian_tala_accent_displacement
   - japanese_ma_active_interval
   - acousmatic_sound
+  - anempathetic_sound_indifference
   spatial_and_collective_pressure:
   - soviet_montage_collision_thesis
   - labyrinth_route_pressure
@@ -58,6 +61,7 @@ default_routes:
   - occlusion_relational_denial
   - denis_marching
   - liminal_threshold_crossing
+  - dormant_watcher_background_presence
   light_color_and_counterpoint:
   - dual_light_conflicting_claims
   - kubrick_red_culmination_state
@@ -75,6 +79,12 @@ default_routes:
   - bresson_gesture_object_transfer
   - object_residue_continuity_after_use
   - material_repair_visible_scar
+  withheld_cause_and_aftermath:
+  - withheld_cause_consequence_only
+  domestic_horror_enclosure:
+  - horror_domestic_trap
+  power_failure_world_response:
+  - power_failure_world_response
 strong_defaults:
 - alchemical_separation_signal_from_noise
 - alchemical_coagulation_embodied_consequence

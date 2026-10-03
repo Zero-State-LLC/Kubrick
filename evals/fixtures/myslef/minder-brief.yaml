@@ -1,6 +1,6 @@
-dramatic_problem: authority remains active after the leader exits because access and geometry preserve the system
-desired_state_change: personal command becomes institutional pressure
-character_pressure: a former subordinate receives access while the former authority is excluded
+dramatic_problem: the emptied room shows only the tipped chair as consequence while the cause stays withheld
+desired_state_change: occupied presence becomes an emptied room and the cause is never shown
+character_pressure: a bored minder startles out of the chair while a dormant humanoid watcher stays motionless in the dark background and never speaks
 format: storyboard
 aspect_ratio: "9:16"
 character_locks:
@@ -42,9 +42,9 @@ location:
 counts:
   laptop: 1
 observable_evidence:
-  - empty command chair
-  - cracked access badge
-  - controlled doorway
+  - tipped chair at the far end of the aisle
+  - motionless pale humanoid in the dark background
+  - cartoon still playing after the blackout
 observed_forms:
   - id: observed_1
     kind: motif
@@ -67,50 +67,52 @@ observed_forms:
 relations:
   - source: observed_1
     target: observed_2
-    relation: transfers
+    relation: reveals
     pressure: 0.8
-    transformation: the empty authority position transfers operative access through the badge
+    transformation: the tipped chair is the visible consequence while the speaker grille sounds and the cause stays unseen
   - source: observed_2
     target: observed_3
-    relation: crosses
-    pressure: 0.9
-    transformation: badge ownership determines who may cross the doorway
+    relation: conceals
+    pressure: 0.7
+    transformation: the cracked optic stays on the dormant watcher in the dark and never accounts for the emptying
 layers:
   layout_geometry:
-    - repeated work cells
-    - peripheral checkpoint
+    - rack aisle in a night basement
+    - figure held deep in the background
   semantics_function:
-    - institutional persistence
-    - delegated control
+    - withheld cause
+    - consequence without explanation
   attributes_states:
-    - vacant command
-    - transferred credential
+    - chair tipped and still
+    - cartoon playback continuing
 geometry:
-  - repeated work cells organized around an empty center
-  - one controlled doorway at the edge of the frame
+  - one laptop at the bench under dim rack practicals
+  - the watcher stands at the far end of the aisle
 state_differentials:
-  - occupied authority becomes operative vacancy
-  - access transfers from supervisor to subordinate
+  - occupied bench becomes an emptied room
+  - upright chair becomes a tipped chair at the far end
 residue:
   - laptop cartoon audio under the hum
   - the chair stays tipped after the minder is gone
 causal_actions:
-  - the badge changes hands and the doorway grants access to the subordinate
+  - the minder startles and the chair rolls down the aisle and tips
+  - a bass swell peaks into a blackout and both figures are gone
 symbolic_channels:
   diegetic:
-    - cracked badge changes hands
+    - the cartoon keeps playing in the emptied room
   dramaturgical:
-    - access transfers while institutional pressure persists
+    - the tipped chair is the consequence and the cause stays withheld
   cinematic:
-    - the empty chair remains centered while the former supervisor waits outside
-convergence_effect: badge transfer and doorway access become visible in the same frame
+    - the cut lands on the bass peak and the room returns empty
+convergence_effect: the tipped chair and the still-playing cartoon are visible together after both figures vanish
 convergence_sites:
   - site_id: primary
     node_ids: [observed_1, observed_2]
     edge_ids: [0]
-    observable_effect: badge transfer and doorway access become visible in the same frame
+    observable_effect: the tipped chair and the still-playing cartoon are visible together after both figures vanish
     mask_priority: 0.9
 production_constraints:
-  - practical office location
-  - one badge prop
+  - westlake basement bot-farm at night
+  - dim practicals only from rack leds and one laptop
   - 9:16 vertical
+  - do not show the cause
