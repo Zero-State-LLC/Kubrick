@@ -8,14 +8,10 @@
 - Proposed retime plan and clock-delta sign-off (#36)
 - Take ledger impact, observations never written back (#37)
 - Start-frame asset gate and the ffmpeg handoff string (#38)
-- Known-drift registry, model-keyed and dated (#39)
-- Inferred spend estimate, budget cap, and the execution checklist (#40)
-- Multi-shot prompt blocks and `SHOT_COUNT_HIGH` (#41)
-- Model capability overlay with `source` and `verified_on` (#42)
-- Audio strategy, voice lock, and dialogue length (#43)
-- Asymmetry lines, screen direction, and mirrored references (#44)
 
 ## Next
+
+Issues #39–#44 shipped in v0.21.0.
 
 Still open from v0.19.0:
 

@@ -1,10 +1,9 @@
 # Kubrick v0.20.0 Release Notes
 
 v0.20.0 adds reference scope, location and count locks, lock carriers, a
-proposed retime plan, a take-impact report, a start-frame gate, a dated
-drift registry, an inferred spend estimate, multi-shot prompt blocks, model
-capability overlays, voice locks, and screen-direction locks. The production
-envelope schema id stays `0.16.0`.
+proposed retime plan, a take-impact report, and a start-frame gate. The
+production envelope schema id stays `0.16.0`. Issues #39–#44 shipped in
+v0.21.0.
 
 ## Added
 
@@ -40,47 +39,13 @@ envelope schema id stays `0.16.0`.
   exits non-zero. `verified: true` with an asset is silent and `startImage`
   carries the asset. `verified: false` with an asset warns
   `START_FRAME_UNVERIFIED`. Kubrick does not run ffmpeg.
-- #39: Known drift is `assets/drift/known_drift.yaml`, checked against
-  `schemas/drift-registry.schema.json`. An invalid file fails closed. The #30
-  plain-top motion warning is unchanged. Each seeded entry matches from shot
-  facts. An `observed_on` older than 180 days warns `DRIFT_ENTRY_STALE`. The
-  age comparison uses an injected date in tests.
-- #40: Keyframe pricing is INFERRED provider data: 15.5 credits per second at
-  480p, observed 2026-10-02. The estimate uses generated seconds. A shared
-  retime `clip_id` is counted once. `image_rate` (7) is stored and is not
-  added. `budget_cap_credits` fails closed with `BUDGET_CAP_EXCEEDED` when the
-  estimate is above the cap. A provider with no pricing returns
-  `NOT_COMPUTABLE`, not 0. The checklist is string-only. No API call.
-- #41: `is_multi_shot_single_clip` output includes `multi_shot_prompt`: shot
-  count, generated seconds, aspect, lighting, labelled shot blocks, one
-  continuity block, and `Ending state:`. More than 5 shots warns
-  `SHOT_COUNT_HIGH`. Generic output omits the field. Preservation is unchanged.
-- #42: `provider_capabilities(provider, model=None)` merges `models[model]`
-  over the provider defaults. `source` is `observed` or `vendor_claim`.
-  Observed wins. A stale `verified_on` warns `CAPABILITY_STALE`. Missing
-  `source` fails validation. Keyframe with no model argument returns the phase
-  A values, including hold 1.6. `negative_prompt_effective` is the #35 field.
-- #43: `audio_strategy: external` or `muted_native` appends "native audio is a
-  guide track only" to Keyframe `audio.sound`. `speaks: false` plus a line for
-  that character, or a `library_id` / voice `name` that casefold-matches
-  `never_clone_of`, fails closed with `VOICE_LOCK_VIOLATION`. A line is that
-  character's when it starts with `{id}:` or is `{character, line}`. Above 2.5
-  words per planned second warns `DIALOGUE_TOO_LONG`.
-- #44: `asymmetry` compiles "feature on the figure's side (viewer's side);
-  never swap sides". Figure-right is viewer-left. The line is added once for
-  each on-screen character. A left/right change on the next frame warns
-  `SCREEN_DIRECTION_FLIP` unless that frame has `axis_change: true`.
-  `mirrored: true` warns that sides in the image are inverted. The string
-  `"true"` does not.
 
 ## Example
 
-Generic compile shows the scoped head-lock, the location contradiction, the
-count line, and the myslef asymmetry line (cracked optic on the figure's
-right, the viewer's left) once on every prompt that includes myslef. Shot 06
-does not carry it. It exits 0 without `--strict` and non-zero with `--strict`
+Generic compile shows the scoped head-lock, the location contradiction, and
+the count line. It exits 0 without `--strict` and non-zero with `--strict`
 because the location reference and the head-lock reference still contradict
-their locks. The minder's `Wha—` on the 1.0s beat does not warn.
+their locks.
 
 ```bash
 python3 scripts/kubrick.py compile \
@@ -97,24 +62,12 @@ and carries no wardrobe or identity line. The receipt warns
 `REFERENCE_LOCK_CONTRADICTION` and `LOCATION_REFERENCE_CONTRADICTION`
 (the lit doorway and `laptop x4`). `location-ref-v2` does not warn.
 
-Keyframe adapt exits 0 without `--strict`. Status stays `PROPOSED`. The plan
-sets `audio_strategy: muted_native` and `budget_cap_credits: 400`. The spend
-estimate is labelled INFERRED: four shots at 3 generated seconds, 46.5 credits
-each, 186 total, at 15.5 credits per second and 480p. The checklist names the
-`-32602` / `get_movie includeCredits` retry guard and `processingJobId`.
-`multi_shot_prompt` starts `4 shots, 12s generated, aspect 9:16` and ends with
-the walk-out ending state. Continuity lists each wardrobe, chair, and identity
-line once. `KNOWN_DRIFT` includes plain-top motion on frame-002, the
-start-frame hold, and `multi-shot-merges-short-beats`. Every shot's
-`audio.sound` says native audio is a guide track. Shot 04 speech is
-`minder: Wha—`. A cap below 186 exits non-zero with `BUDGET_CAP_EXCEEDED`.
-
-Shot 04 `startImage` keeps `atSeconds` 2 from the join and adds `asset`. Shot
-06 `startImage` stays `{sourceFrame: frame-002}` and warns
-`START_FRAME_MISSING` with
-`ffmpeg -ss 3.583 -i shot-04-v8.mp4 -frames:v 1 06-start.png`. The red chest
-light is `prompt_negative_only` on shots 03 and 05 (`NEGATIVE_ONLY_LOCK`) and
-`start_frame` on the chained shot 04. `lock_carriers` is on the movie.
+Keyframe adapt exits 0 without `--strict`. Status stays `PROPOSED`. Shot 04
+`startImage` keeps `atSeconds` 2 from the join and adds `asset`. Shot 06
+`startImage` stays `{sourceFrame: frame-002}` and warns `START_FRAME_MISSING`
+with `ffmpeg -ss 3.583 -i shot-04-v8.mp4 -frames:v 1 06-start.png`. The red
+chest light is `prompt_negative_only` on shots 03 and 05 (`NEGATIVE_ONLY_LOCK`)
+and `start_frame` on the chained shot 04. `lock_carriers` is on the movie.
 
 ```bash
 python3 scripts/kubrick.py video --action adapt \

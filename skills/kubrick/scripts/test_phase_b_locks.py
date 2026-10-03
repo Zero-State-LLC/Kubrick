@@ -20,6 +20,12 @@ LINE = "cracked optic on the figure's right (viewer's left); never swap sides"
 TWENTY = " ".join(["word"] * 20)
 
 
+def _myslef_on_screen(frame: dict[str, object]) -> bool:
+    cast = frame.get("cast")
+    people = cast if isinstance(cast, list) else frame.get("characters")
+    return isinstance(people, list) and "myslef" in people
+
+
 def _load(path: Path) -> dict[str, object]:
     data = yaml.safe_load(path.read_text(encoding="utf-8"))
     assert isinstance(data, dict)
@@ -181,19 +187,28 @@ def test_asymmetry_once_on_generic_and_keyframe() -> None:
     frames = packet["frames"]
     generic_frames = generic["frames"]
     shots = movie["shots"]
+    sources = story["frames"]
     assert isinstance(frames, list)
     assert isinstance(generic_frames, list)
     assert isinstance(shots, list)
-    for frame, rendered, shot in zip(frames, generic_frames, shots):
-        assert isinstance(frame, dict) and isinstance(rendered, dict) and isinstance(shot, dict)
-        prompt = str(frame["prompt"])
-        if "myslef" in prompt and LINE in prompt:
-            assert prompt.count(LINE) == 1
-            assert str(rendered["prompt"]).count(LINE) == 1
-            assert str(shot["imagePrompt"]).count(LINE) == 1
-            assert str(shot["videoPrompt"]).count(LINE) == 1
-        if "nobody is in frame" in prompt:
-            assert LINE not in prompt
+    assert isinstance(sources, list)
+    on_screen = 0
+    for source, frame, rendered, shot in zip(sources, frames, generic_frames, shots):
+        assert isinstance(source, dict) and isinstance(frame, dict)
+        assert isinstance(rendered, dict) and isinstance(shot, dict)
+        texts = (
+            str(frame["prompt"]),
+            str(rendered["prompt"]),
+            str(shot["imagePrompt"]),
+            str(shot["videoPrompt"]),
+        )
+        if _myslef_on_screen(source):
+            on_screen += 1
+            assert [text.count(LINE) for text in texts] == [1, 1, 1, 1]
+        else:
+            assert all(LINE not in text for text in texts)
+            assert "nobody is in frame" in texts[0]
+    assert on_screen == 3
     present = prompt_lines(
         story,
         _frame("frame-003", characters=["myslef"]),

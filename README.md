@@ -6,7 +6,7 @@
 
 <p align="center">
   <strong>Hermes-Native Symbolic Cinematic Engineering</strong><br>
-  <em>0.20.0 — Reference scope, retime, and take impact</em>
+  <em>0.21.0 — Drift registry, spend plan, and shot locks</em>
 </p>
 
 <p align="center">
@@ -395,7 +395,9 @@ CI (`.github/workflows/hermes-evals.yml`) runs Hermes evals, outcome governance,
 | [`intent/`](intent/README.md) | Intent template for non-trivial work; then spec.md / plan |
 | [`QUICKSTART.md`](QUICKSTART.md) | Installation and command routing |
 | [`CHANGELOG.md`](CHANGELOG.md) | Release history |
-| [`docs/ROADMAP-v0.20.md`](docs/ROADMAP-v0.20.md) | Current roadmap and next priorities |
+| [`docs/ROADMAP-v0.21.md`](docs/ROADMAP-v0.21.md) | Current roadmap and next priorities |
+| [`docs/RELEASE-NOTES-v0.21.md`](docs/RELEASE-NOTES-v0.21.md) | v0.21 release notes |
+| [`docs/ROADMAP-v0.20.md`](docs/ROADMAP-v0.20.md) | v0.20 roadmap |
 | [`docs/RELEASE-NOTES-v0.20.md`](docs/RELEASE-NOTES-v0.20.md) | v0.20 release notes |
 | [`docs/ROADMAP-v0.18.md`](docs/ROADMAP-v0.18.md) | v0.18 roadmap |
 | [`docs/RELEASE-NOTES-v0.18.md`](docs/RELEASE-NOTES-v0.18.md) | v0.18 release notes |
@@ -446,12 +448,12 @@ CI (`.github/workflows/hermes-evals.yml`) runs Hermes evals, outcome governance,
 
 ## Version
 
-**0.20.0 — Reference scope, retime, and take impact**
+**0.21.0 — Drift registry, spend plan, and shot locks**
 
-Prep warns on reference bleed, location contradictions, negative-only locks,
-and missing start frames before spend. `video retime` and `storyboard impact`
-are proposal-only. See
-[docs/RELEASE-NOTES-v0.20.md](docs/RELEASE-NOTES-v0.20.md).
+Prep names known model drift, estimates Keyframe credits before spend, and
+writes multi-shot blocks, voice locks, and screen-direction locks. No provider
+is called. See
+[docs/RELEASE-NOTES-v0.21.md](docs/RELEASE-NOTES-v0.21.md).
 
 See [CHANGELOG.md](CHANGELOG.md) for full release history.
 
@@ -461,9 +463,9 @@ See [CHANGELOG.md](CHANGELOG.md) for full release history.
   <em>Symbolism should alter the conditions under which a scene is interpreted—without requiring the audience to consciously identify it.</em>
 </p>
 
-See also: [docs/ROADMAP-v0.20.md](docs/ROADMAP-v0.20.md)
+See also: [docs/ROADMAP-v0.21.md](docs/ROADMAP-v0.21.md)
 
-See also: [docs/RELEASE-NOTES-v0.20.md](docs/RELEASE-NOTES-v0.20.md)
+See also: [docs/RELEASE-NOTES-v0.21.md](docs/RELEASE-NOTES-v0.21.md)
 
 
 ## License

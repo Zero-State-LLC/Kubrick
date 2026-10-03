@@ -4,7 +4,7 @@ Status: accepted by Danny (repo owner) on 2026-10-02.
 
 Scope: GitHub issues #33, #34, #35, #36, #37, #38, #39, #40, #41, #42, #43, and #44.
 
-Phase A is #33–#38. Phase B (#39–#44) is implemented on the same branch in this release. Version stays 0.20.0.
+Phase A is #33–#38 and shipped as v0.20.0. Phase B (#39–#44) is v0.21.0 under `intent/upgrades-39-44/intent.md`.
 
 ## Problem
 
@@ -12,7 +12,7 @@ A character reference on a two-person shot can bleed onto the other person, and 
 
 ## Proposed outcome
 
-- Product version 0.20.0 is the same on every surface the release audit checks. The production envelope schema id stays `0.16.0`. The installer receipt schema id stays `1.0.0`.
+- Phase A shipped as product version 0.20.0. Phase B ships as 0.21.0. The production envelope schema id stays `0.16.0`. The installer receipt schema id stays `1.0.0`.
 - Phase A warnings use `{code, shot, character, message, recommendation}`. New brief and storyboard fields are optional. Existing inputs stay valid.
 - #33: `applies_to` scopes a character reference. An unscoped reference on a two-person frame warns `REFERENCE_BLEED_RISK`. A reference scoped to exactly one on-screen id adds one binding line.
 - #34: `location` references are linted against location locks and `counts`. Counts compile to `exactly N name` lines. `cast: []` compiles to `nobody is in frame` and drops wardrobe and identity lines for that frame.
@@ -53,7 +53,7 @@ Hermes operators running `compile`, `video adapt`, `video retime`, and `storyboa
 - Impact compares a downstream take's `observed_start_state` (else the declared storyboard start) to the retake's `observed_end_state`. Equal text, or the same resolved state id, is a match. A token that starts with a state id plus a space resolves to that id. `prop_assignments` errors fail closed and do not guess.
 - Start-frame grab time is `start_frame.at_seconds`, else the join `at_seconds`, else 0. The ffmpeg `-ss` value is not the join `atSeconds` already stored on `startImage`. `verified` counts only when it is boolean true. A missing asset does not also warn `START_FRAME_UNVERIFIED`.
 - `accept_clock_delta` is read from the plan file or the retime flag. It is not copied onto the propagated storyboard.
-- Danny accepted this intent on 2026-10-02. Phase A and phase B are both in v0.20.0.
+- Danny accepted this intent on 2026-10-02. Phase A shipped as v0.20.0. Phase B is released as v0.21.0.
 
 ## Open questions
 
