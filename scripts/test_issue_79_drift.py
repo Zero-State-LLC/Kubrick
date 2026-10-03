@@ -233,8 +233,22 @@ def test_myslef_regression_shows_applicable_warnings() -> None:
     assert known[0]["shot"] == "frame-002"
     for shot in ("frame-001", "frame-002", "frame-003", "frame-004"):
         assert f"{shot} matches brightness-over-directed" in drift_text
+    close = {"ecu", "cu", "extreme close-up", "close-up", "extreme close", "close"}
+    close_shots = [
+        str(item.get("frame_id"))
+        for item in frames
+        if isinstance(item, dict)
+        and isinstance(item.get("camera"), dict)
+        and str(item["camera"].get("size", "")).strip().lower() in close
+    ]
+    # A plan that states a close camera size (the #77 camera carrier) must trip
+    # framing-wider-than-asked on those shots; a plan without one must not.
+    if close_shots:
+        for shot in close_shots:
+            assert f"{shot} matches framing-wider-than-asked" in drift_text
+    else:
+        assert "framing-wider-than-asked" not in drift_text
     for absent in (
-        "framing-wider-than-asked",
         "weak-action-intensity",
         "chained-start-suppresses-move",
         "flicker-clears-all-figures",
