@@ -14,8 +14,6 @@ from collections.abc import Mapping, Sequence
 from datetime import date
 from pathlib import Path
 
-import jsonschema
-import yaml
 from continuity_locks import frame_field, frame_id, warning
 from provider_capabilities import (
     capabilities_for_document,
@@ -49,6 +47,9 @@ def join_mitigations(items: Sequence[str], failed: Sequence[str] = ()) -> str:
 def load_registry(path: Path | None = None) -> dict[str, object]:
     """Validate the registry. An invalid file raises ValueError."""
     global _CACHE
+    import jsonschema
+    import yaml
+
     target = path or _PATH
     if path is None and _CACHE is not None:
         return _CACHE

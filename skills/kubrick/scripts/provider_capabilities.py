@@ -17,8 +17,6 @@ from collections.abc import Mapping, Sequence
 from datetime import date, datetime
 from pathlib import Path
 
-import jsonschema
-import yaml
 from continuity_locks import warning
 
 _ROOT = Path(__file__).resolve().parent.parent
@@ -191,6 +189,9 @@ def _text(source: Mapping[str, object] | None, key: str) -> str | None:
 def load_model_capabilities(path: Path | None = None) -> dict[str, object]:
     """Validate the model file. A schema failure raises ValueError."""
     global _CACHE
+    import jsonschema
+    import yaml
+
     target = path or _MODEL_PATH
     if path is None and _CACHE is not None:
         return _CACHE
@@ -209,7 +210,13 @@ def load_model_capabilities(path: Path | None = None) -> dict[str, object]:
 
 
 def _provider_record(provider: str | None, path: Path | None = None) -> Mapping[str, object] | None:
-    loaded = load_model_capabilities(path)
+    try:
+        loaded = load_model_capabilities(path)
+    except ImportError:
+        # Stdlib profile has no validator. An explicit file still fails closed.
+        if path is not None:
+            raise
+        return None
     providers = loaded.get("providers")
     if not isinstance(providers, Mapping):
         return None
