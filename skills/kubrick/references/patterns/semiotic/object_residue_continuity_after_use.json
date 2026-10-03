@@ -18,6 +18,6 @@
   "transferable_structure": "an object's changed state persists after use and becomes evidence that constrains or redirects later action",
   "non_transferable_surface": "assigning universal symbolic meaning to a specific object without cultural or narrative evidence",
   "production_cost": {"location_dependency":0.0,"prop_dependency":0.6,"lighting_dependency":0.1,"VFX_dependency":0.0},
-  "lexicon_links": ["salt", "talisman", "after", "akashic_record"],
+  "lexicon_links": ["salt", "talisman", "the_continuity_ledger_as_akashic_record"],
   "confidence": 0.88
 }
