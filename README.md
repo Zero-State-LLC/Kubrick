@@ -6,7 +6,7 @@
 
 <p align="center">
   <strong>Hermes-Native Symbolic Cinematic Engineering</strong><br>
-  <em>0.20.0 — Reference scope, retime, and take impact</em>
+  <em>0.20.1 — Retime final clock is edited runtime</em>
 </p>
 
 <p align="center">
@@ -105,7 +105,7 @@ python scripts/kubrick.py help adapt
    A `production_constraints` item prefixed `character-lock:` or `identity-lock:` is the same lock.
    `aspect_ratio`, or an `N:M` token in `production_constraints` such as `9:16 vertical`, sets the Keyframe aspect ratio. The fallback is `16:9`.
    Storyboard plan frames may also carry optional `duration_seconds`, `title`, `scene`, `sound`, and `speech_lines`. Keyframe uses those values. When `sound` is omitted, the shot uses evidenced room presence and no scored music.
-   Optional `props`, `prop_states`, `join`, `opens_with`, `characters` (`wardrobe`, `references` with `scope` and `applies_to`), frame `wardrobe`, `cast`, `counts`, `start_frame`, `shot_id`, `apply_techniques`, and `short_beat_threshold_seconds` are prep fields. A plan may also set `location`, `counts`, `locks`, and `accept_clock_delta`. See `examples/myslef-minder/`.
+   Optional `props`, `prop_states`, `join`, `opens_with`, `characters` (`wardrobe`, `references` with `scope` and `applies_to`), frame `wardrobe`, `cast`, `counts`, `start_frame`, `shot_id`, `apply_techniques`, and `short_beat_threshold_seconds` are prep fields. A plan may also set `location`, `counts`, `locks`, and `accept_clock_delta`. `video retime` sets `final_clock` to the sum of edit windows and reports `generated_clock` separately. See `examples/myslef-minder/`.
    Example layout: `examples/authority-transfer-storyboard/brief.yaml`
 2. **Optionally keep a ledger** of active motifs for the project.  
    Example: `examples/authority-transfer-storyboard/symbolic-ledger.yaml`
@@ -446,11 +446,11 @@ CI (`.github/workflows/hermes-evals.yml`) runs Hermes evals, outcome governance,
 
 ## Version
 
-**0.20.0 — Reference scope, retime, and take impact**
+**0.20.1 — Retime final clock is edited runtime**
 
-Prep warns on reference bleed, location contradictions, negative-only locks,
-and missing start frames before spend. `video retime` and `storyboard impact`
-are proposal-only. See
+`video retime` sets `final_clock` to the sum of edit windows. `delta` is that
+runtime minus the script clock. `generated_clock` reports generated seconds.
+A non-zero delta still fails closed unless `accept_clock_delta` is set. See
 [docs/RELEASE-NOTES-v0.20.md](docs/RELEASE-NOTES-v0.20.md).
 
 See [CHANGELOG.md](CHANGELOG.md) for full release history.

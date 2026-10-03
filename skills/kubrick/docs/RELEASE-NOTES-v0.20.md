@@ -1,3 +1,18 @@
+# Kubrick v0.20.1 Release Notes
+
+v0.20.1 corrects the retime clock from #36. `final_clock` is the edited
+runtime: the sum of each edit-plan `out` minus `in`. `delta` is `final_clock`
+minus `script_clock`. `generated_clock` is generated seconds, and a shared
+clip is counted once. Reused shots add 0 to `generated_clock`.
+
+The MYSLEF plan no longer sets `accept_clock_delta`. That flag only hid the
+old clock, which summed generated durations. Retime of that plan exits 0 with
+script clock 6, final clock 6, delta 0, and generated clock 12.
+
+An edit window longer than its script beat still has a non-zero delta. A
+reused take whose trim is longer than the planned beat is
+`CLOCK_DELTA_UNACCEPTED` unless the plan or `--accept-clock-delta` accepts it.
+
 # Kubrick v0.20.0 Release Notes
 
 v0.20.0 adds reference scope, location and count locks, lock carriers, a
@@ -78,7 +93,8 @@ python3 scripts/kubrick.py video --action adapt \
 
 Retime of the same plan, with no `--takes`, is `PROPOSED`. Shots 03–06 are
 separate generations. Edit in/out is 0–2, 1.6–2.6, 0–2, and 0–1. Script clock
-6, final clock 12, delta 6. Exit 0 because the plan sets `accept_clock_delta`.
+6, final clock 6, delta 0. Generated clock is 12. Exit 0. The plan does not
+set `accept_clock_delta`.
 
 ```bash
 python3 scripts/kubrick.py video --action retime \
