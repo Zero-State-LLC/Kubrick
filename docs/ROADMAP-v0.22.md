@@ -22,3 +22,7 @@ Corpus hygiene: every sidecar is indexed, registered, and manifested. Duplicate 
 1. Retime model-overlay limits (needs its own intent).
 2. Remove the `skills/kubrick` mirror once hub packaging allows it (owner-gated).
 3. Land the official Hermes optional-skills submission against the current release.
+
+## In progress (#76)
+
+Retrieval ignores stop-words in token overlap and registry route matching. `SELECTED` requires dramatic fit of at least 0.15. Weaker evidence stays `NOT_COMPUTABLE` with `LOW_DRAMATIC_FIT`.
