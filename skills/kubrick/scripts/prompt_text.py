@@ -208,6 +208,13 @@ def _direction_clauses(frame: Mapping[str, object]) -> list[str]:
     return direction_clauses(frame)
 
 
+def _authored_action(frame: Mapping[str, object]) -> str:
+    from continuity_locks import frame_field
+    from prompt_action import authored_sentence
+
+    return authored_sentence(frame_field(frame, "action"))
+
+
 def render_frame_prompt(
     shared: Sequence[object],
     frame: Mapping[str, object],
@@ -215,6 +222,9 @@ def render_frame_prompt(
 ) -> str:
     clauses: list[object] = [*shared, *frame_state_clauses(frame, labels)]
     clauses.extend(_direction_clauses(frame))
+    sentence = _authored_action(frame)
+    if sentence:
+        clauses.append(sentence)
     return join_clauses(clauses)
 
 

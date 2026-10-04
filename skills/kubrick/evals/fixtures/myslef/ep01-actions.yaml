@@ -1,0 +1,19 @@
+# Twelve authored MYSLEF actions the compiler must carry into the prompt.
+# The first four are the example storyboard. The rest are the EP-01 beats
+# named in the continuity upgrade plan, written as action sentences.
+storyboard_id: myslef-ep01-actions
+node_labels:
+  observed_1: evidenced figure
+frames:
+  - {frame_id: f01, action: the minder sits typing at the bench, node_states: {observed_1: present}}
+  - {frame_id: f02, action: the minder springs up and the chair skids, node_states: {observed_1: present}}
+  - {frame_id: f03, action: myslef stays seated at the rack, node_states: {observed_1: present}}
+  - {frame_id: f04, action: the minder walks out of frame right, node_states: {observed_1: present}}
+  - {frame_id: f05, action: debris hops across the lower alley, node_states: {observed_1: present}}
+  - {frame_id: f06, action: the hands press over the grille, node_states: {observed_1: present}}
+  - {frame_id: f07, action: the back lamps stay dark, node_states: {observed_1: present}}
+  - {frame_id: f08, action: the lens stays dark, node_states: {observed_1: present}}
+  - {frame_id: f09, action: the grille stays dark, node_states: {observed_1: present}}
+  - {frame_id: f10, action: myslef stands with the newspaper man, node_states: {observed_1: present}}
+  - {frame_id: f11, action: the insert opens on the hands, node_states: {observed_1: present}}
+  - {frame_id: f12, action: the figure crosses the alley, node_states: {observed_1: present}}
