@@ -1,6 +1,6 @@
 # Kubrick roadmap
 
-Product version **0.25.1**. Local output stays **PROPOSED**. Weak evidence
+Product version **0.26.0**. Local output stays **PROPOSED**. Weak evidence
 stays `NOT_COMPUTABLE`. No provider is called from this plan.
 
 Project board: [Zero-State-LLC project 13](https://github.com/orgs/Zero-State-LLC/projects/13).
@@ -53,10 +53,19 @@ a local judge, and the hard-cut board rules. A check that cannot run blocks.
 See [`JEV-PRE-SPEND-GATE.md`](JEV-PRE-SPEND-GATE.md#board-image-checks) and
 [#126](https://github.com/Zero-State-LLC/Kubrick/pull/126).
 
-Next: a head detector so wide boards get a head crop without a plan box, a
-stronger local judge for lens glow and body lights (the 3B model is unreliable on them;
-the Spark Qwen3.5 judge is better on direct questions, but still caught only 1 of 2 lens-glow
-and 4 of 5 body-light defects and blocks most clean boards on the compound plan-lock wording,
-see the calibration note), let `lock_carriers` count a
-start frame as a carrier only when this gate passed, and reuse the same crop
-and embedding in live take QC.
+## Shipped in 0.26.0
+
+The board gate asks each lock clause as its own direct yes-or-no question
+with an expected answer and combines the answers per lock. Checks carry a
+severity (`block` or `warn`); a left-or-right side question defaults to
+`warn`. On EP-01 through the Spark judge, clean boards blocked fell from 36
+to 19 of 60 and defective ones blocked from 7 to 5 of 7. See
+[`BOARD-IMAGE-CALIBRATION.md`](BOARD-IMAGE-CALIBRATION.md#atomic-lock-questions-0260-2026-10-04).
+
+Next: a head detector so wide boards get a head crop without a plan box,
+better lens-glow wording (the short split question "Do the lenses glow?"
+causes most remaining false blocks), lock text that names every place a
+light must not be (the mouth-grille LED in take 01 t1 is not in the
+`red-chest-led` text), let `lock_carriers` count a start frame as a carrier
+only when this gate passed, and reuse the same crop and embedding in live
+take QC.

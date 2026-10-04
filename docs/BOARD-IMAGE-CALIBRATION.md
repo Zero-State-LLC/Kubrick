@@ -1,7 +1,8 @@
 # Board image gate calibration: MYSLEF EP-01 (2026-10-04)
 
-This note records how the 0.25.1 default identity threshold was chosen and
-how accurate the local judge was on the same images. Everything ran on one
+This note records how the 0.25.1 default identity threshold was chosen, how
+accurate the local judge was on the same images, and what the 0.26.0 atomic
+lock questions changed. Everything ran on one
 CPU box with free open-weights models. No paid API and no generation call
 was made. The labeled images are local MYSLEF files and are not in the repo.
 
@@ -180,3 +181,71 @@ What this means:
   recorded-answers path or a logged opt-out for them, or split a lock into
   single direct `board_checks`.
 - Lens sides (left and right) got worse. Do not make it a blocking check.
+
+## Atomic lock questions (0.26.0, 2026-10-04)
+
+Since 0.26.0 the gate asks each lock clause as its own direct question with
+an expected answer, and a question about the left or right side is warn-only
+(see [`JEV-PRE-SPEND-GATE.md`](JEV-PRE-SPEND-GATE.md#locked-details)). The
+same 67 head images (60 clean, 7 defective) were rerun through the Spark
+proxy with the gate's own `lock_questions` and `judge_lock_checks` on the
+default crop, the three plan-alley locks, and a lens-sides `board_checks`
+question with no severity set. 536 calls, every one answered yes or no.
+
+The three locks now ask seven questions:
+
+| Lock | Questions (expect `no`) |
+|---|---|
+| `red-chest-led` | Does the character show any light on the head, hood or temple? Any light along the spine or on the back? |
+| `lenses` | Do the lenses glow? Does the character show any human eyes? Any long lens barrels? |
+| `speaker-mouth` | Does the character show any lip movement? Any words? |
+
+| Gate | Clean blocked | Defective blocked |
+|---|---|---|
+| Compound wording (0.25.1) | 36 to 41 of 60 | 7 of 7 |
+| Atomic, "Does the image show" (first try) | 29 of 60 | 5 of 7 |
+| Atomic, "Does the character show" (shipped) | 19 of 60 | 5 of 7 |
+| Atomic, lock `checks` written by hand (see below) | 12 of 60 | 6 of 7 |
+
+Shipped wording, per question (truth where the labels pin it down):
+
+| Question | Right | Clean boards it blocked |
+|---|---|---|
+| Light on the head, hood or temple | 58/62 | 4 |
+| Light along the spine or on the back | 62/62 | 0 |
+| Do the lenses glow? | 53/67 | 14 |
+| Human eyes | 67/67 | 0 |
+| Long lens barrels | 67/67 | 0 |
+| Lip movement | 66/67 | 1 |
+| Words | 64/67 | 2 |
+| Lens sides (warn only) | 27/59 | 0 (35 warnings) |
+
+What this means:
+
+- Splitting the locks cut clean boards blocked from 36 to 19 of 60. Most of
+  what is left is one question: the short "Do the lenses glow?" blocked 14
+  clean boards. The longer "Is either of the character's round camera lenses
+  glowing or emitting light?" blocked 3 in the hand-written run.
+- Naming the character matters. "Does the image show any words?" blocked 16
+  clean alley boards, most likely for street signs; "Does the character show
+  any words?" blocked 2.
+- The two defective images the split lets through are both frames of take
+  01 t1, a red LED inside the mouth grille. The `red-chest-led` lock text says
+  "head, hood or temple" and never names the grille, so its questions do not
+  ask about it. The compound question blocked those frames, but it blocked
+  most clean boards too. Name the grille in the lock text, or give the lock a
+  `checks` list.
+- Lens sides stays unreliable (27 of 59, about chance) and now only warns: 35
+  clean and 5 defective images got a `BOARD_LOCK_DETAIL_WARN` and none
+  blocked.
+- The hand-written `checks` run used five questions: the 0.25.1 calibration
+  wording for lens glow and for light on the head, mouth grille, hood, back or
+  spine, plus "Does the character have human eyes?", "Does the character have
+  long lens barrels sticking out of the face?", and "Does the character have
+  human lips instead of a round speaker grille?". It missed one back-light
+  frame (07 t1 mid). Those questions were chosen after seeing this set, so
+  12 of 60 is an optimistic estimate.
+- One set, one character, seven defects. Reruns move single answers: the
+  short lens glow question was right on 53 and 54 of 67 in two runs, and the
+  0.25.1 lens glow wording was right on 64 of 65 then and 62 of 67 here. Treat
+  a few boards of difference as noise.

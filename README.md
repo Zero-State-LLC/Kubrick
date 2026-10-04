@@ -7,7 +7,7 @@
 <p align="center">
   <strong>Observed form first. Dramatic function first.</strong><br>
   A Hermes skill that turns a brief into continuity-safe storyboards and prompts.<br>
-  <em>0.25.1: Board identity threshold calibrated on EP-01</em>
+  <em>0.26.0: Board lock checks asked one direct question at a time</em>
 </p>
 
 <p align="center">
@@ -91,7 +91,7 @@ Words the code actually emits:
 | `PROPOSAL` | A change that is not applied |
 | `NOT_COMPUTABLE` | Weak or contradictory evidence; fail closed |
 
-The product version is the `VERSION` file (`0.25.1`). The production envelope
+The product version is the `VERSION` file (`0.26.0`). The production envelope
 schema id stays `0.16.0` and does not track that version.
 
 ## Atlas

@@ -52,6 +52,7 @@ from kubrick.gates.board_image_plan import (
     on_screen,
     subject_box,
 )
+from kubrick.gates.board_lock_checks import judge_lock_checks, lock_verdicts, warn_only_rows
 from kubrick.qc.board_pixels import (
     Crop,
     ImageUnreadable,
@@ -206,38 +207,6 @@ def _identity(
     )
 
 
-def _lock_rows(
-    shot: str,
-    name: str,
-    crop: Crop,
-    digest: str,
-    questions: Sequence[Mapping[str, str]],
-    backends: _Backends,
-) -> list[dict[str, object]]:
-    rows: list[dict[str, object]] = []
-    for item in questions:
-        base = {"character": name, "lock_id": item["lock_id"], "question": item["question"],
-                "expect": item["expect"]}
-        try:
-            judge = backends.get_judge()
-            answer = judge.ask(crop.image, digest, item["question"])
-        except BackendUnavailable as exc:
-            rows.append(_row(shot, "lock_detail", "UNVERIFIED", "BOARD_LOCK_DETAIL_UNVERIFIED",
-                             detail=str(exc), **base))
-            continue
-        if answer == item["expect"]:
-            rows.append(_row(shot, "lock_detail", "PASS", None, answer=answer,
-                             judge=judge.name, **base))
-        elif answer in {"yes", "no"}:
-            rows.append(_row(shot, "lock_detail", "FAIL", "BOARD_LOCK_DETAIL_FAIL",
-                             answer=answer, judge=judge.name, **base))
-        else:
-            rows.append(_row(shot, "lock_detail", "UNVERIFIED", "BOARD_LOCK_DETAIL_UNVERIFIED",
-                             answer=answer, judge=judge.name,
-                             detail="the judge did not answer yes or no", **base))
-    return rows
-
-
 def _check_frame(
     document: Mapping[str, object],
     frame: Mapping[str, object],
@@ -269,7 +238,8 @@ def _check_frame(
         views = identity_views(spec, base_dir)
         rows.append(_identity(shot, name, crop, views, threshold, backends))
         questions = lock_questions(document, name, spec)
-        rows.extend(_lock_rows(shot, name, crop, digest, questions, backends))
+        rows.extend(judge_lock_checks(shot, name, crop.image, digest, questions,
+                                      backends.get_judge))
     return rows
 
 
@@ -424,6 +394,7 @@ def _summarize(
     checked: int,
     backends: _Backends,
 ) -> dict[str, object]:
+    warnings = [*warnings, *warn_only_rows(checks)]
     bad = [row for row in checks if row.get("status") in {"FAIL", "UNVERIFIED"}]
     if not bad:
         code = "BOARD_IMAGES_CLEAR" if checked else "NO_BOARD_IMAGES"
@@ -431,8 +402,10 @@ def _summarize(
             f"{checked} board image(s) passed identity and lock checks"
             if checked else "no paid shot carries a local board image"
         )
-        return _result(status="PASS", code=code, blocks=False, message=message,
-                       checks=checks, warnings=warnings, backends=backends)
+        passed = _result(status="PASS", code=code, blocks=False, message=message,
+                         checks=checks, warnings=warnings, backends=backends)
+        passed["locks"] = lock_verdicts(checks)
+        return passed
     codes = {str(row.get("code")) for row in bad}
     code = next((item for item in _PRIORITY if item in codes), str(bad[0].get("code")))
     parts = []
@@ -452,8 +425,10 @@ def _summarize(
             text += f" ({detail})"
         parts.append(text)
     message = "; ".join(parts) + f"; {_RECOMMENDATION}, or pass --board-image-opt-out REASON"
-    return _result(status="BLOCKED", code=code, blocks=True, message=message,
-                   checks=checks, warnings=warnings, backends=backends)
+    blocked = _result(status="BLOCKED", code=code, blocks=True, message=message,
+                      checks=checks, warnings=warnings, backends=backends)
+    blocked["locks"] = lock_verdicts(checks)
+    return blocked
 
 
 def main(argv: Sequence[str] | None = None) -> int:

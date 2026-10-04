@@ -132,9 +132,46 @@ precedence: `--board-identity-threshold`, then
 
 Each character's lock list becomes yes-or-no questions: `character_locks`,
 `characters.<id>.locks`, plan `locks` with `character: <id>`, and explicit
-`characters.<id>.board_checks` (`question`, `expect: yes|no`). For example
-"silicon hands with no nails" or "smooth dome head with no hair". A wrong
-answer is `BOARD_LOCK_DETAIL_FAIL` and blocks.
+`characters.<id>.board_checks` (`question`, `expect: yes|no`,
+`severity: block|warn`).
+
+Since 0.26.0 a lock is asked as one direct question per clause, each with
+its expected answer, not as one compound "is this statement true" question.
+The lock text (`negative`, else `positive`, else `text`) is split at commas,
+semicolons, and `and`, but only where the next part starts a new negative
+clause, so a list such as "head, hood or temple" stays in one question:
+
+| Clause | Question | Expect |
+|---|---|---|
+| `no X` or `not X` | Does the character show any X? | `no` |
+| `S never V` | Do S V? (Does, for a singular subject) | `no` |
+| anything else | Does the character show X? (Is it true in this image that X?, when X has its own verb) | `yes` |
+
+For example, `negative: the lenses never glow, no human eyes, no long lens
+barrels` asks "Do the lenses glow?", "Does the character show any human eyes?",
+and "Does the character show any long lens barrels?", each expecting `no`. Every
+question goes to the judge on its own. To word a lock's questions yourself,
+give the lock a `checks` list (`question`, `expect`, `severity`); it
+replaces the split.
+
+The answers are combined per lock (the report's `locks` list). A wrong
+answer to a `block` question is `BOARD_LOCK_DETAIL_FAIL` and blocks. A
+`block` question the judge cannot answer is `BOARD_LOCK_DETAIL_UNVERIFIED`
+and blocks too (fail closed). A `warn` question that fails or cannot be
+answered is a `WARN` row and a `BOARD_LOCK_DETAIL_WARN` warning; it never
+blocks spend. Severity defaults to `block`, except a question that names the
+left or right side defaults to `warn`, because the judge scored 0.46 on lens
+sides (see the calibration note). Set `severity` on a `board_checks` row, a
+lock `checks` row, or a whole lock to override it; a lock's `checks` inherit
+the lock's severity. When two sources ask the same question, the stricter
+severity wins. A severity other than `block` or `warn`, an `expect` other
+than `yes` or `no`, a `checks` row with no question, or one question given
+two different `expect` values is `BOARD_GATE_CONFIG_INVALID` and blocks; the
+gate never drops it silently.
+
+Recorded answers are keyed by the exact question, so answers recorded before
+0.26.0 for compound questions no longer match and come back UNVERIFIED.
+Record them again.
 
 The judge is pluggable (`LockJudge.ask(image, image_sha256, question)` in
 `src/kubrick/qc/board_vision.py`). Resolution order:
@@ -243,6 +280,7 @@ not inherit an old verdict.
 | `BOARD_IDENTITY_UNVERIFIED` | The identity check could not run (no local model, no readable views). Blocks. |
 | `BOARD_LOCK_DETAIL_FAIL` | The judge answered a locked-detail question the wrong way. Blocks. |
 | `BOARD_LOCK_DETAIL_UNVERIFIED` | No local judge, no recorded answer, or no yes-or-no answer. Blocks. |
+| `BOARD_LOCK_DETAIL_WARN` | A `severity: warn` lock question failed or could not be answered. Warns, never blocks. |
 | `BOARD_IMAGE_MISSING` | A declared `board_image` does not exist. Blocks. |
 | `BOARD_IMAGE_UNREADABLE` | A board file cannot be decoded. Blocks. |
 | `BOARD_REUSED_ON_CUT` | A hard cut reuses an earlier shot's board. Blocks. |

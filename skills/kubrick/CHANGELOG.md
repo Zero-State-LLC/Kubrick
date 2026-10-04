@@ -2,10 +2,20 @@
 
 ## [Unreleased]
 
+## [0.26.0] - 2026-10-04
+
+### Changed
+- Board image gate: each character lock is asked as one direct yes-or-no question per clause, each with its expected answer, instead of one compound "is this statement true: no X, no Y" question. `no X` asks "Does the character show any X?" (expect no), `S never V` asks "Do S V?" (expect no), and other clauses expect yes. A list inside a clause ("head, hood or temple") stays one question. The answers are combined per lock in the report's new `locks` list: any confirmed `FAIL` blocks, and a question the judge cannot answer is still UNVERIFIED and blocks. A lock can list its own `checks` (`question`, `expect`, `severity`) to word its questions by hand. Code in `src/kubrick/gates/board_lock_checks.py`.
+- A bad `severity` or `expect`, a lock `checks` row with no question, or one question given two different `expect` values is `BOARD_GATE_CONFIG_INVALID` and blocks. Before, a `board_checks` row with a bad `expect` was skipped. When two sources ask the same question, the stricter severity wins.
+- Recorded judge answers are keyed by the exact question, so answers recorded for the old compound questions come back UNVERIFIED. Record them again.
+
 ### Added
+- Per-check severity, `block` (default) or `warn`, on `board_checks`, lock `checks` (which inherit the lock's severity), or a whole lock. A `warn` question that fails or cannot be answered is a `WARN` row and a `BOARD_LOCK_DETAIL_WARN` warning and never blocks spend. A question that names the left or right side defaults to `warn`: the Spark judge scored 0.46 on lens sides.
 - CI fails a pull request that adds an em dash (U+2014). `scripts/check_no_new_em_dash.py --base origin/<base>` checks only the lines the diff adds, so the em dashes already on main do not fail it. A missing base ref fails closed. A fixture line that must keep one carries `em-dash: allow`.
 
 ### Notes
+- EP-01 rerun through the Spark proxy with the plan-alley locks (60 clean, 7 defective head images): clean boards blocked fell from 36 of 60 to 19 of 60, and defective ones blocked from 7 of 7 to 5 of 7. The two misses are both frames of take 01 t1, a red LED inside the mouth grille, which the `red-chest-led` lock text never names. Most remaining false blocks come from the short "Do the lenses glow?" (14 of 19). Hand-written lock `checks` reached 12 of 60 and 6 of 7 on the same set. Lens sides was right on 27 of 59 and only warned. See `docs/BOARD-IMAGE-CALIBRATION.md`.
+- Product version is 0.26.0. The production envelope schema id stays `0.16.0`. No provider and no paid API is called, including in tests: the new tests use a scripted fake judge.
 - Board image judge measured through the Spark box (Qwen3.5 vision, via a loopback proxy on the operator box): 0.79 on the EP-01 set against 0.58 for `qwen2.5vl:3b`, with lens glow 0.97 and body lights 0.91 when asked directly. The gate's compound plan-lock questions still block 36 of 60 clean boards (38 before). No prompt variant was clearly better, so the judge prompt is unchanged. See `docs/BOARD-IMAGE-CALIBRATION.md`.
 
 ## [0.25.1] - 2026-10-04

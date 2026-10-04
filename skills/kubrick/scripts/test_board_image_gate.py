@@ -89,6 +89,17 @@ class FakeJudge:
         return self.answer
 
 
+class CleanJudge(FakeJudge):  # answers every lock question the way a clean board would
+    def __init__(self, document: Mapping[str, object], name: str) -> None:
+        super().__init__()
+        spec = _map(_map(document["characters"])[name])
+        self.expected = {item["question"]: item["expect"]
+                         for item in gate.lock_questions(document, name, spec)}
+
+    def ask(self, image: pixels.RGBImage, image_sha256: str, question: str) -> str:
+        return self.expected.get(question, "unknown")
+
+
 class NoEmbedder:
     name = "none"
 
@@ -322,9 +333,10 @@ def test_lock_questions_cover_every_lock_source() -> None:
     }
     questions = gate.lock_questions(document, "myslef", spec)
     assert [item["lock_id"] for item in questions] == [
-        "no nose", "dome", "red-chest-light", "nails",
+        "no nose", "dome", "red-chest-light", "nails", "Bad expectation?",
     ]
-    assert questions[-1]["expect"] == "no"
+    assert questions[-2]["expect"] == "no"
+    assert "expect must be yes or no" in questions[-1]["error"]
     assert "no hat" not in json.dumps(questions)
 
 
@@ -470,7 +482,8 @@ def test_runbook_in_process_with_mocked_backends() -> None:
     plan = retime(document, "keyframe", None)
     assert plan["status"] == "PROPOSED"
     clear = runbook(document, plan, "keyframe", None,
-                    board_backends={"embedder": HistogramEmbedder(), "judge": FakeJudge()})
+                    board_backends={"embedder": HistogramEmbedder(),
+                                    "judge": CleanJudge(document, "myslef")})
     assert clear["status"] == "PROPOSED"
     assert _map(clear["board_image_gate"])["code"] == "BOARD_IMAGES_CLEAR"
     frames = _rows(document["frames"])
