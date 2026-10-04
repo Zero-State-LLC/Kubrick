@@ -16,6 +16,8 @@ import urllib.request
 from collections.abc import Callable, Mapping, Sequence
 from typing import Protocol
 
+from hold_scope import choose_sample, per_hold_verdict
+
 _VERDICTS = frozenset({"pass", "fail"})
 _SCHEMES = frozenset({"http", "https"})
 Transport = Callable[[str, Mapping[str, object], float], object]
@@ -103,6 +105,11 @@ def parse_verdict(payload: object) -> dict[str, object]:
     """Accept a Jev object. Contradictory or incomplete payloads are unreachable."""
     if not isinstance(payload, Mapping):
         raise JevUnreachable("Jev response is not an object")
+    per_hold = per_hold_verdict(payload)
+    if per_hold is not None:
+        if "error" in per_hold:
+            raise JevUnreachable(str(per_hold["error"]))
+        return per_hold
     verdict = payload.get("verdict")
     if not isinstance(verdict, str) or verdict not in _VERDICTS:
         raise JevUnreachable("Jev verdict is missing")
@@ -247,7 +254,7 @@ class RecordedJev:
         found = self._verdicts.get(key)
         if found is None:
             raise JevUnreachable(f"no recorded verdict for {key}")
-        return parse_verdict(found)
+        return parse_verdict(choose_sample(found))
 
 
 def load_recorded(path: str) -> RecordedJev:

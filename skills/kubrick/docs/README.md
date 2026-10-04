@@ -41,6 +41,7 @@ python scripts/kubrick.py do <intent> [--action <action>] [flags]
 | [`FIRST-CLASS-PRODUCTION-SURFACES.md`](FIRST-CLASS-PRODUCTION-SURFACES.md) | Design / script / image / video surface contracts |
 | [`JEV-PRE-SPEND-GATE.md`](JEV-PRE-SPEND-GATE.md) | Hold-list check before `video runbook` and `video cues` spend |
 | [`runbook-spend-safety.md`](runbook-spend-safety.md) | One node per call, `-32001` reconcile, billed-rate quotes, Jev timeout |
+| [`scoped-holds.md`](scoped-holds.md) | Location, shot, and view scope, rear wording, and per-hold verdicts |
 | [`archive/superpowers/specs/2026-07-30-operator-intent-router-design.md`](archive/superpowers/specs/2026-07-30-operator-intent-router-design.md) | Design: intents, aliases, UX, MCP (archived) |
 | [`archive/superpowers/plans/2026-07-30-operator-intent-router.md`](archive/superpowers/plans/2026-07-30-operator-intent-router.md) | Implementation plan (archived) |
 | [`../scripts/intent_router.py`](../scripts/intent_router.py) | Registry + resolve + help |

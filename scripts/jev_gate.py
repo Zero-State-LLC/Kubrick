@@ -17,6 +17,7 @@ from collections.abc import Callable, Mapping, Sequence
 from datetime import datetime, timezone
 from typing import TextIO
 
+from hold_scope import holds_for_prompt
 from jev_client import (
     JevClient,
     JevUnreachable,
@@ -212,7 +213,7 @@ def check_before_spend(
         if _prompt_labels(prompt) & blocked:
             continue
         try:
-            verdict = judge.judge(judge_prompt(prompt), holds)
+            verdict = judge.judge(judge_prompt(prompt), holds_for_prompt(holds, prompt))
         except JevUnreachable as exc:
             failed = [item for item in checks if item.get("verdict") == "fail"]
             if failed:
@@ -222,14 +223,18 @@ def check_before_spend(
         text = prompt.get("prompt")
         raw_findings = verdict.get("findings")
         findings = list(raw_findings) if isinstance(raw_findings, list) else []
-        checks.append({
+        check: dict[str, object] = {
             "shot": prompt.get("shot"),
             "channel": prompt.get("channel"),
             "location": prompt.get("location"),
             "prompt_sha256": prompt_sha256(text if isinstance(text, str) else ""),
             "verdict": verdict.get("verdict"),
             "findings": findings,
-        })
+        }
+        raw_results = verdict.get("hold_results")
+        if isinstance(raw_results, list):
+            check["hold_results"] = raw_results
+        checks.append(check)
     failed = [item for item in checks if item.get("verdict") == "fail"]
     if failed:
         return _blocked_hold(holds, failed, override, override_source)
