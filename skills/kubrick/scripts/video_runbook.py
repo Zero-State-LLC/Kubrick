@@ -1,4 +1,9 @@
-"""Prep-only retake runbook (issue #69). Emits PROPOSED Keyframe ops; never calls them."""
+"""Prep-only retake runbook (issues #69 and #98).
+
+Emits PROPOSED Keyframe ops and never calls them. One node per call. A
+``-32001`` result is reconcile-later, not a second submit. An unavailable
+estimate uses the billed-rate table.
+"""
 
 from __future__ import annotations
 
@@ -67,6 +72,7 @@ def _regen(shots: object, seconds: float, credits: float, clip: object = None) -
             "credits": round(credits, 4),
             "credits_label": "INFERRED",
             "paid": True,
+            "nodes": 1,
         }
     )
     return op
@@ -130,6 +136,13 @@ def _refuse_ledger(
     return refused
 
 
+def record_provider_result(payload: Mapping[str, object]) -> dict[str, object]:
+    """Record one submit result. ``-32001`` is reconcile-later, never a resubmit."""
+    from spend_safety import classify_submit
+
+    return classify_submit(payload)
+
+
 def _gate_paid(
     document: Mapping[str, object],
     paid: Sequence[Mapping[str, object]],
@@ -177,6 +190,7 @@ def runbook(
 ) -> dict[str, object]:
     from jev_gate import attach_gate, override_requested
     from spend_plan import budget_error, spend_estimate
+    from spend_safety import SPEND_RULES, apply_unavailable_quotes
 
     rows = rows_of(plan.get("generation_plan"))
     retake = {str(s) for s in retake_args} if retake_args else None
@@ -204,6 +218,13 @@ def runbook(
         payload = closed(ACTION, "PRICING_UNAVAILABLE", f"no pricing for provider {provider!r}")
         attach_gate(payload, _gate, run_ledger)
         return payload
+    estimate = apply_unavailable_quotes(estimate, paid)
+    if estimate.get("status") == "NOT_COMPUTABLE":
+        detail = estimate.get("message")
+        text = detail if isinstance(detail, str) else "billed rate is not computable"
+        payload = closed(ACTION, "PRICING_UNAVAILABLE", text)
+        attach_gate(payload, _gate, run_ledger)
+        return payload
     error = budget_error(estimate, document.get("budget_cap_credits"))
     if error:
         payload = closed(ACTION, error.split()[0].rstrip(":"), error)
@@ -219,6 +240,7 @@ def runbook(
         "final_clock": plan.get("final_clock"),
         "ops": build_ops(plan, paid, credits),
         "spend_estimate": estimate,
+        "spend_rules": dict(SPEND_RULES),
         "total_inferred_credits": estimate.get("total_credits"),
     }
     ledger_error = attach_gate(payload, _gate, run_ledger)
