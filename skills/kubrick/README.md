@@ -38,6 +38,7 @@ flowchart TB
   cli["scripts/kubrick.py"] --> core["src/kubrick"]
   core --> plan["plan"]
   core --> prompts["prompts"]
+  prompts --> framing["framing"]
   core --> adapters["adapters"]
   core --> gates["gates"]
   gates --> board["board_qc"]
@@ -47,13 +48,12 @@ flowchart TB
   core --> corpus["corpus"]
   core --> surfaces["surfaces"]
   core --> runtime["runtime"]
-  framing["numeric framing · #102"]
   refpack["reference pack · #103"]
   classDef planned stroke-dasharray: 4 3,fill:none
-  class framing,refpack planned
+  class refpack planned
 ```
 
-Take QC core scores fixture measurements in `src/kubrick/qc/vision_observe.py`. The board gate in `src/kubrick/gates/board_qc.py` checks a start board before video spend. See [`docs/TAKE-QC.md`](docs/TAKE-QC.md) and [`docs/BOARD-GATE.md`](docs/BOARD-GATE.md). Numeric framing and the reference pack are still open.
+Take QC core scores fixture measurements in `src/kubrick/qc/vision_observe.py`. The board gate in `src/kubrick/gates/board_qc.py` checks a start board before video spend. Numeric framing in `src/kubrick/prompts/framing.py` writes a motion-only video line when a start frame is used and records an end anchor Keyframe cannot store. See [`docs/TAKE-QC.md`](docs/TAKE-QC.md), [`docs/BOARD-GATE.md`](docs/BOARD-GATE.md), and [`docs/FRAMING.md`](docs/FRAMING.md). The reference pack is still open.
 
 ## How to use
 

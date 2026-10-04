@@ -1,0 +1,95 @@
+# Numeric framing fixtures. No images and no provider calls.
+cases:
+  - id: video-reframe
+    frames:
+      - frame_id: video-reframe
+        action: waits
+        start_frame: {asset: board.png}
+        camera: {move: locked}
+        video_prompt: a wide shot, head ratio 0.50
+  - id: wide-plate
+    frames:
+      - frame_id: shot-11
+        framing: {crop: knees_up, size: wide}
+        location_ref: {plate: wide}
+  - id: wide-plate-precrop
+    frames:
+      - frame_id: shot-11
+        framing: {crop: knees_up, head_ratio: [0.40, 0.45]}
+        location_ref: {plate: wide, precrop_to: knees_up}
+        camera: {move: locked}
+  - id: adjective
+    frames:
+      - frame_id: adjective
+        framing: {proportion: tight}
+  - id: move-without-end
+    frames:
+      - frame_id: move-without-end
+        framing: {size: mcu}
+        camera: {move: push-in}
+  - id: move-target-missing
+    frames:
+      - frame_id: move-target
+        framing: {size: mcu, head_ratio: [0.40, 0.45]}
+        end_framing: {size: mcu}
+        camera: {move: locked}
+  - id: axis-cross
+    frames:
+      - frame_id: axis-a
+        continuity: {axis_side: left}
+      - frame_id: axis-b
+        continuity: {axis_side: right}
+  - id: axis-bridged
+    frames:
+      - frame_id: axis-a
+        continuity: {axis_side: left}
+      - frame_id: axis-b
+        continuity: {axis_side: right, axis_bridge: true}
+  - id: two-moves
+    frames:
+      - frame_id: two-moves
+        action: steps
+        start_frame: {asset: board.png}
+        camera: {move: [push-in, pan-left]}
+  - id: one-move
+    frames:
+      - frame_id: one-move
+        action: steps
+        start_frame: {asset: board.png}
+        camera: {move: [push-in]}
+  - id: shot-09
+    frames:
+      - frame_id: shot-09
+        action: the figure steps back
+        start_frame: {asset: board.png}
+        camera: {move: push-in}
+        framing:
+          size: mcu
+          lens_mm: 35
+          angle: eye
+          height: eye-level
+          placement: center
+          crop: mcu
+          head_ratio: [0.55, 0.60]
+          facing: camera
+          emitters: [chest LED]
+          key_side: left
+        end_framing:
+          head_ratio: [0.40, 0.45]
+          crop: mcu
+  - id: passing
+    frames:
+      - frame_id: pass-a
+        action: holds
+        camera: {move: locked}
+        framing: {size: mcu, crop: cu, head_ratio: [0.40, 0.45]}
+        end_framing: {head_ratio: [0.40, 0.45], crop: cu}
+        location_ref: {plate: wide, precrop_to: cu}
+        continuity: {axis_side: left}
+      - frame_id: pass-b
+        action: holds
+        camera: {move: locked}
+        framing: {size: mcu, crop: cu, head_ratio: [0.40, 0.45]}
+        end_framing: {head_ratio: [0.41, 0.44], crop: cu}
+        location_ref: {plate: wide, precrop_to: cu}
+        continuity: {axis_side: left}

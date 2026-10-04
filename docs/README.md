@@ -14,6 +14,7 @@ Current release: **0.16.0** (see root `VERSION`).
 | [`CONTINUITY.md`](CONTINUITY.md) | Operators | Carrier order: start image, references, end image, prompt |
 | [`TAKE-QC.md`](TAKE-QC.md) | Operators | Fixture take QC: defect codes, head dome, no live detector |
 | [`BOARD-GATE.md`](BOARD-GATE.md) | Operators | Board checks before video spend |
+| [`FRAMING.md`](FRAMING.md) | Operators | Numeric framing, motion-only video, end-image limit |
 | [`../intent/README.md`](../intent/README.md) | Agents | Intent template for non-trivial work; then spec.md / plan |
 | [`../CONTRIBUTING.md`](../CONTRIBUTING.md) | Contributors | Dev setup, hub sync, invariants |
 | [`HERMES-OFFICIAL-SUBMISSION.md`](HERMES-OFFICIAL-SUBMISSION.md) | Maintainers | Official optional-skills PR + community publish checklist |

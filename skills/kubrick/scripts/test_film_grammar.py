@@ -361,9 +361,11 @@ def test_myslef_example_carries_the_shot_map() -> None:
     assert "35" in prompts[0] and "push-in" in prompts[0]
     assert "handheld" in prompts[1] and "tilt" in prompts[1]
     assert "85" in prompts[2] and "ECU" in prompts[2] and "locked-off" in prompts[2]
-    assert "35" in prompts[3] and "push-in" in prompts[3]
-    assert "cut on a sound accent" in prompts[3]
-    assert "30 degrees" in prompts[3]
+    image = str(shots[3].get("imagePrompt") or "")
+    assert "35" in image and "30 degrees" in image and "cut on a sound accent" in image
+    assert prompts[3] == "the minder walks out of frame right as push-in"
+    assert "head ratio" not in prompts[3].casefold()
+    assert "30 degrees" not in prompts[3]
     multi = str(movie.get("multi_shot_prompt") or "")
     for needle in ("35", "push-in", "handheld", "tilt", "85", "ECU", "30 degrees"):
         assert needle in multi

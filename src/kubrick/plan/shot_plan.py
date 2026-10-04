@@ -299,6 +299,7 @@ def collect_prep(
     from kubrick.plan.spend_plan import shot_count_warning
     from kubrick.prompts.audio_screen_locks import lint as audio_screen_lint
     from kubrick.prompts.film_grammar import frame_prep_warnings
+    from kubrick.prompts.framing import framing_warnings
     from kubrick.providers.provider_capabilities import capability_warnings
     from kubrick.qc.drift_registry import registry_warnings
 
@@ -315,6 +316,7 @@ def collect_prep(
         *capability_warnings(provider, merged),
         *frame_prep_warnings(frames),
         *board_warnings,
+        *framing_warnings(merged, frames),
     ]
     high = shot_count_warning(len(frames), provider, merged)
     if high is not None:
