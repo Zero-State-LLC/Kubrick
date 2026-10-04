@@ -12,7 +12,7 @@ Current release: **0.16.0** (see root `VERSION`).
 | [`../SKILL.md`](../SKILL.md) | Hermes runtime | Canonical skill operating contract |
 | [`../AGENTS.md`](../AGENTS.md) | Agents | Multi-agent SDLC contract (`CLAUDE.md` is a thin pointer here) |
 | [`CONTINUITY.md`](CONTINUITY.md) | Operators | Carrier order: start image, references, end image, prompt |
-| [`TAKE-QC.md`](TAKE-QC.md) | Operators | Fixture take QC: defect codes, head dome, no live detector |
+| [`TAKE-QC.md`](TAKE-QC.md) | Operators | Fixture take QC and full checks: VLM fixture, identity, opt-in ffmpeg |
 | [`BOARD-GATE.md`](BOARD-GATE.md) | Operators | Board checks before video spend |
 | [`FRAMING.md`](FRAMING.md) | Operators | Numeric framing, motion-only video, end-image limit |
 | [`REF-PACK.md`](REF-PACK.md) | Operators | Shared character reference packs, no image generation |
