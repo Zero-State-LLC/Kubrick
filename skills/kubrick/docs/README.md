@@ -12,6 +12,7 @@ Current release: **0.16.0** (see root `VERSION`).
 | [`../SKILL.md`](../SKILL.md) | Hermes runtime | Canonical skill operating contract |
 | [`../AGENTS.md`](../AGENTS.md) | Agents | Multi-agent SDLC contract (`CLAUDE.md` is a thin pointer here) |
 | [`CONTINUITY.md`](CONTINUITY.md) | Operators | Carrier order: start image, references, end image, prompt |
+| [`TAKE-QC.md`](TAKE-QC.md) | Operators | Fixture take QC: defect codes, head dome, no live detector |
 | [`../intent/README.md`](../intent/README.md) | Agents | Intent template for non-trivial work; then spec.md / plan |
 | [`../CONTRIBUTING.md`](../CONTRIBUTING.md) | Contributors | Dev setup, hub sync, invariants |
 | [`HERMES-OFFICIAL-SUBMISSION.md`](HERMES-OFFICIAL-SUBMISSION.md) | Maintainers | Official optional-skills PR + community publish checklist |

@@ -26,6 +26,7 @@ from kubrick.gates.jev_client import (
     resolve_client,
 )
 from kubrick.gates.jev_holds import hold_list
+from kubrick.gates.lock_phrases import missing_lock_phrases as _missing_lock_phrases
 
 _OVERRIDE_VALUES = frozenset({"1", "true", "yes"})
 
@@ -199,7 +200,7 @@ def check_before_spend(
             override_source="",
         )
     blocked = _blocked_ids(holds)
-    local = _local_blocks(prompts, holds)
+    local = [*_local_blocks(prompts, holds), *_missing_lock_phrases(prompts, holds)]
     try:
         judge = resolve_client(verdicts_path, client)
     except JevUnreachable as exc:
