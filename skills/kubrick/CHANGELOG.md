@@ -5,6 +5,17 @@
 ### Added
 - CI fails a pull request that adds an em dash (U+2014). `scripts/check_no_new_em_dash.py --base origin/<base>` checks only the lines the diff adds, so the em dashes already on main do not fail it. A missing base ref fails closed. A fixture line that must keep one carries `em-dash: allow`.
 
+## [0.25.1] - 2026-10-04
+
+### Changed
+- Board image gate: the default identity threshold is 0.50, down from the uncalibrated 0.70. It was calibrated on the MYSLEF EP-01 boards and take frames (15 kept boards, 15 drifted boards, 34 take frames) with the local DINOv2-small model. On a head crop every kept board scored 0.535 or more and off-model heads 0.32 to 0.46. Kept and drifted heads overlapped (AUC about 0.52), so the threshold is an off-model floor, not a drift detector. At 0.70 the gate blocked 13 of 15 kept boards with its default crop and still let half the drift through on a head crop. See `docs/BOARD-IMAGE-CALIBRATION.md`.
+- A `BOARD_IDENTITY_MISMATCH` row on a crop that is not a plan box now says to set a `board_subject_boxes` head box and rerun before regenerating the board. A medium or wide EP-01 board scored 0.10 to 0.30 on the default crop. The row still blocks.
+
+### Notes
+- Local judge accuracy on the same set (`qwen2.5vl:3b` on 127.0.0.1, CPU): 9 of 10 human-hand images flagged, but lens glow and body-light questions were close to chance, and 38 of 60 clean images would block on the plan-alley locks. The judge prompt is unchanged: asking negative locks as a question did not help. Recorded answers or a logged opt-out remain the way past a false block.
+- The install note no longer suggests `pip install "kubrick-skill[board-vision]"`; install the extra's packages directly. An editable install breaks the pytest import of `kubrick.cli`.
+- Product version is 0.25.1. The production envelope schema id stays `0.16.0`. No provider and no paid API is called, including in tests.
+
 ## [0.25.0] - 2026-10-04
 
 ### Added

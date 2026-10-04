@@ -3,7 +3,7 @@
 This document is the operator checklist for getting Kubrick into Nous Research’s
 **official optional skills catalog** while also publishing the community path.
 
-**Live product version:** `0.25.0`. The checklist below records the v0.16.0 official-catalog pass. Official submission is still owner-gated and is not done.
+**Live product version:** `0.25.1`. The checklist below records the v0.16.0 official-catalog pass. Official submission is still owner-gated and is not done.
 
 ## Two publication lanes
 

@@ -114,11 +114,16 @@ alone does not):
 3. The score is the highest cosine similarity across the views. Below the
    threshold is `BOARD_IDENTITY_MISMATCH` and blocks.
 
-The default threshold is **0.70**. It is a conservative, uncalibrated floor:
-it errs toward blocking, because a regenerated board costs about 7 cr and a
-copied wrong board costs a full video take. It needs tuning on the EP-01 kept
-and rejected takes before anyone trusts it in either direction. Set it with,
-from highest precedence: `--board-identity-threshold`, then
+The default threshold is **0.50** (since 0.25.1). It was calibrated on the
+MYSLEF EP-01 kept and drifted boards; see
+[`BOARD-IMAGE-CALIBRATION.md`](BOARD-IMAGE-CALIBRATION.md). On a head crop
+every kept board scored 0.535 or more and off-model heads scored 0.32 to
+0.46. It is an off-model floor, not a drift detector: kept and drifted heads
+overlapped (AUC about 0.52), so no threshold separated them. A medium or
+wide board needs a head box in `board_subject_boxes`; without one the crop
+is mostly background, a kept board scored 0.10 to 0.30, and the mismatch row
+says to add the box before regenerating. Set the threshold with, from highest
+precedence: `--board-identity-threshold`, then
 `characters.<id>.ref_pack.identity_threshold`, then
 `board_image_gate.identity_threshold` on the plan. A value outside (0, 1] is
 `BOARD_GATE_CONFIG_INVALID` and blocks.
@@ -155,8 +160,16 @@ like a failure. This matches the Jev gate, where an unreachable judge blocks:
   answer exists, or the judge does not answer yes or no:
   `BOARD_LOCK_DETAIL_UNVERIFIED`.
 
-Install the local models with `pip install "kubrick-skill[board-vision]"`
-(the optional extra in `pyproject.toml`). CI does not install it; tests use
+Install the local models with the packages of the `board-vision` extra in
+`pyproject.toml`, for example
+`pip install --index-url https://download.pytorch.org/whl/cpu torch` and then
+`pip install "transformers>=4.40" "Pillow>=10"`. Do not `pip install -e .`
+into the venv you test from: the editable path puts `src` first, and pytest
+then imports `scripts/kubrick.py` as `kubrick` and fails with
+`No module named 'kubrick.cli'; 'kubrick' is not a package`. The local judge
+was measured on EP-01 too: `qwen2.5vl:3b` caught 9 of 10 human-hand images
+but was unreliable on lens glow and body lights, so expect false blocks (see
+the calibration note). CI does not install it; tests use
 tiny fixture PNGs in `evals/fixtures/board_images/` and a mocked embedder.
 8-bit PNG boards decode with the standard library. JPEG and WebP need Pillow.
 
