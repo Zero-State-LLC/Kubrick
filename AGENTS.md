@@ -45,6 +45,16 @@ the entry point that loads that module. The command stays
 - Do not invent cinematic or CLI behavior `SKILL.md` does not name.
 - Do not add a deploy or pin workflow. The workflow check fails the build.
 
+## Learnings to repo
+
+Develop Kubrick as you learn. A lesson from a run (a workaround, a wording
+fix, a calibration number, a setup step, a bug found on the way) becomes
+code, a test, a doc, or harness in this repo in the same change or the next
+one. Do not leave it only in a tracker note, a box script, or a scratch
+folder. Templates go in, secrets and large media do not: commit a template
+env, a manifest, or thumbnails and say where the rest lives. Example: the
+board judge setup and calibration harness under `tools/` (0.27.0).
+
 ## Escalation
 
 If CI, tests, or validators look wrong — missing coverage, silent skips,

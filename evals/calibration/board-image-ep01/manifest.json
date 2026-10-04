@@ -1,0 +1,1616 @@
+{
+ "name": "MYSLEF EP-01 board image gate calibration set",
+ "date": "2026-10-04",
+ "character": "myslef",
+ "roots": {
+  "boards": "/workspace/myslef/ep01-boards",
+  "restart": "/workspace/myslef/ep01-restart/boards",
+  "frames": "/workspace/kubrick-calib/frames",
+  "myslef": "/workspace/myslef"
+ },
+ "refs": {
+  "head_lock": [
+   "boards/headlock/ref05.webp"
+  ],
+  "views": [
+   "boards/headlock/hl34-t1.jpg",
+   "boards/headlock/hlprofile-t1.jpg",
+   "boards/headlock/hlback-t1.jpg"
+  ]
+ },
+ "ref_sha256": {
+  "boards/headlock/ref05.webp": "70e7490e2bd071582055e80367d66efc756c752f3176f86fbc2611989cb0fcf8",
+  "boards/headlock/hl34-t1.jpg": "534ecfb5b1935b9107508b873299d3db07de3dcafdba4ebf01c73e57cb2d7cba",
+  "boards/headlock/hlprofile-t1.jpg": "78b3897416f39272090a12197df38626d2e173f8d3ad0236b5cbdf017d8d9938",
+  "boards/headlock/hlback-t1.jpg": "45e070bce5411a434bbcb85fc37794204f170a12b3c1ad050615b831fda50fd8"
+ },
+ "questions": {
+  "hands_silicon": {
+   "question": "Answer only yes or no. Look at the character myslef in this image. Are the character's hands grey-green silicon with no fingernails, not human skin?",
+   "expect": "yes"
+  },
+  "head_dome": {
+   "question": "Answer only yes or no. Look at the character myslef in this image. Is the character's head a smooth hairless dome with no hair and no ears?",
+   "expect": "yes"
+  },
+  "lens_glow": {
+   "question": "Answer only yes or no. Look at the character myslef in this image. Is either of the character's round camera lenses glowing or emitting light?",
+   "expect": "no"
+  },
+  "light_head_back": {
+   "question": "Answer only yes or no. Look at the character myslef in this image. Is there any light or glowing dot on the character's head, mouth grille, hood, back or spine?",
+   "expect": "no"
+  },
+  "lens_sides": {
+   "question": "Answer only yes or no. Look at the character myslef in this image. Is the darker cracked lens on the left side of the image and the yellowed lens on the right side?",
+   "expect": "yes"
+  }
+ },
+ "board_checks": [
+  {
+   "id": "lens-sides",
+   "expect": "yes",
+   "question": "Answer only yes or no. Look at the character myslef in this image. Is the darker cracked lens on the left side of the image and the yellowed lens on the right side?"
+  }
+ ],
+ "items": [
+  {
+   "id": "boards:01-board.jpg",
+   "path": "boards/01-board.jpg",
+   "kind": "board",
+   "identity": "drift",
+   "note": "v1 board, head drift (re-rolled in v3 head-lock pass)",
+   "sha256": "925c60bc145c5f1674d449b2825c03b68b682a9e07c2c138758b790238893373",
+   "truth": {
+    "head_dome": "yes",
+    "lens_glow": "no",
+    "light_head_back": "no",
+    "gate:red-chest-led": "yes",
+    "gate:lenses": "yes",
+    "gate:speaker-mouth": "yes",
+    "lens_sides": "yes"
+   },
+   "pins": {
+    "glow": "no",
+    "light": "no"
+   }
+  },
+  {
+   "id": "boards:01-board-v2.jpg",
+   "path": "boards/01-board-v2.jpg",
+   "kind": "board",
+   "identity": "drift",
+   "note": "v2 board, head drift (re-rolled in v3 head-lock pass)",
+   "sha256": "c66486f089c1b941f2125aa1ba7145992fa69c4daafee606f8b62c9678675033",
+   "truth": {
+    "head_dome": "yes",
+    "lens_glow": "no",
+    "light_head_back": "no",
+    "gate:red-chest-led": "yes",
+    "gate:lenses": "yes",
+    "gate:speaker-mouth": "yes",
+    "lens_sides": "yes"
+   },
+   "pins": {
+    "glow": "no",
+    "light": "no"
+   }
+  },
+  {
+   "id": "boards:06B-board.jpg",
+   "path": "boards/06B-board.jpg",
+   "kind": "board",
+   "identity": "drift",
+   "note": "v1 board, head drift (re-rolled in v3 head-lock pass)",
+   "sha256": "84bfd66ae5c42c1211294021f696721d79c899c9899da6eb5e38aa232bd72af0",
+   "truth": {
+    "head_dome": "yes",
+    "lens_glow": "no",
+    "light_head_back": "no",
+    "gate:red-chest-led": "yes",
+    "gate:lenses": "yes",
+    "gate:speaker-mouth": "yes",
+    "lens_sides": "yes"
+   },
+   "pins": {
+    "glow": "no",
+    "light": "no"
+   }
+  },
+  {
+   "id": "boards:06B-board-v2.jpg",
+   "path": "boards/06B-board-v2.jpg",
+   "kind": "board",
+   "identity": "drift",
+   "note": "v2 board, head drift (re-rolled in v3 head-lock pass)",
+   "sha256": "79703de235ecfc20dde1150eef3be6c01f6e0acd6534cd90291dda2c65da069d",
+   "truth": {
+    "head_dome": "yes",
+    "lens_glow": "no",
+    "light_head_back": "no",
+    "gate:red-chest-led": "yes",
+    "gate:lenses": "yes",
+    "gate:speaker-mouth": "yes",
+    "lens_sides": "yes"
+   },
+   "pins": {
+    "glow": "no",
+    "light": "no"
+   }
+  },
+  {
+   "id": "boards:07-board.jpg",
+   "path": "boards/07-board.jpg",
+   "kind": "board",
+   "identity": "drift",
+   "note": "v1 board, head drift (re-rolled in v3 head-lock pass)",
+   "sha256": "2a847a622ee079b6b3f7e4e8de04da37020701478808aca174d79ca8e9931147",
+   "truth": {
+    "head_dome": "yes",
+    "lens_glow": "no",
+    "light_head_back": "yes",
+    "gate:red-chest-led": "no",
+    "gate:lenses": "yes",
+    "gate:speaker-mouth": "yes"
+   },
+   "pins": {
+    "glow": "no"
+   }
+  },
+  {
+   "id": "boards:07-board-v2.jpg",
+   "path": "boards/07-board-v2.jpg",
+   "kind": "board",
+   "identity": "drift",
+   "note": "v2 board, head drift (re-rolled in v3 head-lock pass)",
+   "sha256": "54ef9097719e1890e58292db6bde41350d3aa40e0fdf3b44f4b8e8ef8ff85281",
+   "truth": {
+    "head_dome": "yes",
+    "lens_glow": "no",
+    "light_head_back": "no",
+    "gate:red-chest-led": "yes",
+    "gate:lenses": "yes",
+    "gate:speaker-mouth": "yes"
+   },
+   "pins": {
+    "glow": "no",
+    "light": "no"
+   }
+  },
+  {
+   "id": "boards:08-board.jpg",
+   "path": "boards/08-board.jpg",
+   "kind": "board",
+   "identity": "drift",
+   "note": "v1 board, head drift (re-rolled in v3 head-lock pass)",
+   "sha256": "e1174ddba24f17295f7c16a453cadfced1bd13c556a5e11c31045ddb43343dae",
+   "truth": {
+    "head_dome": "yes",
+    "lens_glow": "no",
+    "light_head_back": "no",
+    "gate:red-chest-led": "yes",
+    "gate:lenses": "yes",
+    "gate:speaker-mouth": "yes",
+    "lens_sides": "yes"
+   },
+   "pins": {
+    "glow": "no",
+    "light": "no"
+   }
+  },
+  {
+   "id": "boards:08-board-v2.jpg",
+   "path": "boards/08-board-v2.jpg",
+   "kind": "board",
+   "identity": "drift",
+   "note": "v2 board, head drift (re-rolled in v3 head-lock pass)",
+   "sha256": "a013401e54ff5198c372ae388c107496ac30191385c1d8576dbffc866cb8ee79",
+   "truth": {
+    "head_dome": "yes",
+    "lens_glow": "no",
+    "light_head_back": "no",
+    "gate:red-chest-led": "yes",
+    "gate:lenses": "yes",
+    "gate:speaker-mouth": "yes",
+    "lens_sides": "yes"
+   },
+   "pins": {
+    "glow": "no",
+    "light": "no"
+   }
+  },
+  {
+   "id": "boards:09-board.jpg",
+   "path": "boards/09-board.jpg",
+   "kind": "board",
+   "identity": "drift",
+   "note": "v1 board, head drift (re-rolled in v3 head-lock pass)",
+   "sha256": "cbb30ae93f0d0361317351d3560019e0815ff2c8c999bf6d47cd10444105337b",
+   "truth": {
+    "head_dome": "yes",
+    "lens_glow": "no",
+    "light_head_back": "no",
+    "gate:red-chest-led": "yes",
+    "gate:lenses": "yes",
+    "gate:speaker-mouth": "yes",
+    "lens_sides": "yes"
+   },
+   "pins": {
+    "glow": "no",
+    "light": "no"
+   }
+  },
+  {
+   "id": "boards:09-board-v2.jpg",
+   "path": "boards/09-board-v2.jpg",
+   "kind": "board",
+   "identity": "drift",
+   "note": "v2 board, head drift (re-rolled in v3 head-lock pass)",
+   "sha256": "7ed3a6921c3312d5ba087d1b683a1a48514a0c807a256bf2a104456e84aba1ac",
+   "truth": {
+    "head_dome": "yes",
+    "lens_glow": "no",
+    "light_head_back": "no",
+    "gate:red-chest-led": "yes",
+    "gate:lenses": "yes",
+    "gate:speaker-mouth": "yes",
+    "lens_sides": "yes"
+   },
+   "pins": {
+    "glow": "no",
+    "light": "no"
+   }
+  },
+  {
+   "id": "boards:11-board.jpg",
+   "path": "boards/11-board.jpg",
+   "kind": "board",
+   "identity": "drift",
+   "note": "v1 board, head drift (re-rolled in v3 head-lock pass)",
+   "sha256": "3ccaabae8c7099c7077a89d0a6bb7ff8eb3514565b89687a5460ae4079552200",
+   "truth": {
+    "head_dome": "yes",
+    "lens_glow": "no",
+    "light_head_back": "no",
+    "gate:red-chest-led": "yes",
+    "gate:lenses": "yes",
+    "gate:speaker-mouth": "yes",
+    "lens_sides": "yes"
+   },
+   "pins": {
+    "glow": "no",
+    "light": "no"
+   }
+  },
+  {
+   "id": "boards:11-board-v2.jpg",
+   "path": "boards/11-board-v2.jpg",
+   "kind": "board",
+   "identity": "drift",
+   "note": "v2 board, head drift (re-rolled in v3 head-lock pass)",
+   "sha256": "6e33b9b3fd135f8659358c4ce82723ab11806310c40d670dce185df0e1df8c11",
+   "truth": {
+    "head_dome": "yes",
+    "lens_glow": "no",
+    "light_head_back": "no",
+    "gate:red-chest-led": "yes",
+    "gate:lenses": "yes",
+    "gate:speaker-mouth": "yes",
+    "lens_sides": "yes"
+   },
+   "pins": {
+    "glow": "no",
+    "light": "no"
+   }
+  },
+  {
+   "id": "boards:12-board.jpg",
+   "path": "boards/12-board.jpg",
+   "kind": "board",
+   "identity": "drift",
+   "note": "v1 board, head drift (re-rolled in v3 head-lock pass)",
+   "sha256": "ddef70f5b84ce61dca4fad12f38a5ce4109541d1496d4dc23e5d1a5ba3103345",
+   "truth": {
+    "head_dome": "yes",
+    "lens_glow": "no",
+    "light_head_back": "no",
+    "gate:red-chest-led": "yes",
+    "gate:lenses": "yes",
+    "gate:speaker-mouth": "yes",
+    "lens_sides": "yes"
+   },
+   "pins": {
+    "glow": "no",
+    "light": "no"
+   }
+  },
+  {
+   "id": "boards:12-board-v2.jpg",
+   "path": "boards/12-board-v2.jpg",
+   "kind": "board",
+   "identity": "drift",
+   "note": "v2 board, head drift (re-rolled in v3 head-lock pass)",
+   "sha256": "0d0481d093aa9f8039b23aa8f6fb68002b589523bcd7eae5a6d80158b75b5be4",
+   "truth": {
+    "head_dome": "yes",
+    "lens_glow": "no",
+    "light_head_back": "no",
+    "gate:red-chest-led": "yes",
+    "gate:lenses": "yes",
+    "gate:speaker-mouth": "yes",
+    "lens_sides": "yes"
+   },
+   "pins": {
+    "glow": "no",
+    "light": "no"
+   }
+  },
+  {
+   "id": "boards:15-board.jpg",
+   "path": "boards/15-board.jpg",
+   "kind": "board",
+   "identity": "drift",
+   "note": "v1 board, head drift (re-rolled in v3)",
+   "sha256": "8480ead66007c420c64eda826c066a1542e5ae7b08a9277f5f4d3c7a0cba9a32",
+   "truth": {
+    "hands_silicon": "yes",
+    "head_dome": "yes",
+    "lens_glow": "no",
+    "light_head_back": "no",
+    "gate:red-chest-led": "yes",
+    "gate:lenses": "yes",
+    "gate:speaker-mouth": "yes",
+    "lens_sides": "yes"
+   },
+   "pins": {
+    "glow": "no",
+    "light": "no"
+   }
+  },
+  {
+   "id": "boards:01-board-v3.jpg",
+   "path": "boards/01-board-v3.jpg",
+   "kind": "board",
+   "identity": "keep",
+   "note": "v3 PASS",
+   "sha256": "e4831d5c258d57a189da6e995cf5c5671628a1f9b3f849a87e94568fdbd96d52",
+   "truth": {
+    "head_dome": "yes",
+    "lens_glow": "no",
+    "light_head_back": "no",
+    "gate:red-chest-led": "yes",
+    "gate:lenses": "yes",
+    "gate:speaker-mouth": "yes",
+    "lens_sides": "yes"
+   },
+   "pins": {
+    "glow": "no",
+    "light": "no"
+   }
+  },
+  {
+   "id": "boards:02-board-v3.jpg",
+   "path": "boards/02-board-v3.jpg",
+   "kind": "board",
+   "identity": "keep",
+   "note": "v3 PASS (head top cut)",
+   "sha256": "f729aee6cca9564c84cc0fef1bdfc7554bdbcc47714c8cb5d4ffe5f315296f6f",
+   "truth": {
+    "hands_silicon": "yes"
+   }
+  },
+  {
+   "id": "boards:06B-board-v3c.jpg",
+   "path": "boards/06B-board-v3c.jpg",
+   "kind": "board",
+   "identity": "keep",
+   "note": "v3c PASS head 0.44",
+   "sha256": "23e9e188f138d68b10bf7673ea1ed3357789964fc4f69cf7a27c46c472232000",
+   "truth": {
+    "head_dome": "yes",
+    "lens_glow": "no",
+    "light_head_back": "no",
+    "gate:red-chest-led": "yes",
+    "gate:lenses": "yes",
+    "gate:speaker-mouth": "yes",
+    "lens_sides": "yes"
+   },
+   "pins": {
+    "glow": "no",
+    "light": "no"
+   }
+  },
+  {
+   "id": "boards:07-board-v3.jpg",
+   "path": "boards/07-board-v3.jpg",
+   "kind": "board",
+   "identity": "keep",
+   "note": "v3 PASS soft, head 0.42",
+   "sha256": "b23a39d0d71980fd20bfa2cb581067ccf1a1188a3a8149f432f615f2ba34cb8b",
+   "truth": {
+    "head_dome": "yes",
+    "lens_glow": "no",
+    "light_head_back": "no",
+    "gate:red-chest-led": "yes",
+    "gate:lenses": "yes",
+    "gate:speaker-mouth": "yes"
+   },
+   "pins": {
+    "glow": "no",
+    "light": "no"
+   }
+  },
+  {
+   "id": "boards:08-board-v3b.jpg",
+   "path": "boards/08-board-v3b.jpg",
+   "kind": "board",
+   "identity": "keep",
+   "note": "v3b PASS head 0.42",
+   "sha256": "14b358fdbb0699a9aa89b2d694345c05c0f0c32ba19aacaeb328314b190a6bba",
+   "truth": {
+    "head_dome": "yes",
+    "lens_glow": "no",
+    "light_head_back": "no",
+    "gate:red-chest-led": "yes",
+    "gate:lenses": "yes",
+    "gate:speaker-mouth": "yes",
+    "lens_sides": "yes"
+   },
+   "pins": {
+    "glow": "no",
+    "light": "no"
+   }
+  },
+  {
+   "id": "boards:09-board-v3d.jpg",
+   "path": "boards/09-board-v3d.jpg",
+   "kind": "board",
+   "identity": "keep",
+   "note": "v3d chosen t5, head 0.34",
+   "sha256": "9cfa950d17351989e4e672de5ba1924018127d4107fdb65afd9ae9cfa7b093b3",
+   "truth": {
+    "head_dome": "yes",
+    "lens_glow": "no",
+    "light_head_back": "no",
+    "gate:red-chest-led": "yes",
+    "gate:lenses": "yes",
+    "gate:speaker-mouth": "yes",
+    "lens_sides": "yes"
+   },
+   "pins": {
+    "glow": "no",
+    "light": "no"
+   }
+  },
+  {
+   "id": "boards:10-board.jpg",
+   "path": "boards/10-board.jpg",
+   "kind": "board",
+   "identity": "keep",
+   "note": "v1 kept, head matches 05 (human hands)",
+   "sha256": "5dc70ec5510eac128ec2e0ea9e2a3e6c3cfbd643bcc38113a5dcce1af08a4e13",
+   "truth": {
+    "hands_silicon": "no",
+    "head_dome": "yes",
+    "lens_glow": "no",
+    "light_head_back": "no",
+    "gate:red-chest-led": "yes",
+    "gate:lenses": "yes",
+    "gate:speaker-mouth": "yes",
+    "lens_sides": "yes"
+   },
+   "pins": {
+    "glow": "no",
+    "light": "no"
+   }
+  },
+  {
+   "id": "boards:11-board-v3d.jpg",
+   "path": "boards/11-board-v3d.jpg",
+   "kind": "board",
+   "identity": "keep",
+   "note": "v3d PASS clean",
+   "sha256": "9e5893eaad3efca10f9bc4937fa32ece2eb02706ae13fa85a5b076b54715384b",
+   "truth": {
+    "head_dome": "yes",
+    "lens_glow": "no",
+    "light_head_back": "no",
+    "gate:red-chest-led": "yes",
+    "gate:lenses": "yes",
+    "gate:speaker-mouth": "yes",
+    "lens_sides": "yes"
+   },
+   "pins": {
+    "glow": "no",
+    "light": "no"
+   }
+  },
+  {
+   "id": "boards:12-board-v3b.jpg",
+   "path": "boards/12-board-v3b.jpg",
+   "kind": "board",
+   "identity": "keep",
+   "note": "v3b PASS new angle",
+   "sha256": "90d4333e9585dd299653da79d1def0b2af457bf7a72021f57db167b683ef3daa",
+   "truth": {
+    "head_dome": "yes",
+    "lens_glow": "no",
+    "light_head_back": "no",
+    "gate:red-chest-led": "yes",
+    "gate:lenses": "yes",
+    "gate:speaker-mouth": "yes",
+    "lens_sides": "yes"
+   },
+   "pins": {
+    "glow": "no",
+    "light": "no"
+   }
+  },
+  {
+   "id": "boards:15-board-v3.jpg",
+   "path": "boards/15-board-v3.jpg",
+   "kind": "board",
+   "identity": "keep",
+   "note": "v3 PASS head = sheet",
+   "sha256": "cb2540b58c83c3f3dfc805e924ac44cd31485d69bd1fa767cd506af6bb0d945d",
+   "truth": {
+    "head_dome": "yes",
+    "lens_glow": "no",
+    "light_head_back": "no",
+    "gate:red-chest-led": "yes",
+    "gate:lenses": "yes",
+    "gate:speaker-mouth": "yes",
+    "lens_sides": "yes"
+   },
+   "pins": {
+    "glow": "no",
+    "light": "no"
+   }
+  },
+  {
+   "id": "boards:11-board-v3.jpg",
+   "path": "boards/11-board-v3.jpg",
+   "kind": "board",
+   "identity": "keep",
+   "note": "v3 PASS (later replaced for framing)",
+   "sha256": "360604cf2fe6e355f0ca28d5f711312fa133b6daff3bf44220b5304f8fb2b2a8",
+   "truth": {
+    "head_dome": "yes",
+    "lens_glow": "no",
+    "light_head_back": "no",
+    "gate:red-chest-led": "yes",
+    "gate:lenses": "yes",
+    "gate:speaker-mouth": "yes",
+    "lens_sides": "yes"
+   },
+   "pins": {
+    "glow": "no",
+    "light": "no"
+   }
+  },
+  {
+   "id": "boards:12-board-v3.jpg",
+   "path": "boards/12-board-v3.jpg",
+   "kind": "board",
+   "identity": "keep",
+   "note": "v3 FAIL framing only (copy of 11)",
+   "sha256": "656f52aefa517db7808f032e3446e3fc9631702f3c903f300c61cb7aef9e2e38",
+   "truth": {
+    "head_dome": "yes",
+    "lens_glow": "no",
+    "light_head_back": "no",
+    "gate:red-chest-led": "yes",
+    "gate:lenses": "yes",
+    "gate:speaker-mouth": "yes",
+    "lens_sides": "yes"
+   },
+   "pins": {
+    "glow": "no",
+    "light": "no"
+   }
+  },
+  {
+   "id": "restart:b09r-t2.jpg",
+   "path": "restart/b09r-t2.jpg",
+   "kind": "board",
+   "identity": "keep",
+   "note": "restart b09r t2 marginal: composition, head 0.50",
+   "sha256": "685fa6d44cfd5a8654b1ee4fbe07d713630bf2119f26d4e79bca504235a3b249",
+   "truth": {
+    "head_dome": "yes",
+    "lens_glow": "no",
+    "light_head_back": "no",
+    "gate:red-chest-led": "yes",
+    "gate:lenses": "yes",
+    "gate:speaker-mouth": "yes",
+    "lens_sides": "yes"
+   },
+   "pins": {
+    "glow": "no",
+    "light": "no"
+   }
+  },
+  {
+   "id": "restart:b09r-t3.jpg",
+   "path": "restart/b09r-t3.jpg",
+   "kind": "board",
+   "identity": "keep",
+   "note": "restart b09r t3 PASS, used for v09",
+   "sha256": "8551e1ce0f0d5755022a3cd1bb9a9ae33184397e05f0376ec657d62982e0c8a5",
+   "truth": {
+    "head_dome": "yes",
+    "lens_glow": "no",
+    "light_head_back": "no",
+    "gate:red-chest-led": "yes",
+    "gate:lenses": "yes",
+    "gate:speaker-mouth": "yes",
+    "lens_sides": "yes"
+   },
+   "pins": {
+    "glow": "no",
+    "light": "no"
+   }
+  },
+  {
+   "id": "restart:b11r-t1.jpg",
+   "path": "restart/b11r-t1.jpg",
+   "kind": "board",
+   "identity": "keep",
+   "note": "restart b11r t1, used for v11 t2",
+   "sha256": "767f249be3884d8504729b3799affd1983be1e1d04be4489e4a0b68110ad468a",
+   "truth": {
+    "head_dome": "yes",
+    "lens_glow": "no",
+    "light_head_back": "no",
+    "gate:red-chest-led": "yes",
+    "gate:lenses": "yes",
+    "gate:speaker-mouth": "yes",
+    "lens_sides": "yes"
+   },
+   "pins": {
+    "glow": "no",
+    "light": "no"
+   }
+  },
+  {
+   "id": "boards:06B-board-v3.jpg",
+   "path": "boards/06B-board-v3.jpg",
+   "kind": "board",
+   "identity": "alt",
+   "note": "v3 head oversized 0.58/0.54, re-rolled",
+   "sha256": "83b30a8fc723f8286cdd4b3c506ce6992c7e962e96b2a638128956f36896ca15",
+   "truth": {
+    "head_dome": "yes",
+    "lens_glow": "no",
+    "light_head_back": "no",
+    "gate:red-chest-led": "yes",
+    "gate:lenses": "yes",
+    "gate:speaker-mouth": "yes",
+    "lens_sides": "yes"
+   },
+   "pins": {
+    "glow": "no",
+    "light": "no"
+   }
+  },
+  {
+   "id": "boards:08-board-v3.jpg",
+   "path": "boards/08-board-v3.jpg",
+   "kind": "board",
+   "identity": "alt",
+   "note": "v3 head too big (Danny 14:48)",
+   "sha256": "974fca77228f503bd1b7e4b30063fbda634a1ee9bb135e1f448f930c8e9cb81d",
+   "truth": {
+    "head_dome": "yes",
+    "lens_glow": "no",
+    "light_head_back": "no",
+    "gate:red-chest-led": "yes",
+    "gate:lenses": "yes",
+    "gate:speaker-mouth": "yes",
+    "lens_sides": "yes"
+   },
+   "pins": {
+    "glow": "no",
+    "light": "no"
+   }
+  },
+  {
+   "id": "boards:09-board-v3.jpg",
+   "path": "boards/09-board-v3.jpg",
+   "kind": "board",
+   "identity": "alt",
+   "note": "v3 borderline knee slit, head big",
+   "sha256": "bc1b42238d3bca2eaefb311e6cc6f91091d3a0c5bb96bcf439e2d82ae9d32f74",
+   "truth": {
+    "head_dome": "yes",
+    "lens_glow": "no",
+    "light_head_back": "no",
+    "gate:red-chest-led": "yes",
+    "gate:lenses": "yes",
+    "gate:speaker-mouth": "yes",
+    "lens_sides": "yes"
+   },
+   "pins": {
+    "glow": "no",
+    "light": "no"
+   }
+  },
+  {
+   "id": "boards:09-board-v3b.jpg",
+   "path": "boards/09-board-v3b.jpg",
+   "kind": "board",
+   "identity": "alt",
+   "note": "v3b alternate, replaced by v3d for ratio",
+   "sha256": "d3b14b2b22d7a3270ce5e8feeab88974602cba72b88a2a78f4c122db8ff14aeb",
+   "truth": {
+    "head_dome": "yes",
+    "lens_glow": "no",
+    "light_head_back": "no",
+    "gate:red-chest-led": "yes",
+    "gate:lenses": "yes",
+    "gate:speaker-mouth": "yes",
+    "lens_sides": "yes"
+   },
+   "pins": {
+    "glow": "no",
+    "light": "no"
+   }
+  },
+  {
+   "id": "boards:11-board-v3b.jpg",
+   "path": "boards/11-board-v3b.jpg",
+   "kind": "board",
+   "identity": "alt",
+   "note": "v3b lens sides swapped (3/4 left)",
+   "sha256": "e8babc88bdf0c5f71b98f22bcbfb4f0a22dacc9471b36fef3436d1e3803385ac",
+   "truth": {
+    "head_dome": "yes",
+    "lens_glow": "no",
+    "light_head_back": "no",
+    "gate:red-chest-led": "yes",
+    "gate:lenses": "yes",
+    "gate:speaker-mouth": "yes"
+   },
+   "pins": {
+    "glow": "no",
+    "light": "no"
+   }
+  },
+  {
+   "id": "restart:b09r-t1.jpg",
+   "path": "restart/b09r-t1.jpg",
+   "kind": "board",
+   "identity": "alt",
+   "note": "restart t1 landscape setup error",
+   "sha256": "0c5721a82a2aec3eeaae05cbed9a50973f234bbd86ca77d6163769c8017447fc",
+   "truth": {
+    "head_dome": "yes",
+    "lens_glow": "no",
+    "light_head_back": "no",
+    "gate:red-chest-led": "yes",
+    "gate:lenses": "yes",
+    "gate:speaker-mouth": "yes",
+    "lens_sides": "yes"
+   },
+   "pins": {
+    "glow": "no",
+    "light": "no"
+   }
+  },
+  {
+   "id": "boards:02-board.jpg",
+   "path": "boards/02-board.jpg",
+   "kind": "board",
+   "identity": "na",
+   "note": "no face in frame (torso, insert or POV)",
+   "sha256": "32912a376a5fae7c5ef6d80adc39b4f6a4ada6564a22fe90430677a5f96b8807",
+   "truth": {
+    "hands_silicon": "no"
+   }
+  },
+  {
+   "id": "boards:13-board.jpg",
+   "path": "boards/13-board.jpg",
+   "kind": "board",
+   "identity": "na",
+   "note": "no face in frame (torso, insert or POV)",
+   "sha256": "19a606a94018e042fb287abccd607d5d84dd8256ad42a214ebc2f61bd36a5706",
+   "truth": {
+    "hands_silicon": "no"
+   }
+  },
+  {
+   "id": "boards:13-board-v2.jpg",
+   "path": "boards/13-board-v2.jpg",
+   "kind": "board",
+   "identity": "na",
+   "note": "no face in frame (torso, insert or POV)",
+   "sha256": "2c5bfae0dcfe245ff9df5ea4529bff835f61a46a93ad98daafa7eaba16b4f51c",
+   "truth": {
+    "hands_silicon": "no"
+   }
+  },
+  {
+   "id": "boards:13-board-v3.jpg",
+   "path": "boards/13-board-v3.jpg",
+   "kind": "board",
+   "identity": "na",
+   "note": "no face in frame (torso, insert or POV)",
+   "sha256": "c20d944c11a245db6f5509de0980642eccb8bdbec788793b57905bfda6dc64f2",
+   "truth": {
+    "hands_silicon": "yes"
+   }
+  },
+  {
+   "id": "boards:14-board.jpg",
+   "path": "boards/14-board.jpg",
+   "kind": "board",
+   "identity": "na",
+   "note": "no face in frame (torso, insert or POV)",
+   "sha256": "63a6b0a442956296dee8ba0d72e65e5fc6269a46536a659a692dfc4ec67a1ac3",
+   "truth": {
+    "hands_silicon": "no"
+   }
+  },
+  {
+   "id": "boards:14-board-v2.jpg",
+   "path": "boards/14-board-v2.jpg",
+   "kind": "board",
+   "identity": "na",
+   "note": "no face in frame (torso, insert or POV)",
+   "sha256": "87198e39c05e8f83577934d4204560cb6201341181b2a1ef9e7a234471c310c3",
+   "truth": {
+    "hands_silicon": "no"
+   }
+  },
+  {
+   "id": "boards:14-board-v3.jpg",
+   "path": "boards/14-board-v3.jpg",
+   "kind": "board",
+   "identity": "na",
+   "note": "no face in frame (torso, insert or POV)",
+   "sha256": "428756a4a8a7bb545625499954ed407ec9ec032cefbe6993b17d06a0068aef97"
+  },
+  {
+   "id": "restart:b14r-t2.jpg",
+   "path": "restart/b14r-t2.jpg",
+   "kind": "board",
+   "identity": "na",
+   "note": "POV, no character",
+   "sha256": "b2776f6d66a500b59b5757670241e0ffb2ad04fb9e6165a2d37da4260d2e35e0"
+  },
+  {
+   "id": "frames:v01-t1-mid.png",
+   "path": "frames/v01-t1-mid.png",
+   "kind": "frame",
+   "identity": "keep",
+   "note": "v01-t1 mid: rejected: red LED inside grille",
+   "sha256": "fe66c67eb6100c1b30b8b21ba4b1a6f67af9bb7708286f628e040f326590e7a0",
+   "truth": {
+    "head_dome": "yes",
+    "lens_glow": "no",
+    "light_head_back": "yes",
+    "gate:red-chest-led": "no",
+    "gate:lenses": "yes",
+    "gate:speaker-mouth": "yes",
+    "lens_sides": "yes"
+   },
+   "pins": {
+    "glow": "no"
+   }
+  },
+  {
+   "id": "frames:v01-t1-end.png",
+   "path": "frames/v01-t1-end.png",
+   "kind": "frame",
+   "identity": "keep",
+   "note": "v01-t1 end: rejected: red LED inside grille",
+   "sha256": "563bdb77b843e87b9cfe9a478dc8d00ddae834d5564fd2cbef42ef5cc4ad76ff",
+   "truth": {
+    "head_dome": "yes",
+    "lens_glow": "no",
+    "light_head_back": "yes",
+    "gate:red-chest-led": "no",
+    "gate:lenses": "yes",
+    "gate:speaker-mouth": "yes",
+    "lens_sides": "yes"
+   },
+   "pins": {
+    "glow": "no"
+   }
+  },
+  {
+   "id": "frames:v01-t2-mid.png",
+   "path": "frames/v01-t2-mid.png",
+   "kind": "frame",
+   "identity": "keep",
+   "note": "v01-t2 mid: kept",
+   "sha256": "19dc7fb29291f869f36cb2a006545a7ece50aa344971c9a901fa9f1689cc483a",
+   "truth": {
+    "head_dome": "yes",
+    "lens_glow": "no",
+    "light_head_back": "no",
+    "gate:red-chest-led": "yes",
+    "gate:lenses": "yes",
+    "gate:speaker-mouth": "yes",
+    "lens_sides": "yes"
+   },
+   "pins": {
+    "glow": "no",
+    "light": "no"
+   }
+  },
+  {
+   "id": "frames:v01-t2-end.png",
+   "path": "frames/v01-t2-end.png",
+   "kind": "frame",
+   "identity": "keep",
+   "note": "v01-t2 end: kept",
+   "sha256": "453a0ef80da60236b6403d69e5aea30c7394c79593721aed109ec5604ca468f9",
+   "truth": {
+    "head_dome": "yes",
+    "lens_glow": "no",
+    "light_head_back": "no",
+    "gate:red-chest-led": "yes",
+    "gate:lenses": "yes",
+    "gate:speaker-mouth": "yes",
+    "lens_sides": "yes"
+   },
+   "pins": {
+    "glow": "no",
+    "light": "no"
+   }
+  },
+  {
+   "id": "frames:v02-t1-mid.png",
+   "path": "frames/v02-t1-mid.png",
+   "kind": "frame",
+   "identity": "keep",
+   "note": "v02-t1 mid: kept",
+   "sha256": "7ff24b3a2e3845c7ac87c48dcff0109fff7b7678a58338444a9f673529e4c7d7",
+   "truth": {
+    "hands_silicon": "yes"
+   }
+  },
+  {
+   "id": "frames:v02-t1-end.png",
+   "path": "frames/v02-t1-end.png",
+   "kind": "frame",
+   "identity": "keep",
+   "note": "v02-t1 end: kept",
+   "sha256": "91535b4f5274a8918284b49059199a7307dc5ef2f8937f5f89419650d006f601",
+   "truth": {
+    "hands_silicon": "yes"
+   }
+  },
+  {
+   "id": "frames:v06B-t1-mid.png",
+   "path": "frames/v06B-t1-mid.png",
+   "kind": "frame",
+   "identity": "keep",
+   "note": "v06B-t1 mid: kept",
+   "sha256": "ab608cea0ad970a9713eea0b4fd75f2cf300ab4231f5116a3626cbc4081f8fd6",
+   "truth": {
+    "head_dome": "yes",
+    "lens_glow": "no",
+    "light_head_back": "no",
+    "gate:red-chest-led": "yes",
+    "gate:lenses": "yes",
+    "gate:speaker-mouth": "yes",
+    "lens_sides": "yes"
+   },
+   "pins": {
+    "glow": "no",
+    "light": "no"
+   }
+  },
+  {
+   "id": "frames:v06B-t1-end.png",
+   "path": "frames/v06B-t1-end.png",
+   "kind": "frame",
+   "identity": "keep",
+   "note": "v06B-t1 end: kept",
+   "sha256": "db85fb2b2506631ca2b1824ed296af8c3f7cc697f8095bfd685985d938c1acca",
+   "truth": {
+    "head_dome": "yes",
+    "lens_glow": "no",
+    "light_head_back": "no",
+    "gate:red-chest-led": "yes",
+    "gate:lenses": "yes",
+    "gate:speaker-mouth": "yes",
+    "lens_sides": "yes"
+   },
+   "pins": {
+    "glow": "no",
+    "light": "no"
+   }
+  },
+  {
+   "id": "frames:v07-t1-mid.png",
+   "path": "frames/v07-t1-mid.png",
+   "kind": "frame",
+   "identity": "keep",
+   "note": "v07-t1 mid: rejected: red lights on back/spine",
+   "sha256": "baa499a55826582c202590d37800ac019bb8ed5d78fac7ce75008ec06f579b8f",
+   "truth": {
+    "head_dome": "yes",
+    "lens_glow": "no",
+    "light_head_back": "yes",
+    "gate:red-chest-led": "no",
+    "gate:lenses": "yes",
+    "gate:speaker-mouth": "yes"
+   },
+   "pins": {
+    "glow": "no"
+   }
+  },
+  {
+   "id": "frames:v07-t1-end.png",
+   "path": "frames/v07-t1-end.png",
+   "kind": "frame",
+   "identity": "keep",
+   "note": "v07-t1 end: rejected: red lights on back/spine",
+   "sha256": "965fc71763fd7d9350ffbaf09a21e9248b56fa9e485d132013115e66107ead49",
+   "truth": {
+    "head_dome": "yes",
+    "lens_glow": "no",
+    "light_head_back": "yes",
+    "gate:red-chest-led": "no",
+    "gate:lenses": "yes",
+    "gate:speaker-mouth": "yes"
+   },
+   "pins": {
+    "glow": "no"
+   }
+  },
+  {
+   "id": "frames:v07-t2-mid.png",
+   "path": "frames/v07-t2-mid.png",
+   "kind": "frame",
+   "identity": "keep",
+   "note": "v07-t2 mid: kept",
+   "sha256": "59a524f0b962f5595786316a0a6a0dd3aebd9e19509b6fb6f0a6fb6e270f0569",
+   "truth": {
+    "head_dome": "yes",
+    "lens_glow": "no",
+    "light_head_back": "no",
+    "gate:red-chest-led": "yes",
+    "gate:lenses": "yes",
+    "gate:speaker-mouth": "yes"
+   },
+   "pins": {
+    "glow": "no",
+    "light": "no"
+   }
+  },
+  {
+   "id": "frames:v07-t2-end.png",
+   "path": "frames/v07-t2-end.png",
+   "kind": "frame",
+   "identity": "keep",
+   "note": "v07-t2 end: kept",
+   "sha256": "9a1a7a42315adbcfbc3af5868bd556abf2f090e742018daa0fb29e1efbbbda01",
+   "truth": {
+    "head_dome": "yes",
+    "lens_glow": "no",
+    "light_head_back": "no",
+    "gate:red-chest-led": "yes",
+    "gate:lenses": "yes",
+    "gate:speaker-mouth": "yes"
+   },
+   "pins": {
+    "glow": "no",
+    "light": "no"
+   }
+  },
+  {
+   "id": "frames:v08-t1-mid.png",
+   "path": "frames/v08-t1-mid.png",
+   "kind": "frame",
+   "identity": "keep",
+   "note": "v08-t1 mid: kept",
+   "sha256": "ce3f422e586dfc7482d4705dec0b72fb10de60ee49b9e898f5dd6bda9c647668",
+   "truth": {
+    "head_dome": "yes",
+    "lens_glow": "no",
+    "light_head_back": "no",
+    "gate:red-chest-led": "yes",
+    "gate:lenses": "yes",
+    "gate:speaker-mouth": "yes",
+    "lens_sides": "yes"
+   },
+   "pins": {
+    "glow": "no",
+    "light": "no"
+   }
+  },
+  {
+   "id": "frames:v08-t1-end.png",
+   "path": "frames/v08-t1-end.png",
+   "kind": "frame",
+   "identity": "keep",
+   "note": "v08-t1 end: kept",
+   "sha256": "e2b1644d4a262ec2da87453afbc19ef63bdba6c3b4fd685a379aa16457c8a8f9",
+   "truth": {
+    "head_dome": "yes",
+    "lens_glow": "no",
+    "light_head_back": "no",
+    "gate:red-chest-led": "yes",
+    "gate:lenses": "yes",
+    "gate:speaker-mouth": "yes",
+    "lens_sides": "yes"
+   },
+   "pins": {
+    "glow": "no",
+    "light": "no"
+   }
+  },
+  {
+   "id": "frames:v09-t1-mid.png",
+   "path": "frames/v09-t1-mid.png",
+   "kind": "frame",
+   "identity": "keep",
+   "note": "v09-t1 mid: rejected: head balloons to 0.5 at end",
+   "sha256": "8c5afdce145e72c5ed53433615f384519759602759a6f4742abc629d27c4aa56",
+   "truth": {
+    "head_dome": "yes",
+    "lens_glow": "no",
+    "light_head_back": "no",
+    "gate:red-chest-led": "yes",
+    "gate:lenses": "yes",
+    "gate:speaker-mouth": "yes",
+    "lens_sides": "yes"
+   },
+   "pins": {
+    "glow": "no",
+    "light": "no"
+   }
+  },
+  {
+   "id": "frames:v09-t1-end.png",
+   "path": "frames/v09-t1-end.png",
+   "kind": "frame",
+   "identity": "keep",
+   "note": "v09-t1 end: rejected: head balloons to 0.5 at end",
+   "sha256": "45ca49ee61b7469b0367e3baf603e6ee289bcfbd70b152ff793075af518a2b29",
+   "truth": {
+    "head_dome": "yes",
+    "lens_glow": "no",
+    "light_head_back": "no",
+    "gate:red-chest-led": "yes",
+    "gate:lenses": "yes",
+    "gate:speaker-mouth": "yes",
+    "lens_sides": "yes"
+   },
+   "pins": {
+    "glow": "no",
+    "light": "no"
+   }
+  },
+  {
+   "id": "frames:v09-t2-mid.png",
+   "path": "frames/v09-t2-mid.png",
+   "kind": "frame",
+   "identity": "keep",
+   "note": "v09-t2 mid: kept",
+   "sha256": "e6cd2769b852f8715ec43a62d90563ae621f48b4a6805bbb907df4c0f3b9151b",
+   "truth": {
+    "head_dome": "yes",
+    "lens_glow": "no",
+    "light_head_back": "no",
+    "gate:red-chest-led": "yes",
+    "gate:lenses": "yes",
+    "gate:speaker-mouth": "yes",
+    "lens_sides": "yes"
+   },
+   "pins": {
+    "glow": "no",
+    "light": "no"
+   }
+  },
+  {
+   "id": "frames:v09-t2-end.png",
+   "path": "frames/v09-t2-end.png",
+   "kind": "frame",
+   "identity": "keep",
+   "note": "v09-t2 end: kept",
+   "sha256": "604bf51d6bcb97b2306406c73a23552a8f5860e54cea447c4d0aca6194a7f610",
+   "truth": {
+    "head_dome": "yes",
+    "lens_glow": "no",
+    "light_head_back": "no",
+    "gate:red-chest-led": "yes",
+    "gate:lenses": "yes",
+    "gate:speaker-mouth": "yes",
+    "lens_sides": "yes"
+   },
+   "pins": {
+    "glow": "no",
+    "light": "no"
+   }
+  },
+  {
+   "id": "frames:v10-t1-mid.png",
+   "path": "frames/v10-t1-mid.png",
+   "kind": "frame",
+   "identity": "keep",
+   "note": "v10-t1 mid: rejected: human hands",
+   "sha256": "1ac9d43b2fc8772c65c2b484a3512d6c091b458236d6b828f790ddfb46d15de8",
+   "truth": {
+    "hands_silicon": "no",
+    "head_dome": "yes",
+    "lens_glow": "no",
+    "light_head_back": "no",
+    "gate:red-chest-led": "yes",
+    "gate:lenses": "yes",
+    "gate:speaker-mouth": "yes",
+    "lens_sides": "yes"
+   },
+   "pins": {
+    "glow": "no",
+    "light": "no"
+   }
+  },
+  {
+   "id": "frames:v10-t1-end.png",
+   "path": "frames/v10-t1-end.png",
+   "kind": "frame",
+   "identity": "keep",
+   "note": "v10-t1 end: rejected: human hands",
+   "sha256": "693cfb217d5f653790e35703df6adcdd2d3ebd446c9776f14f75c91907b5b891",
+   "truth": {
+    "hands_silicon": "no",
+    "head_dome": "yes",
+    "lens_glow": "no",
+    "light_head_back": "no",
+    "gate:red-chest-led": "yes",
+    "gate:lenses": "yes",
+    "gate:speaker-mouth": "yes",
+    "lens_sides": "yes"
+   },
+   "pins": {
+    "glow": "no",
+    "light": "no"
+   }
+  },
+  {
+   "id": "frames:v10-t2-mid.png",
+   "path": "frames/v10-t2-mid.png",
+   "kind": "frame",
+   "identity": "keep",
+   "note": "v10-t2 mid: kept (marginal, human hands)",
+   "sha256": "1c62760789113624cc4a10dbe935098876bdc7b0ab70a344f37359630d7877e9",
+   "truth": {
+    "hands_silicon": "no",
+    "head_dome": "yes",
+    "lens_glow": "no",
+    "light_head_back": "no",
+    "gate:red-chest-led": "yes",
+    "gate:lenses": "yes",
+    "gate:speaker-mouth": "yes",
+    "lens_sides": "yes"
+   },
+   "pins": {
+    "glow": "no",
+    "light": "no"
+   }
+  },
+  {
+   "id": "frames:v10-t2-end.png",
+   "path": "frames/v10-t2-end.png",
+   "kind": "frame",
+   "identity": "keep",
+   "note": "v10-t2 end: kept (marginal, human hands)",
+   "sha256": "fe5d44bc2cb61b4b1978d32d261d3a0989e362baeff12c46f60013e81b899641",
+   "truth": {
+    "hands_silicon": "no",
+    "head_dome": "yes",
+    "lens_glow": "no",
+    "light_head_back": "no",
+    "gate:red-chest-led": "yes",
+    "gate:lenses": "yes",
+    "gate:speaker-mouth": "yes",
+    "lens_sides": "yes"
+   },
+   "pins": {
+    "glow": "no",
+    "light": "no"
+   }
+  },
+  {
+   "id": "frames:v10-t3-mid.png",
+   "path": "frames/v10-t3-mid.png",
+   "kind": "frame",
+   "identity": "keep",
+   "note": "v10-t3 mid: alt: partly silicon",
+   "sha256": "a4d5615ccf2472f0be6c866226de1515fd1d00394c8a8982b944c1d65c8bccc7",
+   "truth": {
+    "head_dome": "yes",
+    "lens_glow": "no",
+    "light_head_back": "no",
+    "gate:red-chest-led": "yes",
+    "gate:lenses": "yes",
+    "gate:speaker-mouth": "yes",
+    "lens_sides": "yes"
+   },
+   "pins": {
+    "glow": "no",
+    "light": "no"
+   }
+  },
+  {
+   "id": "frames:v10-t3-end.png",
+   "path": "frames/v10-t3-end.png",
+   "kind": "frame",
+   "identity": "keep",
+   "note": "v10-t3 end: alt: partly silicon",
+   "sha256": "dab19572e4d6b4a90bcd6e9c494ef3b76bd9c3405df75097f4dff92176534fdc",
+   "truth": {
+    "head_dome": "yes",
+    "lens_glow": "no",
+    "light_head_back": "no",
+    "gate:red-chest-led": "yes",
+    "gate:lenses": "yes",
+    "gate:speaker-mouth": "yes",
+    "lens_sides": "yes"
+   },
+   "pins": {
+    "glow": "no",
+    "light": "no"
+   }
+  },
+  {
+   "id": "frames:v11-t1-mid.png",
+   "path": "frames/v11-t1-mid.png",
+   "kind": "frame",
+   "identity": "keep",
+   "note": "v11-t1 mid: rejected: too wide",
+   "sha256": "8c908782dc3822c926fe09ea8797db8c6e48655db7dd3a37b2518ba59128a2e0",
+   "truth": {
+    "head_dome": "yes",
+    "lens_glow": "no",
+    "light_head_back": "no",
+    "gate:red-chest-led": "yes",
+    "gate:lenses": "yes",
+    "gate:speaker-mouth": "yes",
+    "lens_sides": "yes"
+   },
+   "pins": {
+    "glow": "no",
+    "light": "no"
+   }
+  },
+  {
+   "id": "frames:v11-t1-end.png",
+   "path": "frames/v11-t1-end.png",
+   "kind": "frame",
+   "identity": "keep",
+   "note": "v11-t1 end: rejected: too wide",
+   "sha256": "8b49972cb1472a84e451eeb2908461e992d31cfa4715b8d6299342db8812edbf",
+   "truth": {
+    "head_dome": "yes",
+    "lens_glow": "no",
+    "light_head_back": "no",
+    "gate:red-chest-led": "yes",
+    "gate:lenses": "yes",
+    "gate:speaker-mouth": "yes",
+    "lens_sides": "yes"
+   },
+   "pins": {
+    "glow": "no",
+    "light": "no"
+   }
+  },
+  {
+   "id": "frames:v11-t2-mid.png",
+   "path": "frames/v11-t2-mid.png",
+   "kind": "frame",
+   "identity": "keep",
+   "note": "v11-t2 mid: kept",
+   "sha256": "42f7d31c3c789a8d75f3cb1b3e5bcbaff0984dde01cfe813974385dbd3f26aa1",
+   "truth": {
+    "head_dome": "yes",
+    "lens_glow": "no",
+    "light_head_back": "no",
+    "gate:red-chest-led": "yes",
+    "gate:lenses": "yes",
+    "gate:speaker-mouth": "yes",
+    "lens_sides": "yes"
+   },
+   "pins": {
+    "glow": "no",
+    "light": "no"
+   }
+  },
+  {
+   "id": "frames:v11-t2-end.png",
+   "path": "frames/v11-t2-end.png",
+   "kind": "frame",
+   "identity": "keep",
+   "note": "v11-t2 end: kept",
+   "sha256": "8d9d02fc671d93c365e88011d7b04c1b76b7b2a3d77bb11391dfcea1b8a827d8",
+   "truth": {
+    "head_dome": "yes",
+    "lens_glow": "no",
+    "light_head_back": "no",
+    "gate:red-chest-led": "yes",
+    "gate:lenses": "yes",
+    "gate:speaker-mouth": "yes",
+    "lens_sides": "yes"
+   },
+   "pins": {
+    "glow": "no",
+    "light": "no"
+   }
+  },
+  {
+   "id": "frames:v12-t1-mid.png",
+   "path": "frames/v12-t1-mid.png",
+   "kind": "frame",
+   "identity": "keep",
+   "note": "v12-t1 mid: rejected: viewer-left lens glows blue",
+   "sha256": "dbe317787b364bcec1f3a5df60848fc4cc027d753c3b166b0dfcce9a76f1cda1",
+   "truth": {
+    "head_dome": "yes",
+    "lens_glow": "yes",
+    "light_head_back": "no",
+    "gate:red-chest-led": "yes",
+    "gate:lenses": "no",
+    "gate:speaker-mouth": "yes",
+    "lens_sides": "yes"
+   },
+   "pins": {
+    "glow": "yes",
+    "light": "no"
+   }
+  },
+  {
+   "id": "frames:v12-t1-end.png",
+   "path": "frames/v12-t1-end.png",
+   "kind": "frame",
+   "identity": "keep",
+   "note": "v12-t1 end: rejected: viewer-left lens glows blue",
+   "sha256": "2f9b51c9110cc93aafc63116a4b6a5ac5631c3fddea8d1b24463c4ae9fc923d8",
+   "truth": {
+    "head_dome": "yes",
+    "lens_glow": "yes",
+    "light_head_back": "no",
+    "gate:red-chest-led": "yes",
+    "gate:lenses": "no",
+    "gate:speaker-mouth": "yes",
+    "lens_sides": "yes"
+   },
+   "pins": {
+    "glow": "yes",
+    "light": "no"
+   }
+  },
+  {
+   "id": "frames:v12-t2-mid.png",
+   "path": "frames/v12-t2-mid.png",
+   "kind": "frame",
+   "identity": "keep",
+   "note": "v12-t2 mid: kept",
+   "sha256": "af55e972cc28b01954455787f41e99fe0737617a6f58f4b77a766c6901464d76",
+   "truth": {
+    "head_dome": "yes",
+    "lens_glow": "no",
+    "light_head_back": "no",
+    "gate:red-chest-led": "yes",
+    "gate:lenses": "yes",
+    "gate:speaker-mouth": "yes",
+    "lens_sides": "yes"
+   },
+   "pins": {
+    "glow": "no",
+    "light": "no"
+   }
+  },
+  {
+   "id": "frames:v12-t2-end.png",
+   "path": "frames/v12-t2-end.png",
+   "kind": "frame",
+   "identity": "keep",
+   "note": "v12-t2 end: kept",
+   "sha256": "683db71ac00f0c6f754c1a0119cd0b1a4235f02406ae52af26bd77f096ef4a0c",
+   "truth": {
+    "head_dome": "yes",
+    "lens_glow": "no",
+    "light_head_back": "no",
+    "gate:red-chest-led": "yes",
+    "gate:lenses": "yes",
+    "gate:speaker-mouth": "yes",
+    "lens_sides": "yes"
+   },
+   "pins": {
+    "glow": "no",
+    "light": "no"
+   }
+  },
+  {
+   "id": "frames:v15-t1-mid.png",
+   "path": "frames/v15-t1-mid.png",
+   "kind": "frame",
+   "identity": "keep",
+   "note": "v15-t1 mid: kept",
+   "sha256": "c1d74cb597b20a434aa2739493712f3cf439a153aafc568cb3d7712cafd2e2c0",
+   "truth": {
+    "head_dome": "yes",
+    "lens_glow": "no",
+    "light_head_back": "no",
+    "gate:red-chest-led": "yes",
+    "gate:lenses": "yes",
+    "gate:speaker-mouth": "yes",
+    "lens_sides": "yes"
+   },
+   "pins": {
+    "glow": "no",
+    "light": "no"
+   }
+  },
+  {
+   "id": "frames:v15-t1-end.png",
+   "path": "frames/v15-t1-end.png",
+   "kind": "frame",
+   "identity": "keep",
+   "note": "v15-t1 end: kept",
+   "sha256": "6777f38d82e9719bf090d213f3a2472acd73b880c4339f38f9635172a16b878f",
+   "truth": {
+    "head_dome": "yes",
+    "lens_glow": "no",
+    "light_head_back": "no",
+    "gate:red-chest-led": "yes",
+    "gate:lenses": "yes",
+    "gate:speaker-mouth": "yes",
+    "lens_sides": "yes"
+   },
+   "pins": {
+    "glow": "no",
+    "light": "no"
+   }
+  },
+  {
+   "id": "frames:v13-t1-mid.png",
+   "path": "frames/v13-t1-mid.png",
+   "kind": "frame",
+   "identity": "na",
+   "note": "v13 hand insert",
+   "sha256": "3de46fd80e2c835a4e82cf8bd0a59deea24703c9a5260e898787bf3053627458",
+   "truth": {
+    "hands_silicon": "yes"
+   }
+  },
+  {
+   "id": "frames:v13-t1-end.png",
+   "path": "frames/v13-t1-end.png",
+   "kind": "frame",
+   "identity": "na",
+   "note": "v13 shoe insert",
+   "sha256": "eb4c0d6cbd5298060edb18c8c502a62e64cc80fbfc3830c7841b0f12bcd565a8"
+  },
+  {
+   "id": "myslef:myslef-character-sheet-v2-REJECTED-long-barrel.png",
+   "path": "myslef/myslef-character-sheet-v2-REJECTED-long-barrel.png",
+   "kind": "offmodel",
+   "identity": "offmodel",
+   "note": "rejected sheet or head composite",
+   "sha256": "df4db7ac2dde1d6de935c168412ac816516a48202beedc9f08b503bb67210a9f"
+  },
+  {
+   "id": "myslef:myslef-character-sheet-v1-REJECTED-chest-fans.png",
+   "path": "myslef/myslef-character-sheet-v1-REJECTED-chest-fans.png",
+   "kind": "offmodel",
+   "identity": "offmodel",
+   "note": "rejected sheet or head composite",
+   "sha256": "76a99c497d3600ad0babc7a307391489fc7d030088356994207110db98c2f7db"
+  },
+  {
+   "id": "myslef:head-composite-secondary.png",
+   "path": "myslef/head-composite-secondary.png",
+   "kind": "offmodel",
+   "identity": "offmodel",
+   "note": "rejected sheet or head composite",
+   "sha256": "83623fb42d16aeaf64a5ef689364db9440c87f851217fb1f0fbb20a19a579883"
+  }
+ ]
+}

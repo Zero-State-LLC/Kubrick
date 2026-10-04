@@ -273,3 +273,11 @@ def test_duplicate_questions_keep_the_stricter_severity_and_reject_conflicts() -
 
 if __name__ == "__main__":
     sys.exit(pytest.main([__file__, "-q"]))
+
+
+def test_yaml_bare_no_is_expect_no() -> None:
+    """YAML reads a bare ``expect: no`` as False; it must mean no, not the default yes."""
+    rows = [{"question": "Q one?", "expect": False}, {"question": "Q two?", "expect": True},
+            {"question": "Q three?"}]
+    found = checks.explicit_checks("lenses", rows)
+    assert [c["expect"] for c in found] == ["no", "yes", "yes"]

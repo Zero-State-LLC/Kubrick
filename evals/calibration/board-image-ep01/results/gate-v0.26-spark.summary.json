@@ -1,0 +1,80 @@
+{
+ "images": 67,
+ "clean_blocked": 19,
+ "clean": 60,
+ "defective_blocked": 5,
+ "defective": 7,
+ "missed": [
+  "/workspace/kubrick-calib/frames/v01-t1-mid.png",
+  "/workspace/kubrick-calib/frames/v01-t1-end.png"
+ ],
+ "calls": 536,
+ "unanswered": 0,
+ "warn_rows": 40,
+ "per_lock": {
+  "red-chest-led": {
+   "n": 67,
+   "ok": 61,
+   "defect": 5,
+   "caught": 3,
+   "clean": 62,
+   "clean_pass": 58
+  },
+  "lenses": {
+   "n": 67,
+   "ok": 53,
+   "defect": 2,
+   "caught": 2,
+   "clean": 65,
+   "clean_pass": 51
+  },
+  "speaker-mouth": {
+   "n": 67,
+   "ok": 63,
+   "defect": 0,
+   "caught": 0,
+   "clean": 67,
+   "clean_pass": 63
+  }
+ },
+ "per_question": {
+  "Does the character show any light on the head, hood or temple?": {
+   "n": 62,
+   "ok": 58
+  },
+  "Does the character show any light along the spine or on the back?": {
+   "n": 62,
+   "ok": 62
+  },
+  "Do the lenses glow?": {
+   "n": 65,
+   "ok": 51
+  },
+  "Does the character show any human eyes?": {
+   "n": 65,
+   "ok": 65
+  },
+  "Does the character show any long lens barrels?": {
+   "n": 65,
+   "ok": 65
+  },
+  "Does the character show any lip movement?": {
+   "n": 67,
+   "ok": 66
+  },
+  "Does the character show any words?": {
+   "n": 67,
+   "ok": 64
+  },
+  "Is the darker cracked lens on the left side of the image and the yellowed lens on the right side?": {
+   "n": 59,
+   "ok": 27
+  }
+ },
+ "clean_blocked_by_question": {
+  "Do the lenses glow?": 14,
+  "Does the character show any light on the head, hood or temple?": 4,
+  "Does the character show any words?": 2,
+  "Does the character show any lip movement?": 1
+ }
+}

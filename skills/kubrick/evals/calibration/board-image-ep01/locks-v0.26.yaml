@@ -1,0 +1,21 @@
+# MYSLEF plan-alley locks as of 0.26.0 (before the 0.27.0 wording fixes).
+# Reproduces the shipped 0.26.0 atomic run: 19 of 60 clean blocked, 5 of 7 defective blocked.
+locks:
+- id: red-chest-led
+  kind: light
+  critical: true
+  character: myslef
+  positive: the only light on the body is ONE small red LED pinpoint at the centre of the chest under the hoodie, front only
+  negative: no light on the head, hood or temple, no light along the spine or on the back
+- id: lenses
+  kind: identity
+  critical: true
+  character: myslef
+  positive: 'two round near-flush camera lenses in thick steel rims: dark spiderweb-cracked lens on the figure''s right (viewer''s left), intact yellowed dusty lens on the figure''s left (viewer''s right)'
+  negative: the lenses never glow, no human eyes, no long lens barrels
+- id: speaker-mouth
+  kind: identity
+  critical: true
+  character: myslef
+  positive: a round steel mesh speaker grille set flush where the mouth would be
+  negative: no lip movement, no words

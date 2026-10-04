@@ -57,6 +57,11 @@ there). Non-trivial work starts with [`intent/`](intent/README.md).
 Do **not** commit ephemeral agent scratch (`PR_BODY*.md`, `PUSH_INSTRUCTIONS.md`,
 local patches under `/tmp`, caches, or `out/`).
 
+## Learnings to repo
+
+Lessons from runs become code, tests, docs, or harness in the repo, not box-only
+scripts or notes. See the rule in [`AGENTS.md`](AGENTS.md#learnings-to-repo).
+
 ## Design invariants
 
 - Fail closed: weak or contradictory evidence → `NOT_COMPUTABLE`

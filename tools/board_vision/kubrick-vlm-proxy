@@ -1,0 +1,53 @@
+#!/usr/bin/env bash
+# Start the loopback adapter (vlm_proxy.py) in front of an OpenAI-compatible
+# vision endpoint, so the board image gate's loopback-only rule still holds.
+# Usage: kubrick-vlm-proxy start|stop|status|restart
+#
+# Profile: the provider settings (KUBRICK_VLM_* vars, see vlm_proxy.py and
+# docs/BOARD-VISION-SETUP.md) come from a profile file, never from this script:
+#   KUBRICK_VLM_PROFILE if set, else
+#   ~/.config/kubrick/vlm-NAME.env when this script is linked as kubrick-vlm-NAME,
+#   else ~/.config/kubrick/vlm-proxy.env.
+# Each profile may set its own KUBRICK_VLM_PROXY_ADDR so several can run at once.
+# If the upstream is down the proxy answers 502 and the gate reports UNVERIFIED.
+set -euo pipefail
+HERE=$(cd "$(dirname "$(readlink -f "${BASH_SOURCE[0]}")")" && pwd)
+NAME=$(basename "${BASH_SOURCE[0]}"); NAME=${NAME#kubrick-vlm-}
+CONF=${KUBRICK_CONFIG_DIR:-$HOME/.config/kubrick}
+PROFILE=${KUBRICK_VLM_PROFILE:-$CONF/vlm-$NAME.env}
+PROXY=${KUBRICK_VLM_PROXY_SCRIPT:-$HERE/vlm_proxy.py}
+PY=${KUBRICK_PYTHON:-python3}
+if [ -f "$PROFILE" ]; then
+  # shellcheck disable=SC1090
+  set -a; . "$PROFILE"; set +a
+elif [ "${1:-status}" = start ] || [ "${1:-status}" = restart ]; then
+  echo "no profile at $PROFILE (copy tools/board_vision/profiles/*.env.example there)" >&2; exit 1
+fi
+ADDR=${KUBRICK_VLM_PROXY_ADDR:-127.0.0.1:11435}
+STATE=${KUBRICK_VLM_STATE:-${XDG_STATE_HOME:-$HOME/.local/share}/kubrick-vlm}
+LOG=$STATE/proxy-$NAME.log
+PIDF=$STATE/proxy-$NAME.pid
+mkdir -p "$STATE"
+up() { curl -sf --max-time 2 "http://$ADDR/api/version" >/dev/null; }
+case "${1:-status}" in
+  start)
+    if up; then echo "already running on $ADDR"; else
+      KUBRICK_VLM_PROXY_ADDR=$ADDR nohup setsid "$PY" "$PROXY" >>"$LOG" 2>&1 &
+      echo $! >"$PIDF"
+      for _ in $(seq 1 20); do up && break; sleep 0.5; done
+      up || { echo "proxy did not come up; see $LOG" >&2; tail -n 3 "$LOG" >&2; exit 1; }
+      echo "started on $ADDR (pid $(cat "$PIDF"), profile $PROFILE)"
+    fi
+    if curl -sf --max-time 20 "http://$ADDR/api/tags" >/dev/null; then echo "upstream reachable"
+    else echo "WARNING: upstream unreachable; board lock checks will be UNVERIFIED" >&2; fi
+    echo "export KUBRICK_BOARD_VLM_URL=http://$ADDR"
+    ;;
+  stop)
+    if [ -s "$PIDF" ] && kill "$(cat "$PIDF")" 2>/dev/null; then rm -f "$PIDF"; echo stopped
+    else echo "not running (no live pid in $PIDF)"; fi ;;
+  restart) "$0" stop || true; sleep 1; "$0" start ;;
+  status)
+    if up; then echo "up on $ADDR"; curl -s --max-time 20 "http://$ADDR/api/tags"; echo
+    else echo "down"; exit 3; fi ;;
+  *) echo "usage: $0 start|stop|status|restart" >&2; exit 2 ;;
+esac
