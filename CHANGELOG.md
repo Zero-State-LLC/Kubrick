@@ -5,6 +5,9 @@
 ### Added
 - CI fails a pull request that adds an em dash (U+2014). `scripts/check_no_new_em_dash.py --base origin/<base>` checks only the lines the diff adds, so the em dashes already on main do not fail it. A missing base ref fails closed. A fixture line that must keep one carries `em-dash: allow`.
 
+### Notes
+- Board image judge measured through the Spark box (Qwen3.5 vision, via a loopback proxy on the operator box): 0.79 on the EP-01 set against 0.58 for `qwen2.5vl:3b`, with lens glow 0.97 and body lights 0.91 when asked directly. The gate's compound plan-lock questions still block 36 of 60 clean boards (38 before). No prompt variant was clearly better, so the judge prompt is unchanged. See `docs/BOARD-IMAGE-CALIBRATION.md`.
+
 ## [0.25.1] - 2026-10-04
 
 ### Changed
