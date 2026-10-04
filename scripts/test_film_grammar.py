@@ -222,7 +222,7 @@ def test_frames_without_camera_keep_current_output() -> None:
     assert direction_clauses(bare) == []
     assert shot_camera(bare) == DEFAULT_CAMERA
     rendered = render_frame_prompt([], bare, LABELS)
-    assert rendered == join_clauses(frame_state_clauses(bare, LABELS))
+    assert rendered == join_clauses([*frame_state_clauses(bare, LABELS), "holds still"])
     assert "push-in" not in rendered and "mm lens" not in rendered
     document = _board([bare, other])
     packet = adapter_packet_from_document(document, provider="generic")
