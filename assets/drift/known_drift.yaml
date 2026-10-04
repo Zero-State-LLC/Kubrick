@@ -125,3 +125,36 @@ entries:
     failed_mitigations: []
     evidence: MYSLEF EP-01 v8 flicker, 2026-10-02
     observed_on: "2026-10-02"
+  - id: small-fg-motion-low-res
+    model: seedance-2.5
+    trigger:
+      kind: small_fg_motion
+    effect: small foreground motion such as a debris hop does not render at 480p
+    mitigations:
+      - move the beat to an insert shot
+      - render at 720p
+      - carry the motion as sound
+    failed_mitigations: []
+    evidence: MYSLEF EP-01 shot 09 debris hop, 2026-10-03
+    observed_on: "2026-10-03"
+  - id: subsecond-timing-ignored
+    model: seedance-2.5
+    trigger:
+      kind: subsecond_timing
+    effect: a sub-second beat is dropped by the generator
+    mitigations:
+      - plan the beat in whole seconds
+      - move the timing into the cut
+    failed_mitigations: []
+    evidence: MYSLEF EP-01 sub-second cues, 2026-10-03
+    observed_on: "2026-10-03"
+  - id: start-hold-1-6s
+    model: seedance-2.5
+    trigger:
+      kind: start_hold
+    effect: a chained start holds about 1.6 seconds before the action
+    mitigations:
+      - trim the hold in the cut list
+    failed_mitigations: []
+    evidence: MYSLEF EP-01 chained start hold, 2026-10-03
+    observed_on: "2026-10-03"

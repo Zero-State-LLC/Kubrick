@@ -43,7 +43,10 @@
                   "dim_practical",
                   "startle_action",
                   "chained_snap",
-                  "flicker_keep"
+                  "flicker_keep",
+                  "small_fg_motion",
+                  "subsecond_timing",
+                  "start_hold"
                 ]
               },
               "feature": {"type": "string", "minLength": 1},

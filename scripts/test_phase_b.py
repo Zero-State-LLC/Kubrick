@@ -99,6 +99,9 @@ def test_registry_validates_and_invalid_fails() -> None:
         "weak-action-intensity",
         "chained-start-suppresses-move",
         "flicker-clears-all-figures",
+        "small-fg-motion-low-res",
+        "subsecond-timing-ignored",
+        "start-hold-1-6s",
     ]
     plain = entries[0]
     assert isinstance(plain, dict)

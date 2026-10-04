@@ -316,6 +316,66 @@ def _unreachable(
     )
 
 
+def _hold_texts(document: Mapping[str, object]) -> list[str]:
+    holds = hold_list(document)
+    if isinstance(holds, str):
+        return []
+    texts: list[str] = []
+    for item in holds:
+        text = item.get("text")
+        if isinstance(text, str) and text.strip():
+            texts.append(text.strip())
+    return texts
+
+
+def _frame_for(document: Mapping[str, object], shot: object) -> Mapping[str, object]:
+    from continuity_locks import frame_id
+
+    label = shot.strip() if isinstance(shot, str) else ""
+    raw = document.get("frames")
+    if not isinstance(raw, Sequence) or isinstance(raw, (str, bytes)):
+        return {}
+    frames = [frame for frame in raw if isinstance(frame, Mapping)]
+    for index, frame in enumerate(frames, start=1):
+        if label and label in {frame_id(frame, index), str(frame.get("frame_id") or "")}:
+            return frame
+    return {}
+
+
+def _lint_block(
+    document: Mapping[str, object],
+    prompts: Sequence[Mapping[str, object]],
+) -> dict[str, object] | None:
+    from prompt_lint import BLOCKING, lint_text
+
+    if not prompts:
+        return None
+    holds = _hold_texts(document)
+    findings: list[dict[str, str]] = []
+    for prompt in prompts:
+        text = prompt.get("prompt")
+        if not isinstance(text, str):
+            continue
+        frame = _frame_for(document, prompt.get("shot"))
+        findings.extend(lint_text(text, holds=holds, frame=frame or None))
+    blocking = [item for item in findings if item["code"] in BLOCKING]
+    if not blocking:
+        return None
+    first = blocking[0]
+    return _result(
+        status="BLOCKED",
+        authority="NOT_COMPUTABLE",
+        code=first["code"],
+        blocks=True,
+        message=first["message"],
+        holds=[],
+        checks=[{"code": item["code"], "message": item["message"]} for item in blocking],
+        override=False,
+        override_logged=False,
+        override_source="",
+    )
+
+
 def ledger_entry(gate: Mapping[str, object]) -> dict[str, object]:
     return {
         "kind": "jev_gate",
@@ -377,7 +437,7 @@ def gate_prompts(
     verdicts_path: str | None = None,
     log: Callable[[Mapping[str, object]], None] | None = None,
 ) -> dict[str, object]:
-    """Hold list from ``document``, then the pre-spend check."""
+    """Lint the compiled text, then the hold list, before any Jev call."""
     if isinstance(prompts, str):
         return check_before_spend(
             prompts,
@@ -385,6 +445,9 @@ def gate_prompts(
             override=override,
             override_source=override_source,
         )
+    blocked = _lint_block(document, prompts)
+    if blocked is not None:
+        return blocked
     holds = hold_list(document)
     return check_before_spend(
         holds,

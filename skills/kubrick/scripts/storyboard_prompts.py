@@ -11,6 +11,7 @@ from brief_constraints import (
     string_list,
 )
 from planning_fields import prep_fields
+from prompt_action import structured_action
 from prompt_text import (
     is_blank,
     node_labels,
@@ -156,13 +157,21 @@ def _enriched(
     labels: Mapping[str, str],
     duration: float,
 ) -> tuple[list[str], object]:
+    from prompt_lint import brand_aliases, rewrite_surface
     from shot_plan import enrich_prompts
+
+    aliases = brand_aliases(data)
+
+    def _render(frame: Mapping[str, object]) -> str:
+        text = render_frame_prompt(shared, frame, labels) or "evidenced frame state"
+        rewritten, _findings = rewrite_surface(text, aliases)
+        return rewritten
 
     return enrich_prompts(
         data,
         frames,
         provider,
-        lambda frame: render_frame_prompt(shared, frame, labels) or "evidenced frame state",
+        _render,
         default_duration=duration,
     )
 
@@ -188,11 +197,7 @@ def shots_from_document(
                 "duration_seconds": _frame_duration(frame, duration),
                 "prompt": prompt,
                 "start_state": {"summary": summary, "observable": prompt},
-                "action": {
-                    "subject": "evidenced subject",
-                    "verb": "changes",
-                    "path_or_change": summary,
-                },
+                "action": _shot_action(frame, summary),
                 "camera": _shot_camera(frame),
                 "end_state": {"summary": summary, "residue": _residue(frame)},
                 "continuity_invariants": ["preserve_identity", "preserve_residue"],
@@ -201,6 +206,15 @@ def shots_from_document(
         )
     _apply_document_locks(data, shots)
     return shots
+
+
+def _shot_action(frame: Mapping[str, object], summary: str) -> dict[str, str]:
+    from continuity_locks import frame_field
+
+    parsed = structured_action(frame_field(frame, "action"))
+    if not parsed["path_or_change"]:
+        parsed["path_or_change"] = summary
+    return {key: value for key, value in parsed.items() if value}
 
 
 def _shot_camera(frame: Mapping[str, object]) -> dict[str, str]:
