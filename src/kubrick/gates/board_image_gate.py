@@ -41,6 +41,7 @@ from kubrick.gates.board_image_plan import (
     as_list,
     board_source,
     characters_of,
+    crop_hint,
     frame_label,
     frame_labels,
     hides_identity,
@@ -200,7 +201,8 @@ def _identity(
         shot, "identity", "PASS" if passed else "FAIL",
         None if passed else "BOARD_IDENTITY_MISMATCH",
         score=round(best, 4), ref=ref, embedder=embedder.name,
-        skipped_refs=skipped or None, **base,
+        skipped_refs=skipped or None,
+        detail=None if passed else crop_hint(crop.method), **base,
     )
 
 

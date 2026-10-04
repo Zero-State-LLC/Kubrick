@@ -167,6 +167,12 @@ def test_mismatched_board_blocks_with_identity_and_lock_codes() -> None:
     assert "regenerate the board" in str(report["recommendation"])
     passing = [row for row in _rows(report["checks"]) if row["shot"] == "01"]
     assert all(row["status"] == "PASS" for row in passing)
+    identity = next(row for row in _rows(report["checks"])
+                    if row["shot"] == "02" and row["check"] == "identity")
+    if identity["crop"] != "plan_box":
+        assert "board_subject_boxes" in str(identity["detail"])
+    assert gate.crop_hint("plan_box") is None
+    assert "head box" in str(gate.crop_hint("border_contrast"))
 
 
 def test_missing_models_fail_closed_as_unverified(monkeypatch: pytest.MonkeyPatch) -> None:
@@ -217,7 +223,7 @@ def test_threshold_precedence_and_validation() -> None:
     del _map(character["ref_pack"])["identity_threshold"]
     bad_plan = _check(plan, shots={"01"}, embedder=HistogramEmbedder(), judge=FakeJudge())
     assert bad_plan["code"] == "BOARD_GATE_CONFIG_INVALID"
-    assert gate.DEFAULT_IDENTITY_THRESHOLD == 0.70
+    assert gate.DEFAULT_IDENTITY_THRESHOLD == 0.50
 
 
 def test_opt_out_needs_a_reason_and_is_logged(monkeypatch: pytest.MonkeyPatch) -> None:

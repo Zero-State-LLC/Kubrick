@@ -4,7 +4,7 @@ This repository maintains **two runtime editions** of the same creative skill.
 
 | Edition | Git ref | Primary install target | Status |
 |---|---|---|---|
-| **Hermes** (canonical on `main`) | [`main`](https://github.com/Zero-State-LLC/Kubrick/tree/main) | `~/.hermes/skills/kubrick` | Active development (v0.25.0) |
+| **Hermes** (canonical on `main`) | [`main`](https://github.com/Zero-State-LLC/Kubrick/tree/main) | `~/.hermes/skills/kubrick` | Active development (v0.25.1) |
 | **OpenClaw Agent Skill** | permanent branch [`openclaw`](https://github.com/Zero-State-LLC/Kubrick/tree/openclaw) | `~/.openclaw/skills/kubrick` | Adapted by **Prabu** ([@prabu-openclaw](https://github.com/prabu-openclaw)) |
 
 The **symbolic corpus, laws, schemas, and narrative intent** are shared in spirit. Packaging, installer behavior, state location, and skill frontmatter differ so each runtime stays native.

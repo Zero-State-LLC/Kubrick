@@ -9,9 +9,12 @@ from collections.abc import Mapping, Sequence
 from pathlib import Path
 
 # Max cosine similarity over the approved views, DINOv2-small CLS features on
-# the character crop. Uncalibrated and deliberately strict: tune it on the
-# EP-01 kept and rejected takes before trusting it either way.
-DEFAULT_IDENTITY_THRESHOLD = 0.70
+# the character crop. Calibrated on MYSLEF EP-01 (docs/BOARD-IMAGE-CALIBRATION.md):
+# on a head crop every kept board scored 0.535 or more and off-model heads
+# 0.32 to 0.46. It is an off-model floor, not a drift detector: kept and
+# drifted heads overlap (AUC about 0.52). A wide board needs a
+# board_subject_boxes head box, since a whole-frame crop scores 0.10 to 0.30.
+DEFAULT_IDENTITY_THRESHOLD = 0.50
 _IMAGE_SUFFIXES = (".png", ".jpg", ".jpeg", ".webp")
 _HIDDEN_VIEWS = frozenset({"back", "rear", "back_view", "occluded", "head_occluded"})
 _IDENTITY_GROUPS = ("views", "head_lock")
@@ -217,6 +220,17 @@ def identity_threshold_for(
 
 def _lock_text(row: Mapping[str, object]) -> str:
     return _text(row.get("negative")) or _text(row.get("positive")) or _text(row.get("text"))
+
+
+def crop_hint(method: str) -> str | None:
+    """Why a low score on a heuristic crop may be the crop, not the board."""
+    if method == "plan_box":
+        return None
+    return (
+        f"the {method} crop is not a head crop; on EP-01 a kept medium or wide board "
+        "scored 0.10 to 0.30 this way, so set board_subject_boxes to the head box "
+        "and rerun before regenerating the board"
+    )
 
 
 def subject_box(frame: Mapping[str, object], name: str, single: bool) -> Sequence[object] | None:
