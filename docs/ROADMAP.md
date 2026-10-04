@@ -36,7 +36,7 @@ six sidecars, and the continuation cleanup. See the `0.23.0` section of
 
 [#91](https://github.com/Zero-State-LLC/Kubrick/issues/91) stays deferred.
 
-A scoped lock missing from the prompt blocks before spend (`LOCK_MISSING_IN_BOARD`). A blank or whitespace prompt location on a location-scoped hold blocks (`LOCATION_UNSPECIFIED`) instead of dropping the hold.
+A scoped lock missing from the prompt blocks before spend (`LOCK_MISSING_IN_BOARD`). A blank or whitespace prompt location on a location-scoped hold blocks (`LOCATION_UNSPECIFIED`) instead of dropping the hold. See [#125](https://github.com/Zero-State-LLC/Kubrick/pull/125).
 
 ## Carrier order
 
