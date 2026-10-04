@@ -6,10 +6,11 @@
 
 ### Changed
 - Board image gate: each character lock is asked as one direct yes-or-no question per clause, each with its expected answer, instead of one compound "is this statement true: no X, no Y" question. `no X` asks "Does the character show any X?" (expect no), `S never V` asks "Do S V?" (expect no), and other clauses expect yes. A list inside a clause ("head, hood or temple") stays one question. The answers are combined per lock in the report's new `locks` list: any confirmed `FAIL` blocks, and a question the judge cannot answer is still UNVERIFIED and blocks. A lock can list its own `checks` (`question`, `expect`, `severity`) to word its questions by hand. Code in `src/kubrick/gates/board_lock_checks.py`.
+- A bad `severity` or `expect`, a lock `checks` row with no question, or one question given two different `expect` values is `BOARD_GATE_CONFIG_INVALID` and blocks. Before, a `board_checks` row with a bad `expect` was skipped. When two sources ask the same question, the stricter severity wins.
 - Recorded judge answers are keyed by the exact question, so answers recorded for the old compound questions come back UNVERIFIED. Record them again.
 
 ### Added
-- Per-check severity, `block` (default) or `warn`, on `board_checks`, lock `checks`, or a whole lock. A `warn` question that fails or cannot be answered is a `WARN` row and a `BOARD_LOCK_DETAIL_WARN` warning and never blocks spend. A question that names the left or right side defaults to `warn`: the Spark judge scored 0.46 on lens sides.
+- Per-check severity, `block` (default) or `warn`, on `board_checks`, lock `checks` (which inherit the lock's severity), or a whole lock. A `warn` question that fails or cannot be answered is a `WARN` row and a `BOARD_LOCK_DETAIL_WARN` warning and never blocks spend. A question that names the left or right side defaults to `warn`: the Spark judge scored 0.46 on lens sides.
 - CI fails a pull request that adds an em dash (U+2014). `scripts/check_no_new_em_dash.py --base origin/<base>` checks only the lines the diff adds, so the em dashes already on main do not fail it. A missing base ref fails closed. A fixture line that must keep one carries `em-dash: allow`.
 
 ### Notes

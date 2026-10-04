@@ -333,9 +333,10 @@ def test_lock_questions_cover_every_lock_source() -> None:
     }
     questions = gate.lock_questions(document, "myslef", spec)
     assert [item["lock_id"] for item in questions] == [
-        "no nose", "dome", "red-chest-light", "nails",
+        "no nose", "dome", "red-chest-light", "nails", "Bad expectation?",
     ]
-    assert questions[-1]["expect"] == "no"
+    assert questions[-2]["expect"] == "no"
+    assert "expect must be yes or no" in questions[-1]["error"]
     assert "no hat" not in json.dumps(questions)
 
 

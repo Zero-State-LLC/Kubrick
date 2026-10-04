@@ -49,7 +49,8 @@ audio spend and does not run it.
 
 Every fail and every cannot-run of a `block` check blocks spend (fail
 closed). A `warn` check only warns. Severity defaults to `block`; a question
-about the left or right side defaults to `warn`. The result names
+about the left or right side defaults to `warn`. An invalid severity,
+expect, or question is `BOARD_GATE_CONFIG_INVALID` and blocks. The result names
 the most specific code and recommends regenerating the board.
 
 ## Threshold

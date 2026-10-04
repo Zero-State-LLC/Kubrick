@@ -125,6 +125,9 @@ def test_each_compound_lock_becomes_direct_questions_with_expected_answers() -> 
     ("the grille never moves like lips", "Does the grille move like lips?", "no"),
     ("the hood never touches the head", "Does the hood touch the head?", "no"),
     ("the drone never flies", "Does the drone fly?", "no"),
+    ("the character never has a nose", "Does the character have a nose?", "no"),
+    ("the hood is never up", "Is the hood up?", "no"),
+    ("the lenses are never lit", "Are the lenses lit?", "no"),
     ("silicon hands with no nails", "Does the character show silicon hands with no nails?", "yes"),
     ("the hood is down", "Is it true in this image that the hood is down?", "yes"),
 ])
@@ -201,12 +204,10 @@ def test_lens_sides_is_warn_only_and_never_blocks() -> None:
 
 def test_explicit_severity_and_lock_checks() -> None:
     forced = dict(SIDES, severity="block")
-    plan = _plan(board_checks=[forced, {"question": "Bad?", "severity": "maybe"}])
+    plan = _plan(board_checks=[forced])
     plan["locks"][2]["checks"] = [
         {"question": PREFIX + "Is the speaker grille moving like lips?", "expect": "no"},
         {"question": PREFIX + "Is any text visible?", "expect": "no", "severity": "warn"},
-        {"question": "", "expect": "no"},
-        "not a mapping",
     ]
     plan["locks"][0]["severity"] = "warn"
     questions = gate.lock_questions(plan, "myslef", plan["characters"]["myslef"])
@@ -218,13 +219,56 @@ def test_explicit_severity_and_lock_checks() -> None:
         ("lens-sides", "block"),
     ]
     report = _check(plan, ScriptedJudge({**CLEAN, "Is any text visible?": "no",
-                                     "speaker grille moving like lips?": "no",
-                                     "on the right side?": "no"}))
+                                         "speaker grille moving like lips?": "no",
+                                         "on the right side?": "no"}))
     assert report["code"] == "BOARD_LOCK_DETAIL_FAIL"
     assert {row["lock_id"]: row["status"] for row in report["locks"]}["lens-sides"] == "FAIL"
-    plan["locks"][0]["severity"] = "loud"
-    assert all(item["lock_id"] != "red-chest-led" for item in
-               gate.lock_questions(plan, "myslef", plan["characters"]["myslef"]))
+
+
+def test_lock_checks_inherit_the_lock_severity() -> None:
+    plan = _plan()
+    plan["locks"][2]["severity"] = "warn"
+    plan["locks"][2]["checks"] = [
+        {"question": PREFIX + "Is the speaker grille moving like lips?", "expect": "no"},
+        {"question": PREFIX + "Is any text visible?", "expect": "no", "severity": "block"},
+    ]
+    questions = gate.lock_questions(plan, "myslef", plan["characters"]["myslef"])
+    assert [item["severity"] for item in questions[-2:]] == ["warn", "block"]
+    report = _check(plan, ScriptedJudge({**CLEAN, "Is any text visible?": "no",
+                                         "speaker grille moving like lips?": "yes"}))
+    assert report["blocks_spend"] is False
+    assert report["locks"][-1]["status"] == "WARN"
+
+
+@pytest.mark.parametrize("bad", [
+    {"severity": "blok"},
+    {"checks": [{"question": PREFIX + "Is any text visible?", "severity": "loud"}]},
+    {"checks": [{"question": PREFIX + "Is any text visible?", "expect": "maybe"}]},
+    {"checks": [{"question": "", "expect": "no"}]},
+    {"checks": ["not a mapping"]},
+])
+def test_invalid_lock_config_fails_closed(bad: dict[str, object]) -> None:
+    plan = _plan()
+    plan["locks"][2].update(bad)
+    report = _check(plan, ScriptedJudge({**CLEAN, "Is any text visible?": "no"}))
+    assert report["blocks_spend"] is True
+    assert report["code"] == "BOARD_GATE_CONFIG_INVALID"
+    config = [row for row in report["checks"] if row["check"] == "lock_config"]
+    assert config and all(row["lock_id"] == "speaker-mouth" for row in config)
+    assert {row["lock_id"]: row["status"] for row in report["locks"]}["speaker-mouth"] == "FAIL"
+
+
+def test_duplicate_questions_keep_the_stricter_severity_and_reject_conflicts() -> None:
+    same = PREFIX + "Do the lenses glow?"
+    plan = _plan(board_checks=[{"question": same, "expect": "no", "severity": "block"}])
+    plan["locks"][1]["severity"] = "warn"
+    questions = gate.lock_questions(plan, "myslef", plan["characters"]["myslef"])
+    glow = [item for item in questions if item["question"] == same]
+    assert [(item["lock_id"], item["severity"]) for item in glow] == [("lenses", "block")]
+    plan["characters"]["myslef"]["board_checks"] = [{"question": same, "expect": "yes"}]
+    conflict = _check(plan, ScriptedJudge(CLEAN))
+    assert conflict["code"] == "BOARD_GATE_CONFIG_INVALID"
+    assert "expects no for lock 'lenses' and yes" in str(conflict["message"])
 
 
 if __name__ == "__main__":

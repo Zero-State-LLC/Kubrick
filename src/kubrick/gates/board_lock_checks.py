@@ -21,11 +21,13 @@ the character show any words?" blocked 1.
 Clauses are split at commas, semicolons, and ``and`` only where the next part
 starts a new negative clause, so "no light on the head, hood or temple" stays
 one question. A lock may list its own ``checks`` (``question``, ``expect``,
-``severity``) to replace the split.
+``severity``) to replace the split; they inherit the lock's ``severity``.
 
 Severity is ``block`` or ``warn``. A question about the left or right side
 defaults to ``warn``: the Spark judge scored 0.46 on lens sides. An explicit
-``severity`` wins.
+``severity`` wins. A bad ``severity`` or ``expect``, a check with no question,
+or one question given two different ``expect`` values is
+``BOARD_GATE_CONFIG_INVALID`` and blocks; it is never dropped.
 """
 from __future__ import annotations
 
@@ -40,6 +42,7 @@ _NEGATORS = ("no ", "not ", "never ")
 _SIDE = re.compile(r"\b(left|right)\b", re.IGNORECASE)
 _NEVER = re.compile(r"^(?P<subject>.+?)\s+never\s+(?P<verb>\S+)(?P<rest>.*)$", re.IGNORECASE)
 _FINITE = re.compile(r"\b(is|are|has|have|stays|stay)\b", re.IGNORECASE)
+_IRREGULAR = {"has": "have", "does": "do", "goes": "go"}
 _SPLIT = re.compile(r"\s*[,;]\s*|\s+and\s+(?=(?:no|not|never)\s)", re.IGNORECASE)
 
 
@@ -66,6 +69,8 @@ def split_clauses(text: str) -> list[str]:
 
 def _base_verb(verb: str) -> str:
     lowered = verb.casefold()
+    if lowered in _IRREGULAR:
+        return _IRREGULAR[lowered]
     if lowered.endswith("ies") and len(lowered) > 4:
         return verb[:-3] + "y"
     if re.search(r"(ch|sh|x|ss|z)es$", lowered):
@@ -79,7 +84,11 @@ def _never_question(match: re.Match[str]) -> str:
     subject = match.group("subject").strip()
     verb = match.group("verb")
     rest = match.group("rest").rstrip()
-    head = subject.split()[-1].casefold()
+    words = subject.split()
+    if len(words) > 1 and words[-1].casefold() in {"is", "are"}:
+        copula = words[-1].casefold().capitalize()
+        return f"{copula} {' '.join(words[:-1])} {verb}{rest}?"
+    head = words[-1].casefold()
     plural = head.endswith("s") and not head.endswith("ss")
     auxiliary = "Do" if plural else "Does"
     return f"{auxiliary} {subject} {_base_verb(verb)}{rest}?"
@@ -103,9 +112,11 @@ def default_severity(question: str) -> str:
     return "warn" if _SIDE.search(question) else "block"
 
 
-def severity_of(row: Mapping[str, object], question: str) -> str | None:
-    """The row's severity, the side default when unset, ``None`` when invalid."""
-    raw = row.get("severity")
+def severity_of(
+    row: Mapping[str, object], question: str, inherited: object = None,
+) -> str | None:
+    """The row's severity, else ``inherited``, else the side default. ``None`` when invalid."""
+    raw = row.get("severity", inherited)
     if raw is None:
         return default_severity(question)
     value = str(raw).strip().casefold()
@@ -118,18 +129,38 @@ def _check(lock_id: str, question: str, expect: str, severity: str, part: int,
             "severity": severity, "part": str(part), "lock_text": source}
 
 
-def explicit_checks(lock_id: str, rows: Sequence[object]) -> list[dict[str, str]]:
-    """``checks`` written on a lock. A row with a bad expect or severity is skipped."""
+def invalid_check(lock_id: str, question: str, error: str) -> dict[str, str]:
+    """A check that cannot be asked. The gate reports it as ``BOARD_GATE_CONFIG_INVALID``."""
+    return {"lock_id": lock_id, "question": question, "expect": "", "severity": "block",
+            "part": "", "lock_text": question, "error": error}
+
+
+def explicit_checks(
+    lock_id: str, rows: Sequence[object], inherited: object = None,
+) -> list[dict[str, str]]:
+    """Hand-written checks. A row with no question, a bad expect, or a bad severity is invalid.
+
+    ``inherited`` is the lock's own ``severity``; a row's ``severity`` wins.
+    """
     found: list[dict[str, str]] = []
-    for row in rows:
+    for index, row in enumerate(rows, start=1):
         if not isinstance(row, Mapping):
+            found.append(invalid_check(lock_id, "", f"check {index} is not a mapping"))
             continue
         question = str(row.get("question") or "").strip()
         expect = str(row.get("expect") or "yes").strip().casefold()
-        severity = severity_of(row, question)
-        if not question or expect not in {"yes", "no"} or severity is None:
-            continue
-        found.append(_check(lock_id, question, expect, severity, len(found) + 1, question))
+        severity = severity_of(row, question, inherited)
+        if not question:
+            found.append(invalid_check(lock_id, "", f"check {index} has no question"))
+        elif expect not in {"yes", "no"}:
+            found.append(invalid_check(lock_id, question, f"expect must be yes or no, not "
+                                                          f"{row.get('expect')!r}"))
+        elif severity is None:
+            raw = row.get("severity", inherited)
+            found.append(invalid_check(lock_id, question,
+                                       f"severity must be block or warn, not {raw!r}"))
+        else:
+            found.append(_check(lock_id, question, expect, severity, index, question))
     return found
 
 
@@ -143,6 +174,8 @@ def atomic_checks(
         question = _prefix(name) + body
         level = severity_of({"severity": severity}, body)
         if level is None:
+            found.append(invalid_check(lock_id, question, f"severity must be block or warn, "
+                                                          f"not {severity!r}"))
             continue
         found.append(_check(lock_id, question, expect, level, index, text))
     return found
@@ -178,6 +211,8 @@ def judge_lock_checks(
     cannot be answered is ``BOARD_LOCK_DETAIL_UNVERIFIED``. Both block spend.
     A ``warn`` question that fails or cannot be answered is ``WARN`` with
     ``BOARD_LOCK_DETAIL_WARN`` and never blocks; ``verdict`` keeps what it was.
+    An invalid check is a ``lock_config`` row with ``BOARD_GATE_CONFIG_INVALID``
+    and blocks (fail closed).
     """
     rows: list[dict[str, object]] = []
     for item in questions:
@@ -186,6 +221,12 @@ def judge_lock_checks(
             "character": name, "lock_id": item["lock_id"], "question": item["question"],
             "expect": item["expect"], "severity": severity, "part": item.get("part"),
         }
+        if item.get("error"):
+            config = _lock_row(shot, "FAIL", "BOARD_GATE_CONFIG_INVALID", detail=item["error"],
+                               **base)
+            config["check"] = "lock_config"
+            rows.append(config)
+            continue
         judge_name: str | None = None
         answer: str | None = None
         try:
@@ -213,7 +254,7 @@ def lock_verdicts(rows: Sequence[Mapping[str, object]]) -> list[dict[str, object
     order = ("FAIL", "UNVERIFIED", "WARN", "PASS")
     grouped: dict[tuple[str, str, str], list[str]] = {}
     for row in rows:
-        if row.get("check") != "lock_detail":
+        if row.get("check") not in {"lock_detail", "lock_config"}:
             continue
         key = (str(row.get("shot")), str(row.get("character")), str(row.get("lock_id")))
         grouped.setdefault(key, []).append(str(row.get("status")))

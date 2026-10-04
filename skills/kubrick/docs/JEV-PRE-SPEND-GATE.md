@@ -162,8 +162,12 @@ answered is a `WARN` row and a `BOARD_LOCK_DETAIL_WARN` warning; it never
 blocks spend. Severity defaults to `block`, except a question that names the
 left or right side defaults to `warn`, because the judge scored 0.46 on lens
 sides (see the calibration note). Set `severity` on a `board_checks` row, a
-lock `checks` row, or a whole lock to override it. An unknown severity drops
-the question, so check the report's question list after changing it.
+lock `checks` row, or a whole lock to override it; a lock's `checks` inherit
+the lock's severity. When two sources ask the same question, the stricter
+severity wins. A severity other than `block` or `warn`, an `expect` other
+than `yes` or `no`, a `checks` row with no question, or one question given
+two different `expect` values is `BOARD_GATE_CONFIG_INVALID` and blocks; the
+gate never drops it silently.
 
 Recorded answers are keyed by the exact question, so answers recorded before
 0.26.0 for compound questions no longer match and come back UNVERIFIED.
