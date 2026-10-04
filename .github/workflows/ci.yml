@@ -11,6 +11,11 @@ jobs:
     runs-on: ubuntu-latest
     steps:
     - uses: actions/checkout@v4
+      with:
+        fetch-depth: 0
+    - name: No new em dashes (added lines only)
+      if: github.event_name == 'pull_request'
+      run: python3 scripts/check_no_new_em_dash.py --base origin/${{ github.base_ref }}
     - name: Set up Python
       uses: actions/setup-python@v5
       with:

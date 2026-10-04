@@ -1,5 +1,10 @@
 # Changelog — Kubrick
 
+## [Unreleased]
+
+### Added
+- CI fails a pull request that adds an em dash (U+2014). `scripts/check_no_new_em_dash.py --base origin/<base>` checks only the lines the diff adds, so the em dashes already on main do not fail it. A missing base ref fails closed. A fixture line that must keep one carries `em-dash: allow`.
+
 ## [0.25.1] - 2026-10-04
 
 ### Changed

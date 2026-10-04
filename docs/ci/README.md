@@ -7,6 +7,8 @@ docs-side reference copy (useful if a future edit must land without the `workflo
 OAuth scope). Prefer editing the live workflow under `.github/workflows/` and keeping
 this file in sync.
 
+`ci.yml` also fails a pull request that adds an em dash (U+2014). `scripts/check_no_new_em_dash.py --base origin/<base>` reads only the added lines of the diff, so the em dashes already on main do not fail it. Rewrite a hit with a period, comma, colon, or parentheses.
+
 Hardening includes:
 
 - stdlib surface / io / cross-surface tests on ubuntu (Python 3.10–3.14; no hosted macOS/Windows)
