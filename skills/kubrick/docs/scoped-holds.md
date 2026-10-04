@@ -18,3 +18,18 @@ Jev can return one row per hold: `hold_id`, `present`, `located`, and
 pass. A recorded sample whose `p` is from 0.4 through 0.6 is drawn again, up
 to three times, and does not become a pass. The judge still sends the
 applicable holds in one call. The HTTP timeout stays the client timeout.
+
+## Fail closed
+
+A prompt whose `location` is missing, blank, or only whitespace cannot be
+matched against `scope.locations`. When any hold in the list names
+`scope.locations`, that prompt is `LOCATION_UNSPECIFIED` and spend is blocked
+before Jev. The hold is not scoped out. A plan with blank locations and no
+location-scoped hold is unaffected, so the MYSLEF fixtures and the example
+storyboard plans still pass.
+
+A hold that names a scope (`locations`, `shots`, or `characters`) and applies
+to a prompt is a board lock for that prompt. If the prompt text does not state
+the hold text, `lint_text` reports `LOCK_MISSING_IN_BOARD` and the Jev lint
+block stops the spend before Jev is called. The finding suggestion is the
+board prompt with the missing lock appended.
