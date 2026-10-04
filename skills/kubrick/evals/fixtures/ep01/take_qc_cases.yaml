@@ -1,0 +1,204 @@
+# EP-01 take QC fixtures. Measurements only. No detector and no paid call.
+cases:
+  - id: b11r-t1
+    duration_seconds: 4
+    subject: non_human
+    ask:
+      crop: knees_up
+      head_ratio: [0.40, 0.45]
+    frames:
+      - {t: 0, ankles_visible: true, head_ratio: 0.42, head_source: dome, pose_landmarks: false}
+      - {t: 4, ankles_visible: true, head_ratio: 0.42, head_source: dome, pose_landmarks: false}
+  - id: b11r-mid-thigh
+    duration_seconds: 4
+    subject: non_human
+    ask:
+      crop: knees_up
+      head_ratio: [0.40, 0.45]
+    frames:
+      - {t: 0, ankles_visible: false, head_ratio: 0.42, head_source: dome, pose_landmarks: false}
+      - {t: 4, ankles_visible: false, head_ratio: 0.43, head_source: dome, pose_landmarks: false}
+  - id: v09-t1
+    duration_seconds: 4
+    subject: non_human
+    ask:
+      move: push-in
+      head_ratio: [0.40, 0.45]
+    frames:
+      - {t: 0, head_ratio: 0.42, head_source: dome, pose_landmarks: false}
+      - {t: 4, head_ratio: 0.50, head_source: dome, pose_landmarks: false}
+  - id: v09-t2
+    duration_seconds: 4
+    subject: non_human
+    ask:
+      move: push-in
+      head_ratio: [0.40, 0.45]
+    frames:
+      - {t: 0, head_ratio: 0.42, head_source: dome, pose_landmarks: false}
+      - {t: 4, head_ratio: 0.44, head_source: dome, pose_landmarks: false}
+  - id: b09r-t2
+    duration_seconds: 4
+    subject: non_human
+    ask:
+      head_ratio: [0.40, 0.45]
+    frames:
+      - {t: 0, head_ratio: 0.50, head_source: dome, pose_landmarks: false, edge_cut: true, subject_centroid: [0.05, 0.50]}
+      - {t: 4, head_ratio: 0.50, head_source: dome, pose_landmarks: false, edge_cut: true, subject_centroid: [0.05, 0.50]}
+  - id: b09r-t3
+    duration_seconds: 4
+    subject: non_human
+    ask:
+      head_ratio: [0.40, 0.45]
+    frames:
+      - {t: 0, head_ratio: 0.37, head_source: dome, pose_landmarks: false, edge_cut: false, subject_centroid: [0.50, 0.45]}
+      - {t: 4, head_ratio: 0.37, head_source: dome, pose_landmarks: false, edge_cut: false, subject_centroid: [0.50, 0.45]}
+  - id: v07-t1
+    duration_seconds: 4
+    subject: non_human
+    ask:
+      lights: [{region: back, emitting: false}]
+    frames:
+      - {t: 0, lights: [{region: back, emitting: true}]}
+      - {t: 4, lights: [{region: back, emitting: true}]}
+  - id: v07-t2
+    duration_seconds: 4
+    subject: non_human
+    ask:
+      lights: [{region: back, emitting: false}]
+    frames:
+      - {t: 0, lights: [{region: back, emitting: false}]}
+      - {t: 4, lights: [{region: back, emitting: false}]}
+  - id: v12-t1
+    duration_seconds: 4
+    subject: non_human
+    ask:
+      lights: [{region: lens, emitting: false}]
+    frames:
+      - {t: 0, lights: [{region: lens, emitting: true}]}
+      - {t: 4, lights: [{region: lens, emitting: true}]}
+  - id: v12-t2
+    duration_seconds: 4
+    subject: non_human
+    ask:
+      lights: [{region: lens, emitting: false}]
+    frames:
+      - {t: 4, lights: [{region: lens, emitting: false}]}
+  - id: v01-t1
+    duration_seconds: 4
+    subject: non_human
+    ask:
+      lights: [{region: grille, emitting: false}]
+    frames:
+      - {t: 0, lights: [{region: grille, emitting: true}]}
+      - {t: 4, lights: [{region: grille, emitting: true}]}
+  - id: v01-t2
+    duration_seconds: 4
+    subject: non_human
+    ask:
+      lights: [{region: grille, emitting: false}]
+    frames:
+      - {t: 4, lights: [{region: grille, emitting: false}]}
+  - id: v09-debris-t1
+    duration_seconds: 4
+    subject: non_human
+    small_motion: true
+    frames:
+      - {t: 0, head_ratio: 0.42, head_source: dome, pose_landmarks: false}
+      - {t: 4, head_ratio: 0.42, head_source: dome, pose_landmarks: false}
+  - id: v09-debris-t2
+    duration_seconds: 4
+    subject: non_human
+    small_motion: true
+    frames:
+      - {t: 2, head_ratio: 0.42, head_source: dome, pose_landmarks: false}
+  - id: v13-t1
+    duration_seconds: 4
+    subject: non_human
+    open_copy: true
+    frames:
+      - {t: 0}
+      - {t: 4}
+  - id: v13-trimmed
+    duration_seconds: 4
+    subject: non_human
+    open_copy: false
+    frames:
+      - {t: 0}
+      - {t: 4}
+  - id: landscape-rejected
+    duration_seconds: 4
+    subject: non_human
+    ask:
+      aspect: "9:16"
+    frames:
+      - {t: 0, aspect: "16:9"}
+      - {t: 4, aspect: "16:9"}
+  - id: b14r-t2
+    duration_seconds: 4
+    subject: non_human
+    ask:
+      aspect: "9:16"
+    frames:
+      - {t: 0, aspect: "9:16"}
+      - {t: 4, aspect: "9:16"}
+  - id: b10-hands
+    duration_seconds: 4
+    subject: non_human
+    ask:
+      hands: silicon
+    frames:
+      - {t: 0, hands: human}
+      - {t: 4, hands: human}
+  - id: b10-refs-only
+    duration_seconds: 4
+    subject: non_human
+    partial: true
+    ask:
+      hands: silicon
+    frames:
+      - {t: 0, hands: silicon}
+      - {t: 4, hands: silicon}
+  - id: lens-flip-34-left
+    duration_seconds: 4
+    subject: non_human
+    ask:
+      lens_side: figure_right
+    frames:
+      - {t: 0, lens_side: flipped}
+      - {t: 4, lens_side: flipped}
+  - id: b11-front
+    duration_seconds: 4
+    subject: non_human
+    ask:
+      lens_side: figure_right
+    frames:
+      - {t: 0, lens_side: front}
+      - {t: 4, lens_side: front}
+  - id: b11-b12-copy
+    duration_seconds: 4
+    subject: non_human
+    ref_copy: true
+    frames:
+      - {t: 0}
+      - {t: 4}
+  - id: b12-reverse
+    duration_seconds: 4
+    subject: non_human
+    ref_copy: false
+    frames:
+      - {t: 0}
+      - {t: 4}
+  - id: start-hold-t1
+    duration_seconds: 4
+    subject: non_human
+    start_hold: true
+    frames:
+      - {t: 0}
+      - {t: 4}
+  - id: start-hold-clear
+    duration_seconds: 4
+    subject: non_human
+    start_hold: false
+    frames:
+      - {t: 0}
+      - {t: 4}

@@ -41,6 +41,7 @@ flowchart TB
   core --> adapters["adapters"]
   core --> gates["gates"]
   core --> qc["qc"]
+  qc --> take["vision_observe"]
   core --> providers["providers"]
   core --> corpus["corpus"]
   core --> surfaces["surfaces"]
@@ -48,12 +49,11 @@ flowchart TB
   board["board gate · #101"]
   framing["numeric framing · #102"]
   refpack["reference pack · #103"]
-  take["take QC · #100"]
   classDef planned stroke-dasharray: 4 3,fill:none
-  class board,framing,refpack,take planned
+  class board,framing,refpack planned
 ```
 
-Board gate, numeric framing, the reference pack, and take QC are open issues. They are not packages yet.
+Take QC core scores fixture measurements in `src/kubrick/qc/vision_observe.py`. See [`docs/TAKE-QC.md`](docs/TAKE-QC.md). Board gate, numeric framing, and the reference pack are still open.
 
 ## How to use
 

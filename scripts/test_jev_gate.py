@@ -185,6 +185,7 @@ def test_myslef_v023_fails_and_hand_fixed_passes() -> None:
     assert "red-chest-light" in client.seen_hold_ids[0]
     fixed = _rows(_load("myslef-hand-fixed.json")["shots"])
     for shot in fixed:
+        assert "chest LED" in str(shot["prompt"])
         if shot["location"] == "alley":
             assert "CHAIR LOCK" not in str(shot["prompt"])
         else:
@@ -195,6 +196,30 @@ def test_myslef_v023_fails_and_hand_fixed_passes() -> None:
     )
     assert passed["blocks_spend"] is False
     assert passed["code"] == "CLEAR"
+
+
+def test_prompt_that_omits_the_chest_led_fails_without_jev() -> None:
+    holds = [{
+        "id": "red-chest-light",
+        "kind": "light",
+        "text": "no red light on the head or chest",
+        "negative": "no red light on the head or chest",
+        "scope": "plan-location",
+        "requirement": "present",
+        "critical": True,
+    }]
+    prompt = _prompt({
+        "shot": "03",
+        "location": "plan-location",
+        "prompt": "a figure waits in the aisle",
+    })
+    client = _recorded([prompt], holds, [{"verdict": "pass", "findings": []}])
+    gate = check_before_spend(holds, [prompt], client=client)
+    assert gate["blocks_spend"] is True
+    assert gate["code"] == "JEV_HOLD"
+    assert "MISSING_LOCK" in str(gate["message"])
+    assert "red-chest-light" in str(gate["message"])
+    assert "chest" in str(gate["message"])
 
 
 def test_run_ledger_records_the_gate_before_spend() -> None:
@@ -336,8 +361,36 @@ def _verdict_file(plan: Mapping[str, object], verdict: str) -> str:
     return handle.name
 
 
-def test_runbook_and_cues_block_before_spend() -> None:
+def _phrase_plan() -> dict[str, object]:
+    """Same locks, with the chest-LED line actually present in each picture prompt."""
     plan = _locked_plan()
+    frames = plan["frames"]
+    assert isinstance(frames, list)
+    for frame in frames:
+        assert isinstance(frame, dict)
+        frame["residue"] = ["no red light on the head or chest"]
+    return plan
+
+
+def test_runbook_and_cues_block_before_spend() -> None:
+    omitted = _locked_plan()
+    for extra in ((), ("--jev-override",)):
+        code, data, err = _run("video_runbook.py", omitted, *extra)
+        assert code == 4
+        assert data["code"] == "JEV_HOLD"
+        assert "MISSING_LOCK" in str(data.get("message"))
+        assert "ops" not in data
+        assert "spend_estimate" not in data
+        assert "JEV_OVERRIDE" not in err
+    recorded_pass = _verdict_file(omitted, "pass")
+    try:
+        code, data, _err = _run("video_runbook.py", omitted, "--jev-verdicts", recorded_pass)
+    finally:
+        Path(recorded_pass).unlink(missing_ok=True)
+    assert code == 4
+    assert data["code"] == "JEV_HOLD"
+    assert "ops" not in data
+    plan = _phrase_plan()
     code, data, _err = _run("video_runbook.py", plan)
     assert code == 4
     assert data["code"] == "JEV_UNREACHABLE"
@@ -370,11 +423,11 @@ def test_runbook_and_cues_block_before_spend() -> None:
     assert code == 0
     assert _map(passed["jev_gate"])["code"] == "CLEAR"
     assert "spend_estimate" in passed
-    cue_code, cues, _err = _run("video_cues.py", plan)
+    cue_code, cues, _err = _run("video_cues.py", omitted)
     assert cue_code == 4
     assert cues["code"] == "JEV_UNREACHABLE"
     assert "elevenlabs_estimate" not in cues
-    allowed_code, allowed, err = _run("video_cues.py", plan, "--jev-override")
+    allowed_code, allowed, err = _run("video_cues.py", omitted, "--jev-override")
     assert allowed_code == 0, err
     assert _map(allowed["elevenlabs_estimate"])["label"] == "INFERRED"
     assert _rows(allowed["run_ledger"])[0]["checked_before_spend"] is True

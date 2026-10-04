@@ -1,0 +1,6 @@
+# Optional detectors for a future live take-QC backend.
+# CI does not install this file. src/kubrick/qc/vision_observe.py scores
+# fixture measurements and does not import these packages.
+#
+# mediapipe
+# opencv-python-headless
