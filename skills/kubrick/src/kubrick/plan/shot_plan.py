@@ -296,6 +296,7 @@ def collect_prep(
         opted[shot] = opted_clauses(techniques, shot, wanted)
     from kubrick.gates.board_qc import prep_effects
     from kubrick.plan.plan_cues import keep_clear_warnings
+    from kubrick.plan.ref_pack import pack_warnings
     from kubrick.plan.spend_plan import shot_count_warning
     from kubrick.prompts.audio_screen_locks import lint as audio_screen_lint
     from kubrick.prompts.film_grammar import frame_prep_warnings
@@ -317,6 +318,7 @@ def collect_prep(
         *frame_prep_warnings(frames),
         *board_warnings,
         *framing_warnings(merged, frames),
+        *pack_warnings(merged, frames),
     ]
     high = shot_count_warning(len(frames), provider, merged)
     if high is not None:

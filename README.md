@@ -48,12 +48,10 @@ flowchart TB
   core --> corpus["corpus"]
   core --> surfaces["surfaces"]
   core --> runtime["runtime"]
-  refpack["reference pack · #103"]
-  classDef planned stroke-dasharray: 4 3,fill:none
-  class refpack planned
+  plan --> refpack["ref_pack"]
 ```
 
-Take QC core scores fixture measurements in `src/kubrick/qc/vision_observe.py`. The board gate in `src/kubrick/gates/board_qc.py` checks a start board before video spend. Numeric framing in `src/kubrick/prompts/framing.py` writes a motion-only video line when a start frame is used and records an end anchor Keyframe cannot store. See [`docs/TAKE-QC.md`](docs/TAKE-QC.md), [`docs/BOARD-GATE.md`](docs/BOARD-GATE.md), and [`docs/FRAMING.md`](docs/FRAMING.md). The reference pack is still open.
+Take QC core scores fixture measurements in `src/kubrick/qc/vision_observe.py`. The board gate in `src/kubrick/gates/board_qc.py` checks a start board before video spend. Numeric framing in `src/kubrick/prompts/framing.py` writes a motion-only video line when a start frame is used and records an end anchor Keyframe cannot store. The reference pack in `src/kubrick/plan/ref_pack.py` is one hash shared across movies. See [`docs/TAKE-QC.md`](docs/TAKE-QC.md), [`docs/BOARD-GATE.md`](docs/BOARD-GATE.md), [`docs/FRAMING.md`](docs/FRAMING.md), and [`docs/REF-PACK.md`](docs/REF-PACK.md).
 
 ## How to use
 
