@@ -1,0 +1,28 @@
+# Labelled EP-01 failures. The router recommends. It does not spend.
+cases:
+  - id: shot-10-nails
+    defects:
+      - shot: "10"
+        label: LOCALIZED_MATERIAL
+        detail: faint nails
+  - id: v07-light
+    defects:
+      - shot: v07
+        label: LOCALIZED_LIGHT
+        detail: back LEDs
+  - id: b11-crop
+    defects:
+      - shot: b11
+        defect_code: crop_line
+  - id: v09-push
+    defects:
+      - shot: v09
+        defect_code: push_drift
+  - id: lens-flip
+    defects:
+      - shot: lens
+        defect_code: lens_side
+  - id: v13-open
+    defects:
+      - shot: v13
+        defect_code: open_copy

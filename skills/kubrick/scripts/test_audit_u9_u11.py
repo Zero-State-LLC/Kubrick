@@ -165,6 +165,10 @@ class AuditU9U11(unittest.TestCase):
             self.assertEqual(v["integrated_lufs"], -14)
             self.assertEqual(v["true_peak_dbtp"], -1)
         self.assertEqual(_map(data["elevenlabs_estimate"])["total_credits"], len("Hi there"))
+        sfx = _map(data["sfx_estimate"])
+        self.assertEqual(sfx["line"], "sfx 0")
+        self.assertEqual(sfx["credits"], 0)
+        self.assertEqual(sfx["source"], "fixture")
 
     def test_cues_voice_lock(self) -> None:
         plan = copy.deepcopy(P)
