@@ -98,6 +98,7 @@ def lint_text(
     resolution: object = None,
     duration: object = None,
     chained: bool = False,
+    locks: Sequence[str] = (),
 ) -> list[dict[str, str]]:
     """Findings for one prompt. Rewrites are not applied here."""
     findings: list[dict[str, str]] = []
@@ -110,6 +111,7 @@ def lint_text(
             "describe unreadable marks without naming the word",
         ))
     findings.extend(_motion(text, frame, resolution, duration, chained))
+    findings.extend(_missing_board(text, locks))
     return findings
 
 
@@ -122,6 +124,7 @@ def review_prompt(
     resolution: object = None,
     duration: object = None,
     chained: bool = False,
+    locks: Sequence[str] = (),
 ) -> tuple[str, list[dict[str, str]]]:
     """Rewrite, then lint the text that would be sent."""
     rewritten, rewrites = rewrite_surface(text, aliases)
@@ -129,9 +132,23 @@ def review_prompt(
         *rewrites,
         *lint_text(
             rewritten, holds=holds, frame=frame, resolution=resolution,
-            duration=duration, chained=chained,
+            duration=duration, chained=chained, locks=locks,
         ),
     ]
+
+
+def _missing_board(text: str, locks: Sequence[str]) -> list[dict[str, str]]:
+    """Run the board-lock helpers. A missing lock blocks; the suggestion is the repair."""
+    named = [item.strip() for item in locks if isinstance(item, str) and item.strip()]
+    if not named:
+        return []
+    missing = missing_board_locks(text, named)
+    if not missing:
+        return []
+    repaired = emit_board_prompt(text, named)
+    for item in missing:
+        item["suggestion"] = repaired
+    return missing
 
 
 def missing_board_locks(prompt: str, locks: Sequence[str]) -> list[dict[str, str]]:

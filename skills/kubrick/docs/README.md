@@ -1,6 +1,6 @@
 # Kubrick documentation
 
-Current product version: **0.23.0** (`VERSION`). The production envelope schema
+Current product version: **0.24.0** (`VERSION`). The production envelope schema
 id stays `0.16.0`.
 
 ## Start here
@@ -34,7 +34,7 @@ id stays `0.16.0`.
 
 | Edition | Branch | Notes |
 |---|---|---|
-| **Hermes** | [`main`](https://github.com/Zero-State-LLC/Kubrick/tree/main) | Canonical skill, product version 0.23.0 |
+| **Hermes** | [`main`](https://github.com/Zero-State-LLC/Kubrick/tree/main) | Canonical skill, product version 0.24.0 |
 | **OpenClaw** | [`openclaw`](https://github.com/Zero-State-LLC/Kubrick/tree/openclaw) | Packaging by **Prabu**; external state dir |
 
 ## Operator surface

@@ -12,7 +12,7 @@ sys.path.insert(0, str(ROOT / "scripts"))
 from continuity_locks import prop_assignments  # noqa: E402
 from hold_scope import holds_for_prompt  # noqa: E402
 from jev_client import RecordedJev, judge_prompt, parse_verdict, verdict_key  # noqa: E402
-from jev_gate import check_before_spend  # noqa: E402
+from jev_gate import check_before_spend, gate_prompts  # noqa: E402
 from reference_lint import prompt_lines  # noqa: E402
 
 CHAIR = {
@@ -120,6 +120,50 @@ def test_rear_wording_and_pov_omissions() -> None:
     assert REAR not in " ".join(prompt_lines(document, front, []))
 
 
+def test_blank_location_blocks_a_location_scoped_hold() -> None:
+    class _Boom:
+        def judge(self, prompt: object, holds: object) -> dict[str, object]:
+            raise AssertionError("Jev was called")
+
+    holds = [{
+        "id": "chair",
+        "kind": "prop",
+        "text": "CHAIR LOCK",
+        "scope": {"locations": ["basement"]},
+    }]
+    for location in ("", "   "):
+        prompt = {"shot": "01", "location": location, "prompt": "CHAIR LOCK stays"}
+        refused = holds_for_prompt(holds, prompt)
+        assert isinstance(refused, str)
+        assert refused.startswith("LOCATION_UNSPECIFIED")
+        gate = check_before_spend(holds, [prompt], client=_Boom())
+        assert gate["blocks_spend"] is True
+        assert gate["code"] == "LOCATION_UNSPECIFIED"
+        assert gate["authority"] == "NOT_COMPUTABLE"
+        routed = gate_prompts(
+            {"frames": [{"frame_id": "01"}], "hold_list": holds},
+            [prompt],
+            client=_Boom(),
+        )
+        assert routed["code"] == "LOCATION_UNSPECIFIED"
+        assert routed["blocks_spend"] is True
+    other = holds_for_prompt(holds, {"shot": "02", "location": "alley", "prompt": "alley"})
+    assert other == []
+
+    class _Pass:
+        def judge(self, prompt: object, holds: object) -> dict[str, object]:
+            return {"verdict": "pass", "findings": []}
+
+    alley = {"shot": "02", "location": "alley", "prompt": "walks the alley", "labels": ["02"]}
+    cleared = gate_prompts(
+        {"frames": [{"frame_id": "02"}], "hold_list": holds},
+        [alley],
+        client=_Pass(),
+    )
+    assert cleared["code"] == "CLEAR"
+    assert cleared["blocks_spend"] is False
+
+
 def test_scope_filters_the_holds_sent_to_jev() -> None:
     holds = [
         {"id": "chair", "kind": "prop", "text": "CHAIR LOCK", "scope": {"locations": ["basement"]}},
@@ -204,6 +248,7 @@ def test_marginal_probability_is_resampled_and_not_a_pass() -> None:
 def main() -> None:
     test_chair_lock_stops_at_a_location_change()
     test_rear_wording_and_pov_omissions()
+    test_blank_location_blocks_a_location_scoped_hold()
     test_scope_filters_the_holds_sent_to_jev()
     test_one_weak_hold_fails_and_the_others_pass()
     test_marginal_probability_is_resampled_and_not_a_pass()

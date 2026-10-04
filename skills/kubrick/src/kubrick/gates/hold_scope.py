@@ -96,13 +96,30 @@ def scoped_out(
     return bool(views) and view not in views
 
 
+_LOCATION_UNSPECIFIED = (
+    "LOCATION_UNSPECIFIED a location-scoped hold needs a prompt location"
+)
+
+
+def _place(prompt: Mapping[str, object]) -> str:
+    raw = prompt.get("location")
+    if isinstance(raw, str):
+        return raw.strip()
+    return ""
+
+
 def holds_for_prompt(
     holds: Sequence[Mapping[str, object]],
     prompt: Mapping[str, object],
-) -> list[dict[str, object]]:
-    """Holds that apply to this prompt. One judge call still carries the whole list."""
-    location = prompt.get("location")
-    place = location.strip() if isinstance(location, str) else ""
+) -> list[dict[str, object]] | str:
+    """Holds that apply to this prompt. A blank location fails closed.
+
+    A location-scoped hold is not dropped when ``prompt.location`` is missing
+    or whitespace. That case returns ``LOCATION_UNSPECIFIED`` and blocks spend.
+    """
+    place = _place(prompt)
+    if not place and any(_scope(hold)["locations"] for hold in holds):
+        return _LOCATION_UNSPECIFIED
     view = prompt.get("view")
     view_name = view.strip().casefold() if isinstance(view, str) else ""
     characters = set(_names(prompt.get("characters")))
@@ -113,6 +130,25 @@ def holds_for_prompt(
             continue
         chosen.append(dict(hold))
     return chosen
+
+
+def scoped_lock_lines(
+    holds: Sequence[Mapping[str, object]],
+    prompt: Mapping[str, object],
+) -> list[str] | str:
+    """Texts a scoped hold requires in this prompt. A blank location fails closed."""
+    chosen = holds_for_prompt(holds, prompt)
+    if isinstance(chosen, str):
+        return chosen
+    lines: list[str] = []
+    for hold in chosen:
+        rule = _scope(hold)
+        if not (rule["locations"] or rule["shots"] or rule["characters"]):
+            continue
+        text = hold.get("text")
+        if isinstance(text, str) and text.strip():
+            lines.append(text.strip())
+    return lines
 
 
 def annotate_hold(item: Mapping[str, object], built: dict[str, object]) -> dict[str, object]:

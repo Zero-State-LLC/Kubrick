@@ -1,8 +1,15 @@
 # Changelog — Kubrick
 
-## [Unreleased]
+## [0.24.0] - 2026-10-04
+
+### Fixed
+- A scoped board lock that the prompt does not state is `LOCK_MISSING_IN_BOARD`. `lint_text` and the Jev lint block both run that check, so the spend gate blocks before Jev. The finding suggestion is the board prompt with the lock appended.
+- A blank or whitespace `prompt.location` on a location-scoped hold is `LOCATION_UNSPECIFIED` and blocks spend. The hold is not scoped out.
 
 ### Added
+- #95: Seedance durations are whole seconds from 4 to 30. A beat under 4 is generated at 4 and the cut list trims back to the planned beat. `4.5` is `DURATION_NONINTEGER`. Anything above 30 is `DURATION_OUT_OF_RANGE`. Reference aspect must sit in 0.40-2.50. Integer 4, 5, and 6 second quotes use the billed table 62, 77, and 93.
+- #96, #97: Authored frame actions reach the compiled prompt. Brand phrases and the sweatpants negation are rewritten before emit. `POSITIVE_NEGATIVE_CONFLICT`, `HOLD_CONTRADICTION`, `META_WORD`, `SMALL_FG_MOTION_LOW_RES`, and `SUBSECOND_TIMING_IGNORED` block before Jev.
+- #109: Film grammar schema is 1.1.0, with composition, blocking, camera height, and continuity, plus optional numeric targets.
 - #98: `video runbook` keeps one node per call. A `-32001` provider result is `reconcile_later` (poll `objectKey` for about 6 minutes, no second submit). `estimateAvailable: false` quotes the billed-rate table (4/5/6 seconds → 62/77/93), not zero and not `seconds * 15.5`. The run ledger reconciles the late bill. `KUBRICK_JEV_TIMEOUT` sets the Jev client timeout (default 10s) and a dead endpoint fails closed after bounded retries. `tools/jev_adapter/` is a local fixture adapter with a health check. See `docs/runbook-spend-safety.md`.
 - #99: Holds can name `scope` (locations, shots, characters), `anchor`, `views`, and `salience`. The pre-spend gate sends only the holds that match the prompt. A prop lock does not carry across a location change. A rear view gets the explicit rear negation. A POV frame omits wardrobe and asymmetry lines. A recorded Jev payload can pass or fail each hold (`present`, `located`, `strong`). A sample with `p` in 0.4–0.6 is re-sampled up to three times and is not a pass. See `docs/scoped-holds.md`.
 - #104, #92, #108: The retake router in `src/kubrick/qc/edit_route.py` maps `LOCALIZED_MATERIAL` and `LOCALIZED_LIGHT` to a mask edit (`aleph`, `luma_modify`, or `wan_vace`, mask `sam2_track`), `FRAMING` to a re-board, `MOTION_INFEASIBLE` to a re-plan, and `IDENTITY` to a reference fix. Shot 10 faint nails is a mask edit, not a full retake. An ambiguous Jev label drafts a drift entry that stays `PROPOSED` and unapplied. Applying a draft is `NOT_COMPUTABLE` until a human approves; nothing is written to the corpus. Video cues include an SFX estimate line from a fixture, `sfx 0` when none is declared. ElevenLabs is not called for that line.
@@ -18,6 +25,9 @@
 
 ### Changed
 - #90: A recorded verdict is keyed by the judged prompt and the hold list, so a changed hold, shot, channel, surface, or location does not reuse an old pass. A `hold_list` that is not a list is `HOLD_LIST_INVALID`. A local block matches `frame_id` and `shot_id`. A transport failure after an earlier pass is `JEV_UNREACHABLE`.
+
+### Notes
+- Product version is 0.24.0. The production envelope schema id stays `0.16.0`. No provider is called.
 
 ## [0.23.0] — 2026-10-03
 
