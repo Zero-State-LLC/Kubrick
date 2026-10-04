@@ -7,6 +7,7 @@ from collections.abc import Mapping, Sequence
 from contextvars import ContextVar, Token
 
 from brief_constraints import collect_character_locks, string_list
+from hold_scope import frame_place, prop_in_place
 from prompt_text import character_lock_feature, join_clauses
 
 _STRICT: ContextVar[bool] = ContextVar("kubrick_prep_strict", default=False)
@@ -309,14 +310,23 @@ def prop_assignments(
     errors: list[str] = []
     carried: dict[str, str] = {}
     previous: dict[str, str] = {}
+    prior_place: str | None = None
     if not registry:
         return lines, errors
     for index, frame in enumerate(frames, start=1):
         shot = frame_id(frame, index)
+        place = frame_place(frame)
+        if place and prior_place and place != prior_place:
+            carried.clear()
+            previous.clear()
+        if place:
+            prior_place = place
         declared = frame_field(frame, "prop_states")
         mapping = declared if isinstance(declared, Mapping) else {}
         shot_lines: list[str] = []
         for prop_id, prop in registry.items():
+            if not prop_in_place(prop, place):
+                continue
             assigned = _one_prop(prop_id, prop, mapping.get(prop_id), shot, carried, previous)
             if assigned is None:
                 continue

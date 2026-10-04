@@ -71,6 +71,18 @@ properties:
         cast: {type: array, items: {type: string}}
         counts: {type: object, additionalProperties: {type: integer, minimum: 0}}
         shot_id: {type: string}
+        location:
+          description: Optional shot location. A prop lock does not carry across a location change.
+          oneOf:
+            - {type: string, minLength: 1}
+            - type: object
+              additionalProperties: false
+              properties:
+                id: {type: string, minLength: 1}
+                name: {type: string, minLength: 1}
+        view:
+          enum: [front, rear, pov]
+          description: Optional camera view. Rear adds rear-hold wording. POV drops wardrobe and asymmetry.
         screen_side:
           type: object
           additionalProperties: {enum: [left, right, center]}
@@ -154,6 +166,29 @@ properties:
     type: array
     description: Optional critical locks that are not character locks.
     items: {type: object, additionalProperties: true}
+  hold_list:
+    type: array
+    description: Optional scoped holds. Each hold can name locations, shots, characters, an anchor, views, and salience.
+    items:
+      oneOf:
+        - {type: string, minLength: 1}
+        - type: object
+          additionalProperties: true
+          properties:
+            id: {type: string, minLength: 1}
+            anchor: {type: string, minLength: 1}
+            salience: {type: number, minimum: 0, maximum: 1}
+            rear: {type: string, minLength: 1}
+            views:
+              type: array
+              items: {enum: [front, rear, pov]}
+            scope:
+              type: object
+              additionalProperties: false
+              properties:
+                locations: {type: array, items: {type: string, minLength: 1}}
+                shots: {type: array, items: {type: string, minLength: 1}}
+                characters: {type: array, items: {type: string, minLength: 1}}
   validation:
     type: object
     additionalProperties: false

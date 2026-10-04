@@ -10,6 +10,7 @@ from __future__ import annotations
 from collections.abc import Mapping, Sequence
 
 from continuity_locks import frame_id
+from hold_scope import annotate_hold, frame_view
 
 
 def plan_scope(document: Mapping[str, object]) -> str:
@@ -127,7 +128,7 @@ def _mapping_hold(
         raw_req = item.get("requirement")
         if isinstance(raw_req, str) and raw_req.strip():
             requirement = raw_req.strip()
-    return _hold(
+    found = _hold(
         hold_id=hold_id,
         kind=kind_text,
         text=text or f"shot {shot_id} is blocked",
@@ -140,6 +141,7 @@ def _mapping_hold(
         negative=negative,
         positive=positive,
     )
+    return annotate_hold(item, found)
 
 
 def _explicit_holds(raw: Sequence[object], scope: str) -> list[dict[str, object]] | str:
@@ -261,14 +263,21 @@ def compiled_prompts(
         label = _shot_label(frame, index)
         if not isinstance(text, str) or not text.strip():
             return f"JEV_PROMPT_MISSING shot {label} has no compiled prompt"
-        prompts.append({
+        row: dict[str, object] = {
             "shot": label,
             "labels": sorted(_labels(frame, index)),
             "channel": channel,
             "surfaces": surfaces,
             "location": shot_location(document, frame),
             "prompt": text,
-        })
+        }
+        characters = frame.get("characters")
+        if isinstance(characters, list):
+            row["characters"] = [str(name) for name in characters if isinstance(name, str)]
+        view = frame_view(frame)
+        if view:
+            row["view"] = view
+        prompts.append(row)
     return prompts
 
 

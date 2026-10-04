@@ -13,6 +13,7 @@ from collections.abc import Mapping, Sequence
 
 from brief_constraints import negative_form, string_list
 from continuity_locks import frame_field, frame_id, wardrobe_lines, warning
+from hold_scope import frame_view, view_clauses
 from prompt_text import positive_prompt
 
 _COUNT_WORDS = (
@@ -386,19 +387,25 @@ def prompt_lines(
     frame: Mapping[str, object],
     prop_lines: Sequence[str],
 ) -> list[str]:
-    """Lock lines prepended to one frame. Empty cast drops wardrobe."""
+    """Lock lines prepended to one frame. Empty cast drops wardrobe.
+
+    A POV frame does not take wardrobe or asymmetry lines.
+    """
     mode, present = screen_mode(frame)
+    pov = frame_view(frame) == "pov"
     lines: list[str] = []
     if mode == "cast" and not present:
         lines.append("nobody is in frame")
-    else:
+    elif not pov:
         lines.extend(wardrobe_lines_for(document, frame))
     lines.extend(prop_lines)
     lines.extend(_count_lines(document, frame))
     lines.extend(_binding_lines(document, frame))
-    from audio_screen_locks import asymmetry_lines
+    if not pov:
+        from audio_screen_locks import asymmetry_lines
 
-    lines.extend(asymmetry_lines(document, frame))
+        lines.extend(asymmetry_lines(document, frame))
+    lines.extend(view_clauses(document, frame))
     return lines
 
 
