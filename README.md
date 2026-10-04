@@ -1,33 +1,52 @@
 <p align="center">
-  <img src="assets/hero.jpg" alt="Kubrick — Symbolic Cinematic Narrative Engineering" width="100%">
+  <img src="assets/hero.jpg" alt="Kubrick — symbolic cinematic engineering" width="100%">
 </p>
 
 <h1 align="center">Kubrick</h1>
 
 <p align="center">
-  <strong>Hermes-Native Symbolic Cinematic Engineering</strong><br>
+  <strong>Observed form first. Dramatic function first.</strong><br>
+  A Hermes skill that turns a brief into continuity-safe storyboards and prompts.<br>
   <em>0.23.0 — Corpus audit: retrieval floor, film grammar, MYSLEF drift</em>
 </p>
 
 <p align="center">
-  <a href="https://github.com/scrimshawlife-ctrl/Kubrick/releases"><img src="https://img.shields.io/github/v/release/scrimshawlife-ctrl/Kubrick?color=5a6a8a&style=flat-square" alt="Latest Release"></a>
-  <a href="https://github.com/scrimshawlife-ctrl/Kubrick"><img src="https://img.shields.io/github/stars/scrimshawlife-ctrl/Kubrick?style=flat-square" alt="GitHub Stars"></a>
-  <a href="https://github.com/scrimshawlife-ctrl/Kubrick/issues"><img src="https://img.shields.io/github/issues/scrimshawlife-ctrl/Kubrick?style=flat-square" alt="Issues"></a>
-  <a href="LICENSE"><img src="https://img.shields.io/badge/license-LicenseRef-Zero-State-Proprietary-1.0-1a1f2e?style=flat-square" alt="License"></a>
-  <a href="#installation"><img src="https://img.shields.io/badge/Hermes-Standalone_Skill-8b5cf6?style=flat-square" alt="Hermes Standalone Skill"></a>
-</p>
-
-<p align="center">
-  <strong>Observed form first. Dramatic function first. Hidden architecture made executable.</strong>
+  <a href="https://github.com/Zero-State-LLC/Kubrick">Repository</a>
+  ·
+  <a href="https://github.com/Zero-State-LLC/Kubrick/issues">Issues</a>
+  ·
+  <a href="https://github.com/orgs/Zero-State-LLC/projects/13">Project board</a>
+  ·
+  <a href="QUICKSTART.md">Quickstart</a>
+  ·
+  <a href="SKILL.md">Skill contract</a>
+  ·
+  <a href="docs/ROADMAP.md">Roadmap</a>
+  ·
+  <a href="CHANGELOG.md">Changelog</a>
 </p>
 
 ---
 
-**Kubrick** is a self-contained Hermes skill for screenplay development, scene diagnosis, motif engineering, cinematic encoding, storyboard continuity, generative prompt construction, closed-loop visual QA, multi-signal outcome learning, and governed design-specification compilation.
+## Tags
 
-It converts dramatic pressure into observable geometry, behavior, rhythm, material state, light, sound, convergence, and residue. Esoteric and archetypal source systems remain latent by default: audience-facing packets expose enforceable cinematic constraints rather than named occult concepts.
+<p align="center">
+  <a href="https://github.com/Zero-State-LLC/Kubrick/releases"><img src="https://img.shields.io/github/v/release/Zero-State-LLC/Kubrick?style=flat-square" alt="Latest release"></a>
+  <a href="https://github.com/Zero-State-LLC/Kubrick/actions/workflows/ci.yml"><img src="https://img.shields.io/github/actions/workflow/status/Zero-State-LLC/Kubrick/ci.yml?style=flat-square" alt="CI"></a>
+  <a href="https://github.com/Zero-State-LLC/Kubrick/stargazers"><img src="https://img.shields.io/github/stars/Zero-State-LLC/Kubrick?style=flat-square" alt="Stars"></a>
+  <a href="https://github.com/Zero-State-LLC/Kubrick/issues"><img src="https://img.shields.io/github/issues/Zero-State-LLC/Kubrick?style=flat-square" alt="Issues"></a>
+  <a href="LICENSE"><img src="https://img.shields.io/badge/license-LicenseRef--Zero--State--Proprietary--1.0-1a1f2e?style=flat-square" alt="License"></a>
+</p>
 
-Security and threat model: [`SECURITY.md`](SECURITY.md). Contributing: [`CONTRIBUTING.md`](CONTRIBUTING.md). Agent contract: [`AGENTS.md`](AGENTS.md) (`CLAUDE.md` is a thin pointer there). Non-trivial work starts with [`intent/`](intent/README.md). Windows install: `install.ps1`.
+Repository topics for this repo: `hermes-skill`, `cinematography`, `storyboard`, `continuity`, `film-grammar`.
+
+<p align="center">
+  <img src="https://img.shields.io/badge/topic-hermes--skill-1a1f2e?style=flat-square" alt="topic hermes-skill">
+  <img src="https://img.shields.io/badge/topic-cinematography-1a1f2e?style=flat-square" alt="topic cinematography">
+  <img src="https://img.shields.io/badge/topic-storyboard-1a1f2e?style=flat-square" alt="topic storyboard">
+  <img src="https://img.shields.io/badge/topic-continuity-1a1f2e?style=flat-square" alt="topic continuity">
+  <img src="https://img.shields.io/badge/topic-film--grammar-1a1f2e?style=flat-square" alt="topic film-grammar">
+</p>
 
 ## Layout
 
@@ -55,458 +74,105 @@ flowchart TB
 
 Take QC core scores fixture measurements in `src/kubrick/qc/vision_observe.py`. Full take QC in `src/kubrick/qc/take_qc.py` adds fixture VLM verdicts, identity similarity, and timestamps, and runs ffmpeg only through an injected runner. The board gate in `src/kubrick/gates/board_qc.py` checks a start board before video spend. Numeric framing in `src/kubrick/prompts/framing.py` writes a motion-only video line when a start frame is used and records an end anchor Keyframe cannot store. The reference pack in `src/kubrick/plan/ref_pack.py` is one hash shared across movies. The retake router in `src/kubrick/qc/edit_route.py` recommends a mask, a re-board, a re-plan, or a reference fix and does not spend. See [`docs/TAKE-QC.md`](docs/TAKE-QC.md), [`docs/BOARD-GATE.md`](docs/BOARD-GATE.md), [`docs/FRAMING.md`](docs/FRAMING.md), and [`docs/REF-PACK.md`](docs/REF-PACK.md).
 
-## How to use
 
-### What Kubrick is for
+## Tokens
 
-Use Kubrick when you are building a story or image sequence and care about **what the audience can see and feel** — objects, light, geometry, ownership, recurrence, residue — not about dumping named symbols or occult labels into the frame.
+Kubrick has no color, type, or spacing tokens. The name `design_tokens` in
+[`scripts/surface_design.py`](scripts/surface_design.py) and
+[`scripts/surface_design_extra.py`](scripts/surface_design_extra.py) is a
+word-overlap set, not a visual system.
 
-Typical jobs:
+Words the code actually emits:
 
-- develop a premise, scene, or storyboard with consistent motifs  
-- turn a brief into a structured symbolic plan and image prompts  
-- check that a generated frame still matches the intended state  
-- keep a project’s motif ledger as you revise  
-
-You do **not** need Continuity Forge, an image API, or an MCP server to start. Those are optional add-ons.
-
-### Option A — Talk to Hermes (normal creative use)
-
-1. Install Kubrick as a Hermes skill (see [Installation](#installation)).
-2. In Hermes, load the **kubrick** skill (or ask in a way that triggers it: screenplay, motif, storyboard, image prompt, continuity).
-3. Describe the project in plain language: format, pressure, what must change, what is on screen.
-4. Hermes uses Kubrick’s rules and, when useful, the deterministic tools under the hood.
-5. Treat local output as **draft / proposal** until you explicitly approve it or hand it to a canonical system (e.g. Continuity Forge).
-
-You mostly work in conversation. You only need the CLI when you want scripts, CI, or batch pipelines.
-
-### Option B — Command line (tools and pipelines)
-
-From a clone of this repo (or the installed skill directory):
-
-```bash
-# See the short list of jobs Kubrick can run
-python scripts/kubrick.py --help
-
-# Sanity-check the skill install
-python scripts/kubrick.py do check --action smoke
-
-# Run the built-in storyboard example end-to-end
-python scripts/kubrick.py recipe storyboard-example
-```
-
-The pattern is always:
-
-```text
-python scripts/kubrick.py do <job> [options…]
-```
-
-Think of `<job>` as *what you want done*, not a pile of script names:
-
-| Job | In plain English |
+| Token | Meaning |
 |---|---|
-| `compile` | Turn a brief (+ optional ledger) into graph, storyboard, and image-ready packets |
-| `retrieve` | Find matching cinematic patterns for a dramatic problem |
-| `ledger` | Start or update the project’s motif checklist |
-| `adapt` | Reword a neutral packet for Grok Imagine, Flux, SD3, or Midjourney |
-| `visual` | Compare what you expected in a frame to what you observed; suggest fixes |
-| `learn` | Record outcomes or propose (never auto-apply) pattern improvements |
-| `check` | Validate the skill, corpus, or run smoke tests |
-| `operate` | Score saturation, lock convergence, audit for named esoterica, export architecture |
-| `design` | Compile a governed design specification from project evidence |
-| `storyboard` | Propagate, compare, or report take impact for multi-frame state |
-| `bundle` | Package a Grok-oriented review workflow |
-| `mcp` | Optional machine interface over the same tools |
+| `PROPOSED` | Local creative output, not canon |
+| `OBSERVATION` | Recorded evidence |
+| `PROPOSAL` | A change that is not applied |
+| `NOT_COMPUTABLE` | Weak or contradictory evidence; fail closed |
 
-Ask for help on one job:
+The product version is the `VERSION` file (`0.23.0`). The production envelope
+schema id stays `0.16.0` and does not track that version.
 
-```bash
-python scripts/kubrick.py help adapt
-```
+## Atlas
 
-### A simple path: idea → storyboard → image prompt
+Production code lives in [`src/kubrick/`](src/kubrick/). Each `scripts/<name>.py`
+file loads that module. Tests stay in `scripts/`. [`skills/kubrick/`](skills/kubrick/)
+is the packaging mirror. Root is the source of truth. The map is the layout
+diagram above. The Keyframe adapter is [`scripts/adapt_keyframe.py`](scripts/adapt_keyframe.py).
 
-1. **Write a short brief** (dramatic problem, what changes, what is visible).
-   Optional `character_locks` is a list of identity constraints such as `no nose` or `hairless scalp`.
-   A `production_constraints` item prefixed `character-lock:` or `identity-lock:` is the same lock.
-   `aspect_ratio`, or an `N:M` token in `production_constraints` such as `9:16 vertical`, sets the Keyframe aspect ratio. The fallback is `16:9`.
-   Storyboard plan frames may also carry optional `duration_seconds`, `title`, `scene`, `sound`, and `speech_lines`. Keyframe uses those values. When `sound` is omitted, the shot uses evidenced room presence and no scored music.
-   Optional `props`, `prop_states`, `join`, `opens_with`, `characters` (`wardrobe`, `references` with `scope` and `applies_to`), frame `wardrobe`, `cast`, `counts`, `start_frame`, `shot_id`, `apply_techniques`, and `short_beat_threshold_seconds` are prep fields. A plan may also set `location`, `counts`, `locks`, and `accept_clock_delta`. `video retime` sets `final_clock` to the sum of edit windows and reports `generated_clock` separately. See `examples/myslef-minder/`.
-   Example layout: `examples/authority-transfer-storyboard/brief.yaml`
-2. **Optionally keep a ledger** of active motifs for the project.  
-   Example: `examples/authority-transfer-storyboard/symbolic-ledger.yaml`
-3. **Compile** (this is the main pipeline):
-
-```bash
-python scripts/kubrick.py do compile \
-  --brief examples/authority-transfer-storyboard/brief.yaml \
-  --ledger examples/authority-transfer-storyboard/symbolic-ledger.yaml \
-  --mode storyboard \
-  --storyboard-plan examples/authority-transfer-storyboard/storyboard-plan.yaml \
-  --provider grok-imagine \
-  --out out/kubrick/authority-transfer
-```
-
-4. **Open the output folder.** You get a private motif graph, storyboard state, and a provider prompt packet ready for your image tool.  
-5. **After you generate images**, you can feed an observation back through `do visual` to see what drifted (geometry, ownership, residue, etc.) and what to regenerate.  
-6. **Do not expect the corpus to rewrite itself.** Outcomes can create *proposals*; a human still decides.
-
-Or skip the long form and run:
-
-```bash
-python scripts/kubrick.py recipe storyboard-example
-```
-
-### Things that stay true no matter how you use it
-
-- **Show, don’t name** — audience-facing prompts avoid named esoterica unless you explicitly ask.  
-- **If the evidence is weak, Kubrick stops** — it returns a clear failure rather than inventing structure.  
-- **Local work is not “locked canon”** — proposals and observations stay local until you promote them.  
-- **Old command names still work** if you used them before; the preferred form is `do <job>`.
-
-### Option C — OpenClaw (separate permanent branch)
-
-If your agent host is **OpenClaw** rather than Hermes, use the dedicated OpenClaw edition maintained with work by **Prabu** ([@prabu-openclaw](https://github.com/prabu-openclaw)). It lives on the permanent git branch **`openclaw`**, not on `main`.
-
-```bash
-openclaw skills install git:scrimshawlife-ctrl/Kubrick@openclaw --global
-```
-
-That edition uses OpenClaw skill packaging, installs under `~/.openclaw/skills/kubrick`, and keeps mutable runtime state outside the skill package. The creative corpus and laws stay aligned in spirit; installer, state paths, and some tooling differ.
-
-Full detail, install paths, and credits: **[`docs/OPENCLAW.md`](docs/OPENCLAW.md)**  
-Branch: https://github.com/scrimshawlife-ctrl/Kubrick/tree/openclaw  
-Upstream PR (history): https://github.com/scrimshawlife-ctrl/Kubrick/pull/1
-
-### Where to go next
-
-| Need | Go here |
+| Path | Role |
 |---|---|
-| Copy-paste workflows | [`QUICKSTART.md`](QUICKSTART.md) |
-| Hermes operating rules | [`SKILL.md`](SKILL.md) |
-| Official / community Hermes publication | [`docs/HERMES-OFFICIAL-SUBMISSION.md`](docs/HERMES-OFFICIAL-SUBMISSION.md) |
-| OpenClaw edition (Prabu) | [`docs/OPENCLAW.md`](docs/OPENCLAW.md) |
-| Full command table | [Operator Commands](#operator-commands) |
-| Design of the command surface | [`docs/archive/superpowers/specs/2026-07-30-operator-intent-router-design.md`](docs/archive/superpowers/specs/2026-07-30-operator-intent-router-design.md) |
+| [`SKILL.md`](SKILL.md) | Hermes behavior contract |
+| [`scripts/kubrick.py`](scripts/kubrick.py) | Intent router |
+| [`assets/grammar/film_grammar.yaml`](assets/grammar/film_grammar.yaml) | Film grammar 1.1.0 |
+| [`scripts/film_grammar.py`](scripts/film_grammar.py) | Grammar loader |
+| [`scripts/prompt_text.py`](scripts/prompt_text.py) | Prompt assembly |
+| [`scripts/continuity_locks.py`](scripts/continuity_locks.py) | Wardrobe, prop, and reference locks |
+| [`scripts/jev_gate.py`](scripts/jev_gate.py) | Hold check before video spend |
+| [`scripts/spend_plan.py`](scripts/spend_plan.py) | Inferred spend |
+| [`scripts/production_engine.py`](scripts/production_engine.py) | Shared production engine |
+| [`references/`](references/) | Corpus and runtime contracts |
+| [`docs/ROADMAP.md`](docs/ROADMAP.md) | Current roadmap |
 
-## 0.14.0 Highlights
+Carrier order, when a shot has those pieces: start image, then references,
+then end image, then prompt. See [`docs/CONTINUITY.md`](docs/CONTINUITY.md).
 
-Kubrick v0.14 consolidates the standalone Hermes skill around one manifest, deterministic identities, structured diagnostics, semantic provider-preservation reports, and atomic installation. Wave 2 and Wave 3 remain intact beneath this contract layer.
+## Roadmap
 
-| Area | What landed |
+Board: [project 13](https://github.com/orgs/Zero-State-LLC/projects/13).
+Full list: [`docs/ROADMAP.md`](docs/ROADMAP.md). Release notes: [`CHANGELOG.md`](CHANGELOG.md).
+
+| Stage | Issue |
 |---|---|
-| **Forge multi-signal feedback** | Ledger diffs, revisions, saturation, collisions, ingestion, and payoff outcomes → deterministic observation bundles |
-| **Multi-signal evolution** | Confidence, mutation success, feasibility, anti-slop, cultural boundaries, payoff → proposal-only evolution with human review gates |
-| **First-class project ledgers** | Persistent motif state, pattern history, rehydrate/apply-forge, retrieval snapshots; Forge remains canonical |
-| **Multi-provider adapters** | Grok Imagine, Flux, SD3, Midjourney share one latent graph; adapters change **syntax only** |
-| **Closed-loop visual QA** | Observe → normalize → differential score → correct; geometry / state / residue / convergence reported separately |
-| **CLI + optional MCP operators** | Intent router (`do <intent>`), soft aliases, recipes; MCP tool `kubrick_do`; saturation, counterpoint, lock, occult audit, export |
-| **Cultural-signal packs** | Time-sensitive contemporary memetic patterns with provenance and validity windows |
-| **Design specification compiler** | Heterogeneous evidence → schema-valid `design.md` candidate without silent authority promotion |
-| **Fail-closed governance** | Weak evidence → `NOT_COMPUTABLE`; no structural change applies automatically |
+| Provider preflight | [#95](https://github.com/Zero-State-LLC/Kubrick/issues/95) |
+| Prompt action and lint | [#96](https://github.com/Zero-State-LLC/Kubrick/issues/96), [#97](https://github.com/Zero-State-LLC/Kubrick/issues/97) |
+| Film grammar 1.1.0 | [#109](https://github.com/Zero-State-LLC/Kubrick/issues/109) |
+| Spend safety | [#98](https://github.com/Zero-State-LLC/Kubrick/issues/98) |
+| Scoped holds | [#99](https://github.com/Zero-State-LLC/Kubrick/issues/99) |
+| Restructure window | [#105](https://github.com/Zero-State-LLC/Kubrick/issues/105) |
+| Docs pass | [#117](https://github.com/Zero-State-LLC/Kubrick/issues/117) |
+| Take-check core | [#100](https://github.com/Zero-State-LLC/Kubrick/issues/100), [#107](https://github.com/Zero-State-LLC/Kubrick/issues/107) |
+| Board gate | [#101](https://github.com/Zero-State-LLC/Kubrick/issues/101) |
+| Numeric framing | [#102](https://github.com/Zero-State-LLC/Kubrick/issues/102) |
+| Reference pack | [#103](https://github.com/Zero-State-LLC/Kubrick/issues/103) |
+| Retake router | [#104](https://github.com/Zero-State-LLC/Kubrick/issues/104) |
 
-## Core Philosophy
+[#91](https://github.com/Zero-State-LLC/Kubrick/issues/91) stays deferred.
 
-- **Observed first, meaning second** — every motif begins as concrete form, behavior, relation, or material state.
-- **Dramatic function before symbolism** — symbolic design must change pressure, agency, causality, or interpretation.
-- **Mandatory mutation** — recurrence changes scale, ownership, orientation, material, rhythm, framing, context, or consequence.
-- **Three-channel symbolism** — diegetic, dramaturgical, and cinematic channels cross without explanatory dialogue.
-- **Constraint over citation** — source traditions become geometry, rhythm, threshold, role persistence, transformation, and residue.
-- **Fail closed** — weak evidence or unresolved boundaries return `NOT_COMPUTABLE`.
-- **Human-governed evolution** — local outputs remain observations or proposals until explicitly approved.
-- **Forge-canonical when connected** — Continuity Forge owns committed project state; Kubrick never auto-promotes authority.
-
-## Installation
+## Install
 
 ```bash
-git clone https://github.com/scrimshawlife-ctrl/Kubrick.git
+git clone https://github.com/Zero-State-LLC/Kubrick.git
 cd Kubrick
 ./install.sh
+python scripts/kubrick.py do check --action smoke
 ```
 
-The installer copies to staging, validates the manifest, Hermes skill, and pattern corpus, then atomically activates the new directory. Existing installs are backed up outside the discoverable skills tree and can be restored:
+Windows: `install.ps1`. OpenClaw uses the [`openclaw`](https://github.com/Zero-State-LLC/Kubrick/tree/openclaw) branch. See [`docs/OPENCLAW.md`](docs/OPENCLAW.md).
 
-```bash
-./install.sh --dry-run
-./install.sh --version
-./install.sh --rollback
-```
+Copy-paste workflows: [`QUICKSTART.md`](QUICKSTART.md). Agent contract: [`AGENTS.md`](AGENTS.md).
 
-Install and rollback operations write JSON receipts beneath `~/.hermes/receipts/`.
-
-Default destination:
-
-```text
-~/.hermes/skills/kubrick
-```
-
-Install repository validation dependencies when developing locally:
-
-```bash
-python3 -m pip install -r requirements.txt
-```
-
-Validate the installed skill:
-
-```bash
-python ~/.hermes/skills/kubrick/scripts/kubrick.py do check --action skill
-```
-
-Continuity Forge, MCP servers, generation APIs, and vision APIs remain optional.
-
-**OpenClaw users:** install from the permanent [`openclaw`](https://github.com/scrimshawlife-ctrl/Kubrick/tree/openclaw) branch — see [`docs/OPENCLAW.md`](docs/OPENCLAW.md). This `main` branch is the Hermes edition.
-
-## Unified Pipeline
-
-```bash
-python scripts/kubrick.py do compile \
-  --brief examples/authority-transfer-storyboard/brief.yaml \
-  --ledger examples/authority-transfer-storyboard/symbolic-ledger.yaml \
-  --mode storyboard \
-  --storyboard-plan examples/authority-transfer-storyboard/storyboard-plan.yaml \
-  --provider grok-imagine \
-  --out out/kubrick/authority-transfer
-```
-
-Providers: `none` · `generic` · `grok-imagine` · `flux` · `sd3` · `midjourney` · `keyframe`
-
-```text
-brief
-→ registry-aware retrieval
-→ private motif graph
-→ structural and anti-slop audit
-→ audience constraints
-→ storyboard state propagation
-→ transition comparison
-→ neutral model-adapter packet
-→ provider prompt packet (syntax-only)
-→ schema receipts
-→ compile receipt
-```
-
-
-### Guided wizard (Hermes Desktop-friendly)
-
-```bash
-python3 scripts/kubrick.py do wizard --preset verify --json
-python3 scripts/kubrick.py do wizard --answers answers.json --print-only
-python3 scripts/kubrick.py do wizard --answers answers.json --run
-```
-
-See `docs/specs/2026-08-08-kubrick-hermes-wizard-design.md`.
-
-## Operator Commands
-
-Primary surface:
-
-```bash
-python scripts/kubrick.py do <intent> [--action <action>] [flags]
-```
-
-| Intent | Purpose |
+| Job | What it does |
 |---|---|
-| `compile` | Full brief-to-packet symbolic compile |
-| `retrieve` | Registry-aware deterministic retrieval |
-| `ledger` | Project symbolic ledger (init / audit / mutate / rehydrate / apply-forge) |
-| `design` | Governed design-specification compilation |
-| `storyboard` | Multi-frame state propagate / compare / impact |
-| `adapt` | Neutral adapter packet and provider syntax translation |
-| `visual` | Visual QA loop (normalize / compare / correct / govern / closed-loop) |
-| `learn` | Outcome receipts, multi-signal evolution, Forge signal extraction |
-| `check` | Validation and regression (skill, corpus, coverage, eval, smoke, …) |
-| `operate` | Saturation, counterpoint, lock, surface-occult audit, architecture export |
-| `mcp` | Optional stdio MCP wrapper — single tool `kubrick_do` (never authoritative) |
-| `bundle` | Package the complete Grok review workflow |
-
-Sugar: `python scripts/kubrick.py help <intent>`, `recipe <name>`, `aliases`.
-
-Legacy peer names (`adapt-flux`, `closed-loop-qa`, `validate-skill`, …) remain soft aliases.
-
-Step-by-step recipes: [`QUICKSTART.md`](QUICKSTART.md).
-
-## Pre-spend hold check
-
-`video runbook` and `video cues` judge every compiled prompt against the plan hold list before they record a credit figure or a paid operation. A hold hit blocks the spend and names the reason. If Jev is unreachable, the command fails closed unless the operator passes `--jev-override` or sets `KUBRICK_JEV_OVERRIDE` to `1`, `true`, or `yes`. That override is logged. It does not bypass a hold hit. Kubrick still does not call Keyframe or ElevenLabs.
-
-Operator notes: [`docs/JEV-PRE-SPEND-GATE.md`](docs/JEV-PRE-SPEND-GATE.md).
-
-## Common Workflows
-
-### Multi-provider adaptation
+| `compile` | Brief and ledger to graph, storyboard, and packets |
+| `retrieve` | Patterns for a dramatic problem |
+| `ledger` | Project motif checklist |
+| `design` / `script` / `image` / `video` | Production surfaces |
+| `storyboard` | Multi-frame state |
+| `adapt` | Provider syntax for one latent graph |
+| `visual` | Expected frame versus observation |
+| `learn` | Outcome proposals; never auto-applied |
+| `check` | Skill, corpus, smoke |
+| `operate` | Saturation, locks, export |
+| `bundle` | Grok-oriented review bundle |
+| `mcp` | Optional machine interface |
+| `wizard` | Guided plan |
 
 ```bash
-python scripts/kubrick.py do adapt \
-  --graph out/motif-graph.private.yaml \
-  --storyboard out/storyboard-symbolic-state.yaml \
-  --provider generic \
-  --output out/model-adapter-packet.yaml
-
-python scripts/kubrick.py do adapt --action provider \
-  --packet out/model-adapter-packet.yaml \
-  --provider flux \
-  --output out/flux-prompt-packet.yaml
+python scripts/kubrick.py do <job> [options…]
 ```
-
-Adapters preserve `source_graph_id` and never rewrite canonical symbolic intent.
-
-### Forge feedback → evolution proposal
-
-```bash
-python scripts/kubrick.py do learn --action forge-signals \
-  --project-id myfilm \
-  --input references/examples/forge-signals/ledger-before-after.yaml \
-  --output out/forge-bundle.yaml
-
-python scripts/kubrick.py do ledger apply-forge \
-  --ledger project/symbolic-ledger.yaml \
-  --forge-bundle out/forge-bundle.yaml
-
-python scripts/kubrick.py do learn --action evolve \
-  --pattern-id interface_badge_authority_transfer \
-  --forge-bundle out/forge-bundle.yaml \
-  --output out/evolution-proposal.yaml
-```
-
-Every evolution event emits a multi-signal receipt. Structural changes and large confidence deltas require human review. Nothing applies automatically.
-
-### Closed-loop visual QA
-
-```bash
-python scripts/kubrick.py do visual --action closed-loop \
-  --expected out/storyboard-symbolic-state.yaml \
-  --observation-input observations/frame-001.json \
-  --source-graph-id <graph-id> \
-  --frame-id frame-001 \
-  --out out/qa/frame-001
-```
-
-### Operators and optional MCP
-
-```bash
-python scripts/kubrick.py do operate saturation-score --ledger project/symbolic-ledger.yaml
-python scripts/kubrick.py do operate surface-occult-audit --input out/audience-constraints.yaml
-python scripts/kubrick.py do operate symbolic-architecture-export \
-  --graph out/motif-graph.private.yaml \
-  --ledger project/symbolic-ledger.yaml \
-  --output out/symbolic-architecture-export.yaml
-
-# Optional — single MCP tool kubrick_do; fail closed on weak evidence
-python scripts/kubrick.py do mcp
-```
-
-### Design specification
-
-```bash
-python scripts/kubrick.py do design --help
-```
-
-See `references/design-specification-compiler.md` and `templates/design-specification.yaml`.
-
-## Verification
-
-```bash
-python scripts/kubrick.py do check --action skill
-python scripts/kubrick.py do check --action corpus
-python scripts/kubrick.py do check --action coverage
-python scripts/kubrick.py do check --action eval
-python scripts/test_outcome_governance.py
-python scripts/test_wave2_wave3.py
-python scripts/test_design_specification.py
-python scripts/kubrick.py do check --action repeatability --output out/kubrick/repeatability-report.json
-python scripts/audit_release_version.py --strict
-```
-
-CI (`.github/workflows/hermes-evals.yml`) runs Hermes evals, outcome governance, Wave 2/3 smoke tests, multi-provider storyboard compiles, repeatability, and strict release-version audit.
-
-## Documentation
-
-| File | Purpose |
-|---|---|
-| [`SKILL.md`](SKILL.md) | Canonical Hermes operating contract |
-| [`AGENTS.md`](AGENTS.md) | Multi-agent SDLC contract (`CLAUDE.md` is a thin pointer here) |
-| [`intent/`](intent/README.md) | Intent template for non-trivial work; then spec.md / plan |
-| [`QUICKSTART.md`](QUICKSTART.md) | Installation and command routing |
-| [`CHANGELOG.md`](CHANGELOG.md) | Release history |
-| [`docs/ROADMAP-v0.23.md`](docs/ROADMAP-v0.23.md) | Current roadmap and next priorities |
-| [`docs/RELEASE-NOTES-v0.23.md`](docs/RELEASE-NOTES-v0.23.md) | v0.23 release notes |
-| [`docs/ROADMAP-v0.22.md`](docs/ROADMAP-v0.22.md) | v0.22 roadmap |
-| [`docs/RELEASE-NOTES-v0.22.md`](docs/RELEASE-NOTES-v0.22.md) | v0.22 release notes |
-| [`docs/ROADMAP-v0.20.md`](docs/ROADMAP-v0.20.md) | v0.20 roadmap |
-| [`docs/RELEASE-NOTES-v0.20.md`](docs/RELEASE-NOTES-v0.20.md) | v0.20 release notes |
-| [`docs/ROADMAP-v0.18.md`](docs/ROADMAP-v0.18.md) | v0.18 roadmap |
-| [`docs/RELEASE-NOTES-v0.18.md`](docs/RELEASE-NOTES-v0.18.md) | v0.18 release notes |
-| [`docs/RELEASE-CHECKLIST-v0.18.md`](docs/RELEASE-CHECKLIST-v0.18.md) | v0.18 release gates |
-| [`docs/ROADMAP-v0.16.md`](docs/ROADMAP-v0.16.md) | v0.16 roadmap |
-| [`docs/RELEASE-NOTES-v0.16.md`](docs/RELEASE-NOTES-v0.16.md) | v0.16 release notes |
-| [`docs/RELEASE-CHECKLIST-v0.16.md`](docs/RELEASE-CHECKLIST-v0.16.md) | v0.16 release gates |
-| [`docs/JEV-PRE-SPEND-GATE.md`](docs/JEV-PRE-SPEND-GATE.md) | Hold-list check before video spend |
-| [`docs/README.md`](docs/README.md) | Docs index (incl. intent-router design/plan) |
-| [`docs/OPENCLAW.md`](docs/OPENCLAW.md) | OpenClaw Agent Skill edition (Prabu; branch `openclaw`) |
-| [`docs/archive/superpowers/specs/2026-07-30-operator-intent-router-design.md`](docs/archive/superpowers/specs/2026-07-30-operator-intent-router-design.md) | Operator intent-router design |
-| [`references/hermes-runtime-contract.md`](references/hermes-runtime-contract.md) | Runtime, dependency, artifact, and canon policy |
-| [`references/hermes-model-adapters.md`](references/hermes-model-adapters.md) | Provider adapter contract |
-| [`references/hermes-visual-qa.md`](references/hermes-visual-qa.md) | Visual QA contract |
-| [`references/continuity-forge-integration.md`](references/continuity-forge-integration.md) | Forge handoff and feedback |
-| [`references/design-specification-compiler.md`](references/design-specification-compiler.md) | Design-spec compiler |
-| [`references/patterns/`](references/patterns/) | Executable pattern sidecars |
-| [`schemas/`](schemas/) | Machine-readable artifact contracts |
-| [`evals/`](evals/) | Regression and adversarial specifications |
-
-## Architecture (v0.14)
-
-```text
-                    ┌─────────────────────┐
-                    │  Project brief +    │
-                    │  symbolic ledger    │
-                    └──────────┬──────────┘
-                               │
-              retrieve → graph → audit → audience
-                               │
-                    storyboard propagate / compare
-                               │
-              neutral adapter packet (shared latent graph)
-                               │
-            ┌──────────────────┼──────────────────┐
-            ▼                  ▼                  ▼
-      grok-imagine         flux / sd3 / mj       keyframe
-      (8s video cap)       (syntax only)     (4–30s whole seconds)
-                               │
-                    closed-loop visual QA
-                    (geometry · state · residue · convergence)
-                               │
-              outcome receipt → multi-signal evolution proposal
-                               │
-                    human review gate (never auto-apply)
-                               │
-              optional Forge signals ←── Continuity Forge (canonical)
-```
-
-## Version
-
-**0.23.0 — Corpus audit: retrieval floor, film grammar, MYSLEF drift**
-
-Retrieval fails closed on stop-word-only fit, the corpus is fully indexed and
-audited, storyboard frames carry checked camera and cut grammar, and MYSLEF
-drift and techniques are on record. No provider is called. See
-[docs/RELEASE-NOTES-v0.23.md](docs/RELEASE-NOTES-v0.23.md).
-
-See [CHANGELOG.md](CHANGELOG.md) for full release history.
-
----
-
-<p align="center">
-  <em>Symbolism should alter the conditions under which a scene is interpreted—without requiring the audience to consciously identify it.</em>
-</p>
-
-See also: [docs/ROADMAP-v0.23.md](docs/ROADMAP-v0.23.md)
-
-See also: [docs/RELEASE-NOTES-v0.23.md](docs/RELEASE-NOTES-v0.23.md)
-
 
 ## License
 
 Copyright © 2026 Zero State LLC. All Rights Reserved. Licensed under the Zero State Proprietary License v1.0. See [`LICENSE`](LICENSE).
-
-Third-party components remain subject to their respective licenses.
-
-Source, profile, and migration rules: `references/source-and-upgrades.md`.

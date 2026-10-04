@@ -85,6 +85,6 @@ The release gates cover:
 
 ## Release documents
 
-- `docs/ROADMAP-v0.14.md`
-- `docs/RELEASE-CHECKLIST-v0.14.md`
+- `docs/archive/releases/ROADMAP-v0.14.md`
+- `docs/archive/releases/RELEASE-CHECKLIST-v0.14.md`
 - `CHANGELOG.md`

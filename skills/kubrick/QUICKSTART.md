@@ -1,8 +1,8 @@
 # Kubrick Quickstart
 
-Kubrick is a **standalone Hermes skill** on branch **`main`** (v0.14.0). Continuity Forge, MCP servers, model APIs, and external generation providers remain optional.
+Kubrick is a **standalone Hermes skill** on branch **`main`** (v0.23.0). Continuity Forge, MCP servers, model APIs, and external generation providers remain optional. Film grammar is [`docs/FILM-GRAMMAR.md`](docs/FILM-GRAMMAR.md). The symbolic corpus is [`docs/CORPUS.md`](docs/CORPUS.md). Carrier order is [`docs/CONTINUITY.md`](docs/CONTINUITY.md).
 
-**OpenClaw?** Use the permanent [`openclaw`](https://github.com/scrimshawlife-ctrl/Kubrick/tree/openclaw) branch (OpenClaw Agent Skill packaging by **Prabu**). See [`docs/OPENCLAW.md`](docs/OPENCLAW.md) — install target is `~/.openclaw/skills/kubrick`, not Hermes.
+**OpenClaw?** Use the permanent [`openclaw`](https://github.com/Zero-State-LLC/Kubrick/tree/openclaw) branch (OpenClaw Agent Skill packaging by **Prabu**). See [`docs/OPENCLAW.md`](docs/OPENCLAW.md) — install target is `~/.openclaw/skills/kubrick`, not Hermes.
 
 ## 1. Install (Hermes / `main`)
 
@@ -28,7 +28,7 @@ python scripts/kubrick.py do check --action skill
 ### OpenClaw install (other branch)
 
 ```bash
-openclaw skills install git:scrimshawlife-ctrl/Kubrick@openclaw --global
+openclaw skills install git:Zero-State-LLC/Kubrick@openclaw --global
 # or: git clone --branch openclaw --single-branch …
 ```
 
@@ -49,6 +49,9 @@ compile      Full brief-to-packet compile
 retrieve     Registry-aware pattern retrieval
 ledger       Project symbolic ledger (init / audit / mutate / …)
 design       Design-specification compilation
+script       Script surface
+image        Image surface
+video        Video surface
 storyboard   Multi-frame state (propagate / compare)
 adapt        Neutral packet and provider adaptation
 visual       Visual QA loop (normalize / compare / correct / govern / closed-loop)
@@ -57,6 +60,7 @@ check        Validation and regression (skill / corpus / coverage / eval / smoke
 operate      Graph/ledger operators (saturation, counterpoint, lock, audit, export)
 mcp          Optional stdio MCP server (single tool: kubrick_do)
 bundle       Grok review bundle
+wizard       Guided plan / execute
 ```
 
 Sugar:
@@ -348,12 +352,15 @@ Shortcut: `python scripts/kubrick.py recipe verify` (runs `do check --action smo
 
 | Doc | Purpose |
 |---|---|
-| `README.md` | Public overview and architecture |
-| `SKILL.md` | Hermes operating contract |
-| `docs/ROADMAP-v0.23.md` | Current roadmap |
-| `docs/RELEASE-NOTES-v0.23.md` | What shipped in 0.23 |
-| `docs/README.md` | Full docs index |
-| `docs/archive/` | Historical roadmaps and shipped plans |
-| `references/continuity-forge-integration.md` | Forge handoff + feedback |
-| `references/hermes-model-adapters.md` | Adapter invariants |
-| `references/hermes-visual-qa.md` | Visual QA contract |
+| [`README.md`](README.md) | Hero, tags, tokens, atlas, roadmap |
+| [`SKILL.md`](SKILL.md) | Hermes operating contract |
+| [`CHANGELOG.md`](CHANGELOG.md) | Release notes |
+| [`docs/ROADMAP.md`](docs/ROADMAP.md) | Current roadmap and project board |
+| [`docs/FILM-GRAMMAR.md`](docs/FILM-GRAMMAR.md) | Film-grammar registry |
+| [`docs/CORPUS.md`](docs/CORPUS.md) | Symbolic corpus |
+| [`docs/CONTINUITY.md`](docs/CONTINUITY.md) | Carrier order |
+| [`docs/README.md`](docs/README.md) | Docs index |
+| [`docs/archive/`](docs/archive/) | v0.11–v0.23 release sets |
+| [`references/continuity-forge-integration.md`](references/continuity-forge-integration.md) | Forge handoff |
+| [`references/hermes-model-adapters.md`](references/hermes-model-adapters.md) | Adapter invariants |
+| [`references/hermes-visual-qa.md`](references/hermes-visual-qa.md) | Visual QA contract |

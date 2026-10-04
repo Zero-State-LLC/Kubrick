@@ -34,18 +34,17 @@ def _aligned(root: Path, version: str = "0.18.0") -> None:
         "SKILL.md",
         "---\nname: kubrick\nversion: "
         + version
-        + "\n---\nSee docs/ROADMAP-v0.18.md and docs/RELEASE-NOTES-v0.18.md.\n",
+        + "\n---\nSee docs/ROADMAP.md and CHANGELOG.md.\n",
     )
     _write(
         root,
         "README.md",
         f"<em>{version} — Prompt fidelity and Keyframe</em>\n"
-        "docs/ROADMAP-v0.18.md\ndocs/RELEASE-NOTES-v0.18.md\n",
+        "docs/ROADMAP.md\nCHANGELOG.md\n",
     )
     _write(root, "CHANGELOG.md", f"## [{version}] — 2026-10-02\n")
-    _write(root, "docs/RELEASE-NOTES-v0.18.md", f"# Kubrick v{version} Release Notes\n")
-    _write(root, "docs/ROADMAP-v0.18.md", "# Roadmap\n")
-    _write(root, "docs/RELEASE-CHECKLIST-v0.18.md", f"- [x] aligned to v{version}\n")
+    _write(root, "docs/ROADMAP.md", "# Roadmap\n")
+    _write(root, "docs/RELEASE-CHECKLIST.md", f"- [x] aligned to v{version}\n")
     _write(root, ENGINE_SOURCE, 'SCHEMA_VERSION = "0.16.0"\n')
     _write(root, SURFACE_COMMON_SOURCE, '{ "schema_version": "0.16.0" }\n')
 
@@ -104,6 +103,27 @@ def test_envelope_schema_does_not_track_product_version() -> None:
     assert "does not track the product version" in str(engine[0]["reason"])
 
 
+def test_archived_version_files_do_not_satisfy_the_current_set() -> None:
+    with tempfile.TemporaryDirectory() as directory:
+        root = Path(directory)
+        _aligned(root)
+        (root / "docs/ROADMAP.md").unlink()
+        (root / "docs/RELEASE-CHECKLIST.md").unlink()
+        _write(root, "docs/archive/releases/ROADMAP-v0.18.md", "# Roadmap\n")
+        _write(
+            root,
+            "docs/archive/releases/RELEASE-CHECKLIST-v0.18.md",
+            "- [x] aligned to v0.18.0\n",
+        )
+        report = build_report(root)
+    assert report["status"] == "NOT_READY"
+    mismatches = report["mismatches"]
+    assert isinstance(mismatches, list)
+    files = {item["file"] for item in mismatches}
+    assert "docs/ROADMAP.md" in files
+    assert "docs/RELEASE-CHECKLIST.md" in files
+
+
 def test_mirror_copy_is_audited() -> None:
     with tempfile.TemporaryDirectory() as directory:
         root = Path(directory)
@@ -123,6 +143,7 @@ def main() -> None:
     test_repo_surfaces_match_product_version()
     test_manifest_drift_is_rejected()
     test_envelope_schema_does_not_track_product_version()
+    test_archived_version_files_do_not_satisfy_the_current_set()
     test_mirror_copy_is_audited()
     print("version surface tests: PASS")
 

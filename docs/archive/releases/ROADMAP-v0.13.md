@@ -100,11 +100,11 @@ See root `README.md`, `QUICKSTART.md`, and `scripts/intent_router.py`.
 |---|---|
 | `docs/README.md` | Documentation index |
 | `docs/OPENCLAW.md` | OpenClaw edition (Prabu; branch `openclaw`) |
-| `docs/RELEASE-NOTES-v0.13.md` | What shipped |
-| `docs/RELEASE-CHECKLIST-v0.13.md` | Tag / publish gates |
-| `docs/ROADMAP-v0.12.md` | Prior release context |
-| `docs/ROADMAP-v0.11.md` | Original Wave 1–3 plan |
+| `docs/archive/releases/RELEASE-NOTES-v0.13.md` | What shipped |
+| `docs/archive/releases/RELEASE-CHECKLIST-v0.13.md` | Tag / publish gates |
+| `docs/archive/releases/ROADMAP-v0.12.md` | Prior release context |
+| `docs/archive/releases/ROADMAP-v0.11.md` | Original Wave 1–3 plan |
 
 ## Related editions
 
-- **OpenClaw Agent Skill** — permanent branch [`openclaw`](https://github.com/scrimshawlife-ctrl/Kubrick/tree/openclaw), packaging by Prabu ([PR #1](https://github.com/scrimshawlife-ctrl/Kubrick/pull/1)). See [`OPENCLAW.md`](OPENCLAW.md).
+- **OpenClaw Agent Skill** — permanent branch [`openclaw`](https://github.com/scrimshawlife-ctrl/Kubrick/tree/openclaw), packaging by Prabu ([PR #1](https://github.com/scrimshawlife-ctrl/Kubrick/pull/1)). See [`OPENCLAW.md`](../../OPENCLAW.md).

@@ -23,12 +23,12 @@ Kubrick v0.12 is a CI-verified standalone Hermes symbolic compiler. The complete
 - Align `SKILL.md`, README, changelog, compiler metadata, and corpus metadata to the authoritative `VERSION` file.
 - Verify README and QUICKSTART commands directly in CI.
 - Validate installation from a clean copied Hermes skill directory.
-- Complete `docs/RELEASE-CHECKLIST-v0.12.md`.
+- Complete `docs/archive/releases/RELEASE-CHECKLIST-v0.12.md`.
 - Create and publish the `v0.12.0` tag only after those gates pass.
 
 ## Post-v0.12 priorities
 
-**Completed in v0.13:** Flux/SD3/Midjourney adapters, MCP/CLI operators, Forge multi-signal feedback, multi-signal evolution, first-class ledgers, closed-loop differential QA, contemporary cultural-signal packs. See `docs/ROADMAP-v0.13.md`.
+**Completed in v0.13:** Flux/SD3/Midjourney adapters, MCP/CLI operators, Forge multi-signal feedback, multi-signal evolution, first-class ledgers, closed-loop differential QA, contemporary cultural-signal packs. See `docs/archive/releases/ROADMAP-v0.13.md`.
 
 Remaining:
 1. Add video adapters as syntax-only translations over the neutral packet.
