@@ -54,7 +54,9 @@ See [`JEV-PRE-SPEND-GATE.md`](JEV-PRE-SPEND-GATE.md#board-image-checks) and
 [#126](https://github.com/Zero-State-LLC/Kubrick/pull/126).
 
 Next: a head detector so wide boards get a head crop without a plan box, a
-stronger local judge for lens glow and body lights (the 3B model is unreliable on them,
+stronger local judge for lens glow and body lights (the 3B model is unreliable on them;
+the Spark Qwen3.5 judge is better on direct questions, but still caught only 1 of 2 lens-glow
+and 4 of 5 body-light defects and blocks most clean boards on the compound plan-lock wording,
 see the calibration note), let `lock_carriers` count a
 start frame as a carrier only when this gate passed, and reuse the same crop
 and embedding in live take QC.

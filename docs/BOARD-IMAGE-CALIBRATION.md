@@ -113,3 +113,70 @@ What this means:
   hands half the time. Expect false blocks. Use recorded answers
   (`--board-judge-answers`) after a human look, or a logged
   `--board-image-opt-out REASON`, until a stronger local model fits.
+
+## Spark judge (2026-10-04)
+
+The same 77 images and 477 questions were rerun through the Spark box: a
+Qwen3.5 vision model (`Qwen3_5ForConditionalGeneration`, image input) served
+by SGLang behind an OpenAI-compatible `/v1` endpoint. The gate still only
+talks to loopback. A small proxy on the operator box listens on
+127.0.0.1:11435, takes the judge's Ollama-style `/api/generate` call, and
+forwards it to Spark with the key from the box environment. Thinking is off
+and the temperature is 0. If Spark or the proxy is down the proxy answers
+HTTP 502, the judge raises `BackendUnavailable`, and every lock check is
+UNVERIFIED, which blocks as before. The proxy lives on the box, not in this
+repo; point `KUBRICK_BOARD_VLM_URL` at it. Ollama with `qwen2.5vl:3b` on
+127.0.0.1:11434 stays the fallback.
+
+| Check | `qwen2.5vl:3b` | Spark Qwen3.5 | Defect caught (Spark) | Clean passed (Spark) |
+|---|---|---|---|---|
+| Plan lock `red-chest-led` (gate wording) | 0.69 | 0.63 | 4/5 | 38/62 |
+| Plan lock `lenses` (gate wording) | 0.46 | 0.67 | 2/2 | 43/65 |
+| Plan lock `speaker-mouth` (gate wording) | 0.90 | 0.96 | n/a | 64/67 |
+| Silicon hands | 0.75 | 0.81 | 10/10 human hands | 3/6 silicon hands |
+| Dome head | 0.90 | 0.93 | n/a | 62/67 |
+| Lens glow | 0.22 | 0.97 | 1/2 | 64/65 |
+| Light on head, grille, hood, back or spine | 0.21 | 0.91 | 4/5 | 57/62 |
+| Lens sides | 0.69 | 0.46 | n/a | 27/59 |
+| All 477 | 0.58 | 0.79 | | |
+
+Every Spark call answered yes or no (0 unknown against 25) in about 0.9
+seconds (CPU 3B: tens of seconds). Per question, Spark fixed 152 answers the
+3B model got wrong and broke 52 it got right.
+
+The gate effect barely moved. With the three plan-alley locks as the gate
+builds them, 36 of 60 clean boards and frames would block (38 with the 3B
+model) and 7 of 7 defective ones would block (6). Asked directly ("is either
+lens glowing", "is there any light on the head or back"), Spark is right
+about 9 times in 10. Asked as the gate's compound negative statement ("is
+this statement true: no light on the head, hood or temple, no light along the
+spine or on the back"), it is not. A rerun of the same gate questions moved
+the clean-blocked count from 36 to 41, so treat a few boards of difference as
+noise.
+
+Prompt variants on the 201 gate-wording questions, Spark, default crop:
+
+| Variant | Clean blocked | Defective blocked | Accuracy |
+|---|---|---|---|
+| Gate wording as shipped | 36 to 41 of 60 | 7 of 7 | 0.75 |
+| "Design rule, answer no only if clearly broken" | 30 of 60 | 5 of 7 | 0.81 |
+| "Check each part" | 50 of 60 | 6 of 7 | 0.59 |
+| "Does the image show any of these" (negated) | 48 of 60 | 6 of 7 | 0.71 |
+| Gate wording with thinking on | 49 of 60 | 7 of 7 | 0.71 (14 not yes or no) |
+
+None is clearly better: the one that blocks fewer clean boards lets two
+defective ones through. The judge prompt is unchanged.
+
+What this means:
+
+- Spark is a better judge for `board_checks` written as one direct question
+  with `expect` (clean boards pass about 9 times in 10), but the defect
+  counts are tiny and it caught only 1 of 2 lens-glow and 4 of 5 body-light
+  defects, so a pass is not proof. For lens glow and body lights, prefer a
+  question like "Is either of the character's round camera lenses glowing
+  or emitting light?" with `expect: no` over compound `character_locks`
+  text.
+- The compound plan-lock questions still block most clean boards. Keep the
+  recorded-answers path or a logged opt-out for them, or split a lock into
+  single direct `board_checks`.
+- Lens sides (left and right) got worse. Do not make it a blocking check.
