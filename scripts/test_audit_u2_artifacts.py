@@ -22,7 +22,9 @@ HAS_YAML = importlib.util.find_spec("yaml") is not None
 if str(SCRIPTS) not in sys.path:
     sys.path.insert(0, str(SCRIPTS))
 _SRC = str(REPO / "src")
-if _SRC not in sys.path:
+if sys.path[:1] != [_SRC]:  # src first, or scripts/kubrick.py shadows the package
+    while _SRC in sys.path:
+        sys.path.remove(_SRC)
     sys.path.insert(0, _SRC)
 
 GOOD_BRIEF = {

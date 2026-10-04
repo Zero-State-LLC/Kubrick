@@ -1,0 +1,46 @@
+#!/usr/bin/env bash
+# Local vision judge for the Kubrick board image gate: Ollama on loopback, CPU.
+# Usage: kubrick-vlm start|stop|status|restart
+# Settings (KUBRICK_OLLAMA_ADDR, KUBRICK_OLLAMA_MODEL) come from the environment
+# or ~/.config/kubrick/ollama.env (see profiles/ollama-local.env.example).
+# No systemd needed; this script is the supported way to start it.
+set -euo pipefail
+CONF=${KUBRICK_CONFIG_DIR:-$HOME/.config/kubrick}
+if [ -f "$CONF/ollama.env" ]; then
+  # shellcheck disable=SC1091
+  set -a; . "$CONF/ollama.env"; set +a
+fi
+HOST=${KUBRICK_OLLAMA_ADDR:-127.0.0.1:11434}
+MODEL=${KUBRICK_OLLAMA_MODEL:-}
+STATE=${KUBRICK_VLM_STATE:-${XDG_STATE_HOME:-$HOME/.local/share}/kubrick-vlm}
+LOG=$STATE/ollama.log
+PIDF=$STATE/ollama.pid
+case "$HOST" in 127.*|localhost:*) ;; *) echo "refusing non-loopback $HOST" >&2; exit 2 ;; esac
+mkdir -p "$STATE"
+up() { curl -sf --max-time 2 "http://$HOST/api/version" >/dev/null; }
+case "${1:-status}" in
+  start)
+    [ -n "$MODEL" ] || { echo "set KUBRICK_OLLAMA_MODEL (see profiles/ollama-local.env.example)" >&2; exit 1; }
+    command -v ollama >/dev/null || { echo "ollama is not installed (https://ollama.com/download)" >&2; exit 1; }
+    if up; then echo "already running on $HOST"; else
+      OLLAMA_NO_CLOUD=1 OLLAMA_HOST=$HOST OLLAMA_KEEP_ALIVE=${OLLAMA_KEEP_ALIVE:-10m} \
+        nohup setsid ollama serve >>"$LOG" 2>&1 &
+      echo $! >"$PIDF"
+      for _ in $(seq 1 30); do up && break; sleep 1; done
+      up || { echo "ollama did not come up; see $LOG" >&2; exit 1; }
+      echo "started on $HOST (pid $(cat "$PIDF"))"
+    fi
+    OLLAMA_HOST=$HOST ollama list | grep -q "^${MODEL} " || OLLAMA_HOST=$HOST ollama pull "$MODEL"
+    echo "export KUBRICK_BOARD_VLM_URL=http://$HOST KUBRICK_BOARD_VLM_MODEL=$MODEL"
+    ;;
+  stop)
+    if [ -s "$PIDF" ] && kill "$(cat "$PIDF")" 2>/dev/null; then rm -f "$PIDF"; echo stopped
+    else pkill -f "ollama serve" && echo stopped || echo "not running"; fi ;;
+  restart) "$0" stop || true; sleep 1; "$0" start ;;
+  status)
+    if up; then
+      echo "up on $HOST: $(curl -s "http://$HOST/api/version")"
+      OLLAMA_HOST=$HOST ollama list; OLLAMA_HOST=$HOST ollama ps
+    else echo "down"; exit 3; fi ;;
+  *) echo "usage: $0 start|stop|status|restart" >&2; exit 2 ;;
+esac

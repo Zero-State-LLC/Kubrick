@@ -1,0 +1,28 @@
+# MYSLEF plan-alley locks after the 0.27.0 wording fixes: the red-chest-led lock
+# names the mouth grille, and the lens lock asks the longer lens glow question.
+locks:
+- id: red-chest-led
+  kind: light
+  critical: true
+  character: myslef
+  positive: the only light on the body is ONE small red LED pinpoint at the centre of the chest under the hoodie, front only
+  negative: no light on the head, hood or temple, no light inside the mouth grille, no light along the spine or on the back
+- id: lenses
+  kind: identity
+  critical: true
+  character: myslef
+  positive: 'two round near-flush camera lenses in thick steel rims: dark spiderweb-cracked lens on the figure''s right (viewer''s left), intact yellowed dusty lens on the figure''s left (viewer''s right)'
+  negative: the lenses never glow, no human eyes, no long lens barrels
+  checks:
+  - question: Answer only yes or no. Look at the character myslef in this image. Is either of the character's round camera lenses glowing or emitting light?
+    expect: 'no'
+  - question: Answer only yes or no. Look at the character myslef in this image. Does the character show any human eyes?
+    expect: 'no'
+  - question: Answer only yes or no. Look at the character myslef in this image. Does the character show any long lens barrels?
+    expect: 'no'
+- id: speaker-mouth
+  kind: identity
+  critical: true
+  character: myslef
+  positive: a round steel mesh speaker grille set flush where the mouth would be
+  negative: no lip movement, no words

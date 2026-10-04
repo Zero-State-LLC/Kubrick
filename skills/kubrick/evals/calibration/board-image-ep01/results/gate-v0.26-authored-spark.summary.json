@@ -1,0 +1,71 @@
+{
+ "images": 67,
+ "clean_blocked": 12,
+ "clean": 60,
+ "defective_blocked": 6,
+ "defective": 7,
+ "missed": [
+  "/workspace/kubrick-calib/frames/v07-t1-mid.png"
+ ],
+ "calls": 402,
+ "unanswered": 0,
+ "warn_rows": 37,
+ "per_lock": {
+  "red-chest-led": {
+   "n": 67,
+   "ok": 59,
+   "defect": 5,
+   "caught": 3,
+   "clean": 62,
+   "clean_pass": 56
+  },
+  "lenses": {
+   "n": 67,
+   "ok": 63,
+   "defect": 2,
+   "caught": 2,
+   "clean": 65,
+   "clean_pass": 61
+  },
+  "speaker-mouth": {
+   "n": 67,
+   "ok": 63,
+   "defect": 0,
+   "caught": 0,
+   "clean": 67,
+   "clean_pass": 63
+  }
+ },
+ "per_question": {
+  "Is there any light or glowing dot on the character's head, mouth grille, hood, back or spine?": {
+   "n": 62,
+   "ok": 56
+  },
+  "Is either of the character's round camera lenses glowing or emitting light?": {
+   "n": 65,
+   "ok": 62
+  },
+  "Does the character have human eyes?": {
+   "n": 65,
+   "ok": 64
+  },
+  "Does the character have long lens barrels sticking out of the face?": {
+   "n": 65,
+   "ok": 65
+  },
+  "Does the character have human lips instead of a round speaker grille?": {
+   "n": 67,
+   "ok": 63
+  },
+  "Is the darker cracked lens on the left side of the image and the yellowed lens on the right side?": {
+   "n": 59,
+   "ok": 30
+  }
+ },
+ "clean_blocked_by_question": {
+  "Is there any light or glowing dot on the character's head, mouth grille, hood, back or spine?": 6,
+  "Is either of the character's round camera lenses glowing or emitting light?": 3,
+  "Does the character have human lips instead of a round speaker grille?": 2,
+  "Does the character have human eyes?": 1
+ }
+}

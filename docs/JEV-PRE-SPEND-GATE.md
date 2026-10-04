@@ -190,7 +190,9 @@ The judge is pluggable (`LockJudge.ask(image, image_sha256, question)` in
    runs one, approved 2026-10-04, for the free self-hosted Spark Qwen3.5
    vision model on 127.0.0.1:11435. A proxy that cannot reach its upstream
    must return an error so the check stays UNVERIFIED. See the calibration
-   note for its accuracy.
+   note for its accuracy. The repo ships such a proxy for any
+   OpenAI-compatible vision endpoint, with the provider in a profile:
+   [`BOARD-VISION-SETUP.md`](BOARD-VISION-SETUP.md#adapter-contract).
 
 ### Fail-closed policy
 
@@ -205,13 +207,13 @@ like a failure. This matches the Jev gate, where an unreachable judge blocks:
   answer exists, or the judge does not answer yes or no:
   `BOARD_LOCK_DETAIL_UNVERIFIED`.
 
-Install the local models with the packages of the `board-vision` extra in
-`pyproject.toml`, for example
-`pip install --index-url https://download.pytorch.org/whl/cpu torch` and then
-`pip install "transformers>=4.40" "Pillow>=10"`. Do not `pip install -e .`
-into the venv you test from: the editable path puts `src` first, and pytest
-then imports `scripts/kubrick.py` as `kubrick` and fails with
-`No module named 'kubrick.cli'; 'kubrick' is not a package`. The local judge
+Set up the local models and the judge with one command,
+`bash tools/board_vision/setup.sh` (steps in
+[`BOARD-VISION-SETUP.md`](BOARD-VISION-SETUP.md)). It installs the
+`board-vision` extra from `pyproject.toml`. Since 0.27.0 an editable install
+(`pip install -e ".[board-vision]"`) is safe in the venv you test from: every
+`scripts/` entry point puts `src` first, so `scripts/kubrick.py` no longer
+shadows the `kubrick` package. The local judge
 was measured on EP-01 too: `qwen2.5vl:3b` caught 9 of 10 human-hand images
 but was unreliable on lens glow and body lights, so expect false blocks (see
 the calibration note). CI does not install it; tests use

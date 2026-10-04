@@ -135,6 +135,15 @@ def invalid_check(lock_id: str, question: str, error: str) -> dict[str, str]:
             "part": "", "lock_text": question, "error": error}
 
 
+def _expect_text(raw: object) -> str:
+    """``expect`` as text. YAML reads a bare ``no`` as ``False``, which means ``no``."""
+    if isinstance(raw, bool):
+        return "yes" if raw else "no"
+    if raw is None or raw == "":
+        return "yes"
+    return str(raw).strip().casefold()
+
+
 def explicit_checks(
     lock_id: str, rows: Sequence[object], inherited: object = None,
 ) -> list[dict[str, str]]:
@@ -148,7 +157,7 @@ def explicit_checks(
             found.append(invalid_check(lock_id, "", f"check {index} is not a mapping"))
             continue
         question = str(row.get("question") or "").strip()
-        expect = str(row.get("expect") or "yes").strip().casefold()
+        expect = _expect_text(row.get("expect"))
         severity = severity_of(row, question, inherited)
         if not question:
             found.append(invalid_check(lock_id, "", f"check {index} has no question"))

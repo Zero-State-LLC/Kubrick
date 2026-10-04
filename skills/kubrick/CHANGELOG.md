@@ -2,6 +2,21 @@
 
 ## [Unreleased]
 
+## [0.27.0] - 2026-10-04
+
+### Added
+- `tools/board_vision/`: board image judge setup in the repo. `vlm_proxy.py` is a loopback adapter from the gate's Ollama-style `/api/generate` to any OpenAI-compatible vision endpoint. Upstream URL, model id, key source (env var name or file), extra headers, and extra request fields all come from a profile; no provider is named in code. It fails closed: no upstream, an empty configured key source, a plain-http remote upstream, a public listen address, or bad JSON stops it at start, and any upstream error or a reply without `choices[0].message.content` is HTTP 502 (UNVERIFIED). Launchers `kubrick-vlm-proxy` and `kubrick-vlm`, a template `board-vision.env.example` with no secrets, example profiles (a blank template, a local server, a local Ollama judge, and the Spark box), `setup.sh` (deps through the `board-vision` extra, model download, launchers, config, start, health check, fail-closed test), and `health.py check|fail-closed`. Contract and steps in `docs/BOARD-VISION-SETUP.md`.
+- `tools/board_calibration/`: the EP-01 calibration harness with CLI args: `gate_run.py` (the gate's own questions and checks over a labeled set, saved after every image, resumable), `gate_metrics.py`, `judge_eval.py`, and `identity.py`. `evals/calibration/board-image-ep01/` holds the manifest (83 images with sha256 and labels), the 0.26.0, hand-written, and 0.27.0 lock files, run summaries, and six thumbnails. The full-size images stay on the operator box. See `docs/BOARD-IMAGE-CALIBRATION.md#rerun-the-calibration`.
+- `AGENTS.md` and `CONTRIBUTING.md`: a "Learnings to repo" rule. Lessons from runs become code, tests, docs, or harness in the repo.
+
+### Fixed
+- `scripts/kubrick.py` no longer shadows the `kubrick` package with an editable install or `PYTHONPATH=src` ("No module named 'kubrick.cli'; 'kubrick' is not a package"). Every `scripts/` entry point now puts `src` first instead of only adding it when absent, and `scripts/kubrick.py` imported as `kubrick` hands the name to the package. `pip install -e ".[board-vision]"` is safe again.
+- A lock `checks` or `board_checks` row with a bare YAML `expect: no` (read as `False`) now expects `no`. Before, it fell back to the default `yes`.
+
+### Notes
+- Lock wording fixes in the MYSLEF plans and `locks-v0.27.yaml`: `red-chest-led` adds "no light inside the mouth grille", and the lens lock asks "Is either of the character's round camera lenses glowing or emitting light?" as a hand-written check. EP-01 rerun through the Spark judge (60 clean, 7 defective head images, 603 calls, all yes or no): 11 of 60 clean blocked and 7 of 7 defective blocked, against 19 of 60 and 5 of 7 with the 0.26.0 text. The wording was chosen after seeing the set, so the clean number is optimistic.
+- Product version is 0.27.0. The production envelope schema id stays `0.16.0`. No provider and no paid API is called in tests: fake loopback servers stand in for the judge and the upstream.
+
 ## [0.26.0] - 2026-10-04
 
 ### Changed

@@ -1,6 +1,6 @@
 # Kubrick roadmap
 
-Product version **0.26.0**. Local output stays **PROPOSED**. Weak evidence
+Product version **0.27.0**. Local output stays **PROPOSED**. Weak evidence
 stays `NOT_COMPUTABLE`. No provider is called from this plan.
 
 Project board: [Zero-State-LLC project 13](https://github.com/orgs/Zero-State-LLC/projects/13).
@@ -62,10 +62,21 @@ severity (`block` or `warn`); a left-or-right side question defaults to
 to 19 of 60 and defective ones blocked from 7 to 5 of 7. See
 [`BOARD-IMAGE-CALIBRATION.md`](BOARD-IMAGE-CALIBRATION.md#atomic-lock-questions-0260-2026-10-04).
 
+## Shipped in 0.27.0
+
+The board judge setup and the calibration harness live in the repo
+(`tools/board_vision/`, `tools/board_calibration/`,
+`evals/calibration/board-image-ep01/`). The judge adapter takes any
+OpenAI-compatible vision endpoint from a profile and fails closed. The MYSLEF
+lock text names the mouth grille and the lens lock asks the longer lens glow
+question: on EP-01 through the Spark judge, 11 of 60 clean boards and 7 of 7
+defective ones block. Editable installs no longer break the `scripts/` entry
+points. See [`BOARD-VISION-SETUP.md`](BOARD-VISION-SETUP.md) and
+[`BOARD-IMAGE-CALIBRATION.md`](BOARD-IMAGE-CALIBRATION.md#lock-wording-fixes-0270-2026-10-04).
+
 Next: a head detector so wide boards get a head crop without a plan box,
-better lens-glow wording (the short split question "Do the lenses glow?"
-causes most remaining false blocks), lock text that names every place a
-light must not be (the mouth-grille LED in take 01 t1 is not in the
-`red-chest-led` text), let `lock_carriers` count a start frame as a carrier
-only when this gate passed, and reuse the same crop and embedding in live
-take QC.
+better automatic wording for "S never V" clauses (the hand-written lens
+question beat the split one), a second labeled set so lock wording is not
+tuned on the set that scores it, let `lock_carriers` count a start frame as
+a carrier only when this gate passed, and reuse the same crop and embedding
+in live take QC.

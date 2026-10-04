@@ -2,9 +2,12 @@
 
 This note records how the 0.25.1 default identity threshold was chosen, how
 accurate the local judge was on the same images, and what the 0.26.0 atomic
-lock questions changed. Everything ran on one
-CPU box with free open-weights models. No paid API and no generation call
-was made. The labeled images are local MYSLEF files and are not in the repo.
+lock questions and the 0.27.0 lock wording changed. Everything ran on one
+CPU box with free open-weights models or the owner-approved Spark box. No
+paid API and no generation call was made. The labeled images are local
+MYSLEF files. The repo has their manifest (with sha256), the lock files,
+six thumbnails, and the harness; see
+[Rerun the calibration](#rerun-the-calibration).
 
 ## Set
 
@@ -125,8 +128,10 @@ talks to loopback. A small proxy on the operator box listens on
 forwards it to Spark with the key from the box environment. Thinking is off
 and the temperature is 0. If Spark or the proxy is down the proxy answers
 HTTP 502, the judge raises `BackendUnavailable`, and every lock check is
-UNVERIFIED, which blocks as before. The proxy lives on the box, not in this
-repo; point `KUBRICK_BOARD_VLM_URL` at it. Ollama with `qwen2.5vl:3b` on
+UNVERIFIED, which blocks as before. Since 0.27.0 the proxy is in this repo as a
+provider-agnostic adapter (`tools/board_vision/vlm_proxy.py`, Spark is one
+example profile); see [`BOARD-VISION-SETUP.md`](BOARD-VISION-SETUP.md). Point
+`KUBRICK_BOARD_VLM_URL` at it. Ollama with `qwen2.5vl:3b` on
 127.0.0.1:11434 stays the fallback.
 
 | Check | `qwen2.5vl:3b` | Spark Qwen3.5 | Defect caught (Spark) | Clean passed (Spark) |
@@ -249,3 +254,83 @@ What this means:
   short lens glow question was right on 53 and 54 of 67 in two runs, and the
   0.25.1 lens glow wording was right on 64 of 65 then and 62 of 67 here. Treat
   a few boards of difference as noise.
+
+## Lock wording fixes (0.27.0, 2026-10-04)
+
+Two wording fixes from the 0.26.0 run went into the MYSLEF plans
+(`plan-alley`, `plan-basement`, `plan-rooftop`, `storyboard-plan`) and into
+`evals/calibration/board-image-ep01/locks-v0.27.yaml`:
+
+- `red-chest-led` names the mouth grille: `negative: no light on the head,
+  hood or temple, no light inside the mouth grille, no light along the spine
+  or on the back`. The split asks "Does the character show any light inside
+  the mouth grille?" (expect no), so a red light inside the grille fails.
+- `lenses` lists its own `checks`: "Is either of the character's round
+  camera lenses glowing or emitting light?" replaces the short "Do the lenses
+  glow?", and the human eyes and long lens barrels questions stay as the
+  split wrote them. All three expect `no`.
+
+Same 67 head images, Spark judge, gate code, default crop, and lens-sides
+warn check as the 0.26.0 run. 603 calls, every one answered yes or no.
+
+| Gate | Clean blocked | Defective blocked |
+|---|---|---|
+| Atomic, 0.26.0 lock text | 19 of 60 | 5 of 7 |
+| Atomic, hand-written `checks` (0.26.0 run) | 12 of 60 | 6 of 7 |
+| Atomic, 0.27.0 lock text | 11 of 60 | 7 of 7 |
+
+| Question | Right | Clean images it blocked |
+|---|---|---|
+| Light on the head, hood or temple | 57/62 | 5 |
+| Light inside the mouth grille | 60/62 | 2 |
+| Light along the spine or on the back | 61/62 | 1 |
+| Either round camera lens glowing or emitting light | 67/67 | 0 |
+| Human eyes | 64/65 | 1 |
+| Long lens barrels | 65/65 | 0 |
+| Lip movement | 65/67 | 2 |
+| Words | 66/67 | 1 |
+| Lens sides (warn only) | 30/59 | 0 (37 warnings) |
+
+What this means:
+
+- The grille question caught both take 01 t1 frames, so all 7 defects block.
+  It also blocked both take 10 t1 frames, which are clean for these locks.
+- The longer lens question was right on all 67 images and blocked no clean
+  image; the short one blocked 14.
+- Most of what still blocks is "light on the head, hood or temple" (5 clean
+  images, including the two pre head-lock boards for shot 01).
+- The wording was chosen after seeing this set, so 11 of 60 is optimistic,
+  like the hand-written run.
+
+## Rerun the calibration
+
+The harness is in `tools/board_calibration/` and the labeled set in
+[`evals/calibration/board-image-ep01/`](../evals/calibration/board-image-ep01/README.md).
+Set up a judge first ([`BOARD-VISION-SETUP.md`](BOARD-VISION-SETUP.md)).
+
+| Script | Measures | Was (box scratch) |
+|---|---|---|
+| `gate_run.py --locks FILE` (or `--plan`) | What the gate blocks, with its own question builder and checks | `gate_atomic_spark.py` |
+| `gate_metrics.py RESULTS` | Clean blocked, defective blocked, per lock and question | `gate_atomic_metrics.py` |
+| `judge_eval.py` | Accuracy of the manifest's direct questions | `judge_eval_spark.py`, `judge_metrics.py` |
+| `identity.py [--detect]` | DINOv2 identity scores, AUC, and blocks per threshold | `score_identity.py`, `metrics.py` |
+
+All take `--manifest`, `--root name=DIR`, and `--verify` (sha256 of every
+image). The judge is `--url` or `KUBRICK_BOARD_VLM_URL` and must be loopback.
+Results are saved after every image and a rerun resumes; it refuses to
+resume a file made with other questions, another judge, or another manifest.
+
+To reproduce the gate numbers above:
+
+```bash
+source ~/.config/kubrick/board-vision.env
+E=evals/calibration/board-image-ep01
+for v in v0.26 v0.26-authored v0.27; do
+  python tools/board_calibration/gate_run.py --verify --locks $E/locks-$v.yaml --out /tmp/gate-$v.json
+done
+```
+
+Compare with `$E/results/gate-*.summary.json`. The compound-wording prompt
+A/B and thinking-on runs of 0.25.1 used one-off scripts and are not in the
+harness; their numbers are in the Spark section above.
+

@@ -1,6 +1,6 @@
 # Kubrick documentation
 
-Current product version: **0.26.0** (`VERSION`). The production envelope schema
+Current product version: **0.27.0** (`VERSION`). The production envelope schema
 id stays `0.16.0`.
 
 ## Start here
@@ -18,6 +18,8 @@ id stays `0.16.0`.
 | [`CONTINUITY.md`](CONTINUITY.md) | Operators | Carrier order |
 | [`TAKE-QC.md`](TAKE-QC.md) | Operators | Fixture take QC and full checks |
 | [`BOARD-GATE.md`](BOARD-GATE.md) | Operators | Board checks before video spend |
+| [`BOARD-VISION-SETUP.md`](BOARD-VISION-SETUP.md) | Operators | Board image judge setup and the vision adapter contract |
+| [`BOARD-IMAGE-CALIBRATION.md`](BOARD-IMAGE-CALIBRATION.md) | Maintainers | EP-01 calibration and how to rerun it |
 | [`FRAMING.md`](FRAMING.md) | Operators | Numeric framing and the end-image limit |
 | [`REF-PACK.md`](REF-PACK.md) | Operators | Shared character reference packs |
 | [`RETAKE.md`](RETAKE.md) | Operators | Retake recommendations and fixture SFX |
@@ -34,7 +36,7 @@ id stays `0.16.0`.
 
 | Edition | Branch | Notes |
 |---|---|---|
-| **Hermes** | [`main`](https://github.com/Zero-State-LLC/Kubrick/tree/main) | Canonical skill, product version 0.26.0 |
+| **Hermes** | [`main`](https://github.com/Zero-State-LLC/Kubrick/tree/main) | Canonical skill, product version 0.27.0 |
 | **OpenClaw** | [`openclaw`](https://github.com/Zero-State-LLC/Kubrick/tree/openclaw) | Packaging by **Prabu**; external state dir |
 
 ## Operator surface
