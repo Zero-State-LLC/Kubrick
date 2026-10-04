@@ -298,6 +298,12 @@ Legacy peer names (`adapt-flux`, `closed-loop-qa`, `validate-skill`, …) remain
 
 Step-by-step recipes: [`QUICKSTART.md`](QUICKSTART.md).
 
+## Pre-spend hold check
+
+`video runbook` and `video cues` judge every compiled prompt against the plan hold list before they record a credit figure or a paid operation. A hold hit blocks the spend and names the reason. If Jev is unreachable, the command fails closed unless the operator passes `--jev-override` or sets `KUBRICK_JEV_OVERRIDE` to `1`, `true`, or `yes`. That override is logged. It does not bypass a hold hit. Kubrick still does not call Keyframe or ElevenLabs.
+
+Operator notes: [`docs/JEV-PRE-SPEND-GATE.md`](docs/JEV-PRE-SPEND-GATE.md).
+
 ## Common Workflows
 
 ### Multi-provider adaptation
@@ -407,6 +413,7 @@ CI (`.github/workflows/hermes-evals.yml`) runs Hermes evals, outcome governance,
 | [`docs/ROADMAP-v0.16.md`](docs/ROADMAP-v0.16.md) | v0.16 roadmap |
 | [`docs/RELEASE-NOTES-v0.16.md`](docs/RELEASE-NOTES-v0.16.md) | v0.16 release notes |
 | [`docs/RELEASE-CHECKLIST-v0.16.md`](docs/RELEASE-CHECKLIST-v0.16.md) | v0.16 release gates |
+| [`docs/JEV-PRE-SPEND-GATE.md`](docs/JEV-PRE-SPEND-GATE.md) | Hold-list check before video spend |
 | [`docs/README.md`](docs/README.md) | Docs index (incl. intent-router design/plan) |
 | [`docs/OPENCLAW.md`](docs/OPENCLAW.md) | OpenClaw Agent Skill edition (Prabu; branch `openclaw`) |
 | [`docs/archive/superpowers/specs/2026-07-30-operator-intent-router-design.md`](docs/archive/superpowers/specs/2026-07-30-operator-intent-router-design.md) | Operator intent-router design |

@@ -39,6 +39,7 @@ python scripts/kubrick.py do <intent> [--action <action>] [flags]
 | Doc | Purpose |
 |---|---|
 | [`FIRST-CLASS-PRODUCTION-SURFACES.md`](FIRST-CLASS-PRODUCTION-SURFACES.md) | Design / script / image / video surface contracts |
+| [`JEV-PRE-SPEND-GATE.md`](JEV-PRE-SPEND-GATE.md) | Hold-list check before `video runbook` and `video cues` spend |
 | [`archive/superpowers/specs/2026-07-30-operator-intent-router-design.md`](archive/superpowers/specs/2026-07-30-operator-intent-router-design.md) | Design: intents, aliases, UX, MCP (archived) |
 | [`archive/superpowers/plans/2026-07-30-operator-intent-router.md`](archive/superpowers/plans/2026-07-30-operator-intent-router.md) | Implementation plan (archived) |
 | [`../scripts/intent_router.py`](../scripts/intent_router.py) | Registry + resolve + help |

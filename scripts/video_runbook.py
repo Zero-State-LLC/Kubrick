@@ -112,12 +112,70 @@ def build_ops(
     return [{"step": i, **op} for i, op in enumerate(ops, start=1)]
 
 
+def _paid_labels(paid: Sequence[Mapping[str, object]]) -> set[str]:
+    return {str(row.get("shot")) for row in paid if row.get("shot") is not None}
+
+
+def _refuse_ledger(
+    gate: Mapping[str, object], message: str,
+) -> dict[str, object]:
+    refused = closed(ACTION, message.split()[0], message)
+    refused["jev_gate"] = dict(gate)
+    refused["run_ledger"] = [{
+        "kind": "jev_gate",
+        "checked_before_spend": True,
+        "result": dict(gate),
+        "ledger_error": message,
+    }]
+    return refused
+
+
+def _gate_paid(
+    document: Mapping[str, object],
+    paid: Sequence[Mapping[str, object]],
+    provider: str,
+    *,
+    override: bool,
+    override_source: str,
+    verdicts_path: str | None,
+    ledger_path: str | None,
+) -> tuple[dict[str, object], dict[str, object] | None]:
+    """Run the Jev gate before any spend figure or paid op is built."""
+    from jev_gate import attach_gate, gate_prompts
+    from jev_holds import compiled_prompts, select_prompts
+
+    compiled = compiled_prompts(document, provider)
+    selected: list[dict[str, object]] | str
+    if isinstance(compiled, str):
+        selected = compiled
+    else:
+        selected = select_prompts(compiled, _paid_labels(paid))
+    gate = gate_prompts(
+        document,
+        selected,
+        override=override,
+        override_source=override_source,
+        verdicts_path=verdicts_path,
+    )
+    if not gate.get("blocks_spend"):
+        return gate, None
+    payload = closed(ACTION, str(gate.get("code")), str(gate.get("message")))
+    attach_gate(payload, gate, ledger_path)
+    return gate, payload
+
+
 def runbook(
     document: Mapping[str, object],
     plan: Mapping[str, object],
     provider: str,
     retake_args: Sequence[str] | None,
+    *,
+    jev_override: bool = False,
+    jev_override_source: str = "",
+    jev_verdicts: str | None = None,
+    run_ledger: str | None = None,
 ) -> dict[str, object]:
+    from jev_gate import attach_gate, override_requested
     from spend_plan import budget_error, spend_estimate
 
     rows = rows_of(plan.get("generation_plan"))
@@ -127,16 +185,34 @@ def runbook(
         if unknown:
             return closed(ACTION, "RETAKE_UNKNOWN", f"unknown retake shot(s): {unknown}")
     paid = _paid_rows(rows, retake)
+    requested, source = override_requested(jev_override)
+    if jev_override_source:
+        source = jev_override_source
+    _gate, blocked = _gate_paid(
+        document,
+        paid,
+        provider,
+        override=requested,
+        override_source=source,
+        verdicts_path=jev_verdicts,
+        ledger_path=run_ledger,
+    )
+    if blocked is not None:
+        return blocked
     estimate = spend_estimate(provider, paid)
     if estimate.get("status") == "NOT_COMPUTABLE":
-        return closed(ACTION, "PRICING_UNAVAILABLE", f"no pricing for provider {provider!r}")
+        payload = closed(ACTION, "PRICING_UNAVAILABLE", f"no pricing for provider {provider!r}")
+        attach_gate(payload, _gate, run_ledger)
+        return payload
     error = budget_error(estimate, document.get("budget_cap_credits"))
     if error:
-        return closed(ACTION, error.split()[0].rstrip(":"), error)
+        payload = closed(ACTION, error.split()[0].rstrip(":"), error)
+        attach_gate(payload, _gate, run_ledger)
+        return payload
     credits: dict[str, float] = {}
     for item in rows_of(estimate.get("shots")):
         credits[str(item.get("shot"))] = number(item.get("credits")) or 0.0
-    return {
+    payload = {
         "status": "PROPOSED",
         "authority": "PROPOSED",
         "provider": provider,
@@ -145,17 +221,36 @@ def runbook(
         "spend_estimate": estimate,
         "total_inferred_credits": estimate.get("total_credits"),
     }
+    ledger_error = attach_gate(payload, _gate, run_ledger)
+    if ledger_error:
+        return _refuse_ledger(_gate, ledger_error)
+    return payload
 
 
 def main(argv: Sequence[str] | None = None) -> int:
+    from jev_gate import add_jev_arguments
+
     parser = build_parser("PROPOSED Keyframe retake runbook (prep only)")
     parser.add_argument("--retake", action="append", default=None, help="shot to regenerate")
+    add_jev_arguments(parser)
     args = parser.parse_args(argv)
     prepared = prepare(args, args.retake)
     if isinstance(prepared, dict):
         return emit(args, ACTION, prepared)
     document, plan = prepared
-    return emit(args, ACTION, runbook(document, plan, args.provider, args.retake))
+    return emit(
+        args,
+        ACTION,
+        runbook(
+            document,
+            plan,
+            args.provider,
+            args.retake,
+            jev_override=bool(args.jev_override),
+            jev_verdicts=args.jev_verdicts,
+            run_ledger=args.run_ledger,
+        ),
+    )
 
 
 if __name__ == "__main__":

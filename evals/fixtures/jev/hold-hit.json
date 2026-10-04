@@ -1,0 +1,28 @@
+{
+  "holds": [
+    {
+      "id": "brand",
+      "kind": "term",
+      "text": "no brand marks",
+      "scope": "plan",
+      "requirement": "present",
+      "critical": true,
+      "blocked": false
+    }
+  ],
+  "prompt": {
+    "shot": "still-01",
+    "channel": "keyframe",
+    "surfaces": ["image", "video"],
+    "location": "alley",
+    "prompt": "black-and-red high-tops with a Nike swoosh"
+  },
+  "verdict": "fail",
+  "findings": [
+    {
+      "code": "BRAND_PRONE",
+      "hold_id": "brand",
+      "message": "Nike swoosh is brand-prone wording"
+    }
+  ]
+}

@@ -1,0 +1,22 @@
+{
+  "holds": [
+    {
+      "id": "red-chest-light",
+      "kind": "light",
+      "text": "no red light on the head or chest",
+      "scope": "plan-location",
+      "requirement": "present",
+      "critical": true,
+      "blocked": false
+    }
+  ],
+  "prompt": {
+    "shot": "03",
+    "channel": "keyframe",
+    "surfaces": ["image", "video"],
+    "location": "plan-location",
+    "prompt": "no red light on the head or chest; plain black hoodie, no logo"
+  },
+  "verdict": "pass",
+  "findings": []
+}
