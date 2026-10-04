@@ -1,11 +1,5 @@
 #!/usr/bin/env python3
-"""Keyframe MCP create_movie adapter.
-
-Shot duration is inclusive 3–60 seconds. A missing duration defaults to 4
-seconds. A shorter planned beat is generated at the 3 second minimum and the
-cut list trims it back. Above 60 seconds fails closed and is not clamped.
-Speech is omitted when the shot has no dialogue.
-"""
+"""Keyframe create_movie adapter. Whole seconds 4–30; short beats generate at 4."""
 from __future__ import annotations
 
 from collections.abc import Mapping, Sequence
@@ -16,8 +10,8 @@ from prompt_text import is_blank, join_clauses
 from reference_lint import bound_positive
 from value_coerce import as_float as _as_float
 
-MIN_SECONDS = 3.0
-MAX_SECONDS = 60.0
+MIN_SECONDS = 4.0
+MAX_SECONDS = 30.0
 DEFAULT_SECONDS = 4.0
 _PRESETS = {"draft", "standard", "high"}
 _DURATION_KEYS = ("duration_seconds", "durationSeconds", "duration")
@@ -70,13 +64,12 @@ def _duration(frame: Mapping[str, object], frame_id: str) -> tuple[float | None,
 
 
 def _range_error(frame_id: str, seconds: float) -> str | None:
-    if MIN_SECONDS <= seconds <= MAX_SECONDS:
+    from provider_limits import duration_refusal
+
+    refused = duration_refusal(seconds, frame_id)
+    if refused is None:
         return None
-    shown = _as_seconds(seconds)
-    return (
-        f"keyframe shot {frame_id} duration {shown}s is outside the allowed 3–60 seconds; "
-        "refusing to clamp or drop the shot"
-    )
+    return refused[1]
 
 
 def _unique(items: Sequence[str]) -> list[str]:
@@ -422,6 +415,13 @@ def build_create_movie(packet: Mapping[str, object]) -> dict[str, object]:
             _refuse(blocked[0], mapped, directives, warnings, techniques, blocked),
             blocked[0], extra,
         )
+    from provider_limits import packet_reference_refusals
+
+    for hit in packet_reference_refusals(packet):
+        message = str(hit.get("message") or "REF_ASPECT_OUT_OF_RANGE")
+        refused = _refuse(message, mapped, directives, warnings, techniques)
+        refused["code"] = "REF_ASPECT_OUT_OF_RANGE"
+        return stamp_closed(refused, message, extra)
     negatives = _negatives(packet)
     shots: list[dict[str, object]] = []
     for index, pair in enumerate(zip(mapped, directives), start=1):
@@ -430,6 +430,14 @@ def build_create_movie(packet: Mapping[str, object]) -> dict[str, object]:
         declared, error = _duration(frame, shot_id)
         if error:
             return _refuse(error, mapped, directives, warnings, techniques)
+        declared_error = _range_error(shot_id, cast(float, declared))
+        if declared_error:
+            refused = _refuse(declared_error, mapped, directives, warnings, techniques)
+            if "DURATION_NONINTEGER" in declared_error:
+                refused["code"] = "DURATION_NONINTEGER"
+            elif "DURATION_OUT_OF_RANGE" in declared_error:
+                refused["code"] = "DURATION_OUT_OF_RANGE"
+            return refused
         prepared = _with_plan_duration(frame, directive, cast(float, declared))
         shot, error = _one_shot(prepared, packet, negatives, index)
         if error or shot is None:

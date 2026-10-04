@@ -155,7 +155,7 @@
           "title": {"type": "string", "minLength": 1},
           "imagePrompt": {"type": "string", "minLength": 1},
           "videoPrompt": {"type": "string", "minLength": 1},
-          "durationSeconds": {"type": "number", "minimum": 3, "maximum": 60},
+          "durationSeconds": {"type": "number", "minimum": 4, "maximum": 30},
           "startImage": {
             "type": "object",
             "additionalProperties": false,

@@ -80,7 +80,7 @@ def _assert_locked_shot(shot: dict[str, object], marker: str) -> None:
 def test_create_movie_schema_and_duration_totals() -> None:
     movie = _movie()
     jsonschema.validate(movie, SCHEMA)
-    assert movie["targetDurationSeconds"] == 22
+    assert movie["targetDurationSeconds"] == 23
     assert movie["qualityPreset"] == "draft"
     assert movie["aspectRatio"] == "16:9"
     assert movie["style"] == "continuity-locked photoreal"
@@ -88,7 +88,7 @@ def test_create_movie_schema_and_duration_totals() -> None:
     assert "negative_constraints" not in movie
     shots = movie["shots"]
     assert isinstance(shots, list) and len(shots) == 4
-    assert [shot["durationSeconds"] for shot in shots] == [3, 10, 4, 5]
+    assert [shot["durationSeconds"] for shot in shots] == [4, 10, 4, 5]
 
 
 def test_shots_are_distinct_and_identity_locked() -> None:
@@ -106,17 +106,20 @@ def test_duration_bounds_fail_closed() -> None:
     accepted = _movie(_with_duration(10))
     assert accepted["shots"][0]["durationSeconds"] == 10
     assert accepted["targetDurationSeconds"] == 10
-    edges = _movie(_with_duration(3))
-    assert edges["shots"][0]["durationSeconds"] == 3
-    top = _movie(_with_duration(60))
-    assert top["shots"][0]["durationSeconds"] == 60
-    fractional = _movie(_with_duration(10.5))
-    assert fractional["shots"][0]["durationSeconds"] == 10.5
-    for seconds in (60.1, 61):
+    edges = _movie(_with_duration(4))
+    assert edges["shots"][0]["durationSeconds"] == 4
+    top = _movie(_with_duration(30))
+    assert top["shots"][0]["durationSeconds"] == 30
+    fractional = adapt_keyframe_packet(_with_duration(4.5))
+    assert fractional["status"] == "NOT_COMPUTABLE"
+    assert fractional["code"] == "DURATION_NONINTEGER"
+    assert "not a whole second" in fractional["message"]
+    for seconds in (31, 60.1, 61):
         refused = adapt_keyframe_packet(_with_duration(seconds))
         assert refused["status"] == "NOT_COMPUTABLE"
         assert "shots" not in refused
-        assert "outside the allowed 3–60 seconds" in refused["message"]
+        assert refused["code"] == "DURATION_OUT_OF_RANGE"
+        assert "outside the allowed integer 4–30 seconds" in refused["message"]
         assert "refusing to clamp or drop the shot" in refused["message"]
     missing = {
         "source_graph_id": "duration-graph",
@@ -133,7 +136,7 @@ def test_duration_bounds_fail_closed() -> None:
     flagged = adapt_keyframe_packet(_with_duration(True))
     assert flagged["status"] == "NOT_COMPUTABLE"
     assert "is not a number" in flagged["message"]
-    assert MIN_SECONDS == 3.0 and MAX_SECONDS == 60.0
+    assert MIN_SECONDS == 4.0 and MAX_SECONDS == 30.0
 
 
 def test_plan_duration_keeps_non_numeric_declarations() -> None:
@@ -176,11 +179,11 @@ def _floor_packet(
 
 def test_generated_duration_floors_then_trims() -> None:
     cases = (
-        (1.0, {"chain_from": "frame-001"}, None, 3, 1.6, 2.6, 5),
-        (2.0, {"chain_from": "frame-001"}, None, 3.6, 1.6, 3.6, 6),
-        (1.0, {"chain_from": "frame-001"}, "exit", 3, 0.0, 1.0, 5),
-        (2.0, None, None, 3, 0.0, 2.0, 2),
-        (2.9, None, None, 3, 0.0, 2.9, 2.9),
+        (1.0, {"chain_from": "frame-001"}, None, 4, 1.6, 2.6, 5),
+        (2.0, {"chain_from": "frame-001"}, None, 4, 1.6, 3.6, 6),
+        (1.0, {"chain_from": "frame-001"}, "exit", 4, 0.0, 1.0, 5),
+        (2.0, None, None, 4, 0.0, 2.0, 2),
+        (2.9, None, None, 4, 0.0, 2.9, 2.9),
     )
     for planned, join, opens, generated, source_in, source_out, total_planned in cases:
         movie = adapt_keyframe_packet(_floor_packet(planned, join, opens))
@@ -200,6 +203,8 @@ def test_generated_duration_floors_then_trims() -> None:
         assert round(cut["source_out"] - cut["source_in"], 4) == planned
         assert movie["plannedDurationSeconds"] == total_planned
         assert movie["targetDurationSeconds"] == sum(item["durationSeconds"] for item in shots)
+    fraction = adapt_keyframe_packet(_floor_packet(4.5, None, None))
+    assert fraction["code"] == "DURATION_NONINTEGER"
     held = adapt_keyframe_packet(_with_duration(10))
     assert "cut_list" not in held
     assert held["plannedDurationSeconds"] == 10
@@ -275,7 +280,7 @@ def test_dialogue_preset_references_and_failures() -> None:
 
 def test_video_adapt_storyboard_and_grok_cap() -> None:
     document = myslef_document()
-    for frame, seconds in zip(document["frames"], (3, 10, 4, 5), strict=True):
+    for frame, seconds in zip(document["frames"], (4, 10, 4, 5), strict=True):
         assert isinstance(frame, dict)
         frame["duration_seconds"] = seconds
     text = yaml.safe_dump(document)
@@ -283,20 +288,21 @@ def test_video_adapt_storyboard_and_grok_cap() -> None:
     assert adapted["status"] != "NOT_COMPUTABLE", adapted.get("diagnostic")
     movie = adapted["result"]["adapted_packet"]
     jsonschema.validate(movie, SCHEMA)
-    assert movie["targetDurationSeconds"] == 22
+    assert movie["targetDurationSeconds"] == 23
     assert "speech" not in movie["shots"][0]["audio"]
     short = myslef_document()
     short["frames"] = [short["frames"][0]]
     short["frames"][0]["duration_seconds"] = 61
     refused = video_adapt(yaml.safe_dump(short), "myslef", "keyframe")
     assert refused["status"] == "NOT_COMPUTABLE"
-    assert "3–60" in refused["diagnostic"]["message"]
+    assert "4–30" in refused["diagnostic"]["message"]
     grok = check_video_adapt("grok-imagine", duration=10)
     assert grok is not None and "8" in grok["message"]
     assert check_video_adapt("generic", duration=2) is None
     caps = PROVIDER_CAPABILITIES["keyframe"]
-    assert caps["min_duration_seconds"] == 3.0
-    assert caps["max_duration_seconds"] == 60.0
+    assert caps["min_duration_seconds"] == 4.0
+    assert caps["max_duration_seconds"] == 30.0
+    assert caps["duration_integer"] is True
     assert caps["dialogue_audio"] is True and caps["multi_shot"] is True
     source = "a room holds still"
     assert positive_prompt(source, [], ["no nose"]).startswith(source)

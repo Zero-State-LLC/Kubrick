@@ -41,8 +41,9 @@ RECOMMEND = (
 KEYFRAME = {
     "image": True,
     "video": True,
-    "min_duration_seconds": 3.0,
-    "max_duration_seconds": 60.0,
+    "min_duration_seconds": 4.0,
+    "max_duration_seconds": 30.0,
+    "duration_integer": True,
     "camera_motion": True,
     "dialogue_audio": True,
     "multi_shot": True,
@@ -232,7 +233,7 @@ def test_keyframe_capabilities_regression_and_overlay() -> None:
             2.0, chained=True, exit_open=False, provider="keyframe",
             document={"model": "seedance-lab"},
         )
-        assert (generated, hold) == (3.0, 0.5)
+        assert (generated, hold) == (4.0, 0.5)
         directives = shot_directives(
             [_frame("frame-002", duration_seconds=2.0, join={"chain_from": "frame-001"})],
             "keyframe",
@@ -358,9 +359,9 @@ def test_spend_estimate_budget_and_checklist() -> None:
     assert estimate["status"] == "INFERRED"
     shots = estimate["shots"]
     assert isinstance(shots, list) and len(shots) == 4
-    assert [item["generated_seconds"] for item in shots] == [3, 3, 3, 3]
-    assert [item["credits"] for item in shots] == [46.5, 46.5, 46.5, 46.5]
-    assert estimate["total_credits"] == 186
+    assert [item["generated_seconds"] for item in shots] == [4, 4, 4, 4]
+    assert [item["credits"] for item in shots] == [62, 62, 62, 62]
+    assert estimate["total_credits"] == 248
     assert estimate["rate"] == 15.5
     pricing = pricing_for("keyframe")
     assert pricing is not None and pricing["image_rate"] == 7
@@ -371,8 +372,8 @@ def test_budget_boundary_shared_clips_and_missing_price() -> None:
     _packet, movie = _movie()
     estimate = movie["spend_estimate"]
     assert isinstance(estimate, dict)
-    assert budget_error(estimate, 186) is None
-    assert str(budget_error(estimate, 185)).startswith("BUDGET_CAP_EXCEEDED")
+    assert budget_error(estimate, 248) is None
+    assert str(budget_error(estimate, 247)).startswith("BUDGET_CAP_EXCEEDED")
     shared = [
         {"shot": "a", "generated_seconds": 3, "clip_id": "clip-1"},
         {"shot": "b", "generated_seconds": 3, "clip_id": "clip-1"},
@@ -424,7 +425,7 @@ def test_budget_cap_exit_codes() -> None:
     assert failed.returncode != 0
     assert "BUDGET_CAP_EXCEEDED" in failed_text
     assert passed.returncode == 0, passed.stdout + passed.stderr
-    assert "total_credits: 186" in passed_text
+    assert "total_credits: 248" in passed_text
 
 
 def _continuity_body(text: str) -> str:
@@ -434,10 +435,10 @@ def _continuity_body(text: str) -> str:
 def test_multi_shot_prompt_and_preservation() -> None:
     packet, movie = _movie()
     text = str(movie["multi_shot_prompt"])
-    assert text.startswith("4 shots, 12s generated, aspect 9:16, lighting:")
+    assert text.startswith("4 shots, 16s generated, aspect 9:16, lighting:")
     assert "dim practical light" in text
     for index in range(1, 5):
-        assert f"Shot {index} (3s):" in text
+        assert f"Shot {index} (4s):" in text
     assert text.count("Continuity:") == 1
     body = _continuity_body(text)
     lines = [line for line in body.splitlines() if line.strip()]

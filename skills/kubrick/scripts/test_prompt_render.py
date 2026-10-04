@@ -67,7 +67,7 @@ def myslef_packet() -> dict[str, object]:
     packet = adapter_packet_from_document(document, provider="generic")
     frames = packet["frames"]
     assert isinstance(frames, list)
-    for frame, seconds in zip(frames, (3, 10, 4, 5), strict=True):
+    for frame, seconds in zip(frames, (4, 10, 4, 5), strict=True):
         assert isinstance(frame, dict)
         frame["provider_parameters"] = {"duration_seconds": seconds}
     shared = packet["shared_constraints"]

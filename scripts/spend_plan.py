@@ -67,7 +67,9 @@ def spend_estimate(
     shots: list[dict[str, object]] = []
     total = 0.0
     for label, seconds in _shot_rows(rows):
-        credits = seconds * float(rate)
+        from provider_limits import billed_credits
+
+        credits = billed_credits(seconds, float(rate))
         total += credits
         shots.append({
             "shot": label,

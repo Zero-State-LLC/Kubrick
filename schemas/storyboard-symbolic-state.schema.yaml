@@ -29,7 +29,7 @@ properties:
         prohibited_resets: {type: array, items: {type: string}}
         duration_seconds:
           type: number
-          description: Optional shot length in seconds. Keyframe allows 3–60 inclusive.
+          description: Optional shot length in seconds. Keyframe Seedance 2.5 allows whole seconds from 4 to 30.
         title: {type: string, description: Optional Keyframe shot title.}
         scene: {type: string, description: Optional Keyframe scene label.}
         sound:

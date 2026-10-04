@@ -366,7 +366,7 @@ def test_compile_receipt_carries_prep_warnings() -> None:
         assert movie.get("status") != "NOT_COMPUTABLE"
         assert movie["aspectRatio"] == "9:16"
         assert movie["plannedDurationSeconds"] == 6
-        assert movie["targetDurationSeconds"] == 12
+        assert movie["targetDurationSeconds"] == 16
         assert movie["cut_list"] and movie["prep_warnings"] and movie["technique_suggestions"]
         _assert_chair_authority(movie["shots"], ("imagePrompt", "videoPrompt"))
 
