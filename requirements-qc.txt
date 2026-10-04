@@ -2,5 +2,9 @@
 # CI does not install this file. src/kubrick/qc/vision_observe.py scores
 # fixture measurements and does not import these packages.
 #
+# The board image gate (src/kubrick/gates/board_image_gate.py) uses the
+# optional board-vision extra in pyproject.toml: torch, transformers, and
+# Pillow for a local CPU DINOv2 embedding. It imports them on first use only.
+#
 # mediapipe
 # opencv-python-headless

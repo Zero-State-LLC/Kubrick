@@ -7,7 +7,7 @@
 <p align="center">
   <strong>Observed form first. Dramatic function first.</strong><br>
   A Hermes skill that turns a brief into continuity-safe storyboards and prompts.<br>
-  <em>0.24.0: Take QC, board gate, and fail-closed locks</em>
+  <em>0.25.0: Board image checks before video spend</em>
 </p>
 
 <p align="center">
@@ -72,7 +72,7 @@ flowchart TB
   plan --> refpack["ref_pack"]
 ```
 
-Take QC core scores fixture measurements in `src/kubrick/qc/vision_observe.py`. Full take QC in `src/kubrick/qc/take_qc.py` adds fixture VLM verdicts, identity similarity, and timestamps, and runs ffmpeg only through an injected runner. The board gate in `src/kubrick/gates/board_qc.py` checks a start board before video spend. Numeric framing in `src/kubrick/prompts/framing.py` writes a motion-only video line when a start frame is used and records an end anchor Keyframe cannot store. The reference pack in `src/kubrick/plan/ref_pack.py` is one hash shared across movies. The retake router in `src/kubrick/qc/edit_route.py` recommends a mask, a re-board, a re-plan, or a reference fix and does not spend. See [`docs/TAKE-QC.md`](docs/TAKE-QC.md), [`docs/BOARD-GATE.md`](docs/BOARD-GATE.md), [`docs/FRAMING.md`](docs/FRAMING.md), and [`docs/REF-PACK.md`](docs/REF-PACK.md).
+Take QC core scores fixture measurements in `src/kubrick/qc/vision_observe.py`. Full take QC in `src/kubrick/qc/take_qc.py` adds fixture VLM verdicts, identity similarity, and timestamps, and runs ffmpeg only through an injected runner. The board gate in `src/kubrick/gates/board_qc.py` checks a start board before video spend. The board image gate in `src/kubrick/gates/board_image_gate.py` looks at the board pixels in `video runbook`, on by default: a DINOv2 similarity to the approved `ref_pack` views (default floor 0.70, to be tuned on EP-01 takes) and yes-or-no lock checks from a local judge. A failure blocks spend (`BOARD_IDENTITY_MISMATCH`, `BOARD_LOCK_DETAIL_FAIL`), and a check that cannot run is UNVERIFIED and blocks too, unless `--board-image-opt-out REASON` is logged. Numeric framing in `src/kubrick/prompts/framing.py` writes a motion-only video line when a start frame is used and records an end anchor Keyframe cannot store. The reference pack in `src/kubrick/plan/ref_pack.py` is one hash shared across movies. The retake router in `src/kubrick/qc/edit_route.py` recommends a mask, a re-board, a re-plan, or a reference fix and does not spend. See [`docs/TAKE-QC.md`](docs/TAKE-QC.md), [`docs/BOARD-GATE.md`](docs/BOARD-GATE.md), [`docs/JEV-PRE-SPEND-GATE.md`](docs/JEV-PRE-SPEND-GATE.md), [`docs/FRAMING.md`](docs/FRAMING.md), and [`docs/REF-PACK.md`](docs/REF-PACK.md).
 
 
 ## Tokens
@@ -91,7 +91,7 @@ Words the code actually emits:
 | `PROPOSAL` | A change that is not applied |
 | `NOT_COMPUTABLE` | Weak or contradictory evidence; fail closed |
 
-The product version is the `VERSION` file (`0.24.0`). The production envelope
+The product version is the `VERSION` file (`0.25.0`). The production envelope
 schema id stays `0.16.0` and does not track that version.
 
 ## Atlas

@@ -9,6 +9,7 @@ from __future__ import annotations
 
 import sys
 from collections.abc import Mapping, Sequence
+from typing import Any
 
 from kubrick.providers.video_prep_common import build_parser, closed, emit, number, prepare, rows_of
 
@@ -177,6 +178,35 @@ def _gate_paid(
     return gate, payload
 
 
+def _board_gate(
+    document: Mapping[str, object],
+    paid: Sequence[Mapping[str, object]],
+    *,
+    opt_out: str | None,
+    answers_path: str | None,
+    threshold: float | None,
+    base_dir: str | None,
+    backends: Mapping[str, Any] | None,
+) -> dict[str, object]:
+    """Board image checks for the paid shots. On by default; fail closed."""
+    from kubrick.gates.board_image_gate import check_board_images, opt_out_requested
+
+    requested, reason, source = opt_out_requested(opt_out)
+    chosen = backends or {}
+    return check_board_images(
+        document,
+        shots=_paid_labels(paid),
+        base_dir=base_dir,
+        embedder=chosen.get("embedder"),
+        judge=chosen.get("judge"),
+        answers_path=answers_path,
+        identity_threshold=threshold,
+        opt_out=requested,
+        opt_out_reason=reason,
+        opt_out_source=source,
+    )
+
+
 def runbook(
     document: Mapping[str, object],
     plan: Mapping[str, object],
@@ -187,7 +217,13 @@ def runbook(
     jev_override_source: str = "",
     jev_verdicts: str | None = None,
     run_ledger: str | None = None,
+    board_opt_out: str | None = None,
+    board_judge_answers: str | None = None,
+    board_identity_threshold: float | None = None,
+    board_base_dir: str | None = None,
+    board_backends: Mapping[str, Any] | None = None,
 ) -> dict[str, object]:
+    from kubrick.gates.board_image_gate import attach_board_gate
     from kubrick.gates.jev_gate import attach_gate, override_requested
     from kubrick.plan.spend_plan import budget_error, spend_estimate
     from kubrick.plan.spend_safety import SPEND_RULES, apply_unavailable_quotes
@@ -213,10 +249,25 @@ def runbook(
     )
     if blocked is not None:
         return blocked
+    board = _board_gate(
+        document,
+        paid,
+        opt_out=board_opt_out,
+        answers_path=board_judge_answers,
+        threshold=board_identity_threshold,
+        base_dir=board_base_dir,
+        backends=board_backends,
+    )
+    if board.get("blocks_spend"):
+        payload = closed(ACTION, str(board.get("code")), str(board.get("message")))
+        attach_gate(payload, _gate, run_ledger)
+        attach_board_gate(payload, board, run_ledger)
+        return payload
     estimate = spend_estimate(provider, paid)
     if estimate.get("status") == "NOT_COMPUTABLE":
         payload = closed(ACTION, "PRICING_UNAVAILABLE", f"no pricing for provider {provider!r}")
         attach_gate(payload, _gate, run_ledger)
+        attach_board_gate(payload, board, run_ledger)
         return payload
     estimate = apply_unavailable_quotes(estimate, paid)
     if estimate.get("status") == "NOT_COMPUTABLE":
@@ -224,11 +275,13 @@ def runbook(
         text = detail if isinstance(detail, str) else "billed rate is not computable"
         payload = closed(ACTION, "PRICING_UNAVAILABLE", text)
         attach_gate(payload, _gate, run_ledger)
+        attach_board_gate(payload, board, run_ledger)
         return payload
     error = budget_error(estimate, document.get("budget_cap_credits"))
     if error:
         payload = closed(ACTION, error.split()[0].rstrip(":"), error)
         attach_gate(payload, _gate, run_ledger)
+        attach_board_gate(payload, board, run_ledger)
         return payload
     credits: dict[str, float] = {}
     for item in rows_of(estimate.get("shots")):
@@ -246,15 +299,24 @@ def runbook(
     ledger_error = attach_gate(payload, _gate, run_ledger)
     if ledger_error:
         return _refuse_ledger(_gate, ledger_error)
+    board_error = attach_board_gate(payload, board, run_ledger)
+    if board_error:
+        refused = _refuse_ledger(_gate, board_error)
+        refused["board_image_gate"] = dict(board)
+        return refused
     return payload
 
 
 def main(argv: Sequence[str] | None = None) -> int:
+    from pathlib import Path
+
+    from kubrick.gates.board_image_gate import add_board_image_arguments
     from kubrick.gates.jev_gate import add_jev_arguments
 
     parser = build_parser("PROPOSED Keyframe retake runbook (prep only)")
     parser.add_argument("--retake", action="append", default=None, help="shot to regenerate")
     add_jev_arguments(parser)
+    add_board_image_arguments(parser)
     args = parser.parse_args(argv)
     prepared = prepare(args, args.retake)
     if isinstance(prepared, dict):
@@ -271,6 +333,10 @@ def main(argv: Sequence[str] | None = None) -> int:
             jev_override=bool(args.jev_override),
             jev_verdicts=args.jev_verdicts,
             run_ledger=args.run_ledger,
+            board_opt_out=args.board_image_opt_out,
+            board_judge_answers=args.board_judge_answers,
+            board_identity_threshold=args.board_identity_threshold,
+            board_base_dir=str(Path(args.input).resolve().parent),
         ),
     )
 

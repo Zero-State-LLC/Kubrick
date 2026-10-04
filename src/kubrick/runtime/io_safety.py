@@ -35,6 +35,7 @@ PATH_FLAG_NAMES = frozenset(
         "--observation",
         "--input",
         "--jev-verdicts",
+        "--board-judge-answers",
         "--evidence",
         "--artifact",
         "--schema",

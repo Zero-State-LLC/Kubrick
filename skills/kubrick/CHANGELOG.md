@@ -1,5 +1,19 @@
 # Changelog — Kubrick
 
+## [0.25.0] - 2026-10-04
+
+### Added
+- Board image gate in `src/kubrick/gates/board_image_gate.py`, on by default in `video runbook`. After the Jev gate passes and before any credit figure or paid operation, each paid shot's local start or board image (`board_image`, or a `start_frame.asset` that is a local image file) is checked. The character is cropped (a plan `board_subject_boxes` box, else the border-contrast box) and compared with the approved `ref_pack` identity views (`views`, `head_lock`) by DINOv2 cosine similarity. Below the threshold is `BOARD_IDENTITY_MISMATCH`. The default threshold is 0.70, conservative and uncalibrated; tune it on the EP-01 kept and rejected takes. Set it with `--board-identity-threshold`, `ref_pack.identity_threshold`, or `board_image_gate.identity_threshold`.
+- Yes-or-no locked-detail checks from the character lock list (`character_locks`, character `locks`, plan `locks` with `character`, and `board_checks`) through a pluggable judge in `src/kubrick/qc/board_vision.py`. A wrong answer is `BOARD_LOCK_DETAIL_FAIL`. The default judge is a local vision-language model behind an Ollama-compatible endpoint at `KUBRICK_BOARD_VLM_URL`, loopback only. `--board-judge-answers` (or `KUBRICK_BOARD_JUDGE_ANSWERS`) replays recorded answers.
+- Fail closed: a check that cannot run is UNVERIFIED and blocks spend (`BOARD_IDENTITY_UNVERIFIED`, `BOARD_LOCK_DETAIL_UNVERIFIED`), the same policy as `JEV_UNREACHABLE`. A missing or unreadable declared board blocks (`BOARD_IMAGE_MISSING`, `BOARD_IMAGE_UNREADABLE`). The message points to regenerating the board from the approved views before any video spend.
+- Cut rules from the 2026-10-04 identity research: a hard cut that reuses an earlier board is `BOARD_REUSED_ON_CUT`, and a back or occluded board on a shot with `reveals_identity: true` is `START_FRAME_HIDES_IDENTITY`.
+- `--board-image-opt-out REASON` (or `KUBRICK_BOARD_IMAGE_OPT_OUT`) skips the board image checks for one run. The reason is required (`BOARD_OPT_OUT_REASON_MISSING`), printed as one `BOARD_IMAGE_OPT_OUT` stderr line, and kept in the run ledger. A `start_frame.asset` that is a provider id, not a local file, warns `BOARD_IMAGE_NOT_LOCAL` and is not checked.
+- `python scripts/board_image_gate.py --input PLAN [--shot ID]` runs the gate alone. The payload carries `board_image_gate`, and the run ledger gets a `kind: board_image_gate` entry.
+- Optional `board-vision` extra in `pyproject.toml` (`torch`, `transformers`, `Pillow`) for the local CPU DINOv2 model. The packages are imported on first use only. 8-bit PNG boards decode with the standard library.
+
+### Notes
+- Product version is 0.25.0. The production envelope schema id stays `0.16.0`. No provider and no paid API is called, including in tests: CI uses tiny fixture PNGs in `evals/fixtures/board_images/`, a mocked embedder, and recorded or fake judges.
+
 ## [0.24.0] - 2026-10-04
 
 ### Fixed

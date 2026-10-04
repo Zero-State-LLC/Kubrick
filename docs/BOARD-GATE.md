@@ -26,3 +26,13 @@ The board checks are `aspect`, `head_ratio`, `headroom_frac`, `crop_line`,
 A three-quarter turn on a locked asymmetry warns `ASYMMETRY_TURN_RISK`.
 
 Fixtures: `evals/fixtures/ep01/board_gate_cases.yaml`.
+
+## Board image checks
+
+The fixture gate above never opens an image. The board image gate in
+`src/kubrick/gates/board_image_gate.py` does: `video runbook` runs it on
+every paid shot's local board image before any credit figure. It is on by
+default and fails closed. See
+[`JEV-PRE-SPEND-GATE.md`](JEV-PRE-SPEND-GATE.md#board-image-checks) for the
+checks, the threshold, the judge policy, and the opt-out. Run it alone with
+`python scripts/board_image_gate.py --input PLAN [--shot ID]`.
