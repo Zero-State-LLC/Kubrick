@@ -78,7 +78,7 @@ def test_myslef_beats_are_separate_and_long_beats_share() -> None:
     result = retime(document, "keyframe")
     assert result["status"] == "PROPOSED"
     assert result["script_clock"] == 6 and result["final_clock"] == 6 and result["delta"] == 0
-    assert result["generated_clock"] == 12
+    assert result["generated_clock"] == 16
     assert _modes(result) == ["new_generation"] * 4
     edits = {str(row["shot"]): row for row in _rows(result["edit_plan"])}
     assert (edits["03"]["in"], edits["03"]["out"]) == (0, 2)
@@ -106,7 +106,7 @@ def test_chain_breaks_a_group_and_threshold_overrides() -> None:
     ]
     result = retime({"frames": frames}, "keyframe")
     assert result["status"] == "PROPOSED" and result["delta"] == 0
-    assert result["generated_clock"] == 13.6
+    assert result["generated_clock"] == 14.0
     assert _modes(result) == ["new_generation"] * 3
     separate = retime(_plan(4, 4, short_beat_threshold_seconds=5), "keyframe")
     assert _modes(separate) == ["new_generation", "new_generation"]
@@ -160,7 +160,7 @@ def test_reuse_takes_and_clock_delta() -> None:
     assert _rows(held["generation_plan"])[0]["generated_seconds"] == 0
     plain = retime(document, "keyframe")
     assert plain["status"] == "PROPOSED" and plain["delta"] == 0
-    assert plain["final_clock"] == 6 and plain["generated_clock"] == 12
+    assert plain["final_clock"] == 6 and plain["generated_clock"] == 16
 
 
 def test_final_clock_is_the_sum_of_edit_windows() -> None:
@@ -173,7 +173,7 @@ def test_final_clock_is_the_sum_of_edit_windows() -> None:
     assert result["status"] == "PROPOSED"
     assert result["script_clock"] == 6.0
     assert result["final_clock"] == _edit_clock(result) == 6.0
-    assert result["generated_clock"] == generated == _sum_generated(result) == 12.0
+    assert result["generated_clock"] == generated == _sum_generated(result) == 16.0
     assert result["delta"] == 0.0
     shared = retime(_plan(4, 4, 4), "keyframe")
     assert shared["final_clock"] == _edit_clock(shared) == 12
@@ -218,7 +218,7 @@ def test_fail_closed_and_no_provider_call() -> None:
     assert retime({"frames": []}, "generic")["code"] == "NO_FEASIBLE_PLAN"
     over = retime(_plan(61), "keyframe")
     assert over["code"] == "NO_FEASIBLE_PLAN"
-    assert "61.0" in str(over["message"]) and "60.0" in str(over["message"])
+    assert "61.0" in str(over["message"]) and "30.0" in str(over["message"])
     shared = retime(_plan(40, 40), "keyframe")
     assert shared["code"] == "NO_FEASIBLE_PLAN" and "80.0" in str(shared["message"])
     text = (ROOT / "scripts/retime_plan.py").read_text(encoding="utf-8")
@@ -237,7 +237,7 @@ def test_fail_closed_and_no_provider_call() -> None:
         assert opened.returncode == 0, opened.stdout + opened.stderr
         written = _as_dict(yaml.safe_load(output.read_text(encoding="utf-8")))
         assert written["status"] == "PROPOSED" and written["final_clock"] == 6
-        assert written["script_clock"] == 6 and written["generated_clock"] == 12
+        assert written["script_clock"] == 6 and written["generated_clock"] == 16
         assert written["delta"] == 0
         long = root / "long.yaml"
         long.write_text(

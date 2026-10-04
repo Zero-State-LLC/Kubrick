@@ -443,7 +443,7 @@ CI (`.github/workflows/hermes-evals.yml`) runs Hermes evals, outcome governance,
             ┌──────────────────┼──────────────────┐
             ▼                  ▼                  ▼
       grok-imagine         flux / sd3 / mj       keyframe
-      (8s video cap)       (syntax only)     (3–60s per shot)
+      (8s video cap)       (syntax only)     (4–30s whole seconds)
                                │
                     closed-loop visual QA
                     (geometry · state · residue · convergence)

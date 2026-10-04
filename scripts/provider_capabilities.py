@@ -87,8 +87,9 @@ PROVIDER_CAPABILITIES: dict[str, dict[str, object]] = {
     "keyframe": {
         "image": True,
         "video": True,
-        "min_duration_seconds": 3.0,
-        "max_duration_seconds": 60.0,
+        "min_duration_seconds": 4.0,
+        "max_duration_seconds": 30.0,
+        "duration_integer": True,
         "camera_motion": True,
         "dialogue_audio": True,
         "multi_shot": True,

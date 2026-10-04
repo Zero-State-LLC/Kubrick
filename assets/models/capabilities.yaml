@@ -11,6 +11,17 @@ providers:
       observed_on: "2026-10-02"
     models:
       seedance-2.5:
+        limits:
+          durations:
+            integer: true
+            min: 4
+            max: 30
+          billing:
+            "4": 62
+            "5": 77
+            "6": 93
+          ref_aspect: [0.40, 2.50]
+          max_references: 9
         blocks:
           - source: vendor_claim
             verified_on: "2026-10-02"
@@ -28,3 +39,10 @@ providers:
             verified_on: "2026-10-02"
             input_mode: lab-hold
             start_frame_hold_seconds: 0.25
+      nano-banana-2:
+        limits:
+          default_aspect: inherit_movie
+        blocks:
+          - source: observed
+            verified_on: "2026-10-03"
+            negative_prompt_effective: false

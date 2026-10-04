@@ -2,6 +2,7 @@
 """Shot prep for short beats, joins, hold, and techniques. Issues #25–#27 and #31."""
 from __future__ import annotations
 
+import math
 import re
 from collections.abc import Callable, Mapping, Sequence
 from dataclasses import dataclass
@@ -176,7 +177,10 @@ def generation_seconds(
         provider, "start_frame_hold_seconds", document,
     ) if chained and not exit_open else 0.0
     floor = _positive_bound(provider, "min_duration_seconds", document)
-    return round(max(planned + hold, floor), 4), hold
+    generated = round(max(planned + hold, floor), 4)
+    if _capabilities(provider, document).get("duration_integer") is True:
+        generated = float(math.ceil(generated - 1e-9))
+    return generated, hold
 def padding_error(
     shot: str, generated: float, provider: str, *, hold: float,
     document: Mapping[str, object] | None = None,

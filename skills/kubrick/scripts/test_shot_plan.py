@@ -109,7 +109,7 @@ def test_short_beat_threshold_edges() -> None:
     assert "2s short-beat threshold" in top["message"]
     assert "multi-shot single clip" in top["message"]
     assert "own separate clip" in top["recommendation"]
-    assert "minimum of 3s" in top["recommendation"] and "then trim" in top["recommendation"]
+    assert "minimum of 4s" in top["recommendation"] and "then trim" in top["recommendation"]
     assert (
         short_beat_warnings(frames, "keyframe", document={"short_beat_threshold_seconds": 1.0})[0][
             "shot"
@@ -195,10 +195,10 @@ def test_chained_keyframe_drops_references() -> None:
 
 
 def test_hold_padding_preserves_runtime_and_fails_past_max() -> None:
-    generated, hold = generation_seconds(2.0, chained=True, exit_open=False, provider="keyframe")
-    assert (generated, hold) == (3.6, 1.6)
+    generated, hold = generation_seconds(4.0, chained=True, exit_open=False, provider="keyframe")
+    assert (generated, hold) == (6.0, 1.6)
     assert generation_seconds(2.0, chained=False, exit_open=False, provider="keyframe") == (
-        3.0, 0.0)
+        4.0, 0.0)
     assert generation_seconds(4.0, chained=True, exit_open=True, provider="keyframe") == (4.0, 0.0)
     assert opens_with_exit({"opens_with": "exit"})
     assert opens_with_exit({"opens_with": "WALKS OUT"})
@@ -234,31 +234,31 @@ def test_chained_hold_cut_list_and_max() -> None:
             [
                 _shot("frame-001", 4),
                 _shot(
-                    "frame-002", 2, join={"chain_from": "frame-001"}, action="the minder springs up"
+                    "frame-002", 4, join={"chain_from": "frame-001"}, action="the minder springs up"
                 ),
             ]
         )
     )
     jsonschema.validate(held, SCHEMA)
-    assert held["shots"][1]["durationSeconds"] == 3.6
+    assert held["shots"][1]["durationSeconds"] == 6
     held_cut = {item["shot"]: item for item in held["cut_list"]}["frame-002"]
     assert held_cut["source_in"] == 1.6
-    assert held_cut["source_out"] == 3.6
-    assert held_cut["generated_seconds"] - held_cut["source_in"] == held_cut["planned_seconds"]
+    assert held_cut["source_out"] == 5.6
+    assert round(held_cut["source_out"] - held_cut["source_in"], 4) == held_cut["planned_seconds"]
     used = sum(item["source_out"] - item["source_in"] for item in held["cut_list"])
-    assert used == 6
-    past = padding_error("frame-009", 60.6, "keyframe", hold=1.6)
+    assert used == 8
+    past = padding_error("frame-009", 30.6, "keyframe", hold=1.6)
     assert past is not None
     for text in (
         "frame-009",
-        "60.6",
+        "30.6",
         "keyframe",
         "maximum",
-        "60",
+        "30",
         "refusing to clamp or drop the shot",
     ):
         assert text in past
-    assert padding_error("frame-009", 60.0, "keyframe", hold=1.6) is None
+    assert padding_error("frame-009", 30.0, "keyframe", hold=1.6) is None
     assert padding_error("frame-009", 90, "keyframe", hold=0) is None
     assert padding_error("frame-009", 90, "flux", hold=1.6) is None
     assert padding_errors([_shot("frame-001", 2)], "keyframe", 4) == []
@@ -281,7 +281,7 @@ def test_unpadded_duration_still_fails_closed() -> None:
         plain = adapt_keyframe_packet(_packet([_shot("frame-001", seconds)], referenceImages=[]))
         assert plain["status"] == "NOT_COMPUTABLE"
         assert "shots" not in plain
-        assert "outside the allowed 3–60 seconds" in plain["message"]
+        assert "outside the allowed integer 4–30 seconds" in plain["message"]
         assert "refusing to clamp or drop the shot" in plain["message"]
 
 
@@ -402,7 +402,7 @@ def test_myslef_fixture_locks_and_keyframe_plan() -> None:
 
 def _assert_myslef_keyframe(movie: dict[str, object]) -> None:
     assert movie.get("status") != "NOT_COMPUTABLE" and movie["aspectRatio"] == "9:16"
-    assert movie["targetDurationSeconds"] == 12 and movie["plannedDurationSeconds"] == 6
+    assert movie["targetDurationSeconds"] == 16 and movie["plannedDurationSeconds"] == 6
     assert {item["shot"] for item in _codes(movie, "SHORT_BEAT")} == {
         "frame-001", "frame-002", "frame-003", "frame-004",
     }
@@ -421,10 +421,10 @@ def _assert_myslef_keyframe(movie: dict[str, object]) -> None:
 def _myslef_cuts(movie: dict[str, object], shots: list[dict[str, object]]) -> None:
     cuts = {str(item["shot"]): item for item in _rows(movie["cut_list"])}
     expect = {
-        "frame-001": (3, 0, 2),
-        "frame-002": (3, 1.6, 2.6),
-        "frame-003": (3, 0, 2),
-        "frame-004": (3, 0, 1),
+        "frame-001": (4, 0, 2),
+        "frame-002": (4, 1.6, 2.6),
+        "frame-003": (4, 0, 2),
+        "frame-004": (4, 0, 1),
     }
     for shot_id, spec in expect.items():
         cut = cuts[shot_id]
