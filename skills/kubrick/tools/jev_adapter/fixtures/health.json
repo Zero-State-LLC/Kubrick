@@ -1,0 +1,16 @@
+{
+  "prompt": {
+    "shot": "health-01",
+    "channel": "recorded",
+    "surfaces": ["image"],
+    "location": "fixture",
+    "prompt": "a figure holds still"
+  },
+  "holds": [
+    {"id": "still", "text": "the figure holds still"}
+  ],
+  "expect": {
+    "verdict": "pass",
+    "findings": []
+  }
+}

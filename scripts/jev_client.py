@@ -8,6 +8,7 @@ from __future__ import annotations
 
 import hashlib
 import json
+import math
 import os
 import urllib.error
 import urllib.parse
@@ -23,9 +24,10 @@ Transport = Callable[[str, Mapping[str, object], float], object]
 class JevUnreachable(Exception):
     """Jev returned nothing the gate can trust."""
 
-    def __init__(self, reason: str) -> None:
+    def __init__(self, reason: str, *, retryable: bool = False) -> None:
         super().__init__(reason)
         self.reason = reason
+        self.retryable = retryable
 
 
 class JevClient(Protocol):
@@ -142,7 +144,7 @@ def post_json(url: str, body: Mapping[str, object], timeout: float) -> object:
             status = getattr(response, "status", 200)
             raw = response.read(1_000_000)
     except (urllib.error.URLError, TimeoutError, OSError) as exc:
-        raise JevUnreachable(f"Jev request failed: {exc}") from exc
+        raise JevUnreachable(f"Jev request failed: {exc}", retryable=True) from exc
     if status != 200:
         raise JevUnreachable(f"Jev returned HTTP {status}")
     try:
@@ -151,27 +153,79 @@ def post_json(url: str, body: Mapping[str, object], timeout: float) -> object:
         raise JevUnreachable("Jev response is not JSON") from exc
 
 
+_ATTEMPTS = 3
+_BACKOFF_SECONDS = (0.25, 0.5)
+Sleeper = Callable[[float], None]
+
+
+def configured_timeout(explicit: float | None = None) -> float:
+    """``KUBRICK_JEV_TIMEOUT`` when set, otherwise 10 seconds. Fail closed."""
+    if explicit is not None:
+        value: object = explicit
+    else:
+        raw = os.environ.get("KUBRICK_JEV_TIMEOUT", "").strip()
+        if not raw:
+            value = 10.0
+        else:
+            try:
+                value = float(raw)
+            except ValueError as exc:
+                raise JevUnreachable("KUBRICK_JEV_TIMEOUT is not a positive number") from exc
+    if isinstance(value, bool) or not isinstance(value, (int, float)):
+        raise JevUnreachable("Jev timeout is not positive")
+    number = float(value)
+    if not math.isfinite(number) or number <= 0:
+        raise JevUnreachable("Jev timeout is not positive")
+    return number
+
+
 class HttpJevClient:
     """Live Jev. The endpoint is ``KUBRICK_JEV_URL`` or the constructor argument."""
 
     def __init__(
         self,
         url: str,
-        timeout: float = 10.0,
+        timeout: float | None = None,
         transport: Transport | None = None,
+        *,
+        sleeper: Sleeper | None = None,
+        attempts: int = _ATTEMPTS,
     ) -> None:
+        if attempts < 1:
+            raise JevUnreachable("Jev retry count is not positive")
         self._url = url
-        self._timeout = timeout
+        self._timeout = configured_timeout(timeout)
+        self.timeout = self._timeout
         self._transport = transport or post_json
+        self._sleep = sleeper or _sleep
+        self._attempts = attempts
 
     def judge(
         self,
         prompt: Mapping[str, object],
         holds: Sequence[Mapping[str, object]],
     ) -> Mapping[str, object]:
-        if self._timeout <= 0:
-            raise JevUnreachable("Jev timeout is not positive")
-        return parse_verdict(self._transport(self._url, judged_body(prompt, holds), self._timeout))
+        body = judged_body(prompt, holds)
+        last = JevUnreachable("Jev request failed", retryable=True)
+        for attempt in range(self._attempts):
+            try:
+                return parse_verdict(self._transport(self._url, body, self._timeout))
+            except JevUnreachable as exc:
+                last = exc
+                if not exc.retryable or attempt + 1 >= self._attempts:
+                    raise
+            except (TimeoutError, OSError) as exc:
+                last = JevUnreachable(f"Jev request failed: {exc}", retryable=True)
+                if attempt + 1 >= self._attempts:
+                    raise last from exc
+            self._sleep(_BACKOFF_SECONDS[min(attempt, len(_BACKOFF_SECONDS) - 1)])
+        raise last
+
+
+def _sleep(seconds: float) -> None:
+    import time
+
+    time.sleep(seconds)
 
 
 class RecordedJev:

@@ -334,6 +334,60 @@ def _load_takes(path: str) -> list[Mapping[str, object]]:
     return []
 
 
+def reconcile_late_bill(
+    entries: Sequence[Mapping[str, object]],
+    bill: Mapping[str, object],
+) -> dict[str, object]:
+    """Match a late bill to a reconcile-later row. Does not append a submit."""
+    from spend_safety import reconcile_late_bill as apply_bill
+
+    return apply_bill(entries, bill)
+
+
+def reconcile_late_bill_file(path: str, bill: Mapping[str, object]) -> dict[str, object]:
+    """Write the reconciled run ledger. A corrupt ledger fails closed."""
+    try:
+        raw = load_structured(path)
+    except OSError:
+        raw = {"entries": []}
+    except ValueError as exc:
+        return {
+            "status": "NOT_COMPUTABLE",
+            "reason": f"LEDGER_INVALID {exc}",
+            "appended_submit": False,
+        }
+    if not isinstance(raw, Mapping):
+        return {
+            "status": "NOT_COMPUTABLE",
+            "reason": "LEDGER_INVALID run ledger must be an object",
+            "appended_submit": False,
+        }
+    entries = raw.get("entries")
+    if entries is None:
+        entries = []
+    if not isinstance(entries, list):
+        return {
+            "status": "NOT_COMPUTABLE",
+            "reason": "LEDGER_INVALID run ledger entries must be a list",
+            "appended_submit": False,
+        }
+    rows = [item for item in entries if isinstance(item, Mapping)]
+    result = reconcile_late_bill(rows, bill)
+    if result.get("status") != "PROPOSED":
+        return result
+    updated = dict(raw)
+    updated["entries"] = result["entries"]
+    try:
+        write_structured(path, updated)
+    except OSError as exc:
+        return {
+            "status": "NOT_COMPUTABLE",
+            "reason": f"LEDGER_WRITE_FAILED {exc}",
+            "appended_submit": False,
+        }
+    return result
+
+
 def main(argv: Sequence[str] | None = None) -> int:
     parser = argparse.ArgumentParser(description="Propose retake impact. Takes stay observations.")
     parser.add_argument("--storyboard")
