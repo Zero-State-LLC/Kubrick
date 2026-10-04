@@ -71,8 +71,8 @@ def find_hits(diff: str) -> list[Hit]:
 
 
 def git_diff(base: str, root: Path) -> str:
-    cmd = ["git", "-C", str(root), "-c", "core.quotePath=false", "diff", "--unified=0", "--no-color", "--no-ext-diff",
-           "-M", f"{base}...HEAD", "--", *PATTERNS]
+    cmd = ["git", "-C", str(root), "-c", "core.quotePath=false", "diff", "--unified=0",
+           "--no-color", "--no-ext-diff", "-M", f"{base}...HEAD", "--", *PATTERNS]
     proc = subprocess.run(cmd, capture_output=True, text=True, encoding="utf-8",
                           errors="replace", check=False)
     if proc.returncode != 0:
