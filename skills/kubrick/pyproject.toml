@@ -1,6 +1,6 @@
 [project]
 name = "kubrick-skill"
-version = "0.24.0"
+version = "0.25.0"
 description = "Development metadata for the standalone Kubrick Hermes skill"
 requires-python = ">=3.10"
 dependencies = [
@@ -10,6 +10,9 @@ dependencies = [
 
 [project.optional-dependencies]
 validation = ["PyYAML>=6", "jsonschema>=4"]
+# Local, CPU-only models for the board image gate (DINOv2 identity check).
+# Never installed in CI and never imported at module load.
+board-vision = ["torch>=2.2", "transformers>=4.40", "Pillow>=10"]
 dev = [
   "pytest>=8",
   "ruff>=0.12",

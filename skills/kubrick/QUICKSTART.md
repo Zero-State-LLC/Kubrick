@@ -1,6 +1,6 @@
 # Kubrick Quickstart
 
-Kubrick is a **standalone Hermes skill** on branch **`main`** (v0.24.0). Continuity Forge, MCP servers, model APIs, and external generation providers remain optional. Film grammar is [`docs/FILM-GRAMMAR.md`](docs/FILM-GRAMMAR.md). The symbolic corpus is [`docs/CORPUS.md`](docs/CORPUS.md). Carrier order is [`docs/CONTINUITY.md`](docs/CONTINUITY.md).
+Kubrick is a **standalone Hermes skill** on branch **`main`** (v0.25.0). Continuity Forge, MCP servers, model APIs, and external generation providers remain optional. Film grammar is [`docs/FILM-GRAMMAR.md`](docs/FILM-GRAMMAR.md). The symbolic corpus is [`docs/CORPUS.md`](docs/CORPUS.md). Carrier order is [`docs/CONTINUITY.md`](docs/CONTINUITY.md).
 
 **OpenClaw?** Use the permanent [`openclaw`](https://github.com/Zero-State-LLC/Kubrick/tree/openclaw) branch (OpenClaw Agent Skill packaging by **Prabu**). See [`docs/OPENCLAW.md`](docs/OPENCLAW.md) — install target is `~/.openclaw/skills/kubrick`, not Hermes.
 

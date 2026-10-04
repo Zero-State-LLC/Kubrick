@@ -21,6 +21,7 @@ PATH_FLAGS = frozenset(
         "--answers",
         "--artifact",
         "--artifact-root",
+        "--board-judge-answers",
         "--compile-receipt",
         "--current",
         "--design",

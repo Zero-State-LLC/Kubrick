@@ -1,6 +1,6 @@
 # Kubrick roadmap
 
-Product version **0.24.0**. Local output stays **PROPOSED**. Weak evidence
+Product version **0.25.0**. Local output stays **PROPOSED**. Weak evidence
 stays `NOT_COMPUTABLE`. No provider is called from this plan.
 
 Project board: [Zero-State-LLC project 13](https://github.com/orgs/Zero-State-LLC/projects/13).
@@ -42,3 +42,16 @@ A scoped lock missing from the prompt blocks before spend (`LOCK_MISSING_IN_BOAR
 
 Start image, then references, then end image, then prompt. See
 [`CONTINUITY.md`](CONTINUITY.md). That note does not add a provider call.
+
+## Shipped in 0.25.0
+
+Board image checks in the pre-spend gate, on by default in `video runbook`:
+DINOv2 identity similarity to the approved `ref_pack` views (default 0.70,
+to be tuned on EP-01 kept and rejected takes), yes-or-no lock checks through
+a local judge, and the hard-cut board rules. A check that cannot run blocks.
+See [`JEV-PRE-SPEND-GATE.md`](JEV-PRE-SPEND-GATE.md#board-image-checks) and
+[#126](https://github.com/Zero-State-LLC/Kubrick/pull/126).
+
+Next: calibrate the threshold on EP-01 frames, let `lock_carriers` count a
+start frame as a carrier only when this gate passed, and reuse the same crop
+and embedding in live take QC.

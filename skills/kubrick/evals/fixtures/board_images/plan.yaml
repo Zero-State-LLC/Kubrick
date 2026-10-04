@@ -1,0 +1,28 @@
+# Board image gate fixture. Tiny synthetic PNGs; tests mock the embedder.
+storyboard_id: board-image-gate-fixture
+board_image_gate:
+  identity_threshold: 0.7
+characters:
+  myslef:
+    character_locks:
+      - silicon hands with no nails
+      - smooth dome head with no hair
+    ref_pack:
+      asset_hash: sha256:board-fixture-myslef
+      views:
+        - path: myslef-front.png
+          ref_role: identity
+          asset_hash: sha256:e95d44c69dab2dc5b9df0a229779ea057f45c8a801e94c151c6aeb05c60782e4
+        - path: myslef-three-quarter.png
+          ref_role: identity
+          asset_hash: sha256:3fc1ad32ace98618e5ae8157ce9868dd82848fa57096be6a4eb9c75df023a7eb
+frames:
+  - frame_id: frame-001
+    shot_id: "01"
+    characters: [myslef]
+    board_image: board-match.png
+  - frame_id: frame-002
+    shot_id: "02"
+    join: cut
+    characters: [myslef]
+    board_image: board-mismatch.png
