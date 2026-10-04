@@ -171,6 +171,26 @@ def _gate_lines(
     return gate, payload
 
 
+def sfx_estimate(document: Mapping[str, object]) -> dict[str, object]:
+    """Fixture SFX credits. Missing means an explicit zero. ElevenLabs is not called."""
+    raw = document.get("sfx")
+    if raw is None:
+        return {"status": "PROPOSED", "credits": 0, "line": "sfx 0", "source": "fixture"}
+    found = raw if isinstance(raw, Mapping) else None
+    credits = found.get("credits") if found is not None else None
+    bad = found is None or isinstance(credits, bool) or not isinstance(credits, (int, float))
+    if bad or (isinstance(credits, (int, float)) and credits < 0):
+        return {
+            "status": "NOT_COMPUTABLE",
+            "credits": None,
+            "line": "sfx not computable",
+            "source": "fixture",
+        }
+    assert isinstance(credits, (int, float))
+    shown: int | float = int(credits) if float(credits).is_integer() else float(credits)
+    return {"status": "PROPOSED", "credits": shown, "line": f"sfx {shown}", "source": "fixture"}
+
+
 def cue_sheet(
     document: Mapping[str, object],
     plan: Mapping[str, object],
@@ -213,6 +233,11 @@ def cue_sheet(
         )
         attach_gate(payload, gate, run_ledger)
         return payload
+    sfx = sfx_estimate(document)
+    if sfx.get("status") != "PROPOSED":
+        refused = closed(ACTION, "SFX_NOT_COMPUTABLE", "sfx estimate is not a fixture number")
+        attach_gate(refused, gate, run_ledger)
+        return refused
     payload = {
         "status": "PROPOSED",
         "authority": "PROPOSED",
@@ -220,6 +245,7 @@ def cue_sheet(
         "cues": cues,
         "mix_variants": [dict(v) for v in MIX_VARIANTS],
         "elevenlabs_estimate": est,
+        "sfx_estimate": sfx,
         "warnings": warnings,
     }
     ledger_error = attach_gate(payload, gate, run_ledger)
