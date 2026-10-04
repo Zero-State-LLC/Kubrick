@@ -128,6 +128,53 @@ def test_brand_weak_negation_and_meta_word() -> None:
     assert "black-and-red high-tops" not in prompt
 
 
+def test_missing_board_lock_blocks_before_jev() -> None:
+    class _Boom:
+        def judge(self, prompt: object, holds: object) -> dict[str, object]:
+            raise AssertionError("Jev was called")
+
+    class _Pass:
+        def __init__(self) -> None:
+            self.called = False
+
+        def judge(self, prompt: object, holds: object) -> dict[str, object]:
+            self.called = True
+            return {"verdict": "pass", "findings": []}
+
+    document: dict[str, object] = {
+        "frames": [{"frame_id": "f01", "location": "alley"}],
+        "hold_list": [{
+            "id": "hands",
+            "text": "silicon hands",
+            "scope": {"locations": ["alley"], "shots": ["f01"]},
+        }],
+    }
+    bare = [{
+        "shot": "f01",
+        "prompt": "hands press the grille",
+        "location": "alley",
+        "labels": ["f01"],
+    }]
+    blocked = gate_prompts(document, bare, client=_Boom())
+    assert blocked.get("code") == "LOCK_MISSING_IN_BOARD"
+    assert blocked.get("blocks_spend") is True
+    assert blocked.get("authority") == "NOT_COMPUTABLE"
+    direct = lint_text("hands press the grille", locks=["silicon hands"])
+    assert "LOCK_MISSING_IN_BOARD" in _codes(direct)
+    assert direct[0]["suggestion"] == emit_board_prompt("hands press the grille", ["silicon hands"])
+    stated = [{
+        "shot": "f01",
+        "prompt": "silicon hands press the grille",
+        "location": "alley",
+        "labels": ["f01"],
+    }]
+    client = _Pass()
+    cleared = gate_prompts(document, stated, client=client)
+    assert cleared.get("code") == "CLEAR"
+    assert cleared.get("blocks_spend") is False
+    assert client.called is True
+
+
 def test_board_lock_and_infeasible_motion() -> None:
     locks = ["silicon hands"]
     bare = "hands press the grille"
@@ -162,6 +209,7 @@ def main() -> None:
     test_twelve_myslef_actions_reach_compiled_prompts()
     test_contradictions_block_before_jev()
     test_brand_weak_negation_and_meta_word()
+    test_missing_board_lock_blocks_before_jev()
     test_board_lock_and_infeasible_motion()
     print("prompt lint tests: PASS")
 

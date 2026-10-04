@@ -39,10 +39,10 @@ def _aligned(root: Path, version: str = "0.18.0") -> None:
     _write(
         root,
         "README.md",
-        f"<em>{version} — Prompt fidelity and Keyframe</em>\n"
+        f"<em>{version}: Prompt fidelity and Keyframe</em>\n"
         "docs/ROADMAP.md\nCHANGELOG.md\n",
     )
-    _write(root, "CHANGELOG.md", f"## [{version}] — 2026-10-02\n")
+    _write(root, "CHANGELOG.md", f"## [{version}] - 2026-10-02\n")
     _write(root, "docs/ROADMAP.md", "# Roadmap\n")
     _write(root, "docs/RELEASE-CHECKLIST.md", f"- [x] aligned to v{version}\n")
     _write(root, ENGINE_SOURCE, 'SCHEMA_VERSION = "0.16.0"\n')
@@ -52,12 +52,12 @@ def _aligned(root: Path, version: str = "0.18.0") -> None:
 def test_repo_surfaces_match_product_version() -> None:
     report = build_report(ROOT)
     assert report["status"] == "READY", report["mismatches"]
-    assert report["expected_version"] == "0.23.0"
+    assert report["expected_version"] == "0.24.0"
     assert report["tag_allowed"] is True
     declarations = report["declarations"]
     assert isinstance(declarations, dict)
     for name, observed in declarations.items():
-        assert observed == "0.23.0", (name, observed)
+        assert observed == "0.24.0", (name, observed)
     envelopes = report["envelope_schema_versions"]
     assert envelopes == {
         ENGINE_SOURCE: ENVELOPE_SCHEMA_VERSION,

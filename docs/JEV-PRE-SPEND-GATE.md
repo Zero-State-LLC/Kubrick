@@ -22,6 +22,12 @@ When `hold_list` is absent, the gate builds the list from:
 - prop `states` (`in_scope_only`, so a state must not leak onto a shot that
   is outside its scope)
 
+Before any Jev call the compiled text is linted. A scoped hold that applies
+to the prompt and is not stated in the text is `LOCK_MISSING_IN_BOARD` and
+blocks spend. A blank or whitespace prompt `location` while a hold names
+`scope.locations` is `LOCATION_UNSPECIFIED` and blocks spend; the hold is not
+dropped. See [`scoped-holds.md`](scoped-holds.md).
+
 An empty hold list passes with code `NO_HOLDS` and does not call Jev. A step
 with no prompts to spend passes with `NO_SPEND`.
 
@@ -90,6 +96,8 @@ not inherit an old verdict.
 | `NO_SPEND` | This step has no prompt that would be spent. |
 | `CLEAR` | Jev passed every prompt. |
 | `BLOCKED_SHOT` | The shot is marked blocked on the hold list. |
+| `LOCK_MISSING_IN_BOARD` | A scoped hold that applies to the prompt is not stated in it. Blocks before Jev. |
+| `LOCATION_UNSPECIFIED` | The prompt location is blank while a hold is location-scoped. Blocks before Jev. |
 | `MISSING_LOCK` | A recorded or live finding: required lock text is absent. |
 | `OUT_OF_SCOPE_LOCK` | A finding a judge may return when an in-scope-only hold leaks. |
 | `BRAND_PRONE` | A finding a judge may return for brand-prone wording. |

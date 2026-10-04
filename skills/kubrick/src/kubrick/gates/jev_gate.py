@@ -17,7 +17,7 @@ from collections.abc import Callable, Mapping, Sequence
 from datetime import datetime, timezone
 from typing import TextIO
 
-from kubrick.gates.hold_scope import holds_for_prompt
+from kubrick.gates.hold_scope import holds_for_prompt, scoped_lock_lines
 from kubrick.gates.jev_client import (
     JevClient,
     JevUnreachable,
@@ -105,6 +105,24 @@ def _local_blocks(
             }],
         })
     return checks
+
+
+def _closed(
+    code: str, message: str, holds: Sequence[Mapping[str, object]],
+) -> dict[str, object]:
+    """A fail-closed block. No spend, no judge call."""
+    return _result(
+        status="BLOCKED",
+        authority="NOT_COMPUTABLE",
+        code=code,
+        blocks=True,
+        message=message,
+        holds=holds,
+        checks=[],
+        override=False,
+        override_logged=False,
+        override_source="",
+    )
 
 
 def _check_message(checks: Sequence[Mapping[str, object]]) -> str:
@@ -213,8 +231,11 @@ def check_before_spend(
         shot = prompt.get("shot")
         if _prompt_labels(prompt) & blocked:
             continue
+        applicable = holds_for_prompt(holds, prompt)
+        if isinstance(applicable, str):
+            return _closed(applicable.split()[0], applicable, holds)
         try:
-            verdict = judge.judge(judge_prompt(prompt), holds_for_prompt(holds, prompt))
+            verdict = judge.judge(judge_prompt(prompt), applicable)
         except JevUnreachable as exc:
             failed = [item for item in checks if item.get("verdict") == "fail"]
             if failed:
@@ -357,13 +378,20 @@ def _lint_block(
     if not prompts:
         return None
     holds = _hold_texts(document)
+    raw_holds = hold_list(document)
     findings: list[dict[str, str]] = []
     for prompt in prompts:
         text = prompt.get("prompt")
         if not isinstance(text, str):
             continue
         frame = _frame_for(document, prompt.get("shot"))
-        findings.extend(lint_text(text, holds=holds, frame=frame or None))
+        locks: Sequence[str] = ()
+        if isinstance(raw_holds, list):
+            chosen = scoped_lock_lines(raw_holds, prompt)
+            if isinstance(chosen, str):
+                return _closed(chosen.split()[0], chosen, raw_holds)
+            locks = chosen
+        findings.extend(lint_text(text, holds=holds, frame=frame or None, locks=locks))
     blocking = [item for item in findings if item["code"] in BLOCKING]
     if not blocking:
         return None

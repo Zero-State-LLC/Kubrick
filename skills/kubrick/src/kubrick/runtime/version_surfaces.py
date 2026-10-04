@@ -23,7 +23,7 @@ ENGINE_SOURCE = "src/kubrick/plan/production_engine.py"
 SURFACE_COMMON_SOURCE = "src/kubrick/surfaces/surface_common.py"
 
 _SKILL_VERSION = re.compile(r"^version:\s*([^\s]+)", re.MULTILINE)
-_README_VERSION = re.compile(r"<em>(0\.\d+\.\d+)\s+—")
+_README_VERSION = re.compile(r"<em>(0\.\d+\.\d+)(?![\d.])")
 _CHANGELOG_VERSION = re.compile(r"^## \[(0\.\d+\.\d+)\]", re.MULTILINE)
 _ENGINE_SCHEMA = re.compile(r'^SCHEMA_VERSION = "([^"]+)"', re.MULTILINE)
 _COMPILER_SCHEMA = re.compile(r'"schema_version": "([^"]+)"')

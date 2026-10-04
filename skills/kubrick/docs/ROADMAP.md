@@ -1,6 +1,6 @@
 # Kubrick roadmap
 
-Product version **0.23.0**. Local output stays **PROPOSED**. Weak evidence
+Product version **0.24.0**. Local output stays **PROPOSED**. Weak evidence
 stays `NOT_COMPUTABLE`. No provider is called from this plan.
 
 Project board: [Zero-State-LLC project 13](https://github.com/orgs/Zero-State-LLC/projects/13).
@@ -17,7 +17,7 @@ storyboard camera and cut, film grammar 1.0.0, MYSLEF drift, corpus hygiene,
 six sidecars, and the continuation cleanup. See the `0.23.0` section of
 [`CHANGELOG.md`](../CHANGELOG.md).
 
-## Landed after 0.23.0
+## Shipped in 0.24.0
 
 | Work | Issue | Pull request |
 |---|---|---|
@@ -35,6 +35,8 @@ six sidecars, and the continuation cleanup. See the `0.23.0` section of
 | Retake router | [#104](https://github.com/Zero-State-LLC/Kubrick/issues/104), [#92](https://github.com/Zero-State-LLC/Kubrick/issues/92), [#108](https://github.com/Zero-State-LLC/Kubrick/issues/108) | [#124](https://github.com/Zero-State-LLC/Kubrick/pull/124) |
 
 [#91](https://github.com/Zero-State-LLC/Kubrick/issues/91) stays deferred.
+
+A scoped lock missing from the prompt blocks before spend (`LOCK_MISSING_IN_BOARD`). A blank or whitespace prompt location on a location-scoped hold blocks (`LOCATION_UNSPECIFIED`) instead of dropping the hold. See [#125](https://github.com/Zero-State-LLC/Kubrick/pull/125).
 
 ## Carrier order
 
