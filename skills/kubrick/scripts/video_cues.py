@@ -144,7 +144,43 @@ def estimate(
     }
 
 
-def cue_sheet(document: Mapping[str, object], plan: Mapping[str, object]) -> dict[str, object]:
+def _gate_lines(
+    document: Mapping[str, object],
+    cues: Sequence[Mapping[str, object]],
+    *,
+    override: bool,
+    override_source: str,
+    verdicts_path: str | None,
+    ledger_path: str | None,
+) -> tuple[dict[str, object], dict[str, object] | None]:
+    """Judge spoken lines before the ElevenLabs credit estimate."""
+    from jev_gate import attach_gate, gate_prompts
+    from jev_holds import prompts_for_cues
+
+    gate = gate_prompts(
+        document,
+        prompts_for_cues(document, cues),
+        override=override,
+        override_source=override_source,
+        verdicts_path=verdicts_path,
+    )
+    if not gate.get("blocks_spend"):
+        return gate, None
+    payload = closed(ACTION, str(gate.get("code")), str(gate.get("message")))
+    attach_gate(payload, gate, ledger_path)
+    return gate, payload
+
+
+def cue_sheet(
+    document: Mapping[str, object],
+    plan: Mapping[str, object],
+    *,
+    jev_override: bool = False,
+    jev_verdicts: str | None = None,
+    run_ledger: str | None = None,
+) -> dict[str, object]:
+    from jev_gate import attach_gate, override_requested
+
     try:
         rows = timeline(plan)
     except ValueError as exc:
@@ -153,16 +189,31 @@ def cue_sheet(document: Mapping[str, object], plan: Mapping[str, object]) -> dic
     if isinstance(built, str):
         return closed(ACTION, "VOICE_LOCK_VIOLATION", built)
     cues, warnings = built
+    requested, source = override_requested(jev_override)
+    gate, blocked = _gate_lines(
+        document,
+        cues,
+        override=requested,
+        override_source=source,
+        verdicts_path=jev_verdicts,
+        ledger_path=run_ledger,
+    )
+    if blocked is not None:
+        return blocked
     est = estimate(document, cues)
     if isinstance(est, str):
-        return closed(ACTION, est, "elevenlabs pricing/cap config is not a valid number")
+        payload = closed(ACTION, est, "elevenlabs pricing/cap config is not a valid number")
+        attach_gate(payload, gate, run_ledger)
+        return payload
     if est["within_cap"] is False:
-        return closed(
+        payload = closed(
             ACTION,
             "ELEVENLABS_CAP_EXCEEDED",
             f"inferred {est['total_credits']} credits exceed cap {est['cap_credits']}",
         )
-    return {
+        attach_gate(payload, gate, run_ledger)
+        return payload
+    payload = {
         "status": "PROPOSED",
         "authority": "PROPOSED",
         "final_clock": plan.get("final_clock"),
@@ -171,15 +222,41 @@ def cue_sheet(document: Mapping[str, object], plan: Mapping[str, object]) -> dic
         "elevenlabs_estimate": est,
         "warnings": warnings,
     }
+    ledger_error = attach_gate(payload, gate, run_ledger)
+    if ledger_error:
+        refused = closed(ACTION, ledger_error.split()[0], ledger_error)
+        refused["jev_gate"] = dict(gate)
+        refused["run_ledger"] = [{
+            "kind": "jev_gate",
+            "checked_before_spend": True,
+            "result": dict(gate),
+            "ledger_error": ledger_error,
+        }]
+        return refused
+    return payload
 
 
 def main(argv: Sequence[str] | None = None) -> int:
-    args = build_parser("PROPOSED dialogue cue sheet and mix plan (prep only)").parse_args(argv)
+    from jev_gate import add_jev_arguments
+
+    parser = build_parser("PROPOSED dialogue cue sheet and mix plan (prep only)")
+    add_jev_arguments(parser)
+    args = parser.parse_args(argv)
     prepared = prepare(args)
     if isinstance(prepared, dict):
         return emit(args, ACTION, prepared)
     document, plan = prepared
-    return emit(args, ACTION, cue_sheet(document, plan))
+    return emit(
+        args,
+        ACTION,
+        cue_sheet(
+            document,
+            plan,
+            jev_override=bool(args.jev_override),
+            jev_verdicts=args.jev_verdicts,
+            run_ledger=args.run_ledger,
+        ),
+    )
 
 
 if __name__ == "__main__":

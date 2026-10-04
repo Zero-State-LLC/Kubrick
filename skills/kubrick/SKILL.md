@@ -120,7 +120,7 @@ Prefer the wizard when unsure; use `do <intent>` when flags are already known.
 - `design` — design.md lifecycle (create/improve/audit/reconcile/update/validate)
 - `script` — Script development, diagnosis, and continuity handoff
 - `image` — Still-image prompt engineering and QA
-- `video` — Temporal shot, motion, and sequence prompting and QA. `retime` proposes a generation and edit plan and does not call a provider. `runbook` (`--retake SHOT`), `cut-qa`, and `cues` emit PROPOSED retake ops, ffmpeg QA commands, and a cue sheet with mix targets. They never run a tool or spend credits. `retime` and `storyboard impact` accept `--take SHOT=TAKE_ID`.
+- `video` — Temporal shot, motion, and sequence prompting and QA. `retime` proposes a generation and edit plan and does not call a provider. `runbook` (`--retake SHOT`), `cut-qa`, and `cues` emit PROPOSED retake ops, ffmpeg QA commands, and a cue sheet with mix targets. They never run a tool or spend credits. Before `runbook` or `cues` emit a credit figure or a paid operation, each compiled prompt is checked against the plan hold list (`docs/JEV-PRE-SPEND-GATE.md`). A hold hit blocks the spend. If Jev cannot be reached, the command fails closed unless `--jev-override` is set, and that override is logged. The override does not bypass a hold hit. Kubrick still does not call Keyframe or ElevenLabs. `retime` and `storyboard impact` accept `--take SHOT=TAKE_ID`.
 - `storyboard` — Propagate or compare state across frames. `impact` reports stale takes from an observation ledger.
 - `adapt` — Build neutral packets and provider-specific syntax
 - `visual` — Normalize, compare, correct, and govern visual QA

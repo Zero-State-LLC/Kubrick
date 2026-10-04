@@ -1,5 +1,10 @@
 # Changelog — Kubrick
 
+## [Unreleased]
+
+### Added
+- #90: `video runbook` and `video cues` run a Jev pre-spend gate before any credit figure or paid operation. The hold list is the plan `hold_list` when that field is set. Otherwise it is the plan `locks`, `location.locks`, and prop-state texts. A hold hit blocks spend (`JEV_HOLD`). If Jev is unreachable the command fails closed (`JEV_UNREACHABLE`) unless `--jev-override` or `KUBRICK_JEV_OVERRIDE` is set. The override is logged and does not bypass a hold hit. Recorded verdicts (`--jev-verdicts` or `KUBRICK_JEV_VERDICTS`) keep CI off the network. The gate result is written on the payload and, with `--run-ledger`, appended to the run ledger.
+
 ## [0.23.0] — 2026-10-03
 
 ### Added
