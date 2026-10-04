@@ -82,7 +82,10 @@ def main(argv: list[str] | None = None) -> int:
         print("\n".join(problems), file=sys.stderr)
         return 1
     judge = LoopbackVlmJudge(url=args.url, model=args.model or None, timeout=args.timeout)
-    results = mf.ResultFile(args.out, {"judge": judge.name, "questions": questions})
+    config = {"questions": questions, "judge": judge.name, "url": judge.url,
+              "manifest": mf.file_digest(args.manifest)}
+    results = mf.ResultFile(args.out, {"config": config, "judge": judge.name,
+                                       "questions": questions})
 
     def job(item: dict[str, Any]) -> None:
         if results.done(item["path"]):

@@ -44,9 +44,9 @@ def _detector() -> Any:
         inputs = proc(text=[list(QUERIES)], images=image, return_tensors="pt")
         with torch.no_grad():
             out = det(**inputs)
-        side = max(image.size)  # OWLv2 pads to a square
+        # (height, width) of the original image; the processor undoes its square padding
         res = proc.post_process_grounded_object_detection(
-            out, threshold=0.05, target_sizes=torch.tensor([[side, side]]))[0]
+            out, threshold=0.05, target_sizes=torch.tensor([[image.height, image.width]]))[0]
         best: dict[str, tuple[float, tuple[int, int, int, int]]] = {}
         for score, label, box in zip(res["scores"].tolist(), res["labels"].tolist(),
                                      res["boxes"].tolist()):
@@ -111,7 +111,8 @@ def main(argv: list[str] | None = None) -> int:
     man = mf.load(args.manifest)
     root_map = mf.roots(man, args.root)
     refs = [p for group in (man.get("refs") or {}).values() for p in group]
-    if args.verify and (problems := mf.verify(man["items"], root_map)):
+    ref_items = [{"path": p, "sha256": (man.get("ref_sha256") or {}).get(p, "")} for p in refs]
+    if args.verify and (problems := mf.verify([*man["items"], *ref_items], root_map)):
         print("\n".join(problems), file=sys.stderr)
         return 1
     embedder = Dinov2Embedder()

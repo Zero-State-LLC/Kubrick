@@ -39,7 +39,8 @@ python tools/board_calibration/identity.py --out /tmp/identity.json --detect
 ```
 
 `gate_run.py --dry-run` prints the questions without a judge. Results are
-written after every image; rerunning with the same `--out` resumes.
+written after every image; rerunning with the same `--out` resumes, and
+refuses to if the questions, judge, or manifest changed.
 
 ## Numbers on 2026-10-04 (Spark judge, 60 clean and 7 defective head images)
 

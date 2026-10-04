@@ -87,18 +87,33 @@ copy_once "$HERE/board-vision.env.example" "$CONF/board-vision.env"
 [ "$BACKEND" = proxy ] && copy_once "$PROFILE" "$CONF/vlm-$NAME.env"
 [ "$BACKEND" = ollama ] && copy_once "$PROFILE" "$CONF/ollama.env"
 
-step "5/5 start, health check, fail-closed test"
-# shellcheck disable=SC1091
-. "$CONF/board-vision.env"
+step "5/5 start, persist the judge, health check, fail-closed test"
+# Write the selected judge into board-vision.env, so a later
+# `source ~/.config/kubrick/board-vision.env` picks the same one (backup first).
+persist() {
+  local file=$CONF/board-vision.env tmp key value
+  tmp=$(mktemp)
+  cp "$file" "$tmp"
+  while [ $# -gt 1 ]; do
+    key=$1 value=$2; shift 2
+    if grep -q "^export $key=" "$tmp"; then sed -i "s|^export $key=.*|export $key=$value|" "$tmp"
+    else echo "export $key=$value" >>"$tmp"; fi
+  done
+  if cmp -s "$tmp" "$file"; then rm -f "$tmp"; echo "kept $file"
+  else cp -p "$file" "$file.bak-$(date +%Y%m%d-%H%M%S)"; mv "$tmp" "$file"; echo "updated $file"; fi
+}
 case "$BACKEND" in
   proxy)
     "$BIN/kubrick-vlm-$NAME" start
     ADDR=$(set -a; . "$CONF/vlm-$NAME.env"; echo "${KUBRICK_VLM_PROXY_ADDR:-127.0.0.1:11435}")
-    export KUBRICK_BOARD_VLM_URL="http://$ADDR" ;;
+    persist KUBRICK_BOARD_VLM_URL "http://$ADDR" ;;
   ollama)
-    eval "$(set -a; . "$CONF/ollama.env"; echo "export KUBRICK_BOARD_VLM_URL=http://${KUBRICK_OLLAMA_ADDR:-127.0.0.1:11434} KUBRICK_BOARD_VLM_MODEL=${KUBRICK_OLLAMA_MODEL}")" ;;
+    read -r ADDR MODEL < <(set -a; . "$CONF/ollama.env"; echo "${KUBRICK_OLLAMA_ADDR:-127.0.0.1:11434} ${KUBRICK_OLLAMA_MODEL:-}")
+    persist KUBRICK_BOARD_VLM_URL "http://$ADDR" KUBRICK_BOARD_VLM_MODEL "$MODEL" ;;
   none) echo "no backend started" ;;
 esac
+# shellcheck disable=SC1091
+. "$CONF/board-vision.env"
 status=0
 if [ "$BACKEND" != none ]; then "$PY" "$HERE/health.py" check || status=1; fi
 "$PY" "$HERE/health.py" fail-closed || status=1

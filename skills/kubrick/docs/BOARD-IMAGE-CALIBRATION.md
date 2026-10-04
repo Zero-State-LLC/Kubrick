@@ -317,7 +317,8 @@ Set up a judge first ([`BOARD-VISION-SETUP.md`](BOARD-VISION-SETUP.md)).
 
 All take `--manifest`, `--root name=DIR`, and `--verify` (sha256 of every
 image). The judge is `--url` or `KUBRICK_BOARD_VLM_URL` and must be loopback.
-Results are saved after every image and a rerun resumes.
+Results are saved after every image and a rerun resumes; it refuses to
+resume a file made with other questions, another judge, or another manifest.
 
 To reproduce the gate numbers above:
 

@@ -163,3 +163,30 @@ def test_metrics_report_on_saved_results() -> None:
     assert summary["clean_blocked_by_question"] == {"Q1?": 1}
     assert summary["per_lock"]["x"]["ok"] == 0
     assert "defective blocked: 0 of 1" in gate_metrics.report(summary)
+
+
+def test_resume_refuses_a_different_configuration(tmp_path: Path) -> None:
+    out = tmp_path / "run.json"
+    first = mf.ResultFile(out, {"config": {"questions": ["a"]}})
+    first.add({"path": "x", "answer": "yes"})
+    assert mf.ResultFile(out, {"config": {"questions": ["a"]}}).done("x")
+    try:
+        mf.ResultFile(out, {"config": {"questions": ["b"]}})
+    except SystemExit as exc:
+        assert "different run configuration" in str(exc)
+    else:
+        raise AssertionError("resumed a run made with other questions")
+
+
+def test_identity_verify_checks_the_references(tmp_path: Path, capsys: Any) -> None:
+    from tools.board_calibration import identity
+
+    path = _tiny_manifest(tmp_path)
+    man = json.loads(path.read_text(encoding="utf-8"))
+    man["items"] = man["items"][:1]
+    man["refs"] = {"head_lock": ["img/ref.png"]}
+    man["ref_sha256"] = {"img/ref.png": "0" * 64}
+    path.write_text(json.dumps(man), encoding="utf-8")
+    assert identity.main(["--manifest", str(path), "--verify", "--out",
+                          str(tmp_path / "id.json")]) == 1
+    assert "missing img/ref.png" in capsys.readouterr().err

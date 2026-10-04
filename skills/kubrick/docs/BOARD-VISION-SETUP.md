@@ -51,8 +51,9 @@ bash tools/board_vision/setup.sh ollama
 4. Config: copies `board-vision.env.example` to
    `~/.config/kubrick/board-vision.env` and the profile to
    `~/.config/kubrick/vlm-NAME.env`, never overwriting either.
-5. Start, health check, fail-closed test: starts the backend, then
-   `health.py check` (one question about a plain red image must come back
+5. Start, health check, fail-closed test: starts the backend, writes its
+   URL (and, for `ollama`, its model) into `board-vision.env` after a
+   backup, sources that file, then runs `health.py check` (one question about a plain red image must come back
    `yes`) and `health.py fail-closed`.
 
 Day to day:

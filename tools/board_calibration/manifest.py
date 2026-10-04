@@ -88,6 +88,10 @@ def verify(items: Iterable[Mapping[str, Any]], root_map: Mapping[str, str]) -> l
     return problems
 
 
+def file_digest(path: str | Path) -> str:
+    return "sha256:" + sha256(str(path))
+
+
 def gate_items(manifest: Mapping[str, Any]) -> list[dict[str, Any]]:
     """Items with at least one ``gate:<lock>`` truth label (the gate A/B set)."""
     return [item for item in manifest["items"]
@@ -103,6 +107,7 @@ class ResultFile:
     """JSON results written after every row (atomic replace), resumable by key."""
 
     def __init__(self, path: str | Path, header: Mapping[str, Any], key: str = "path") -> None:
+        """``header["config"]`` must match a file being resumed, or this refuses to resume."""
         self.path = Path(path)
         self.header = dict(header)
         self.key = key
@@ -110,7 +115,12 @@ class ResultFile:
         self.order: list[str] = []
         self._lock = threading.Lock()
         if self.path.exists():
-            for row in json.loads(self.path.read_text(encoding="utf-8")).get("rows", []):
+            saved = json.loads(self.path.read_text(encoding="utf-8"))
+            if saved.get("rows") and saved.get("config") != self.header.get("config"):
+                raise SystemExit(f"{self.path} was made with a different run configuration "
+                                 "(locks, questions, judge, or manifest); use a new --out "
+                                 "or delete it")
+            for row in saved.get("rows", []):
                 self.rows[row[key]] = row
 
     def done(self, key: str) -> bool:

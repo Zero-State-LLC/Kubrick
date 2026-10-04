@@ -200,3 +200,36 @@ def test_setup_and_launchers_are_valid_bash() -> None:
     missing = subprocess.run(["bash", str(TOOLS / "setup.sh"), "proxy"], capture_output=True,
                              text=True, check=False)
     assert missing.returncode == 2 and "--profile" in missing.stderr
+
+
+def test_setup_persists_the_selected_judge(tmp_path: Path) -> None:
+    """setup.sh proxy writes the profile's address into board-vision.env and passes."""
+    import socket
+
+    with socket.socket() as sock:
+        sock.bind(("127.0.0.1", 0))
+        port = sock.getsockname()[1]
+    conf, state = tmp_path / "conf", tmp_path / "state"
+    with serve(openai_upstream("yes")) as (upstream, _seen):
+        profile = tmp_path / "fake.env"
+        profile.write_text(f"KUBRICK_VLM_PROXY_ADDR=127.0.0.1:{port}\n"
+                           f"KUBRICK_VLM_UPSTREAM_URL={upstream}/v1\n"
+                           "KUBRICK_VLM_UPSTREAM_MODEL=m\n", encoding="utf-8")
+        env = dict(os.environ, HOME=str(tmp_path), KUBRICK_CONFIG_DIR=str(conf),
+                   KUBRICK_BIN=str(tmp_path / "bin"), KUBRICK_VLM_STATE=str(state),
+                   KUBRICK_PYTHON=sys.executable, KUBRICK_SETUP_SKIP_PIP="1",
+                   KUBRICK_SETUP_SKIP_DOWNLOAD="1")
+        try:
+            done = subprocess.run(["bash", str(TOOLS / "setup.sh"), "proxy", "--profile",
+                                   str(profile)], env=env, capture_output=True, text=True,
+                                  timeout=120, check=False)
+        finally:
+            subprocess.run([str(tmp_path / "bin" / "kubrick-vlm-fake"), "stop"], env=env,
+                           capture_output=True, timeout=30, check=False)
+    assert done.returncode == 0, done.stdout + done.stderr
+    assert "board vision setup: PASS" in done.stdout
+    settings = (conf / "board-vision.env").read_text(encoding="utf-8")
+    assert f"export KUBRICK_BOARD_VLM_URL=http://127.0.0.1:{port}" in settings
+    assert list(conf.glob("board-vision.env.bak-*"))
+    assert (conf / "vlm-fake.env").read_text(encoding="utf-8") == profile.read_text(
+        encoding="utf-8")
