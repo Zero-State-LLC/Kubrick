@@ -13,8 +13,7 @@ from pathlib import Path
 import yaml
 
 ROOT = Path(__file__).resolve().parent.parent
-sys.path.insert(0, str(ROOT / "scripts"))
-sys.path.insert(0, str(ROOT / "src"))
+sys.path[:0] = [str(ROOT / "src"), str(ROOT / "scripts")]
 
 from adapt_provider import adapt  # noqa: E402
 from drift_registry import join_mitigations, load_registry, registry_warnings  # noqa: E402
@@ -30,8 +29,6 @@ from shot_plan import collect_prep, generation_seconds, shot_directives  # noqa:
 from spend_plan import CHECKLIST, budget_error, spend_estimate  # noqa: E402
 from storyboard_prompts import adapter_packet_from_document  # noqa: E402
 from test_corpus_hygiene import fixture_capabilities as _fixture_capabilities  # noqa: E402
-
-from kubrick.paths import implementation_of  # noqa: E402
 
 PY = sys.executable
 EXAMPLE = ROOT / "examples/myslef-minder/storyboard-plan.yaml"
@@ -395,6 +392,7 @@ def test_budget_boundary_shared_clips_and_missing_price() -> None:
     assert missing["shots"] == []
     assert generic["execution_checklist"] == list(CHECKLIST)
     assert "multi_shot_prompt" not in generic
+    from kubrick.paths import implementation_of
     text = implementation_of(ROOT / "scripts/spend_plan.py").read_text(encoding="utf-8")
     for banned in ("urllib", "requests", "httpx", "http.client"):
         assert banned not in text
