@@ -29,6 +29,32 @@ It converts dramatic pressure into observable geometry, behavior, rhythm, materi
 
 Security and threat model: [`SECURITY.md`](SECURITY.md). Contributing: [`CONTRIBUTING.md`](CONTRIBUTING.md). Agent contract: [`AGENTS.md`](AGENTS.md) (`CLAUDE.md` is a thin pointer there). Non-trivial work starts with [`intent/`](intent/README.md). Windows install: `install.ps1`.
 
+## Layout
+
+`python scripts/kubrick.py` is the command. Production code lives in `src/kubrick/`. Each `scripts/<name>.py` file is the entry point that loads the matching module. Tests stay in `scripts/`.
+
+```mermaid
+flowchart TB
+  cli["scripts/kubrick.py"] --> core["src/kubrick"]
+  core --> plan["plan"]
+  core --> prompts["prompts"]
+  core --> adapters["adapters"]
+  core --> gates["gates"]
+  core --> qc["qc"]
+  core --> providers["providers"]
+  core --> corpus["corpus"]
+  core --> surfaces["surfaces"]
+  core --> runtime["runtime"]
+  board["board gate · #101"]
+  framing["numeric framing · #102"]
+  refpack["reference pack · #103"]
+  take["take QC · #100"]
+  classDef planned stroke-dasharray: 4 3,fill:none
+  class board,framing,refpack,take planned
+```
+
+Board gate, numeric framing, the reference pack, and take QC are open issues. They are not packages yet.
+
 ## How to use
 
 ### What Kubrick is for

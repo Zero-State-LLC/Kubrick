@@ -2,6 +2,7 @@
 
 from __future__ import annotations
 
+import ast
 import json
 import sys
 import tempfile
@@ -82,6 +83,11 @@ class RatchetPureTests(unittest.TestCase):
             "scripts/a.py:7: note: See docs\n"
         )
         self.assertEqual(check_lint_ratchet.mypy_counts(text), {"scripts/a.py": 2})
+        moved = "src/kubrick/plan/a.py:4: error: Moved  [misc]\n"
+        self.assertEqual(
+            check_lint_ratchet.mypy_counts(moved),
+            {"src/kubrick/plan/a.py": 1},
+        )
 
     def test_compare(self) -> None:
         baseline = {"ruff": {"scripts/a.py": 2}, "mypy": {}}
@@ -112,16 +118,69 @@ class RepoShapeTests(unittest.TestCase):
         for tool in ("ruff", "mypy"):
             self.assertIn(tool, data)
             for key in data[tool]:
-                self.assertTrue(key.startswith("scripts/"), key)
+                self.assertTrue(
+                    key.startswith("scripts/") or key.startswith("src/kubrick/"),
+                    key,
+                )
                 self.assertTrue((ROOT / key).is_file(), key)
 
     def test_no_scripts_module_over_500_lines(self) -> None:
-        for path in sorted(SCRIPTS.glob("*.py")):
+        paths = list(SCRIPTS.glob("*.py"))
+        paths.extend((ROOT / "src" / "kubrick").rglob("*.py"))
+        for path in sorted(paths):
             key = path.relative_to(ROOT).as_posix()
             if key in LEGACY_OVERSIZED:
                 continue
             lines = len(path.read_text(encoding="utf-8").splitlines())
             self.assertLessEqual(lines, 500, f"{key} has {lines} lines")
+
+    def test_cli_handlers_stay_under_complexity_gate(self) -> None:
+        tree = ast.parse((ROOT / "src/kubrick/cli.py").read_text(encoding="utf-8"))
+        scores = {
+            node.name: _complexity(node)
+            for node in tree.body
+            if isinstance(node, (ast.FunctionDef, ast.AsyncFunctionDef))
+        }
+        self.assertIn("main", scores)
+        self.assertLessEqual(scores["main"], 22)
+        for name, score in scores.items():
+            self.assertLessEqual(score, 22, f"{name} complexity {score}")
+
+
+def _complexity(fn: ast.AST) -> int:
+    """Count branches in one function. Nested defs are scored on their own."""
+    score = 1
+
+    def walk(node: ast.AST) -> None:
+        nonlocal score
+        if isinstance(node, (ast.FunctionDef, ast.AsyncFunctionDef, ast.ClassDef, ast.Lambda)):
+            return
+        if isinstance(
+            node,
+            (
+                ast.If,
+                ast.For,
+                ast.AsyncFor,
+                ast.While,
+                ast.ExceptHandler,
+                ast.With,
+                ast.AsyncWith,
+                ast.Assert,
+                ast.IfExp,
+            ),
+        ):
+            score += 1
+        elif isinstance(node, ast.BoolOp):
+            score += max(len(node.values) - 1, 0)
+        elif isinstance(node, ast.comprehension):
+            score += 1 + len(node.ifs)
+        for child in ast.iter_child_nodes(node):
+            walk(child)
+
+    body = getattr(fn, "body", [])
+    for stmt in body:
+        walk(stmt)
+    return score
 
 
 if __name__ == "__main__":

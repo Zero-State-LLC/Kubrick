@@ -370,5 +370,9 @@ def main() -> None:
     print("wave2/wave3 smoke test: PASS")
 
 
+def test_wave2_wave3() -> None:
+    main()
+
+
 if __name__ == "__main__":
     main()

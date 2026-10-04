@@ -13,6 +13,7 @@ from pathlib import Path
 ROOT = Path(__file__).resolve().parent.parent
 SCRIPTS = ROOT / "scripts"
 sys.path.insert(0, str(SCRIPTS))
+sys.path.insert(0, str(ROOT / "src"))
 
 PY = sys.executable
 
@@ -55,8 +56,9 @@ def test_b2_ci_runs_pytest_and_every_script_test() -> None:
     hermes = (ROOT / ".github/workflows/hermes-evals.yml").read_text(encoding="utf-8")
     assert "requirements-ci.txt" in ci
     assert "pytest -q scripts tests tests_audit" in ci
+    assert ci.count("pytest -q scripts tests tests_audit") == 1
     assert "set -euo pipefail" in ci
-    assert "for test in scripts/test_*.py" in ci
+    assert "for test in scripts/test_*.py" not in ci
     assert "stdlib-contract" in hermes and "validation-eval" in hermes
     eval_at = hermes.find("run_hermes_evals.py")
     assert eval_at > 0
@@ -64,10 +66,9 @@ def test_b2_ci_runs_pytest_and_every_script_test() -> None:
     assert "check_hub_sync.py" in hermes[eval_at:]
     names = sorted(path.name for path in SCRIPTS.glob("test_*.py"))
     assert names
-    covered_by_glob = "scripts/test_*.py" in ci
-    assert covered_by_glob
-    for name in names:
-        assert covered_by_glob or name in ci
+    project = (ROOT / "pyproject.toml").read_text(encoding="utf-8")
+    assert 'testpaths = ["scripts"]' in project
+    assert 'python_files = ["test_*.py"]' in project
 
 
 def test_b3_evolve_from_use_is_not_shipped() -> None:
@@ -106,9 +107,10 @@ def test_b4_corpus_coverage_writes_under_out() -> None:
 
 def test_b5_design_build_routes_to_generate_design_spec() -> None:
     import intent_router as ir
-    from kubrick import _execution_argv
     from surface_compilers import render_design_md
     from version_surfaces import product_version
+
+    from kubrick.cli import _execution_argv
 
     call = ir.resolve(
         ["design-build", "--input", "templates/design-specification.yaml", "--output", "design.md"]

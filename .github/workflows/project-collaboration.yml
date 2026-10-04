@@ -14,9 +14,12 @@ permissions:
 
 env:
   ORG_NAME: Zero-State-LLC
-  PROJECT_NUMBER: '16'
+  # Number of the Kubrick org board:
+  # https://github.com/orgs/Zero-State-LLC/projects/13
+  # If empty, the workflow skips the board step with a warning and still notifies.
+  PROJECT_NUMBER: '13'
   STATUS_FIELD: Status
-  STATUS_VALUE: Todo
+  STATUS_VALUE: Backlog
 
 jobs:
   add-to-project-and-notify:

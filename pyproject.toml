@@ -34,8 +34,10 @@ select = ["E", "F", "I"]
 
 [tool.ruff.lint.per-file-ignores]
 "scripts/surface_*.py" = ["E501"]
+"src/kubrick/surfaces/surface_*.py" = ["E501"]
 "scripts/test_surface_compilers.py" = ["E501"]
 "scripts/production_surface.py" = ["E501"]
+"src/kubrick/surfaces/production_surface.py" = ["E501"]
 
 [tool.mypy]
 python_version = "3.10"

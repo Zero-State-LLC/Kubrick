@@ -244,5 +244,9 @@ def main() -> None:
     print("v0.16 phased acceptance: PASS")
 
 
+def test_v016_phased_acceptance() -> None:
+    main()
+
+
 if __name__ == "__main__":
     main()

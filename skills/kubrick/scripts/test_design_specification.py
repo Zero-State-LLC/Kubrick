@@ -46,5 +46,9 @@ def main() -> None:
         print("design specification regression: PASS")
 
 
+def test_design_specification() -> None:
+    main()
+
+
 if __name__ == "__main__":
     main()

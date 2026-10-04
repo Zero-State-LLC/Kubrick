@@ -21,6 +21,9 @@ HAS_YAML = importlib.util.find_spec("yaml") is not None
 
 if str(SCRIPTS) not in sys.path:
     sys.path.insert(0, str(SCRIPTS))
+_SRC = str(REPO / "src")
+if _SRC not in sys.path:
+    sys.path.insert(0, _SRC)
 
 GOOD_BRIEF = {
     "dramatic_problem": (
@@ -136,14 +139,14 @@ class ArtifactPathsUnitTests(unittest.TestCase):
 
 class DispatcherProjectRootTests(unittest.TestCase):
     def test_child_env_records_caller_cwd(self) -> None:
-        import kubrick
+        from kubrick.cli import _child_env
 
         with tempfile.TemporaryDirectory() as tmp:
             old = os.getcwd()
             try:
                 os.chdir(tmp)
                 with mock.patch.dict(os.environ, {"KUBRICK_CALLER_CWD": ""}):
-                    env = kubrick._child_env()
+                    env = _child_env()
             finally:
                 os.chdir(old)
             self.assertEqual(Path(env["KUBRICK_CALLER_CWD"]).resolve(), Path(tmp).resolve())

@@ -2,7 +2,7 @@
 # Sync root development package into skills/kubrick for Hermes hub/tap discovery.
 set -euo pipefail
 ROOT="$(cd "$(dirname "${BASH_SOURCE[0]}")/.." && pwd)"
-DEST="${ROOT}/skills/kubrick"
+DEST="${KUBRICK_HUB_DEST:-${ROOT}/skills/kubrick}"
 mkdir -p "${DEST}"
 
 copy_tree() {

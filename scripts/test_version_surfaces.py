@@ -11,8 +11,10 @@ ROOT = Path(__file__).resolve().parent.parent
 sys.path.insert(0, str(ROOT / "scripts"))
 
 from version_surfaces import (  # noqa: E402
+    ENGINE_SOURCE,
     ENVELOPE_SCHEMA_VERSION,
     INSTALLER_RECEIPT_SCHEMA_VERSION,
+    SURFACE_COMMON_SOURCE,
     build_report,
 )
 
@@ -44,8 +46,8 @@ def _aligned(root: Path, version: str = "0.18.0") -> None:
     _write(root, "docs/RELEASE-NOTES-v0.18.md", f"# Kubrick v{version} Release Notes\n")
     _write(root, "docs/ROADMAP-v0.18.md", "# Roadmap\n")
     _write(root, "docs/RELEASE-CHECKLIST-v0.18.md", f"- [x] aligned to v{version}\n")
-    _write(root, "scripts/production_engine.py", 'SCHEMA_VERSION = "0.16.0"\n')
-    _write(root, "scripts/surface_common.py", '{ "schema_version": "0.16.0" }\n')
+    _write(root, ENGINE_SOURCE, 'SCHEMA_VERSION = "0.16.0"\n')
+    _write(root, SURFACE_COMMON_SOURCE, '{ "schema_version": "0.16.0" }\n')
 
 
 def test_repo_surfaces_match_product_version() -> None:
@@ -59,8 +61,8 @@ def test_repo_surfaces_match_product_version() -> None:
         assert observed == "0.23.0", (name, observed)
     envelopes = report["envelope_schema_versions"]
     assert envelopes == {
-        "scripts/production_engine.py": ENVELOPE_SCHEMA_VERSION,
-        "scripts/surface_common.py": ENVELOPE_SCHEMA_VERSION,
+        ENGINE_SOURCE: ENVELOPE_SCHEMA_VERSION,
+        SURFACE_COMMON_SOURCE: ENVELOPE_SCHEMA_VERSION,
     }
     schemas = report["non_tracking_schemas"]
     assert schemas["installer_receipt"] == INSTALLER_RECEIPT_SCHEMA_VERSION
@@ -91,12 +93,12 @@ def test_envelope_schema_does_not_track_product_version() -> None:
         _aligned(root)
         report = build_report(root)
         assert report["mismatches"] == []
-        assert report["envelope_schema_versions"]["scripts/production_engine.py"] == "0.16.0"
-        _write(root, "scripts/production_engine.py", 'SCHEMA_VERSION = "0.18.0"\n')
+        assert report["envelope_schema_versions"][ENGINE_SOURCE] == "0.16.0"
+        _write(root, ENGINE_SOURCE, 'SCHEMA_VERSION = "0.18.0"\n')
         drifted = build_report(root)
     mismatches = drifted["mismatches"]
     assert isinstance(mismatches, list)
-    engine = [item for item in mismatches if item["file"] == "scripts/production_engine.py"]
+    engine = [item for item in mismatches if item["file"] == ENGINE_SOURCE]
     assert engine and engine[0]["expected"] == "0.16.0"
     assert engine[0]["observed"] == "0.18.0"
     assert "does not track the product version" in str(engine[0]["reason"])

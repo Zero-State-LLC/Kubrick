@@ -1,19 +1,25 @@
 #!/usr/bin/env python3
-"""Compatibility wrapper for the shared Grok Imagine provider adapter."""
+"""Entry point. Implementation: kubrick.adapters.adapt_grok_imagine."""
 from __future__ import annotations
-import subprocess
+
 import sys
 from pathlib import Path
-ROOT = Path(__file__).resolve().parent
 
-
-def main() -> None:
-    raise SystemExit(
-        subprocess.call(
-            [sys.executable, str(ROOT / "adapt_provider.py"), *sys.argv[1:], "--provider", "grok-imagine"]
-        )
-    )
-
+_SRC = Path(__file__).resolve().parents[1] / "src"
+if str(_SRC) not in sys.path:
+    sys.path.insert(0, str(_SRC))
 
 if __name__ == "__main__":
-    main()
+    import runpy  # noqa: E402
+
+    runpy.run_module("kubrick.adapters.adapt_grok_imagine", run_name="__main__")
+else:
+    import kubrick.adapters.adapt_grok_imagine as _impl  # noqa: E402
+
+    _loaded = sys.modules.get(__name__)
+    if _loaded is not None and _loaded is not _impl:
+        for _key, _value in vars(_impl).items():
+            if _key.startswith("__") and _key.endswith("__"):
+                continue
+            setattr(_loaded, _key, _value)
+    sys.modules[__name__] = _impl
