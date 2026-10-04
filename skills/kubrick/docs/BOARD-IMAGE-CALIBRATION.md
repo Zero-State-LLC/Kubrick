@@ -170,9 +170,12 @@ defective ones through. The judge prompt is unchanged.
 What this means:
 
 - Spark is a better judge for `board_checks` written as one direct question
-  with `expect`, for example "Is either of the character's round camera
-  lenses glowing or emitting light?" with `expect: no`. Prefer those over
-  compound `character_locks` text for lens glow and body lights.
+  with `expect` (clean boards pass about 9 times in 10), but the defect
+  counts are tiny and it caught only 1 of 2 lens-glow and 4 of 5 body-light
+  defects, so a pass is not proof. For lens glow and body lights, prefer a
+  question like "Is either of the character's round camera lenses glowing
+  or emitting light?" with `expect: no` over compound `character_locks`
+  text.
 - The compound plan-lock questions still block most clean boards. Keep the
   recorded-answers path or a logged opt-out for them, or split a lock into
   single direct `board_checks`.

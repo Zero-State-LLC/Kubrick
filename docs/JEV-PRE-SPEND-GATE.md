@@ -145,12 +145,15 @@ The judge is pluggable (`LockJudge.ask(image, image_sha256, question)` in
    `/api/generate` endpoint at `KUBRICK_BOARD_VLM_URL`, model
    `KUBRICK_BOARD_VLM_MODEL` (default `qwen2.5vl:3b`). The URL must be on
    the loopback interface (`localhost`, `127.0.0.1`, `::1`). A remote URL is
-   refused, so the judge can never reach a paid API.
-   A stronger model on another machine can still be used through a proxy
-   that listens on loopback and speaks `/api/generate`; the operator box
-   does this for the Spark Qwen3.5 vision model on 127.0.0.1:11435. A proxy
-   that cannot reach its upstream must return an error so the check stays
-   UNVERIFIED. See the calibration note for its accuracy.
+   refused, so the judge itself never calls a remote or paid API.
+   The loopback check covers only the first hop. A proxy on loopback that
+   speaks `/api/generate` can forward the image and question to another
+   machine, so such a proxy is a spend and data boundary the owner must
+   approve; the gate cannot prove where it sends requests. The operator box
+   runs one, approved 2026-10-04, for the free self-hosted Spark Qwen3.5
+   vision model on 127.0.0.1:11435. A proxy that cannot reach its upstream
+   must return an error so the check stays UNVERIFIED. See the calibration
+   note for its accuracy.
 
 ### Fail-closed policy
 
