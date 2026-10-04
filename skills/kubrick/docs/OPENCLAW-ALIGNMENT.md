@@ -1,6 +1,6 @@
 # OpenClaw alignment checklist (v0.16)
 
-Track issue: https://github.com/scrimshawlife-ctrl/Kubrick/issues/32
+Track issue: https://github.com/Zero-State-LLC/Kubrick/issues/32
 
 Bring the permanent `openclaw` branch to Hermes `main` / v0.16 contracts without
 erasing OpenClaw packaging, external state (`KUBRICK_STATE_DIR`), doctor, or overlays.

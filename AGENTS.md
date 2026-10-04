@@ -24,6 +24,7 @@ accept it. Trivial docs and chore fixes do not need an intent file.
 | Smoke | `python scripts/kubrick.py do check --action smoke` |
 | Skill contract | `python scripts/validate_hermes_skill.py` |
 | Hub sync | `python scripts/check_hub_sync.py` |
+| Docs links | `python scripts/check_doc_links.py` |
 
 After skill-payload edits: `bash scripts/sync_hub_skill.sh` then the hub
 check. Root is the source of truth; `skills/kubrick/` is the packaging

@@ -3,14 +3,14 @@
 This document is the operator checklist for getting Kubrick into Nous Research’s
 **official optional skills catalog** while also publishing the community path.
 
-**Target package version:** `0.16.0` (first-class production surfaces + shared engine).
+**Live product version:** `0.23.0`. The checklist below records the v0.16.0 official-catalog pass. Official submission is still owner-gated and is not done.
 
 ## Two publication lanes
 
 | Lane | Command / path | Trust |
 |---|---|---|
 | **Official** (PR) | Merge into `NousResearch/hermes-agent` as `optional-skills/creative/kubrick` | `official` |
-| **Community** (now) | GitHub repo / tap `scrimshawlife-ctrl/Kubrick` | `community` |
+| **Community** (now) | GitHub repo / tap `Zero-State-LLC/Kubrick` | `community` |
 
 Pursue both: community installability first, official PR for catalog trust.
 
@@ -123,10 +123,10 @@ Root-level files remain the development workspace. After editing root, refresh:
 # Hub groupings (already in repo root)
 # skills.sh.json → grouping title "Cinematic Design"
 
-hermes skills publish . --to github --repo scrimshawlife-ctrl/Kubrick
+hermes skills publish . --to github --repo Zero-State-LLC/Kubrick
 
 # Or as a tap:
-hermes skills tap add scrimshawlife-ctrl/Kubrick
+hermes skills tap add Zero-State-LLC/Kubrick
 hermes skills search kubrick --source github
 ```
 

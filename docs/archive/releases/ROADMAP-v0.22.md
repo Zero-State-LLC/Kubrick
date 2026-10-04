@@ -21,4 +21,4 @@
 
 ## Superseded
 
-Issues #76–#82 shipped in v0.23.0. See `docs/ROADMAP-v0.23.md`.
+Issues #76–#82 shipped in v0.23.0. See `docs/archive/releases/ROADMAP-v0.23.md`.

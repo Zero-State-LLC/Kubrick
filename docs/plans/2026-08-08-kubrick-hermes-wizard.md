@@ -833,7 +833,7 @@ git commit -m "feat(wizard): answers JSON schema and verify recipe"
 - Modify: `README.md`, `QUICKSTART.md`
 - Modify: `CHANGELOG.md`
 - Bump: `VERSION` → `0.15.0`, `kubrick.manifest.yaml` version, `SKILL.md` version, `pyproject.toml` version
-- Follow existing release checklist patterns under `docs/RELEASE-CHECKLIST-v0.14.md` as template for notes if needed
+- Follow existing release checklist patterns under `docs/archive/releases/RELEASE-CHECKLIST-v0.14.md` as template for notes if needed
 
 - [ ] **Step 1: Docs** — mirror Orchestra SKILL wizard section: chat collect → answers → print-only → run; never freestyle `allow_mutate`.
 

@@ -28,7 +28,7 @@
 - [x] No audience-facing packet exposes private pattern or lexicon links
 - [x] README and QUICKSTART document Wave 2/3 + design-build commands
 - [x] Create and publish the `v0.13.0` tag from verified `main`
-- [x] Publish GitHub Release notes from `docs/RELEASE-NOTES-v0.13.md` / changelog
+- [x] Publish GitHub Release notes from `docs/archive/releases/RELEASE-NOTES-v0.13.md` / changelog
 
 ## Release procedure
 
@@ -37,7 +37,7 @@
 3. Confirm no generated output or usage receipt is unintentionally committed.
 4. Confirm docs index (`docs/README.md`) and QUICKSTART command lists match `scripts/kubrick.py`.
 5. Create the `v0.13.0` tag from the verified main commit.
-6. Publish release notes from the `0.13.0` changelog section / `docs/RELEASE-NOTES-v0.13.md`.
+6. Publish release notes from the `0.13.0` changelog section / `docs/archive/releases/RELEASE-NOTES-v0.13.md`.
 7. Reinstall into a clean Hermes skill directory and run `validate-skill`.
 
 ## Non-goals

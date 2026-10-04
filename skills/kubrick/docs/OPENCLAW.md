@@ -4,8 +4,8 @@ This repository maintains **two runtime editions** of the same creative skill.
 
 | Edition | Git ref | Primary install target | Status |
 |---|---|---|---|
-| **Hermes** (canonical on `main`) | [`main`](https://github.com/scrimshawlife-ctrl/Kubrick/tree/main) | `~/.hermes/skills/kubrick` | Active development (v0.13+) |
-| **OpenClaw Agent Skill** | permanent branch [`openclaw`](https://github.com/scrimshawlife-ctrl/Kubrick/tree/openclaw) | `~/.openclaw/skills/kubrick` | Adapted by **Prabu** ([@prabu-openclaw](https://github.com/prabu-openclaw)) |
+| **Hermes** (canonical on `main`) | [`main`](https://github.com/Zero-State-LLC/Kubrick/tree/main) | `~/.hermes/skills/kubrick` | Active development (v0.23.0) |
+| **OpenClaw Agent Skill** | permanent branch [`openclaw`](https://github.com/Zero-State-LLC/Kubrick/tree/openclaw) | `~/.openclaw/skills/kubrick` | Adapted by **Prabu** ([@prabu-openclaw](https://github.com/prabu-openclaw)) |
 
 The **symbolic corpus, laws, schemas, and narrative intent** are shared in spirit. Packaging, installer behavior, state location, and skill frontmatter differ so each runtime stays native.
 
@@ -15,12 +15,11 @@ OpenClaw support was contributed by **Prabu** (`prabu@openclaw.ai` / [@prabu-ope
 
 | Item | Reference |
 |---|---|
-| Feature work | Commit [`77fa721`](https://github.com/scrimshawlife-ctrl/Kubrick/commit/77fa721b8a308fe82fb75da88dbf7556bb703aed) — *feat: add OpenClaw skill support* |
-| Onboarding docs fix | Commit [`15defae`](https://github.com/scrimshawlife-ctrl/Kubrick/commit/15defaec662f886c822107bb4123078278afbc3b) — *docs: fix OpenClaw branch onboarding* |
-| Pull request (closed; lives on branch) | [PR #1](https://github.com/scrimshawlife-ctrl/Kubrick/pull/1) — *feat: add OpenClaw Agent Skill support* |
-| Permanent branch | [`openclaw`](https://github.com/scrimshawlife-ctrl/Kubrick/tree/openclaw) |
+| Feature work | Commit [`77fa721`](https://github.com/Zero-State-LLC/Kubrick/commit/77fa721b8a308fe82fb75da88dbf7556bb703aed) — *feat: add OpenClaw skill support* |
+| Onboarding docs fix | Commit [`15defae`](https://github.com/Zero-State-LLC/Kubrick/commit/15defaec662f886c822107bb4123078278afbc3b) — *docs: fix OpenClaw branch onboarding* |
+| Permanent branch | [`openclaw`](https://github.com/Zero-State-LLC/Kubrick/tree/openclaw) |
 
-PR #1 was closed in favor of keeping OpenClaw packaging on the dedicated **`openclaw`** branch rather than merging into Hermes `main`. That is intentional dual-track maintenance, not a rejection of the port.
+OpenClaw packaging stays on the **`openclaw`** branch and is not merged into Hermes `main`. That is intentional dual-track maintenance. [Pull request #1](https://github.com/Zero-State-LLC/Kubrick/pull/1) on this repository is the Hermes wizard, not the OpenClaw port.
 
 ## What the OpenClaw edition changes
 
@@ -40,14 +39,14 @@ Hermes `main` continues with the unified intent-router CLI (`kubrick do <intent>
 Prefer the permanent branch:
 
 ```bash
-openclaw skills install git:scrimshawlife-ctrl/Kubrick@openclaw --global
+openclaw skills install git:Zero-State-LLC/Kubrick@openclaw --global
 ```
 
 Or a single-branch clone:
 
 ```bash
 git clone --branch openclaw --single-branch \
-  https://github.com/scrimshawlife-ctrl/Kubrick.git
+  https://github.com/Zero-State-LLC/Kubrick.git
 cd Kubrick
 python3 -m pip install -r requirements.txt
 ./install.sh
@@ -64,7 +63,7 @@ openclaw skills list
 
 ```bash
 git clone --branch main --single-branch \
-  https://github.com/scrimshawlife-ctrl/Kubrick.git
+  https://github.com/Zero-State-LLC/Kubrick.git
 cd Kubrick
 ./install.sh   # → ~/.hermes/skills/kubrick
 ```
@@ -88,6 +87,5 @@ See root [`README.md`](../README.md) and [`QUICKSTART.md`](../QUICKSTART.md).
 
 ## Related links
 
-- Branch tree: https://github.com/scrimshawlife-ctrl/Kubrick/tree/openclaw  
-- PR #1: https://github.com/scrimshawlife-ctrl/Kubrick/pull/1  
+- Branch tree: https://github.com/Zero-State-LLC/Kubrick/tree/openclaw
 - Hermes runtime contract (this edition): [`../references/hermes-runtime-contract.md`](../references/hermes-runtime-contract.md)  

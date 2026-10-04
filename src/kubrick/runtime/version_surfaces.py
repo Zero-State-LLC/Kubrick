@@ -25,7 +25,6 @@ SURFACE_COMMON_SOURCE = "src/kubrick/surfaces/surface_common.py"
 _SKILL_VERSION = re.compile(r"^version:\s*([^\s]+)", re.MULTILINE)
 _README_VERSION = re.compile(r"<em>(0\.\d+\.\d+)\s+—")
 _CHANGELOG_VERSION = re.compile(r"^## \[(0\.\d+\.\d+)\]", re.MULTILINE)
-_NOTES_VERSION = re.compile(r"^# Kubrick v(0\.\d+\.\d+) Release Notes", re.MULTILINE)
 _ENGINE_SCHEMA = re.compile(r'^SCHEMA_VERSION = "([^"]+)"', re.MULTILINE)
 _COMPILER_SCHEMA = re.compile(r'"schema_version": "([^"]+)"')
 _PYPROJECT_VERSION = re.compile(r'^version\s*=\s*"([^"]+)"', re.MULTILINE)
@@ -75,40 +74,34 @@ def _search(text: str, pattern: re.Pattern[str]) -> str | None:
     return match.group(1) if match else None
 
 
-def release_names(version: str) -> tuple[str, str, str]:
-    line = ".".join(version.split(".")[:2]) if version else "0.0"
-    return (
-        f"docs/RELEASE-NOTES-v{line}.md",
-        f"docs/ROADMAP-v{line}.md",
-        f"docs/RELEASE-CHECKLIST-v{line}.md",
-    )
+CURRENT_ROADMAP = "docs/ROADMAP.md"
+CURRENT_CHECKLIST = "docs/RELEASE-CHECKLIST.md"
+CURRENT_NOTES = "CHANGELOG.md"
 
 
 def text_declarations(root: Path, version: str) -> dict[str, str | None]:
-    notes, _roadmap, _checklist = release_names(version)
+    _ = version
     skill = _read(root / "SKILL.md")
     readme = _read(root / "README.md")
     changelog = _read(root / "CHANGELOG.md")
-    notes_text = _read(root / notes)
     return {
         "SKILL.md": _search(skill, _SKILL_VERSION),
         "README.md": _search(readme, _README_VERSION),
         "CHANGELOG.md": _search(changelog, _CHANGELOG_VERSION),
-        notes: _search(notes_text, _NOTES_VERSION),
     }
 
 
 def reference_checks(root: Path, version: str) -> dict[str, dict[str, bool]]:
-    notes, roadmap, checklist = release_names(version)
     required = {
-        "README.md": [roadmap, notes],
-        "SKILL.md": [roadmap, notes],
-        checklist: [f"v{version}"],
+        "README.md": [CURRENT_ROADMAP, CURRENT_NOTES],
+        "SKILL.md": [CURRENT_ROADMAP, CURRENT_NOTES],
+        CURRENT_CHECKLIST: [f"v{version}"],
     }
     checks: dict[str, dict[str, bool]] = {}
     for relative, values in required.items():
         text = _read(root / relative)
         checks[relative] = {value: value in text for value in values}
+    checks[CURRENT_ROADMAP] = {"file": (root / CURRENT_ROADMAP).is_file()}
     return checks
 
 

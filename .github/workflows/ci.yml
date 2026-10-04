@@ -32,6 +32,7 @@ jobs:
         python -m coverage run scripts/run_hermes_evals.py > /dev/null
         python scripts/check_hub_sync.py
         python scripts/check_workflows.py
+        python scripts/check_doc_links.py
         python -m coverage combine -q
         python -m coverage report --fail-under=75 | tail -n 1
     - name: Working tree is clean after tests and evals

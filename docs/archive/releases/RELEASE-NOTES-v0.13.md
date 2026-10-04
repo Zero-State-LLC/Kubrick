@@ -72,5 +72,5 @@ CI runs the above family of gates plus multi-provider storyboard compilation on 
 | `QUICKSTART.md` | Full operator workflows |
 | `SKILL.md` | Hermes operating contract |
 | `docs/README.md` | Documentation index |
-| `docs/ROADMAP-v0.13.md` | Status and next priorities |
-| `docs/RELEASE-CHECKLIST-v0.13.md` | Tag/publish gates |
+| `docs/archive/releases/ROADMAP-v0.13.md` | Status and next priorities |
+| `docs/archive/releases/RELEASE-CHECKLIST-v0.13.md` | Tag/publish gates |

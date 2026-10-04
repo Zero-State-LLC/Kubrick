@@ -30,7 +30,7 @@
 - [x] Release versions and current-document references align.
 - [x] GitHub Actions is green on the release commit.
 - [x] Create and push the `v0.14.0` tag from that green commit.
-- [x] Publish GitHub release notes from `docs/RELEASE-NOTES-v0.14.md`.
+- [x] Publish GitHub release notes from `docs/archive/releases/RELEASE-NOTES-v0.14.md`.
 
 ## Release procedure
 
@@ -43,7 +43,7 @@
 6. Commit and push the release surfaces.
 7. Wait for every GitHub Actions job to pass.
 8. Tag the verified commit as `v0.14.0` and push the tag.
-9. Publish `docs/RELEASE-NOTES-v0.14.md` as the GitHub release body.
+9. Publish `docs/archive/releases/RELEASE-NOTES-v0.14.md` as the GitHub release body.
 10. Synchronize the active official Hermes PR and re-run its repository contract test.
 
 ## Non-goals

@@ -2,7 +2,7 @@
 
 Status: **IMPLEMENTED (v0.16.0 production engine)**  
 Target: **v0.16**  
-Scope: Hermes `main` (tracks [#33](https://github.com/scrimshawlife-ctrl/Kubrick/issues/33); OpenClaw edition parity tracks [#32](https://github.com/scrimshawlife-ctrl/Kubrick/issues/32))
+Scope: Hermes `main` (tracks [#33](https://github.com/Zero-State-LLC/Kubrick/issues/33); OpenClaw edition parity tracks [#32](https://github.com/Zero-State-LLC/Kubrick/issues/32))
 
 ## Decision
 

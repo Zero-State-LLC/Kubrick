@@ -33,6 +33,7 @@ there). Non-trivial work starts with [`intent/`](intent/README.md).
    ```bash
    python scripts/validate_hermes_skill.py
    python scripts/audit_release_version.py --strict
+   python scripts/check_doc_links.py
    python scripts/test_intent_router.py
    python scripts/test_io_safety.py
    # Surface / production work:
@@ -67,8 +68,11 @@ local patches under `/tmp`, caches, or `out/`).
 ## Docs and version bumps
 
 When cutting a release, keep `VERSION`, `kubrick.manifest.yaml`, `SKILL.md`,
-`pyproject.toml`, `CHANGELOG.md`, and `docs/RELEASE-NOTES-vX.Y.md` aligned, then
-run `python scripts/audit_release_version.py --strict`.
+`pyproject.toml`, `CHANGELOG.md`, `docs/ROADMAP.md`, and
+`docs/RELEASE-CHECKLIST.md` aligned, then run
+`python scripts/audit_release_version.py --strict` and
+`python scripts/check_doc_links.py`. Older release sets stay in
+`docs/archive/releases/`.
 
 ## Security
 
