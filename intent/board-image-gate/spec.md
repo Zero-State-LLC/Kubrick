@@ -14,6 +14,7 @@ audio spend and does not run it.
 |---|---|
 | `src/kubrick/gates/board_image_gate.py` | Checks, result, CLI (`scripts/board_image_gate.py`) |
 | `src/kubrick/gates/board_image_plan.py` | Plan reading: board source, views, locks, threshold |
+| `src/kubrick/gates/board_lock_checks.py` | Atomic lock questions, severity, per-lock verdicts |
 | `src/kubrick/gates/board_image_ledger.py` | Opt-out and run-ledger helpers |
 | `src/kubrick/qc/board_pixels.py` | Standard-library PNG decode, Pillow fallback, crop |
 | `src/kubrick/qc/board_vision.py` | `Embedder` and `LockJudge` interfaces and local backends |
@@ -28,7 +29,9 @@ audio spend and does not run it.
 - Identity views: `characters.<id>.ref_pack.views` and `head_lock` with role
   `identity`.
 - Locks: `character_locks`, character `locks`, plan `locks` with
-  `character: <id>`, and `board_checks` (`question`, `expect`).
+  `character: <id>`, and `board_checks` (`question`, `expect`, `severity`).
+  Since 0.26.0 each lock is split into one direct question per clause with
+  an expected answer, or uses its own `checks` list.
 - Crop: `board_subject_boxes.<id>` or `board_subject_box`, else the
   border-contrast box, else the full frame.
 
@@ -38,19 +41,24 @@ audio spend and does not run it.
 |---|---|---|
 | Image | `BOARD_IMAGE_MISSING`, `BOARD_IMAGE_UNREADABLE` | n/a |
 | Identity, max cosine over views vs threshold | `BOARD_IDENTITY_MISMATCH` | `BOARD_IDENTITY_UNVERIFIED` |
-| Lock detail, yes-or-no judge | `BOARD_LOCK_DETAIL_FAIL` | `BOARD_LOCK_DETAIL_UNVERIFIED` |
+| Lock detail, one yes-or-no question per clause | `BOARD_LOCK_DETAIL_FAIL` | `BOARD_LOCK_DETAIL_UNVERIFIED` |
+| Lock detail with `severity: warn` | `BOARD_LOCK_DETAIL_WARN` (warns, never blocks) | `BOARD_LOCK_DETAIL_WARN` |
 | Hard cut reuses a board | `BOARD_REUSED_ON_CUT` | n/a |
 | Hidden identity on a revealing shot | `START_FRAME_HIDES_IDENTITY` | n/a |
 | Threshold config | `BOARD_GATE_CONFIG_INVALID` | n/a |
 
-Every fail and every cannot-run blocks spend (fail closed). The result names
+Every fail and every cannot-run of a `block` check blocks spend (fail
+closed). A `warn` check only warns. Severity defaults to `block`; a question
+about the left or right side defaults to `warn`. The result names
 the most specific code and recommends regenerating the board.
 
 ## Threshold
 
-Default 0.70, max cosine of DINOv2-small CLS features. Precedence: CLI
-`--board-identity-threshold`, then `ref_pack.identity_threshold`, then plan
-`board_image_gate.identity_threshold`. Calibration on EP-01 is open.
+Default 0.50 since 0.25.1 (calibrated on EP-01, see
+`docs/BOARD-IMAGE-CALIBRATION.md`), max cosine of DINOv2-small CLS features.
+Precedence: CLI `--board-identity-threshold`, then
+`ref_pack.identity_threshold`, then plan
+`board_image_gate.identity_threshold`.
 
 ## Judge policy
 

@@ -8,6 +8,8 @@ from __future__ import annotations
 from collections.abc import Mapping, Sequence
 from pathlib import Path
 
+from kubrick.gates.board_lock_checks import atomic_checks, explicit_checks
+
 # Max cosine similarity over the approved views, DINOv2-small CLS features on
 # the character crop. Calibrated on MYSLEF EP-01 (docs/BOARD-IMAGE-CALIBRATION.md):
 # on a head crop every kept board scored 0.535 or more and off-model heads
@@ -146,55 +148,49 @@ def identity_views(spec: Mapping[str, object], base_dir: Path) -> list[Path]:
 def lock_questions(
     document: Mapping[str, object], name: str, spec: Mapping[str, object],
 ) -> list[dict[str, str]]:
-    """Yes-or-no questions from the character lock list, deduplicated by text.
+    """Atomic yes-or-no questions from the character lock list, deduplicated by question.
 
     Sources: ``characters.<id>.character_locks``, ``characters.<id>.locks``,
     plan ``locks`` with ``character: <id>``, and explicit
-    ``characters.<id>.board_checks`` (``question``, ``expect``).
+    ``characters.<id>.board_checks`` (``question``, ``expect``, ``severity``).
+    Each lock is split into one direct question per clause
+    (``board_lock_checks``). A lock with its own ``checks`` uses those instead.
+    Every question carries ``expect`` and ``severity`` (``block`` or ``warn``).
     """
-    texts: list[tuple[str, str]] = []
+    rows: list[tuple[str, str, Mapping[str, object]]] = []
     for item in [*as_list(spec.get("character_locks")), *as_list(spec.get("locks"))]:
         if isinstance(item, str) and item.strip():
-            texts.append((item.strip(), item.strip()))
+            rows.append((item.strip(), item.strip(), {}))
         else:
             row = _map(item)
             text = _lock_text(row)
-            if text:
-                texts.append((_text(row.get("id")) or text, text))
+            if text or row.get("checks"):
+                rows.append((_text(row.get("id")) or text, text, row))
     for item in as_list(document.get("locks")):
         row = _map(item)
         if _text(row.get("character")) != name:
             continue
         text = _lock_text(row)
-        if text:
-            texts.append((_text(row.get("id")) or text, text))
-    questions: list[dict[str, str]] = []
-    seen: set[str] = set()
-    for lock_id, text in texts:
-        key = text.casefold()
-        if key in seen:
-            continue
-        seen.add(key)
-        questions.append({
-            "lock_id": lock_id,
-            "question": (
-                f"Answer only yes or no. Look at the character {name} in this image. "
-                f"Is this statement true: {text}?"
-            ),
-            "expect": "yes",
-        })
+        if text or row.get("checks"):
+            rows.append((_text(row.get("id")) or text, text, row))
+    candidates: list[dict[str, str]] = []
+    for lock_id, text, row in rows:
+        explicit = as_list(row.get("checks"))
+        if explicit:
+            candidates.extend(explicit_checks(lock_id, explicit))
+        elif text:
+            candidates.extend(atomic_checks(name, lock_id, text, row.get("severity")))
     for item in as_list(spec.get("board_checks")):
         row = _map(item)
         question = _text(row.get("question"))
-        expect = _text(row.get("expect")).casefold() or "yes"
-        if not question or expect not in {"yes", "no"} or question.casefold() in seen:
-            continue
-        seen.add(question.casefold())
-        questions.append({
-            "lock_id": _text(row.get("id")) or question,
-            "question": question,
-            "expect": expect,
-        })
+        candidates.extend(explicit_checks(_text(row.get("id")) or question, [row]))
+    questions: list[dict[str, str]] = []
+    seen: set[str] = set()
+    for check in candidates:
+        key = check["question"].casefold()
+        if key not in seen:
+            seen.add(key)
+            questions.append(check)
     return questions
 
 

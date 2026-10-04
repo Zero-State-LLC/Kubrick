@@ -1,12 +1,12 @@
 {
   "answers": {
     "9b35413a98c0860d1b3ca113b5cf9f94bed562c319737280ce42cfba02085dc8": {
-      "Answer only yes or no. Look at the character myslef in this image. Is this statement true: silicon hands with no nails?": "yes",
-      "Answer only yes or no. Look at the character myslef in this image. Is this statement true: smooth dome head with no hair?": "yes"
+      "Answer only yes or no. Look at the character myslef in this image. Does the character show silicon hands with no nails?": "yes",
+      "Answer only yes or no. Look at the character myslef in this image. Does the character show smooth dome head with no hair?": "yes"
     },
     "3d9a1c3d37fdd3d1835a343e557bde84f1dff15c239417e08cdcdafad8be4c42": {
-      "Answer only yes or no. Look at the character myslef in this image. Is this statement true: silicon hands with no nails?": "no",
-      "Answer only yes or no. Look at the character myslef in this image. Is this statement true: smooth dome head with no hair?": "no"
+      "Answer only yes or no. Look at the character myslef in this image. Does the character show silicon hands with no nails?": "no",
+      "Answer only yes or no. Look at the character myslef in this image. Does the character show smooth dome head with no hair?": "no"
     }
   }
 }
