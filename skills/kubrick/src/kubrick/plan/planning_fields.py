@@ -30,6 +30,10 @@ FRAME_KEYS = (
     "keep",
     "camera",
     "cut",
+    "framing",
+    "end_framing",
+    "continuity",
+    "location_ref",
 )
 # Keys a plan, a storyboard frame, or an adapter frame may carry. Anything else
 # warns UNKNOWN_FIELD instead of disappearing without a trace.
@@ -66,6 +70,11 @@ KNOWN_FRAME_KEYS = frozenset({
     "quality_preset",
     "aspect_ratio",
     "aspectRatio",
+    "board_measurements",
+    "board_evidence",
+    "ask",
+    "video_prompt",
+    "videoPrompt",
 })
 PREP_KEYS = (
     "audio_strategy",
@@ -84,6 +93,7 @@ ROOT_KEYS = (
     "counts",
     "locks",
     "keep",
+    "delivery",
     *PREP_KEYS,
 )
 

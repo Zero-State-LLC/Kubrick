@@ -14,3 +14,9 @@ call.
 Take QC reads the first frame, the middle, the last frame, each cut, and the
 end of the 1.6 second hold. Those measurements are fixtures in CI. See
 [`TAKE-QC.md`](TAKE-QC.md).
+
+When a start frame is used, the video line is one action and one camera move.
+The still, including head ratio, stays on the image prompt. Keyframe
+`create_movie` has `startImage` and no end-image field. An end framing that
+anchors a size, crop, or head-ratio change is recorded as
+`END_IMAGE_UNSUPPORTED` on the prep warnings. See [`FRAMING.md`](FRAMING.md).

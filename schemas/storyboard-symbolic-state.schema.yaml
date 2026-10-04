@@ -133,6 +133,22 @@ properties:
           oneOf:
             - {type: string}
             - {type: array, items: {type: string}}
+        framing:
+          type: object
+          additionalProperties: true
+          description: Numeric start framing. Head ratio is a two-number band.
+        end_framing:
+          type: object
+          additionalProperties: true
+          description: Numeric end framing. An anchor when size, crop, or head ratio changes.
+        continuity:
+          type: object
+          additionalProperties: true
+          description: Axis side, and whether a crossing is bridged.
+        location_ref:
+          type: object
+          additionalProperties: true
+          description: Location plate and precrop_to when a tight crop needs a pre-cropped plate.
   props:
     type: object
     additionalProperties: true
@@ -189,6 +205,10 @@ properties:
                 locations: {type: array, items: {type: string, minLength: 1}}
                 shots: {type: array, items: {type: string, minLength: 1}}
                 characters: {type: array, items: {type: string, minLength: 1}}
+  delivery:
+    type: object
+    additionalProperties: true
+    description: Delivery target. platform names the safe-zone size. The box scales from 1080 by 1920.
   validation:
     type: object
     additionalProperties: false

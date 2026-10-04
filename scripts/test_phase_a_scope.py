@@ -316,11 +316,21 @@ def test_counts_override_and_empty_cast() -> None:
             "exactly two laptops" in text and "exactly two glass" in text for text in second
         )
     example = _load(EXAMPLE / "storyboard-plan.yaml")
+    motion = "the minder walks out of frame right as push-in"
     for provider in ("generic", "keyframe"):
         prompts = _prompts(example, provider)
-        assert all("exactly one laptop" in text for shot in prompts for text in shot)
+        for index, shot in enumerate(prompts):
+            assert "exactly one laptop" in shot[0]
+            if provider == "keyframe" and index == 3:
+                assert shot[1] == motion
+                assert "exactly one laptop" not in shot[1]
+                assert "nobody is in frame" in shot[0]
+                assert "nobody is in frame" not in shot[1]
+            else:
+                assert all("exactly one laptop" in text for text in shot)
+                if index == 3:
+                    assert all("nobody is in frame" in text for text in shot)
         last = prompts[3]
-        assert all("nobody is in frame" in text for text in last)
         assert all(
             "WARDROBE LOCK" not in text and NOSE not in text and "no nose" not in text
             for text in last

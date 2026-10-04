@@ -6,6 +6,7 @@ from collections.abc import Mapping, Sequence
 from typing import cast
 
 from kubrick.plan.brief_constraints import aspect_ratio_from, packet_locks, plain_speech_lines
+from kubrick.prompts.framing import motion_line
 from kubrick.prompts.prompt_text import is_blank, join_clauses
 from kubrick.prompts.reference_lint import bound_positive
 from kubrick.runtime.value_coerce import as_float as _as_float
@@ -141,6 +142,7 @@ def _prompts(
         video = bound_positive(source, [*continuity, *constraints], negatives, locks, packet, frame)
     else:
         video = image
+    video = motion_line(frame) or video
     return image, video or image
 
 
