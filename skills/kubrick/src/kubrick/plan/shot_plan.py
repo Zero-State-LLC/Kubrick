@@ -294,6 +294,7 @@ def collect_prep(
         lock_map[shot] = prompt_lines(merged, frame, prop_lines.get(shot, []))
         wanted = _string_list(frame_field(frame, "apply_techniques"))
         opted[shot] = opted_clauses(techniques, shot, wanted)
+    from kubrick.gates.board_qc import prep_effects
     from kubrick.plan.plan_cues import keep_clear_warnings
     from kubrick.plan.spend_plan import shot_count_warning
     from kubrick.prompts.audio_screen_locks import lint as audio_screen_lint
@@ -302,6 +303,7 @@ def collect_prep(
     from kubrick.qc.drift_registry import registry_warnings
 
     audio_warnings, voice_errors = audio_screen_lint(merged, frames)
+    board_warnings, board_errors = prep_effects(merged, frames)
     warnings = [
         *duration_warnings(frames),
         *short_beat_warnings(frames, provider, document=merged, default_duration=default_duration),
@@ -312,11 +314,12 @@ def collect_prep(
         *audio_warnings,
         *capability_warnings(provider, merged),
         *frame_prep_warnings(frames),
+        *board_warnings,
     ]
     high = shot_count_warning(len(frames), provider, merged)
     if high is not None:
         warnings.append(high)
-    errors = [*validate_joins(frames), *prop_errors, *voice_errors]
+    errors = [*validate_joins(frames), *prop_errors, *voice_errors, *board_errors]
     return Prep(warnings, errors, lock_map, opted, techniques)
 def enrich_prompts(
     document: Mapping[str, object], frames: Sequence[Mapping[str, object]], provider: str,

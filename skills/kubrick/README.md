@@ -40,20 +40,20 @@ flowchart TB
   core --> prompts["prompts"]
   core --> adapters["adapters"]
   core --> gates["gates"]
+  gates --> board["board_qc"]
   core --> qc["qc"]
   qc --> take["vision_observe"]
   core --> providers["providers"]
   core --> corpus["corpus"]
   core --> surfaces["surfaces"]
   core --> runtime["runtime"]
-  board["board gate · #101"]
   framing["numeric framing · #102"]
   refpack["reference pack · #103"]
   classDef planned stroke-dasharray: 4 3,fill:none
-  class board,framing,refpack planned
+  class framing,refpack planned
 ```
 
-Take QC core scores fixture measurements in `src/kubrick/qc/vision_observe.py`. See [`docs/TAKE-QC.md`](docs/TAKE-QC.md). Board gate, numeric framing, and the reference pack are still open.
+Take QC core scores fixture measurements in `src/kubrick/qc/vision_observe.py`. The board gate in `src/kubrick/gates/board_qc.py` checks a start board before video spend. See [`docs/TAKE-QC.md`](docs/TAKE-QC.md) and [`docs/BOARD-GATE.md`](docs/BOARD-GATE.md). Numeric framing and the reference pack are still open.
 
 ## How to use
 

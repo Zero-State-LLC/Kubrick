@@ -160,7 +160,7 @@ def test_each_carrier_and_negative_only_lock() -> None:
     ]
     assert len(wardrobe) == 1 and wardrobe[0]["carrier"] == "prompt_positive"
     assert _by(rows, "frame-002", "chair")["carrier"] == "prompt_positive"
-    assert _by(rows, "frame-003", "red-chest-light")["carrier"] == "start_frame"
+    assert _by(rows, "frame-003", "red-chest-light")["carrier"] == "unverified"
     red = _by(rows, "frame-004", "red-chest-light")
     assert red["carrier"] == "prompt_negative_only" and red["critical"] is True
     assert _by(rows, "frame-005", "fill")["carrier"] == "prompt_positive"
@@ -189,9 +189,12 @@ def test_negative_only_warning_names_the_lock() -> None:
 def test_start_frame_object_and_empty_cast_carriers() -> None:
     document = _board([], characters={"myslef": {"character_locks": ["no nose"]}})
     loose = _frame("frame-007", start_frame={"asset": "still.png"})
-    assert carrier_for(
+    bare = carrier_for(
         document, loose, "light", "no glow", "myslef", {"id": "glow"},
-    ) == "start_frame"
+    )
+    assert bare["carrier"] == "unverified"
+    assert bare["status"] == "unverified"
+    assert bare["lock_id"] == "glow"
     empty = _frame("frame-008", cast=[])
     rows = lock_table(_board([empty], locks=[LIGHT]), [empty])
     assert rows == [] or all(row["kind"] != "light" for row in rows)
@@ -206,12 +209,12 @@ def test_example_carriers_are_on_generic_and_keyframe() -> None:
     for payload in (generic, movie):
         rows = _rows(payload.get("lock_carriers"))
         assert {str(row["carrier"]) for row in rows} >= {
-            "start_frame", "prompt_positive", "prompt_negative_only",
+            "unverified", "prompt_positive", "prompt_negative_only",
         }
         red = [row for row in rows if row.get("lock") == "red-chest-light"]
         by_shot = {str(row["shot"]): str(row["carrier"]) for row in red}
         assert by_shot["frame-001"] == "prompt_negative_only"
-        assert by_shot["frame-002"] == "start_frame"
+        assert by_shot["frame-002"] == "unverified"
         assert by_shot["frame-003"] == "prompt_negative_only"
         assert "frame-004" not in by_shot
     only = _codes(movie, "NEGATIVE_ONLY_LOCK")

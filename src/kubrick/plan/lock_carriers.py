@@ -30,10 +30,129 @@ def _character_table(document: Mapping[str, object]) -> dict[str, Mapping[str, o
     return {str(key): value for key, value in raw.items() if isinstance(value, Mapping)}
 
 
+def _join_is_cut(frame: Mapping[str, object]) -> bool:
+    raw = frame_field(frame, "join")
+    if raw == "cut":
+        return True
+    if not isinstance(raw, Mapping):
+        return False
+    kind = raw.get("type") if raw.get("type") is not None else raw.get("join")
+    return kind == "cut"
+
+
+def _inherited_start(frame: Mapping[str, object]) -> bool:
+    """A start frame copied from an earlier shot. A cut must not keep it."""
+    raw = frame_field(frame, "start_frame")
+    if not isinstance(raw, Mapping):
+        return False
+    if raw.get("inherited") is True:
+        return True
+    source = raw.get("source_shot")
+    return isinstance(source, str) and bool(source.strip())
+
+
 def _start_carries(frame: Mapping[str, object]) -> bool:
     if chain_source(frame) is not None:
         return True
+    if _join_is_cut(frame) and _inherited_start(frame):
+        return False
     return isinstance(frame_field(frame, "start_frame"), Mapping)
+
+
+def _measurements(frame: Mapping[str, object]) -> Mapping[str, object]:
+    raw = frame_field(frame, "board_measurements")
+    if isinstance(raw, Mapping):
+        return raw
+    return {}
+
+
+def _explicit_status(frame: Mapping[str, object], lock_id: str) -> str | None:
+    raw = frame_field(frame, "board_evidence")
+    if not isinstance(raw, Sequence) or isinstance(raw, (str, bytes)):
+        return None
+    for item in raw:
+        if not isinstance(item, Mapping) or str(item.get("lock_id") or "") != lock_id:
+            continue
+        status = item.get("status")
+        if status in {"verified", "contradicted", "unverified"}:
+            return str(status)
+    return None
+
+
+def _hands_status(
+    frame: Mapping[str, object],
+    text: str,
+    lock: Mapping[str, object] | None,
+) -> str | None:
+    measured = _measurements(frame).get("hands")
+    if not isinstance(measured, str):
+        return None
+    parts = [text]
+    if lock is not None:
+        for key in ("id", "text", "positive", "negative"):
+            value = lock.get(key)
+            if isinstance(value, str):
+                parts.append(value)
+    blob = " ".join(parts).casefold()
+    if "hand" not in blob and "silicon" not in blob:
+        return None
+    if measured.strip() == "human":
+        return "contradicted"
+    if measured.strip() == "silicon":
+        return "verified"
+    return None
+
+
+def _image_status(
+    frame: Mapping[str, object],
+    lock_id: str,
+    text: str,
+    lock: Mapping[str, object] | None,
+) -> tuple[str, str | None, str | None, str | None]:
+    """Return status, evidence, code, and detail for a start-frame candidate."""
+    explicit = _explicit_status(frame, lock_id)
+    if explicit == "verified":
+        return "verified", "board_evidence", None, None
+    if explicit == "contradicted":
+        return "contradicted", "board_evidence", "BOARD_LOCK_CONTRADICTED", None
+    if explicit == "unverified":
+        return "unverified", None, "BOARD_LOCK_UNVERIFIED", None
+    hands = _hands_status(frame, text, lock)
+    if hands == "contradicted":
+        return (
+            "contradicted",
+            "hands",
+            "BOARD_LOCK_CONTRADICTED",
+            "HUMAN_HAND_ON_SILICON_LOCK",
+        )
+    if hands == "verified":
+        return "verified", "hands", None, None
+    return "unverified", None, "BOARD_LOCK_UNVERIFIED", None
+
+
+def _carrier_record(
+    lock_id: str,
+    carrier: str,
+    evidence: str | None,
+    status: str,
+    code: str | None = None,
+    detail: str | None = None,
+) -> dict[str, object]:
+    record: dict[str, object] = {
+        "lock_id": lock_id,
+        "carrier": carrier,
+        "evidence": evidence,
+        "status": status,
+    }
+    if code:
+        record["code"] = code
+    if detail:
+        record["detail"] = detail
+    if status == "contradicted" and "hand" in lock_id.casefold():
+        record["recommendation"] = (
+            "refs-only with a material insert plus an identity ref"
+        )
+    return record
 
 
 def _refs_of(spec: Mapping[str, object]) -> list[Mapping[str, object]]:
@@ -148,14 +267,29 @@ def carrier_for(
     text: str,
     character: str | None = None,
     lock: Mapping[str, object] | None = None,
-) -> str:
+) -> dict[str, object]:
+    """Carrier plus image status. A start frame with no evidence is unverified."""
+    lock_id = text
+    if lock is not None:
+        ident = lock.get("id")
+        if isinstance(ident, str) and ident.strip():
+            lock_id = ident.strip()
     if _start_carries(frame):
-        return "start_frame"
+        status, evidence, code, detail = _image_status(frame, lock_id, text, lock)
+        if status == "verified":
+            return _carrier_record(lock_id, "start_frame", evidence, "verified")
+        if status == "contradicted":
+            return _carrier_record(
+                lock_id, "contradicted", evidence, "contradicted", code, detail,
+            )
+        return _carrier_record(
+            lock_id, "unverified", evidence, "unverified", "BOARD_LOCK_UNVERIFIED",
+        )
     if _reference_carries(document, frame, kind, text, character, lock):
-        return "reference"
+        return _carrier_record(lock_id, "reference", "reference", "verified")
     if _is_positive(kind, text, lock):
-        return "prompt_positive"
-    return "prompt_negative_only"
+        return _carrier_record(lock_id, "prompt_positive", "prompt", "verified")
+    return _carrier_record(lock_id, "prompt_negative_only", None, "unverified")
 
 
 def _row(
@@ -172,6 +306,17 @@ def _row(
     return row
 
 
+def _recorded(
+    shot: str,
+    lock: str,
+    kind: str,
+    record: Mapping[str, object],
+    *,
+    critical: bool = False,
+) -> dict[str, object]:
+    return _row(shot, lock, kind, str(record.get("carrier") or ""), critical=critical)
+
+
 def _identity_rows(
     document: Mapping[str, object],
     frame: Mapping[str, object],
@@ -183,7 +328,7 @@ def _identity_rows(
     for text in frame_locks(document, frame, items):
         character = _lock_character(document, text)
         kind_carrier = carrier_for(document, frame, "identity", text, character)
-        rows.append(_row(shot, text, "identity", kind_carrier))
+        rows.append(_recorded(shot, text, "identity", kind_carrier))
     return rows
 
 
@@ -208,7 +353,7 @@ def _wardrobe_rows(
     for line in wardrobe_lines_for(document, frame):
         character = _wardrobe_character(line)
         chosen = carrier_for(document, frame, "wardrobe", line, character)
-        rows.append(_row(shot, line, "wardrobe", chosen))
+        rows.append(_recorded(shot, line, "wardrobe", chosen))
     return rows
 
 
@@ -233,7 +378,7 @@ def _prop_rows(
         chosen = carrier_for(
             document, frame, "prop", prop_id or line, None, {"id": prop_id or line},
         )
-        rows.append(_row(shot, prop_id or line, "prop", chosen))
+        rows.append(_recorded(shot, prop_id or line, "prop", chosen))
     return rows
 
 
@@ -272,7 +417,9 @@ def _structured_rows(
         ident = str(lock.get("id") or lock.get("negative") or kind)
         text = str(lock.get("negative") or lock.get("positive") or ident)
         chosen = carrier_for(document, frame, kind, text, owner, lock)
-        rows.append(_row(shot, ident, kind, chosen, critical=lock.get("critical") is True))
+        rows.append(_recorded(
+            shot, ident, kind, chosen, critical=lock.get("critical") is True,
+        ))
     return rows
 
 
