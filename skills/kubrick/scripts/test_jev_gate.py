@@ -21,7 +21,7 @@ from jev_client import (  # noqa: E402
     JevUnreachable,
     RecordedJev,
     post_json,
-    prompt_sha256,
+    verdict_key,
 )
 from jev_gate import append_run_ledger, check_before_spend  # noqa: E402
 from jev_holds import compiled_prompts, hold_list  # noqa: E402
@@ -60,16 +60,19 @@ def _prompt(raw: Mapping[str, object]) -> dict[str, object]:
     }
 
 
-def _recorded(shots: Sequence[Mapping[str, object]]) -> RecordedJev:
-    verdicts: dict[str, Mapping[str, object]] = {}
-    for shot in shots:
-        text = shot.get("prompt")
-        assert isinstance(text, str)
-        verdicts[prompt_sha256(text)] = {
-            "verdict": shot["verdict"],
-            "findings": shot.get("findings") or [],
+def _recorded(
+    prompts: Sequence[Mapping[str, object]],
+    holds: Sequence[Mapping[str, object]],
+    verdicts: Sequence[Mapping[str, object]],
+) -> RecordedJev:
+    stored: dict[str, Mapping[str, object]] = {}
+    assert len(prompts) == len(verdicts)
+    for prompt, spec in zip(prompts, verdicts):
+        stored[verdict_key(prompt, holds)] = {
+            "verdict": spec["verdict"],
+            "findings": spec.get("findings") or [],
         }
-    return RecordedJev(verdicts)
+    return RecordedJev(stored)
 
 
 def _holds(raw: object) -> list[dict[str, object]]:
@@ -86,14 +89,13 @@ class _Down:
 def test_hold_hit_blocks_and_reports_why() -> None:
     fixture = _load("hold-hit.json")
     assert isinstance(fixture["prompt"], dict)
-    client = _recorded([{
-        "prompt": fixture["prompt"]["prompt"],
+    holds = _holds(fixture["holds"])
+    prompt = _prompt(fixture["prompt"])
+    client = _recorded([prompt], holds, [{
         "verdict": fixture["verdict"],
         "findings": fixture["findings"],
     }])
-    gate = check_before_spend(
-        _holds(fixture["holds"]), [_prompt(fixture["prompt"])], client=client,
-    )
+    gate = check_before_spend(holds, [prompt], client=client)
     assert gate["blocks_spend"] is True
     assert gate["code"] == "JEV_HOLD"
     assert gate["checked_before_spend"] is True
@@ -106,12 +108,13 @@ def test_hold_hit_blocks_and_reports_why() -> None:
 def test_clean_prompt_allows_spend() -> None:
     fixture = _load("clean-prompt.json")
     assert isinstance(fixture["prompt"], dict)
-    client = _recorded([{
-        "prompt": fixture["prompt"]["prompt"],
+    holds = _holds(fixture["holds"])
+    prompt = _prompt(fixture["prompt"])
+    client = _recorded([prompt], holds, [{
         "verdict": fixture["verdict"],
         "findings": fixture["findings"],
     }])
-    gate = check_before_spend(_holds(fixture["holds"]), [_prompt(fixture["prompt"])], client=client)
+    gate = check_before_spend(holds, [prompt], client=client)
     assert gate["blocks_spend"] is False
     assert gate["code"] == "CLEAR"
     assert gate["status"] == "PASS"
@@ -138,8 +141,7 @@ def test_jev_down_fails_closed_unless_override_is_logged() -> None:
     assert logged and logged[0]["event"] == "JEV_OVERRIDE"
     assert logged[0]["source"] == "flag"
     still = check_before_spend(
-        holds, prompts, client=_recorded([{
-            "prompt": fixture["prompt"]["prompt"],
+        holds, prompts, client=_recorded(prompts, holds, [{
             "verdict": "fail",
             "findings": [{
                 "code": "MISSING_LOCK",
@@ -173,7 +175,7 @@ def test_myslef_v023_fails_and_hand_fixed_passes() -> None:
         assert live["prompt"] == saved["prompt"]
         assert "no red light on the head or chest" not in str(live["prompt"])
         assert live["surfaces"] == ["image", "video"]
-    client = _recorded(shots)
+    client = _recorded(compiled, holds, shots)
     failed = check_before_spend(holds, compiled, client=client)
     assert failed["blocks_spend"] is True
     assert failed["code"] == "JEV_HOLD"
@@ -187,7 +189,10 @@ def test_myslef_v023_fails_and_hand_fixed_passes() -> None:
             assert "CHAIR LOCK" not in str(shot["prompt"])
         else:
             assert str(shot["prompt"]).startswith("no red light on the head or chest")
-    passed = check_before_spend(holds, [_prompt(shot) for shot in fixed], client=_recorded(fixed))
+    fixed_prompts = [_prompt(shot) for shot in fixed]
+    passed = check_before_spend(
+        holds, fixed_prompts, client=_recorded(fixed_prompts, holds, fixed),
+    )
     assert passed["blocks_spend"] is False
     assert passed["code"] == "CLEAR"
 
@@ -195,14 +200,12 @@ def test_myslef_v023_fails_and_hand_fixed_passes() -> None:
 def test_run_ledger_records_the_gate_before_spend() -> None:
     fixture = _load("clean-prompt.json")
     assert isinstance(fixture["prompt"], dict)
+    holds = _holds(fixture["holds"])
+    prompt = _prompt(fixture["prompt"])
     gate = check_before_spend(
-        _holds(fixture["holds"]),
-        [_prompt(fixture["prompt"])],
-        client=_recorded([{
-            "prompt": fixture["prompt"]["prompt"],
-            "verdict": "pass",
-            "findings": [],
-        }]),
+        holds,
+        [prompt],
+        client=_recorded([prompt], holds, [{"verdict": "pass", "findings": []}]),
     )
     with tempfile.TemporaryDirectory() as tmp:
         path = str(Path(tmp) / "run-ledger.json")
@@ -311,10 +314,12 @@ def _locked_plan() -> dict[str, object]:
 
 def _verdict_file(plan: Mapping[str, object], verdict: str) -> str:
     compiled = compiled_prompts(plan, "keyframe")
+    holds = hold_list(plan)
     assert isinstance(compiled, list)
+    assert isinstance(holds, list)
     payload = {
         "verdicts": {
-            prompt_sha256(str(item["prompt"])): {
+            verdict_key(item, holds): {
                 "verdict": verdict,
                 "findings": [] if verdict == "pass" else [{
                     "code": "MISSING_LOCK",

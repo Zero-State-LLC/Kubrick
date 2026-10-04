@@ -221,10 +221,12 @@ def _prop_holds(document: Mapping[str, object], scope: str) -> list[dict[str, ob
 
 
 def hold_list(document: Mapping[str, object]) -> list[dict[str, object]] | str:
-    """The plan hold list, or ``HOLD_LIST_INVALID ...`` when an entry has no text."""
+    """The plan hold list, or ``HOLD_LIST_INVALID ...`` when it cannot be trusted."""
     scope = plan_scope(document)
-    explicit = document.get("hold_list")
-    if isinstance(explicit, Sequence) and not isinstance(explicit, (str, bytes)):
+    if "hold_list" in document:
+        explicit = document.get("hold_list")
+        if isinstance(explicit, (str, bytes)) or not isinstance(explicit, Sequence):
+            return "HOLD_LIST_INVALID hold_list must be a list"
         return _explicit_holds(list(explicit), scope)
     locks = _plan_locks(document.get("locks"), scope)
     if isinstance(locks, str):

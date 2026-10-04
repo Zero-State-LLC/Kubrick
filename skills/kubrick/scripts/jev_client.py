@@ -43,6 +43,32 @@ def prompt_sha256(text: str) -> str:
     return hashlib.sha256(text.encode("utf-8")).hexdigest()
 
 
+def judged_body(
+    prompt: Mapping[str, object], holds: Sequence[Mapping[str, object]],
+) -> dict[str, object]:
+    """The request live Jev sees: prompt context plus the hold list."""
+    return {
+        "prompt": judge_prompt(prompt),
+        "holds": [dict(item) for item in holds],
+    }
+
+
+def verdict_key(
+    prompt: Mapping[str, object], holds: Sequence[Mapping[str, object]],
+) -> str:
+    """Sha256 of the judged prompt and the holds. Either change misses the cache."""
+    try:
+        encoded = json.dumps(
+            judged_body(prompt, holds),
+            sort_keys=True,
+            separators=(",", ":"),
+            ensure_ascii=False,
+        )
+    except (TypeError, ValueError) as exc:
+        raise JevUnreachable("recorded verdict key is not computable") from exc
+    return hashlib.sha256(encoded.encode("utf-8")).hexdigest()
+
+
 def judge_prompt(prompt: Mapping[str, object]) -> dict[str, object]:
     raw_surfaces = prompt.get("surfaces")
     surfaces = list(raw_surfaces) if isinstance(raw_surfaces, list) else []
@@ -145,12 +171,11 @@ class HttpJevClient:
     ) -> Mapping[str, object]:
         if self._timeout <= 0:
             raise JevUnreachable("Jev timeout is not positive")
-        body = {"prompt": judge_prompt(prompt), "holds": [dict(item) for item in holds]}
-        return parse_verdict(self._transport(self._url, body, self._timeout))
+        return parse_verdict(self._transport(self._url, judged_body(prompt, holds), self._timeout))
 
 
 class RecordedJev:
-    """Verdicts keyed by the sha256 of the prompt text. CI uses this, not the network."""
+    """Verdicts keyed by ``verdict_key``. CI uses this, not the network."""
 
     def __init__(self, verdicts: Mapping[str, Mapping[str, object]]) -> None:
         self._verdicts = verdicts
@@ -164,8 +189,7 @@ class RecordedJev:
         self.seen_hold_ids.append([
             str(item.get("id")) for item in holds if item.get("id") is not None
         ])
-        text = prompt.get("prompt")
-        key = prompt_sha256(text if isinstance(text, str) else "")
+        key = verdict_key(prompt, holds)
         found = self._verdicts.get(key)
         if found is None:
             raise JevUnreachable(f"no recorded verdict for {key}")
@@ -173,7 +197,7 @@ class RecordedJev:
 
 
 def load_recorded(path: str) -> RecordedJev:
-    """Load ``{"verdicts": {sha256: {verdict, findings}}}``."""
+    """Load ``{"verdicts": {verdict_key: {verdict, findings}}}``."""
     from io_safety import load_structured
 
     try:

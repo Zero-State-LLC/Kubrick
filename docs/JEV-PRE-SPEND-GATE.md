@@ -7,10 +7,13 @@ those proposed operations may be written.
 
 ## Hold list
 
-If the plan sets `hold_list`, that list is the whole check. Each entry is a
-string or an object with `text`, `negative`, or `positive`. An entry with
-`blocked: true` and `shot` is a local block. It does not need a Jev verdict,
-and an override does not clear it.
+If the plan sets `hold_list`, that list is the whole check. It must be a list.
+A string, mapping, or other non-list is `HOLD_LIST_INVALID` and blocks the
+spend. The gate does not fall back to locks when that field is present. Each
+entry is a string or an object with `text`, `negative`, or `positive`. An
+entry with `blocked: true` and `shot` is a local block. The shot is matched
+against the prompt shot and its aliases (`frame_id` and `shot_id`). It does
+not need a Jev verdict, and an override does not clear it.
 
 When `hold_list` is absent, the gate builds the list from:
 
@@ -31,12 +34,17 @@ spoken lines that would be sent to ElevenLabs.
 Resolution order:
 
 1. `--jev-verdicts FILE`, or `KUBRICK_JEV_VERDICTS`, a JSON object
-   `{"verdicts": {"<sha256 of the prompt text>": {"verdict": "pass"|"fail", "findings": [...]}}}`
+   `{"verdicts": {"<sha256>": {"verdict": "pass"|"fail", "findings": [...]}}}`.
+   The key is the sha256 of the canonical JSON for the judged prompt
+   (`shot`, `channel`, `surfaces`, `location`, `prompt`) and the hold list.
+   A change to either does not reuse the recorded verdict.
 2. `KUBRICK_JEV_URL`, an `http` or `https` endpoint
 
 The live call is `POST {"prompt": {...}, "holds": [...]}`. A usable response
 is `{"verdict": "pass"|"fail", "findings": [{"code", "message", "hold_id"?}]}`.
 A pass with findings, a missing verdict, or a transport error is unreachable.
+A transport failure on a later prompt is unreachable too. If an earlier prompt
+already failed a hold, that hold still blocks and the override does not clear it.
 
 If Jev is not configured or cannot be reached, the command exits 4 with
 `JEV_UNREACHABLE` and writes no paid operations and no credit estimate.
@@ -75,7 +83,7 @@ verdict.
 | `JEV_UNREACHABLE` | Jev is down, unconfigured, or returned a verdict the gate cannot trust. |
 | `JEV_OVERRIDE` | Jev was unreachable and the operator override was logged. |
 | `JEV_PROMPT_MISSING` | A paid shot has no compiled prompt. |
-| `HOLD_LIST_INVALID` | A hold entry has no text. |
+| `HOLD_LIST_INVALID` | `hold_list` is not a list, or an entry has no text. |
 | `NO_HOLDS` | The plan has nothing to check. |
 | `NO_SPEND` | This step has no prompt that would be spent. |
 | `CLEAR` | Jev passed every prompt. |

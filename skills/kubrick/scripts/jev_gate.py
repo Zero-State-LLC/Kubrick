@@ -39,7 +39,7 @@ def add_jev_arguments(parser: argparse.ArgumentParser) -> None:
     parser.add_argument(
         "--jev-verdicts",
         default=None,
-        help="JSON file of recorded Jev verdicts keyed by prompt sha256",
+        help="JSON file of recorded verdicts keyed by the judged prompt and holds",
     )
     parser.add_argument(
         "--run-ledger",
@@ -57,28 +57,49 @@ def override_requested(flag: bool) -> tuple[bool, str]:
         return True, "env"
     return False, ""
 
-def _local_blocks(
-    prompts: Sequence[Mapping[str, object]], holds: Sequence[Mapping[str, object]],
-) -> list[dict[str, object]]:
-    blocked = {
+def _blocked_ids(holds: Sequence[Mapping[str, object]]) -> set[str]:
+    return {
         str(item.get("shot"))
         for item in holds
         if item.get("blocked") is True and isinstance(item.get("shot"), str)
     }
+
+
+def _prompt_labels(prompt: Mapping[str, object]) -> set[str]:
+    """Shot id plus aliases such as ``frame_id``. A string of labels is not a list."""
+    names: set[str] = set()
+    shot = prompt.get("shot")
+    if isinstance(shot, str) and shot.strip():
+        names.add(shot.strip())
+    raw = prompt.get("labels")
+    if isinstance(raw, Sequence) and not isinstance(raw, (str, bytes)):
+        for item in raw:
+            if isinstance(item, str) and item.strip():
+                names.add(item.strip())
+    return names
+
+
+def _local_blocks(
+    prompts: Sequence[Mapping[str, object]], holds: Sequence[Mapping[str, object]],
+) -> list[dict[str, object]]:
+    blocked = _blocked_ids(holds)
     checks: list[dict[str, object]] = []
     for prompt in prompts:
-        shot = str(prompt.get("shot") or "")
-        if shot not in blocked:
+        matched = _prompt_labels(prompt) & blocked
+        if not matched:
             continue
+        shot = prompt.get("shot")
+        label = shot.strip() if isinstance(shot, str) and shot.strip() else sorted(matched)[0]
+        hold_id = sorted(matched)[0]
         checks.append({
-            "shot": shot,
+            "shot": label,
             "channel": prompt.get("channel"),
             "prompt_sha256": prompt_sha256(str(prompt.get("prompt") or "")),
             "verdict": "fail",
             "findings": [{
                 "code": "BLOCKED_SHOT",
-                "hold_id": shot,
-                "message": f"shot {shot} is on the hold list",
+                "hold_id": hold_id,
+                "message": f"shot {hold_id} is on the hold list",
             }],
         })
     return checks
@@ -176,6 +197,7 @@ def check_before_spend(
             override_logged=False,
             override_source="",
         )
+    blocked = _blocked_ids(holds)
     local = _local_blocks(prompts, holds)
     try:
         judge = resolve_client(verdicts_path, client)
@@ -184,17 +206,17 @@ def check_before_spend(
             return _blocked_hold(holds, local, override, override_source)
         return _unreachable(holds, exc.reason, override, override_source, [], log)
     checks = list(local)
-    blocked_shots = {item.get("shot") for item in local}
     judged: list[str] = []
     for prompt in prompts:
         shot = prompt.get("shot")
-        if shot in blocked_shots:
+        if _prompt_labels(prompt) & blocked:
             continue
         try:
             verdict = judge.judge(judge_prompt(prompt), holds)
         except JevUnreachable as exc:
-            if checks:
-                return _blocked_hold(holds, checks, override, override_source)
+            failed = [item for item in checks if item.get("verdict") == "fail"]
+            if failed:
+                return _blocked_hold(holds, failed, override, override_source)
             return _unreachable(holds, exc.reason, override, override_source, judged, log)
         judged.append(str(shot or ""))
         text = prompt.get("prompt")
