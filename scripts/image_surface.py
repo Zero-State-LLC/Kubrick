@@ -1,21 +1,25 @@
 #!/usr/bin/env python3
-from production_surface import run
+"""Entry point. Implementation: kubrick.surfaces.image_surface."""
+from __future__ import annotations
 
-ACTIONS = {
-    "prompt",
-    "generate",
-    "improve",
-    "sequence",
-    "batch",
-    "reference",
-    "negative",
-    "adapt",
-    "composition",
-    "lighting",
-    "camera",
-    "symbol-extract",
-    "qa",
-}
+import sys
+from pathlib import Path
+
+_SRC = Path(__file__).resolve().parents[1] / "src"
+if str(_SRC) not in sys.path:
+    sys.path.insert(0, str(_SRC))
 
 if __name__ == "__main__":
-    raise SystemExit(run("image", ACTIONS))
+    import runpy  # noqa: E402
+
+    runpy.run_module("kubrick.surfaces.image_surface", run_name="__main__")
+else:
+    import kubrick.surfaces.image_surface as _impl  # noqa: E402
+
+    _loaded = sys.modules.get(__name__)
+    if _loaded is not None and _loaded is not _impl:
+        for _key, _value in vars(_impl).items():
+            if _key.startswith("__") and _key.endswith("__"):
+                continue
+            setattr(_loaded, _key, _value)
+    sys.modules[__name__] = _impl

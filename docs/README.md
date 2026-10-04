@@ -6,7 +6,8 @@ Current release: **0.16.0** (see root `VERSION`).
 
 | Doc | Audience | Purpose |
 |---|---|---|
-| [`../README.md`](../README.md) | Everyone | Public overview, install, architecture |
+| [`../README.md`](../README.md) | Everyone | Public overview, install, package map |
+| [`../src/kubrick/`](../src/kubrick/) | Contributors | Production packages; `scripts/` entries load them |
 | [`../QUICKSTART.md`](../QUICKSTART.md) | Operators | Intent-first command workflows + recipes |
 | [`../SKILL.md`](../SKILL.md) | Hermes runtime | Canonical skill operating contract |
 | [`../AGENTS.md`](../AGENTS.md) | Agents | Multi-agent SDLC contract (`CLAUDE.md` is a thin pointer here) |

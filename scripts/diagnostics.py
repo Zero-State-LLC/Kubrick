@@ -1,49 +1,25 @@
 #!/usr/bin/env python3
-"""Stable structured diagnostics for Kubrick's unified Hermes operator surface."""
+"""Entry point. Implementation: kubrick.runtime.diagnostics."""
 from __future__ import annotations
 
-import json
-import os
 import sys
-from typing import Any, NoReturn
+from pathlib import Path
 
-SCHEMA_VERSION = "1.0.0"
+_SRC = Path(__file__).resolve().parents[1] / "src"
+if str(_SRC) not in sys.path:
+    sys.path.insert(0, str(_SRC))
 
+if __name__ == "__main__":
+    import runpy  # noqa: E402
 
-def diagnostic(
-    *,
-    status: str,
-    code: str,
-    exit_code: int,
-    message: str,
-    reason_vector: list[str] | None = None,
-    context: dict[str, Any] | None = None,
-    recoverable: bool = True,
-) -> dict[str, Any]:
-    return {
-        "schema_version": SCHEMA_VERSION,
-        "status": status,
-        "code": code,
-        "exit_code": exit_code,
-        "message": message,
-        "reason_vector": reason_vector or [code],
-        "context": context or {},
-        "recoverable": recoverable,
-    }
+    runpy.run_module("kubrick.runtime.diagnostics", run_name="__main__")
+else:
+    import kubrick.runtime.diagnostics as _impl  # noqa: E402
 
-
-def wants_json() -> bool:
-    return os.environ.get("KUBRICK_DIAGNOSTICS", "").lower() in {"json", "1", "true"}
-
-
-def emit(payload: dict[str, Any], *, stream: Any = None) -> None:
-    target = stream or sys.stderr
-    if wants_json():
-        print(json.dumps(payload, sort_keys=True, separators=(",", ":")), file=target)
-    else:
-        print(payload["message"], file=target)
-
-
-def abort(payload: dict[str, Any], *, stream: Any = None) -> NoReturn:
-    emit(payload, stream=stream)
-    raise SystemExit(payload["exit_code"])
+    _loaded = sys.modules.get(__name__)
+    if _loaded is not None and _loaded is not _impl:
+        for _key, _value in vars(_impl).items():
+            if _key.startswith("__") and _key.endswith("__"):
+                continue
+            setattr(_loaded, _key, _value)
+    sys.modules[__name__] = _impl

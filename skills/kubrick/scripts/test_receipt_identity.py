@@ -12,6 +12,7 @@ from pathlib import Path
 ROOT = Path(__file__).resolve().parent.parent
 SCRIPTS = ROOT / "scripts"
 sys.path.insert(0, str(SCRIPTS))
+sys.path.insert(0, str(ROOT / "src"))
 
 from runtime_identity import (  # noqa: E402
     compile_identity,
@@ -20,6 +21,8 @@ from runtime_identity import (  # noqa: E402
     provider_adapter_identity,
     schema_bundle_identity,
 )
+
+from kubrick.paths import implementation_of  # noqa: E402
 
 PY = sys.executable
 REQUIRED_FIELDS = {
@@ -40,11 +43,21 @@ def copy_identity_surface(destination: Path) -> None:
     paths = [ROOT / "kubrick.manifest.yaml", *corpus_files(ROOT)]
     paths.extend(ROOT / relative for relative in manifest["schemas"])
     paths.extend(
+        implementation_of(ROOT / "scripts" / name)
+        for name in (
+            "build_model_adapter_packet.py",
+            "adapt_provider.py",
+            "adapt_grok_imagine.py",
+            "adapt_keyframe.py",
+        )
+    )
+    paths.extend(
         ROOT / "scripts" / name
         for name in (
             "build_model_adapter_packet.py",
             "adapt_provider.py",
             "adapt_grok_imagine.py",
+            "adapt_keyframe.py",
         )
     )
     for source in paths:
@@ -85,7 +98,7 @@ def test_bundle_mutations_change_only_relevant_identities() -> None:
         schema_path.write_text(schema_path.read_text(encoding="utf-8") + "\n# identity mutation\n", encoding="utf-8")
         assert schema_bundle_identity(clone) != schema_before
 
-        adapter_path = clone / "scripts/adapt_provider.py"
+        adapter_path = implementation_of(clone / "scripts/adapt_provider.py")
         adapter_path.write_text(adapter_path.read_text(encoding="utf-8") + "\n# identity mutation\n", encoding="utf-8")
         assert provider_adapter_identity("flux", clone) != adapter_before
 

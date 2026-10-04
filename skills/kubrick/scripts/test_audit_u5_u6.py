@@ -21,6 +21,11 @@ HAS_JSONSCHEMA = find_spec("jsonschema") is not None
 
 if str(SCRIPTS) not in sys.path:
     sys.path.insert(0, str(SCRIPTS))
+_SRC = str(REPO / "src")
+if _SRC not in sys.path:
+    sys.path.insert(0, _SRC)
+
+from kubrick.paths import implementation_of  # noqa: E402
 
 
 def _manifest() -> dict[str, object]:
@@ -37,10 +42,10 @@ def _top_level_imports(body: list[ast.stmt]) -> list[str]:
     names: list[str] = []
     for node in body:
         if isinstance(node, ast.Import):
-            names += [alias.name.split(".")[0] for alias in node.names]
+            names += [alias.name for alias in node.names]
         elif isinstance(node, ast.ImportFrom):
             if node.level == 0 and node.module:
-                names.append(node.module.split(".")[0])
+                names.append(node.module)
         elif isinstance(node, ast.Try):
             if node.handlers and all(_handler_raises(h) for h in node.handlers):
                 names += _top_level_imports(node.body)
@@ -49,17 +54,30 @@ def _top_level_imports(body: list[ast.stmt]) -> list[str]:
     return names
 
 
+def _local_module(name: str) -> Path | None:
+    if name.startswith("kubrick."):
+        path = REPO / "src" / Path(*name.split(".")).with_suffix(".py")
+        return path if path.is_file() else None
+    flat = SCRIPTS / f"{name}.py"
+    return flat if flat.is_file() else None
+
+
 def _deps_of(script: Path, seen: set[Path]) -> set[str]:
+    if script.is_file():
+        script = implementation_of(script)
     if script in seen or not script.is_file():
         return set()
     seen.add(script)
     tree = ast.parse(script.read_text(encoding="utf-8"))
     found: set[str] = set()
     for name in _top_level_imports(tree.body):
-        if name in TRACKED:
-            found.add(name)
-        else:
-            found |= _deps_of(SCRIPTS / f"{name}.py", seen)
+        top = name.split(".")[0]
+        if top in TRACKED:
+            found.add(top)
+            continue
+        nxt = _local_module(name) or _local_module(top)
+        if nxt is not None:
+            found |= _deps_of(nxt, seen)
     return found
 
 

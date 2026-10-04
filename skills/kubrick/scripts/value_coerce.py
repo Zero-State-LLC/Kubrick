@@ -1,29 +1,25 @@
-"""Shared scalar coercion helpers (replaces duplicated private copies)."""
-
+#!/usr/bin/env python3
+"""Entry point. Implementation: kubrick.runtime.value_coerce."""
 from __future__ import annotations
 
-_BLANK_TOKENS = frozenset({"", "none", "not_computable"})
+import sys
+from pathlib import Path
 
+_SRC = Path(__file__).resolve().parents[1] / "src"
+if str(_SRC) not in sys.path:
+    sys.path.insert(0, str(_SRC))
 
-def as_float(value: object) -> float | None:
-    """Return float for int/float/str inputs; None for bool, other types or bad strings."""
-    if isinstance(value, bool) or not isinstance(value, (int, float, str)):
-        return None
-    try:
-        return float(value)
-    except ValueError:
-        return None
+if __name__ == "__main__":
+    import runpy  # noqa: E402
 
+    runpy.run_module("kubrick.runtime.value_coerce", run_name="__main__")
+else:
+    import kubrick.runtime.value_coerce as _impl  # noqa: E402
 
-def as_number(value: object) -> float | None:
-    """Return float for real numeric inputs only (strings and bools are rejected)."""
-    if isinstance(value, bool) or not isinstance(value, (int, float)):
-        return None
-    return float(value)
-
-
-def is_blank(value: object) -> bool:
-    """True for None or textual placeholders that carry no evidence."""
-    if value is None:
-        return True
-    return str(value).strip().casefold() in _BLANK_TOKENS
+    _loaded = sys.modules.get(__name__)
+    if _loaded is not None and _loaded is not _impl:
+        for _key, _value in vars(_impl).items():
+            if _key.startswith("__") and _key.endswith("__"):
+                continue
+            setattr(_loaded, _key, _value)
+    sys.modules[__name__] = _impl

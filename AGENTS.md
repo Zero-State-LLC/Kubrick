@@ -29,6 +29,10 @@ After skill-payload edits: `bash scripts/sync_hub_skill.sh` then the hub
 check. Root is the source of truth; `skills/kubrick/` is the packaging
 mirror. Do not invent commands.
 
+Production modules live in `src/kubrick/`. Each `scripts/<name>.py` file is
+the entry point that loads that module. The command stays
+`python scripts/kubrick.py`.
+
 ## Invariants
 
 - Fail closed: weak or contradictory evidence → `NOT_COMPUTABLE`.

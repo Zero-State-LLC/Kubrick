@@ -1,39 +1,25 @@
 #!/usr/bin/env python3
-"""Record proposal-only evidence from a Kubrick compile and optional QA reports."""
+"""Entry point. Implementation: kubrick.corpus.record_pattern_outcome."""
 from __future__ import annotations
 
-import argparse
-import hashlib
-import json
+import sys
+from pathlib import Path
 
-from io_safety import write_text_bounded
+_SRC = Path(__file__).resolve().parents[1] / "src"
+if str(_SRC) not in sys.path:
+    sys.path.insert(0, str(_SRC))
 
-try:
-    import yaml
-except ImportError:
-    raise SystemExit("pyyaml required")
-from structured_io import load_mapping
+if __name__ == "__main__":
+    import runpy  # noqa: E402
 
+    runpy.run_module("kubrick.corpus.record_pattern_outcome", run_name="__main__")
+else:
+    import kubrick.corpus.record_pattern_outcome as _impl  # noqa: E402
 
-def load(path):
-    """Shared loader; untyped legacy callers keep their contract."""
-    return load_mapping(path)
-
-
-def canonical(value): return json.dumps(value,sort_keys=True,separators=(",",":"),default=str)
-
-def main():
-    p=argparse.ArgumentParser(); p.add_argument("--compile-receipt",required=True); p.add_argument("--retrieval-receipt"); p.add_argument("--fidelity-report",action="append",default=[]); p.add_argument("--project-id",required=True); p.add_argument("--outcome",choices=["ACCEPTED","REJECTED","PARTIAL","UNREVIEWED"],default="UNREVIEWED"); p.add_argument("--note",action="append",default=[]); p.add_argument("--production-feasibility",type=float); p.add_argument("--payoff-realized",choices=["true","false"]); p.add_argument("--cultural-boundary-respected",choices=["true","false"]); p.add_argument("--output",required=True); a=p.parse_args()
-    compile_receipt=load(a.compile_receipt); retrieval=load(a.retrieval_receipt) if a.retrieval_receipt else {}
-    rr=retrieval.get("retrieval_receipt",retrieval)
-    fidelity=[load(x) for x in a.fidelity_report]
-    scores=[]
-    for report in fidelity:
-        dims=report.get("dimensions",{})
-        vals=[d.get("score") for d in dims.values() if isinstance(d,dict) and isinstance(d.get("score"),(int,float))]
-        if vals: scores.append(sum(vals)/len(vals))
-    selected_primary=compile_receipt.get("selected_primary") or rr.get("selected_primary_grammar")
-    payload={"schema_version":"1.0.0","project_id":a.project_id,"source_compile_receipt":str(a.compile_receipt),"compile_status":compile_receipt.get("status","NOT_COMPUTABLE"),"selected_patterns":{"primary":selected_primary,"supporting":rr.get("selected_supporting_grammars",[])},"signals":{"retrieval_confidence":float(rr.get("confidence",0.0)),"graph_valid":compile_receipt.get("status")=="COMPILED","anti_slop_pass":compile_receipt.get("status")=="COMPILED","production_feasibility":a.production_feasibility,"visual_fidelity":round(sum(scores)/len(scores),4) if scores else None,"correction_iterations":len(fidelity),"payoff_realized":None if a.payoff_realized is None else a.payoff_realized=="true","cultural_boundary_respected":None if a.cultural_boundary_respected is None else a.cultural_boundary_respected=="true"},"outcome":{"status":a.outcome,"notes":a.note},"authority":{"state":"OBSERVATION","automatic_corpus_change_allowed":False}}
-    payload["receipt_id"]=hashlib.sha256(canonical(payload).encode()).hexdigest()[:16]
-    text=yaml.safe_dump(payload,sort_keys=False); write_text_bounded(a.output, text); print(text)
-if __name__=="__main__": main()
+    _loaded = sys.modules.get(__name__)
+    if _loaded is not None and _loaded is not _impl:
+        for _key, _value in vars(_impl).items():
+            if _key.startswith("__") and _key.endswith("__"):
+                continue
+            setattr(_loaded, _key, _value)
+    sys.modules[__name__] = _impl

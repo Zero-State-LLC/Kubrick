@@ -11,6 +11,9 @@ from pathlib import Path
 ROOT = Path(__file__).resolve().parent.parent
 SCRIPTS = ROOT / "scripts"
 sys.path.insert(0, str(SCRIPTS))
+sys.path.insert(0, str(ROOT / "src"))
+
+from kubrick.paths import implementation_of  # noqa: E402
 
 PY = sys.executable
 WRITERS = (
@@ -173,9 +176,9 @@ def test_b11_planned_duration_default_and_warning() -> None:
     assert codes == ["DURATION_MISSING", "DURATION_MISSING"]
     prep = collect_prep({}, [{}], "generic")
     assert any(item["code"] == "DURATION_MISSING" for item in prep.warnings)
-    drift = (SCRIPTS / "drift_registry.py").read_text(encoding="utf-8")
+    drift = implementation_of(SCRIPTS / "drift_registry.py").read_text(encoding="utf-8")
     assert "planned_duration" in drift
-    retime_source = (SCRIPTS / "retime_plan.py").read_text(encoding="utf-8")
+    retime_source = implementation_of(SCRIPTS / "retime_plan.py").read_text(encoding="utf-8")
     assert "_DEFAULT_SECONDS = 4.0" not in retime_source
 
 
@@ -209,7 +212,7 @@ def test_b12_takes_answers_and_bounded_writers() -> None:
     else:
         raise AssertionError("protected write was accepted")
     for name in WRITERS:
-        text = (SCRIPTS / name).read_text(encoding="utf-8")
+        text = implementation_of(SCRIPTS / name).read_text(encoding="utf-8")
         assert ".write_text(" not in text, name
         assert "write_text_bounded" in text, name
     with tempfile.TemporaryDirectory() as directory:

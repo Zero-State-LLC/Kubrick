@@ -12,10 +12,13 @@ import yaml
 
 ROOT = Path(__file__).resolve().parent.parent
 sys.path.insert(0, str(ROOT / "scripts"))
+sys.path.insert(0, str(ROOT / "src"))
 
 import intent_router as ir  # noqa: E402
 from retime_plan import main as retime_main  # noqa: E402
 from retime_plan import retime  # noqa: E402
+
+from kubrick.paths import implementation_of  # noqa: E402
 
 PY = sys.executable
 EXAMPLE = ROOT / "examples/myslef-minder" / "storyboard-plan.yaml"
@@ -221,7 +224,7 @@ def test_fail_closed_and_no_provider_call() -> None:
     assert "61.0" in str(over["message"]) and "30.0" in str(over["message"])
     shared = retime(_plan(40, 40), "keyframe")
     assert shared["code"] == "NO_FEASIBLE_PLAN" and "80.0" in str(shared["message"])
-    text = (ROOT / "scripts/retime_plan.py").read_text(encoding="utf-8")
+    text = implementation_of(ROOT / "scripts/retime_plan.py").read_text(encoding="utf-8")
     for banned in ("import subprocess", "import requests", "urllib", "adapt_keyframe", "os.system"):
         assert banned not in text
     with tempfile.TemporaryDirectory() as directory:

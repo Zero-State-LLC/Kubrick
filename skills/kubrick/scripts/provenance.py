@@ -1,71 +1,25 @@
 #!/usr/bin/env python3
-"""Claim-level provenance labels and collision taxonomy for Kubrick.
-
-Shared by retrieval, production surfaces, and learn/evolve receipts so collision
-and provenance vocabulary stays stable across the operator surface.
-"""
+"""Entry point. Implementation: kubrick.runtime.provenance."""
 from __future__ import annotations
 
-from typing import Any
+import sys
+from pathlib import Path
 
-# Stable collision taxonomy (extend only with regression coverage).
-COLLISION_TYPES = frozenset(
-    {
-        "PROHIBITED",
-        "REDUNDANT",
-        "CONTRADICTORY",
-        "CULTURALLY_INCOMPATIBLE",
-        "RHYTHMICALLY_OVERLAPPING",
-        "PAYOFF_COMPETITION",
-        "OWNERSHIP_CONFLICT",
-        "GEOMETRY_RESET",
-        "RESIDUE_ERASURE",
-        "AUTHORITY_PROMOTION",
-        "PROVIDER_SEMANTIC_DROP",
-    }
-)
+_SRC = Path(__file__).resolve().parents[1] / "src"
+if str(_SRC) not in sys.path:
+    sys.path.insert(0, str(_SRC))
 
-HARD_FAIL_COLLISIONS = frozenset(
-    {
-        "PROHIBITED",
-        "CONTRADICTORY",
-        "CULTURALLY_INCOMPATIBLE",
-        "OWNERSHIP_CONFLICT",
-        "AUTHORITY_PROMOTION",
-        "PROVIDER_SEMANTIC_DROP",
-    }
-)
+if __name__ == "__main__":
+    import runpy  # noqa: E402
 
-PROVENANCE_LABELS = frozenset({"observed", "inferred", "speculative", "external_authoritative"})
+    runpy.run_module("kubrick.runtime.provenance", run_name="__main__")
+else:
+    import kubrick.runtime.provenance as _impl  # noqa: E402
 
-
-def provenance_bucket(
-    *,
-    observed: list[str] | None = None,
-    inferred: list[str] | None = None,
-    speculative: list[str] | None = None,
-    external_authoritative: list[str] | None = None,
-) -> dict[str, list[str]]:
-    return {
-        "observed": list(observed or []),
-        "inferred": list(inferred or []),
-        "speculative": list(speculative or []),
-        "external_authoritative": list(external_authoritative or []),
-    }
-
-
-def claim(
-    claim_id: str,
-    text: str,
-    *,
-    label: str = "observed",
-    evidence_refs: list[str] | None = None,
-) -> dict[str, Any]:
-    if label not in PROVENANCE_LABELS:
-        raise ValueError(f"unknown provenance label: {label}")
-    return {
-        "claim_id": claim_id,
-        "text": text,
-        "label": label,
-        "evidence_refs": list(evidence_refs or []),
-    }
+    _loaded = sys.modules.get(__name__)
+    if _loaded is not None and _loaded is not _impl:
+        for _key, _value in vars(_impl).items():
+            if _key.startswith("__") and _key.endswith("__"):
+                continue
+            setattr(_loaded, _key, _value)
+    sys.modules[__name__] = _impl

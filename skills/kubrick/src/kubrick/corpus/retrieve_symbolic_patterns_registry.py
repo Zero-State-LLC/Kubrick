@@ -1,0 +1,99 @@
+#!/usr/bin/env python3
+"""Registry-aware Kubrick retrieval for the standalone Hermes skill."""
+from __future__ import annotations
+
+import argparse
+import hashlib
+import json
+import sys
+from datetime import datetime, timezone
+from pathlib import Path
+from typing import Any, Dict
+
+from kubrick.paths import SCRIPTS, SKILL_ROOT
+
+try:
+    import yaml
+except ImportError:
+    print("pyyaml required. pip install pyyaml",file=sys.stderr); raise SystemExit(1)
+import kubrick.corpus.retrieve_symbolic_patterns as base
+from kubrick.runtime.artifact_paths import kubrick_out_dir, write_json_artifact
+
+SCRIPT_DIR=SCRIPTS
+SKILL_ROOT=SCRIPT_DIR.parent
+REGISTRY_PATH=SKILL_ROOT/"references"/"executable-corpus-registry.yaml"
+INDEX_PATH=SKILL_ROOT/"references"/"corpus-index.yaml"
+CORPUS_VERSION="0.11.5"
+ROUTE_MATCH_BONUS=0.08
+STRONG_DEFAULT_BONUS=0.03
+
+def cache_dir()->Path: return kubrick_out_dir("retrieval","cache-registry")
+
+def receipt_dir()->Path: return kubrick_out_dir("retrieval","receipts")
+
+def load_yaml(path:Path)->Dict[str,Any]:
+    with path.open("r",encoding="utf-8") as h:return yaml.safe_load(h) or {}
+
+def route_registry():
+    registry=load_yaml(REGISTRY_PATH); routes={str(route):{str(item) for item in ids or []} for route,ids in (registry.get("default_routes") or {}).items()}; strong={str(item) for item in registry.get("strong_defaults",[])}
+    return routes,strong
+
+def route_query(brief:Dict[str,Any])->set[str]:
+    fields=[
+        brief.get("dramatic_problem",""),
+        brief.get("desired_state_change",""),
+        brief.get("symbolic_intent",""),
+        brief.get("requested_domains",[]),
+        brief.get("preferred_encoding_vectors",[]),
+    ]
+    return base._tokens(fields)-base.STOP_WORDS
+
+def route_matches(brief:Dict[str,Any],routes:Dict[str,Any])->list[str]:
+    tokens=route_query(brief)
+    matched:list[str]=[]
+    for route in routes:
+        overlap=base._tokens(route)-base.STOP_WORDS
+        if overlap&tokens:
+            matched.append(str(route))
+    return sorted(matched)
+
+def cache_key(brief,ledger):
+    payload=base.canonical_json({"algorithm":CORPUS_VERSION,"policy":base.SELECTION_POLICY,"brief":brief,"ledger":ledger})
+    return hashlib.sha256(payload.encode()).hexdigest()[:24]
+
+def score_with_registry(pattern,brief,ledger,routes,matched,strong):
+    scored=base.score_pattern(pattern,brief,ledger); pid=scored["pattern_id"]; direct=sorted(route for route in matched if pid in routes.get(route,set())); bonus=(ROUTE_MATCH_BONUS if direct else 0)+(STRONG_DEFAULT_BONUS if pid in strong else 0)
+    scored.update({"base_score":scored["total_score"],"route_matches":direct,"route_bonus":round(bonus,4),"strong_default":pid in strong}); scored["total_score"]=round(min(1.0,scored["total_score"]+bonus),4); return scored
+
+def gap_report(brief,ranked,matched,routes):
+    report=base.gap_report(brief,ranked); report["matched_registry_routes"]=matched; report["route_candidate_counts"]={route:len(routes.get(route,set())) for route in matched}
+    if not matched:report.setdefault("weak_dimensions",[]).append("registry_route")
+    return report
+
+def build_receipt(brief,ranked,ledger,matched,routes):
+    eligible=[x for x in ranked if base.selection_eligible(x)]; primary=eligible[0] if eligible else None; supporting=eligible[1:1+base.MAX_SUPPORTING]; key=cache_key(brief,ledger)
+    return {"retrieval_receipt":{"request_hash":key,"algorithm":"registry-aware-v1","corpus_version":CORPUS_VERSION,"timestamp":datetime.now(timezone.utc).isoformat(),"selected_primary_grammar":primary["pattern_id"] if primary else None,"selected_supporting_grammars":[x["pattern_id"] for x in supporting],"ranked_patterns":base.receipt_ranking(ranked,primary,supporting),"confidence":primary["total_score"] if primary else 0.0,"status":"SELECTED" if primary else "NOT_COMPUTABLE","reason_vector":[] if primary else base.reason_vector(ranked,ledger),"pattern_gap_report":gap_report(brief,ranked,matched,routes),"matched_registry_routes":matched,"ledger_snapshot":ledger,"brief":brief}}
+
+def load_cached(key):
+    path=cache_dir()/f"{key}.json"; return base._load(path) if path.exists() else None
+
+def persist(receipt):
+    key=receipt["retrieval_receipt"]["request_hash"]; stamp=datetime.now(timezone.utc).strftime('%Y%m%d-%H%M%S')
+    payload=json.dumps(receipt,indent=2,default=lambda item:item.isoformat() if hasattr(item,"isoformat") else str(item))+"\n"
+    cache=write_json_artifact(cache_dir(),f"{key}.json",payload); logged=write_json_artifact(receipt_dir(),f"receipt-registry-{key}-{stamp}.json",payload)
+    return cache,logged
+
+def main():
+    p=argparse.ArgumentParser();p.add_argument("--brief");p.add_argument("--no-cache",action="store_true");p.add_argument("--gap-report-only",action="store_true");p.add_argument("--show-routes",action="store_true");a=p.parse_args()
+    brief=base.read_brief(a.brief);ledger=base.ledger_snapshot(brief);routes,strong=route_registry();matched=route_matches(brief,routes)
+    if a.show_routes:print(yaml.safe_dump({"matched_routes":matched},sort_keys=False));return
+    key=cache_key(brief,ledger)
+    if not a.no_cache:
+        cached=load_cached(key)
+        if cached:
+            cached["retrieval_receipt"]["cache_hit"]=True;print(yaml.safe_dump(cached,sort_keys=False));raise SystemExit(0 if cached["retrieval_receipt"]["status"]=="SELECTED" else 4)
+    patterns=base.load_all_patterns();ranked=sorted((score_with_registry(pattern,brief,ledger,routes,matched,strong) for pattern in patterns.values()),key=lambda item:(-item["total_score"],item["pattern_id"]));receipt=build_receipt(brief,ranked,ledger,matched,routes);receipt["retrieval_receipt"]["cache_hit"]=False
+    if a.gap_report_only:print(yaml.safe_dump(receipt["retrieval_receipt"]["pattern_gap_report"],sort_keys=False));return
+    cache,logged=persist(receipt);receipt["retrieval_receipt"]["cached_to"]=str(cache);receipt["retrieval_receipt"]["logged_to"]=str(logged);print(yaml.safe_dump(receipt,sort_keys=False));raise SystemExit(0 if receipt["retrieval_receipt"]["status"]=="SELECTED" else 4)
+
+if __name__=="__main__":main()

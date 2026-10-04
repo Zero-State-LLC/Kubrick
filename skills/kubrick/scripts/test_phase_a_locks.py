@@ -14,6 +14,7 @@ import yaml
 
 ROOT = Path(__file__).resolve().parent.parent
 sys.path.insert(0, str(ROOT / "scripts"))
+sys.path.insert(0, str(ROOT / "src"))
 
 from adapt_keyframe import adapt_keyframe_packet  # noqa: E402
 from adapt_provider import adapt  # noqa: E402
@@ -28,6 +29,8 @@ from start_frame_gate import (  # noqa: E402
     start_warnings,
 )
 from storyboard_prompts import adapter_packet_from_document  # noqa: E402
+
+from kubrick.paths import implementation_of  # noqa: E402
 
 PY = sys.executable
 EXAMPLE = ROOT / "examples/myslef-minder"
@@ -273,7 +276,9 @@ def test_grab_string_and_asset_stamp() -> None:
     blank: dict[str, object] = {"startImage": dict(image)}
     stamp_asset(blank, {"start_frame": {"asset": "  "}})
     assert blank["startImage"] == image
-    source_text = (ROOT / "scripts/start_frame_gate.py").read_text(encoding="utf-8")
+    source_text = implementation_of(ROOT / "scripts/start_frame_gate.py").read_text(
+        encoding="utf-8"
+    )
     assert "subprocess" not in source_text and "os.system" not in source_text
     assert not Path("06-start.png").exists()
 

@@ -1,32 +1,25 @@
 #!/usr/bin/env python3
-"""Audit Kubrick release-version declarations against the VERSION manifest."""
+"""Entry point. Implementation: kubrick.runtime.audit_release_version."""
 from __future__ import annotations
 
-import argparse
-import json
+import sys
 from pathlib import Path
 
-from version_surfaces import build_report
-
-ROOT = Path(__file__).resolve().parent.parent
-
-
-def main() -> None:
-    parser = argparse.ArgumentParser()
-    parser.add_argument("--output")
-    parser.add_argument("--strict", action="store_true")
-    args = parser.parse_args()
-
-    report = build_report(ROOT)
-    rendered = json.dumps(report, indent=2)
-    if args.output:
-        output = Path(args.output)
-        output.parent.mkdir(parents=True, exist_ok=True)
-        output.write_text(rendered, encoding="utf-8")
-    print(rendered)
-    mismatches = report["mismatches"]
-    raise SystemExit(1 if args.strict and mismatches else 0)
-
+_SRC = Path(__file__).resolve().parents[1] / "src"
+if str(_SRC) not in sys.path:
+    sys.path.insert(0, str(_SRC))
 
 if __name__ == "__main__":
-    main()
+    import runpy  # noqa: E402
+
+    runpy.run_module("kubrick.runtime.audit_release_version", run_name="__main__")
+else:
+    import kubrick.runtime.audit_release_version as _impl  # noqa: E402
+
+    _loaded = sys.modules.get(__name__)
+    if _loaded is not None and _loaded is not _impl:
+        for _key, _value in vars(_impl).items():
+            if _key.startswith("__") and _key.endswith("__"):
+                continue
+            setattr(_loaded, _key, _value)
+    sys.modules[__name__] = _impl
