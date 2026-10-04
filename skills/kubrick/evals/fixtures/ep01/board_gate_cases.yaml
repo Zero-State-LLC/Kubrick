@@ -1,0 +1,131 @@
+# Board-gate fixtures. Measurements only. No vision call and no spend.
+cases:
+  - id: aspect-fail
+    subject: non_human
+    ask: {aspect: "9:16"}
+    frames:
+      - board_measurements: {aspect: "16:9"}
+  - id: head-ratio-fail
+    subject: non_human
+    ask: {head_ratio: [0.40, 0.45]}
+    frames:
+      - board_measurements: {head_ratio: 0.50, head_source: dome, pose_landmarks: false}
+  - id: headroom-fail
+    subject: non_human
+    ask: {headroom_frac: [0.08, 0.16]}
+    frames:
+      - board_measurements: {headroom_frac: 0.30}
+  - id: crop-fail
+    subject: non_human
+    ask: {crop: knees_up}
+    frames:
+      - board_measurements: {ankles_visible: true}
+  - id: centroid-fail
+    subject: non_human
+    ask: {}
+    frames:
+      - board_measurements: {subject_centroid: [0.05, 0.50]}
+  - id: edge-fail
+    subject: non_human
+    ask: {}
+    frames:
+      - board_measurements: {edge_cut: true}
+  - id: safe-zone-fail
+    subject: non_human
+    ask: {}
+    frames:
+      - board_measurements: {face_point: [0.02, 0.50]}
+  - id: horizon-fail
+    subject: non_human
+    ask: {horizon_tilt_max: 2}
+    frames:
+      - board_measurements: {horizon_tilt: 6}
+  - id: lead-room-fail
+    subject: non_human
+    ask: {}
+    frames:
+      - board_measurements: {lead_room_ok: false}
+  - id: lens-fail
+    subject: non_human
+    ask: {lens_side: figure_right}
+    frames:
+      - board_measurements: {lens_side: flipped}
+  - id: axis-fail
+    subject: non_human
+    ask: {}
+    frames:
+      - board_measurements: {axis_crossed: true, axis_bridge: false}
+  - id: eyeline-fail
+    subject: non_human
+    ask: {eyeline_y: [0.40, 0.55]}
+    frames:
+      - board_measurements: {eyeline_y: 0.80}
+  - id: light-fail
+    subject: non_human
+    ask:
+      lights: [{region: back, emitting: false}]
+    frames:
+      - board_measurements:
+          lights: [{region: back, emitting: true}]
+  - id: brightness-fail
+    subject: non_human
+    ask: {brightness_max: 0.4}
+    frames:
+      - board_measurements: {brightness: 0.9}
+  - id: ref-copy-fail
+    subject: non_human
+    ask: {}
+    frames:
+      - board_measurements: {ref_copy: true, ref_role: previous_board}
+  - id: text-fail
+    subject: non_human
+    ask: {text_render: false}
+    frames:
+      - board_measurements: {text_present: true}
+  - id: count-fail
+    subject: non_human
+    ask: {char_count: 1}
+    frames:
+      - board_measurements: {char_count: 2}
+  - id: asymmetry-fail
+    subject: non_human
+    ask: {}
+    frames:
+      - board_measurements: {asymmetry_locked: true, pose: three_quarter_l}
+  - id: clean-board
+    subject: non_human
+    ask:
+      aspect: "9:16"
+      head_ratio: [0.40, 0.45]
+      headroom_frac: [0.08, 0.16]
+      crop: knees_up
+      eyeline_y: [0.40, 0.55]
+      horizon_tilt_max: 2
+      brightness_max: 0.4
+      lens_side: figure_right
+      text_render: false
+      char_count: 1
+      lights: [{region: back, emitting: false}]
+    frames:
+      - board_measurements:
+          aspect: "9:16"
+          head_ratio: 0.42
+          head_source: dome
+          pose_landmarks: false
+          headroom_frac: 0.12
+          ankles_visible: false
+          subject_centroid: [0.50, 0.45]
+          edge_cut: false
+          face_point: [0.50, 0.40]
+          horizon_tilt: 0
+          lead_room_ok: true
+          lens_side: front
+          axis_crossed: false
+          eyeline_y: 0.48
+          lights: [{region: back, emitting: false}]
+          brightness: 0.2
+          ref_copy: false
+          text_present: false
+          char_count: 1
+          asymmetry_locked: false
+          pose: front
