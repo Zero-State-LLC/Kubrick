@@ -39,10 +39,10 @@ def _aligned(root: Path, version: str = "0.18.0") -> None:
     _write(
         root,
         "README.md",
-        f"<em>{version} — Prompt fidelity and Keyframe</em>\n"
+        f"<em>{version}: Prompt fidelity and Keyframe</em>\n"
         "docs/ROADMAP.md\nCHANGELOG.md\n",
     )
-    _write(root, "CHANGELOG.md", f"## [{version}] — 2026-10-02\n")
+    _write(root, "CHANGELOG.md", f"## [{version}] - 2026-10-02\n")
     _write(root, "docs/ROADMAP.md", "# Roadmap\n")
     _write(root, "docs/RELEASE-CHECKLIST.md", f"- [x] aligned to v{version}\n")
     _write(root, ENGINE_SOURCE, 'SCHEMA_VERSION = "0.16.0"\n')

@@ -7,7 +7,7 @@
 <p align="center">
   <strong>Observed form first. Dramatic function first.</strong><br>
   A Hermes skill that turns a brief into continuity-safe storyboards and prompts.<br>
-  <em>0.24.0 — Take QC, board gate, and fail-closed locks</em>
+  <em>0.24.0: Take QC, board gate, and fail-closed locks</em>
 </p>
 
 <p align="center">
