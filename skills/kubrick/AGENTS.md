@@ -5,8 +5,8 @@ Hermes skill. This file is the canonical contract for Cursor, Claude,
 Codex, Grok, and OpenClaw. Harness adapters (`CLAUDE.md`) only point here.
 
 `SKILL.md` is the Hermes runtime contract. Do not rewrite it unless an
-accepted intent is explicitly the skill-contract change. Do not copy
-Noema deploy-worker or pin workflows into this repo.
+accepted intent is explicitly the skill-contract change. Do not add a
+deploy or pin workflow. `scripts/check_workflows.py` rejects one.
 
 ## Intent
 
@@ -37,7 +37,7 @@ mirror. Do not invent commands.
 - Do not write into `references/` during ordinary work.
 - Do not put secrets, tokens, or live credentials in the tree.
 - Do not invent cinematic or CLI behavior `SKILL.md` does not name.
-- Do not dispatch leftover Noema-shaped deploy or pin workflows.
+- Do not add a deploy or pin workflow. The workflow check fails the build.
 
 ## Escalation
 

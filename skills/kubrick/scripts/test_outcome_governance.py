@@ -31,4 +31,8 @@ def main():
         run(ROOT/"scripts/validate_artifact.py","--artifact",proposal,"--schema",ROOT/"schemas/pattern-evolution-proposal.schema.yaml")
         run(ROOT/"scripts/validate_artifact.py","--artifact",iteration,"--schema",ROOT/"schemas/correction-iteration-receipt.schema.yaml")
     print("outcome governance smoke test: PASS")
+
+def test_outcome_governance():
+    main()
+
 if __name__=="__main__": main()

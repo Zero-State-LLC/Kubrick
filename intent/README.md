@@ -19,4 +19,4 @@ Trivial docs, chore, and single-line fixes do not need an intent file.
 
 An intent is not a spec, not a plan, and not implementation authority. It
 does not authorize a `SKILL.md` rewrite, official Hermes hub publish,
-Continuity Forge promotion, extra bots, or leftover Noema deploy/pin jobs.
+Continuity Forge promotion, extra bots, or deploy/pin workflows.

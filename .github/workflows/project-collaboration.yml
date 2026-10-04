@@ -17,6 +17,7 @@ env:
   PROJECT_NUMBER: '16'
   STATUS_FIELD: Status
   STATUS_VALUE: Todo
+  PROJECT_TOKEN_PRESENT: ${{ secrets.PROJECT_TOKEN != '' }}
 
 jobs:
   add-to-project-and-notify:
@@ -36,12 +37,15 @@ jobs:
             if (!contentId || !issueNumber) return;
             const projectNumber = Number(process.env.PROJECT_NUMBER);
 
-            // Adding an item to a triage board is not a reason to fail the
-            // author's checks. Every board failure below degrades to a warning
-            // annotation, so it stays visible without turning the PR red.
+            // The board step runs only when PROJECT_TOKEN is set. A missing
+            // token does not pretend the board work happened. A configured
+            // board that cannot be read fails this job.
+            const boardEnabled = process.env.PROJECT_TOKEN_PRESENT === 'true';
             let project = null;
-            if (!projectNumber) {
-              core.warning('No project number configured; skipping the board step.');
+            if (!boardEnabled) {
+              core.notice('PROJECT_TOKEN is unset. The project board step does not run.');
+            } else if (!projectNumber) {
+              core.setFailed('PROJECT_NUMBER is missing.');
             } else {
               try {
                 const result = await github.graphql(`
@@ -63,9 +67,9 @@ jobs:
                 // github.graphql throws on a partial response, so a NOT_FOUND
                 // arrives here rather than as a null project.
                 project = null;
-                core.warning(`Could not read project #${projectNumber}: ${error.message || error}`);
+                core.setFailed(`Could not read project #${projectNumber}: ${error.message || error}`);
               }
-              if (!project) {
+              if (boardEnabled && !project) {
                 // Two very different causes look identical from the outside: the
                 // number is stale, or the token cannot see ProjectsV2 at all.
                 // Probe once so the annotation says which, instead of leaving a
@@ -92,7 +96,7 @@ jobs:
                       'The default GITHUB_TOKEN never can; set a PROJECT_TOKEN secret with `project` scope.'
                     : `Could not enumerate projects either: ${msg}`;
                 }
-                core.warning(
+                core.setFailed(
                   `Project #${projectNumber} in ${process.env.ORG_NAME} was not found or is not visible. ${diagnosis}`
                 );
               }
@@ -138,7 +142,9 @@ jobs:
             // was ever CC'd on any issue or PR.
             const body = project
               ? `CC @Zero-State-LLC/partner-agents. This item was added to project #${projectNumber} (${project.title}) for shared triage.`
-              : 'CC @Zero-State-LLC/partner-agents. Flagged for shared triage.';
+              : boardEnabled
+                ? 'CC @Zero-State-LLC/partner-agents. Flagged for shared triage. The project board step did not add this item.'
+                : 'CC @Zero-State-LLC/partner-agents. Flagged for shared triage. The project board step is off until PROJECT_TOKEN is set.';
             try {
               await github.rest.issues.createComment({
                 owner: context.repo.owner,

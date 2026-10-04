@@ -1,15 +1,19 @@
 #!/usr/bin/env python3
-"""Fail CI when skills/kubrick drifts from the root skill payload.
+"""Fail CI when skills/kubrick drifts from the generated hub package.
 
-The hub layout under skills/kubrick is a packaging mirror. Root remains the
-source of truth; this gate forces an explicit sync via scripts/sync_hub_skill.sh.
+Root is the source of truth. ``scripts/sync_hub_skill.sh`` generates
+``skills/kubrick``. This gate runs that generator into a temporary tree and
+fails when the committed mirror is not that output.
 """
 from __future__ import annotations
 
 import argparse
 import filecmp
 import json
+import os
+import subprocess
 import sys
+import tempfile
 from pathlib import Path
 
 ROOT = Path(__file__).resolve().parent.parent
@@ -116,11 +120,53 @@ def collect_mismatches() -> list[str]:
     return errors
 
 
+def _tree_diff(left: Path, right: Path) -> list[str]:
+    """Byte differences between two generated hub trees."""
+    errors: list[str] = []
+    left_files = iter_files(left)
+    right_files = iter_files(right)
+    for item in sorted(left_files - right_files):
+        errors.append(f"generator missing from mirror: {item}")
+    for item in sorted(right_files - left_files):
+        errors.append(f"mirror file not produced by generator: {item}")
+    for item in sorted(left_files & right_files):
+        if not filecmp.cmp(left / item, right / item, shallow=False):
+            errors.append(f"mirror is not the generator output: {item}")
+    return errors
+
+
+def generator_mismatches() -> list[str]:
+    """Regenerate the hub package and compare it to the committed mirror."""
+    script = ROOT / "scripts" / "sync_hub_skill.sh"
+    if not HUB.is_dir():
+        if not (ROOT / ".git").exists():
+            return []
+        return ["skills/kubrick missing — run scripts/sync_hub_skill.sh"]
+    if not script.is_file():
+        return ["scripts/sync_hub_skill.sh is missing"]
+    with tempfile.TemporaryDirectory() as tmp:
+        dest = Path(tmp) / "hub"
+        env = os.environ.copy()
+        env["KUBRICK_HUB_DEST"] = str(dest)
+        proc = subprocess.run(
+            ["bash", str(script)],
+            cwd=ROOT,
+            env=env,
+            capture_output=True,
+            text=True,
+            check=False,
+        )
+        if proc.returncode != 0:
+            detail = (proc.stderr or proc.stdout).strip()[:240]
+            return [f"hub generator failed: {detail}"]
+        return _tree_diff(dest, HUB)
+
+
 def main() -> int:
     parser = argparse.ArgumentParser()
     parser.add_argument("--json", action="store_true")
     args = parser.parse_args()
-    errors = collect_mismatches()
+    errors = [*collect_mismatches(), *generator_mismatches()]
     payload = {
         "status": "PASS" if not errors else "FAIL",
         "error_count": len(errors),

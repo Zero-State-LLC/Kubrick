@@ -1,8 +1,8 @@
 blank_issues_enabled: false
 contact_links:
   - name: GitHub Discussions
-    url: https://github.com/Zero-State-LLC/Noema/discussions
+    url: https://github.com/Zero-State-LLC/Kubrick/issues
     about: Ask and answer questions.
   - name: Report a security vulnerability
-    url: https://github.com/Zero-State-LLC/Noema/security/advisories
+    url: https://github.com/Zero-State-LLC/Kubrick/security/advisories
     about: Report a security vulnerability.

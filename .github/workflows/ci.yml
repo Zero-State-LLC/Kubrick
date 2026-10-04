@@ -10,11 +10,11 @@ jobs:
   build:
     runs-on: ubuntu-latest
     steps:
-    - uses: actions/checkout@v3
+    - uses: actions/checkout@v4
     - name: Set up Python
-      uses: actions/setup-python@v4
+      uses: actions/setup-python@v5
       with:
-        python-version: '3.x'
+        python-version: '3.12'
     - name: Install dependencies
       run: |
         python -m pip install --upgrade pip
@@ -29,11 +29,9 @@ jobs:
         echo "import coverage; coverage.process_startup()" > "$site/kubrick-coverage.pth"
         mkdir -p out/coverage
         python -m coverage run -m pytest -q scripts tests tests_audit
-        for test in scripts/test_*.py; do
-          python -m coverage run "$test"
-        done
         python -m coverage run scripts/run_hermes_evals.py > /dev/null
         python scripts/check_hub_sync.py
+        python scripts/check_workflows.py
         python -m coverage combine -q
         python -m coverage report --fail-under=75 | tail -n 1
     - name: Working tree is clean after tests and evals
