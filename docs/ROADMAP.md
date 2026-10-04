@@ -49,7 +49,8 @@ Board image checks in the pre-spend gate, on by default in `video runbook`:
 DINOv2 identity similarity to the approved `ref_pack` views (default 0.70,
 to be tuned on EP-01 kept and rejected takes), yes-or-no lock checks through
 a local judge, and the hard-cut board rules. A check that cannot run blocks.
-See [`JEV-PRE-SPEND-GATE.md`](JEV-PRE-SPEND-GATE.md#board-image-checks).
+See [`JEV-PRE-SPEND-GATE.md`](JEV-PRE-SPEND-GATE.md#board-image-checks) and
+[#126](https://github.com/Zero-State-LLC/Kubrick/pull/126).
 
 Next: calibrate the threshold on EP-01 frames, let `lock_carriers` count a
 start frame as a carrier only when this gate passed, and reuse the same crop
