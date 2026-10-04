@@ -117,7 +117,6 @@ diagram above. The Keyframe adapter is [`scripts/adapt_keyframe.py`](scripts/ada
 
 Carrier order, when a shot has those pieces: start image, then references,
 then end image, then prompt. See [`docs/CONTINUITY.md`](docs/CONTINUITY.md).
-The Keyframe adapter is [`scripts/adapt_keyframe.py`](scripts/adapt_keyframe.py).
 
 ## Roadmap
 
