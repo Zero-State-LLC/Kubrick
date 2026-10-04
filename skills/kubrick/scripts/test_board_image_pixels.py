@@ -165,6 +165,32 @@ def test_dinov2_reports_unverified_without_its_packages(monkeypatch: pytest.Monk
         embedder.embed(pixels.RGBImage(1, 1, b"\x00\x00\x00"))
 
 
+def test_dinov2_inference_failure_is_unverified() -> None:
+    class Broken:
+        def __call__(self, **kwargs: object) -> object:
+            raise RuntimeError("out of memory")
+
+    class NoGrad:
+        def __enter__(self) -> None:
+            return None
+
+        def __exit__(self, *args: object) -> None:
+            return None
+
+    class Torch:
+        def no_grad(self) -> NoGrad:
+            return NoGrad()
+
+    class Pil:
+        def frombytes(self, mode: str, size: tuple[int, int], data: bytes) -> object:
+            return object()
+
+    embedder = vision.Dinov2Embedder("local/dinov2")
+    embedder._loaded = (Torch(), Pil(), lambda **kwargs: {}, Broken())
+    with pytest.raises(vision.BackendUnavailable, match="inference failed"):
+        embedder.embed(pixels.RGBImage(1, 1, b"\x00\x00\x00"))
+
+
 def test_local_judge_is_loopback_only() -> None:
     image = pixels.RGBImage(1, 1, b"\x00\x00\x00")
     with pytest.raises(vision.BackendUnavailable, match="KUBRICK_BOARD_VLM_URL"):

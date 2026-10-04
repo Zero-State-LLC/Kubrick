@@ -326,9 +326,13 @@ def test_characters_off_screen_and_multi_character_boards() -> None:
     plan = _fixture_plan()
     frames = _rows(plan["frames"])
     frames[0]["characters"] = []
+    unnamed = _check(plan, shots={"01"}, embedder=HistogramEmbedder(), judge=FakeJudge())
+    assert "identity" in [row["check"] for row in _rows(unnamed["checks"])]
+    frames[0]["cast"] = []
     empty = _check(plan, shots={"01"}, embedder=HistogramEmbedder(), judge=FakeJudge())
     assert empty["code"] == "BOARD_IMAGES_CLEAR"
     assert [row["check"] for row in _rows(empty["checks"])] == ["image"]
+    del frames[0]["cast"]
     characters = _map(plan["characters"])
     characters["twin"] = characters["myslef"]
     frames[0]["characters"] = ["myslef", "twin"]

@@ -97,7 +97,9 @@ with human hands on a silicon-hand lock).
 
 ### Identity
 
-For each character on the frame (`cast`, else `characters`):
+For each character on the frame (`cast`, else a non-empty `characters`, else
+every plan character; `cast: []` means nobody is in frame, `characters: []`
+alone does not):
 
 1. Crop the character. `board_subject_boxes.<character>` (or
    `board_subject_box` on a one-character frame) is a normalized

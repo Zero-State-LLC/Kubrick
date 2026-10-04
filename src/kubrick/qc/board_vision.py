@@ -102,14 +102,17 @@ class Dinov2Embedder:
 
     def embed(self, image: RGBImage) -> list[float]:
         torch, pil, processor, model = self._load()
-        picture = pil.frombytes("RGB", (image.width, image.height), image.pixels)
-        inputs = processor(images=picture, return_tensors="pt")
-        with torch.no_grad():
-            output = model(**inputs)
-        pooled = getattr(output, "pooler_output", None)
-        if pooled is None:
-            pooled = output.last_hidden_state[:, 0]
-        return [float(value) for value in pooled[0].tolist()]
+        try:
+            picture = pil.frombytes("RGB", (image.width, image.height), image.pixels)
+            inputs = processor(images=picture, return_tensors="pt")
+            with torch.no_grad():
+                output = model(**inputs)
+            pooled = getattr(output, "pooler_output", None)
+            if pooled is None:
+                pooled = output.last_hidden_state[:, 0]
+            return [float(value) for value in pooled[0].tolist()]
+        except Exception as exc:  # preprocessing, inference, or memory failures
+            raise BackendUnavailable(f"{self.model_id} inference failed: {exc}") from exc
 
 
 def _loopback(url: str) -> bool:

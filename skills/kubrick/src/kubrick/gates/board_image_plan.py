@@ -106,10 +106,20 @@ def characters_of(document: Mapping[str, object]) -> dict[str, Mapping[str, obje
 
 
 def on_screen(frame: Mapping[str, object], names: Sequence[str]) -> list[str]:
-    for key in ("cast", "characters"):
-        raw = frame.get(key)
-        if isinstance(raw, Sequence) and not isinstance(raw, (str, bytes)):
-            present = {str(item).strip() for item in raw if str(item).strip()}
+    """Characters to check, with the skill contract's screen semantics.
+
+    ``cast`` limits the list, and ``cast: []`` means nobody is in frame.
+    ``characters: []`` alone does not, so it checks every character, the same
+    as a frame that names nobody.
+    """
+    cast = frame.get("cast")
+    if isinstance(cast, Sequence) and not isinstance(cast, (str, bytes)):
+        present = {str(item).strip() for item in cast if str(item).strip()}
+        return [name for name in names if name in present]
+    raw = frame.get("characters")
+    if isinstance(raw, Sequence) and not isinstance(raw, (str, bytes)):
+        present = {str(item).strip() for item in raw if str(item).strip()}
+        if present:
             return [name for name in names if name in present]
     return list(names)
 
