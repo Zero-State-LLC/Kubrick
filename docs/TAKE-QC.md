@@ -22,3 +22,11 @@ a flipped lens side, and a copied board. `open_copy` also warns
 
 Optional detector packages are listed, commented out, in
 `requirements-qc.txt`. CI does not install that file.
+
+`src/kubrick/qc/take_qc.py` is the full check on that core. A VLM verdict is
+a fixture (`status: pass|fail`). `live: true` or a provider name is
+`NOT_COMPUTABLE` and no model is called. Identity is a fixture similarity
+against a threshold (default 0.85). Timestamps must cover the sample clock
+and stay inside the duration. ffmpeg is off unless the document sets
+`ffmpeg: true` and the caller passes a runner. The module does not import
+`subprocess`. `video_cut_qa` still only prints commands.
