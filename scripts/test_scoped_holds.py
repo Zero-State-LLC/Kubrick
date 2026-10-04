@@ -11,8 +11,10 @@ sys.path.insert(0, str(ROOT / "scripts"))
 
 from continuity_locks import prop_assignments  # noqa: E402
 from hold_scope import holds_for_prompt  # noqa: E402
+from io_safety import load_structured  # noqa: E402
 from jev_client import RecordedJev, judge_prompt, parse_verdict, verdict_key  # noqa: E402
 from jev_gate import check_before_spend, gate_prompts  # noqa: E402
+from jev_holds import compiled_prompts  # noqa: E402
 from reference_lint import prompt_lines  # noqa: E402
 
 CHAIR = {
@@ -164,6 +166,31 @@ def test_blank_location_blocks_a_location_scoped_hold() -> None:
     assert cleared["blocks_spend"] is False
 
 
+def test_fixtures_without_scoped_locks_still_pass_the_gate() -> None:
+    """MYSLEF fixtures and example plans do not trip the fail-closed codes."""
+
+    class _Pass:
+        def judge(self, prompt: object, holds: object) -> dict[str, object]:
+            return {"verdict": "pass", "findings": []}
+
+    paths = sorted((ROOT / "evals" / "fixtures" / "myslef").glob("*.yaml"))
+    paths += sorted((ROOT / "examples").glob("*/storyboard-plan.yaml"))
+    assert paths
+    checked = 0
+    for path in paths:
+        document = load_structured(path)
+        if not isinstance(document, dict):
+            continue
+        for provider in ("keyframe", "grok-imagine"):
+            compiled = compiled_prompts(document, provider)
+            gate = gate_prompts(document, compiled, client=_Pass())
+            assert gate.get("code") not in {"LOCATION_UNSPECIFIED", "LOCK_MISSING_IN_BOARD"}, (
+                path.name, provider, gate.get("code"),
+            )
+            checked += 1
+    assert checked >= 10
+
+
 def test_scope_filters_the_holds_sent_to_jev() -> None:
     holds = [
         {"id": "chair", "kind": "prop", "text": "CHAIR LOCK", "scope": {"locations": ["basement"]}},
@@ -249,6 +276,7 @@ def main() -> None:
     test_chair_lock_stops_at_a_location_change()
     test_rear_wording_and_pov_omissions()
     test_blank_location_blocks_a_location_scoped_hold()
+    test_fixtures_without_scoped_locks_still_pass_the_gate()
     test_scope_filters_the_holds_sent_to_jev()
     test_one_weak_hold_fails_and_the_others_pass()
     test_marginal_probability_is_resampled_and_not_a_pass()
