@@ -6,7 +6,7 @@
   "additionalProperties": false,
   "required": ["schema_version", "entries"],
   "properties": {
-    "schema_version": {"const": "1.0.0"},
+    "schema_version": {"const": "1.1.0"},
     "entries": {
       "type": "array",
       "minItems": 65,
@@ -24,7 +24,11 @@
               "move",
               "lighting",
               "edit",
-              "composition_9_16"
+              "composition_9_16",
+              "composition",
+              "blocking",
+              "camera_height",
+              "continuity"
             ]
           },
           "definition": {"type": "string", "minLength": 1},
@@ -40,8 +44,45 @@
             "items": {"type": "string", "minLength": 1}
           },
           "lens_mm_min": {"type": "number", "exclusiveMinimum": 0},
-          "lens_mm_max": {"type": "number", "exclusiveMinimum": 0}
+          "lens_mm_max": {"type": "number", "exclusiveMinimum": 0},
+          "targets": {"$ref": "#/$defs/targets"}
         }
+      }
+    }
+  },
+  "$defs": {
+    "range": {
+      "type": "array",
+      "minItems": 2,
+      "maxItems": 2,
+      "items": {"type": "number"}
+    },
+    "targets": {
+      "type": "object",
+      "additionalProperties": false,
+      "properties": {
+        "head_ratio": {"$ref": "#/$defs/range"},
+        "headroom_frac": {"$ref": "#/$defs/range"},
+        "eye_y": {"$ref": "#/$defs/range"},
+        "cx": {"$ref": "#/$defs/range"},
+        "crop_margin": {"$ref": "#/$defs/range"},
+        "lead_room_frac": {"$ref": "#/$defs/range"},
+        "horizon_tilt_deg": {"$ref": "#/$defs/range"},
+        "key_fill_stops": {"$ref": "#/$defs/range"},
+        "delta_head_ratio": {"$ref": "#/$defs/range"},
+        "eyeline_dy": {"$ref": "#/$defs/range"},
+        "lens_mm": {"$ref": "#/$defs/range"},
+        "min_motion_frac": {"$ref": "#/$defs/range"},
+        "crop_landmark": {
+          "enum": [
+            "above_head", "chin", "shoulders_top", "mid_chest", "waist_above",
+            "mid_thigh", "below_knee", "full_body", "wide"
+          ]
+        },
+        "facing": {
+          "enum": ["front", "3q_left", "3q_right", "profile_left", "profile_right", "back"]
+        },
+        "emitter_px_max": {"type": "integer", "minimum": 0}
       }
     }
   }

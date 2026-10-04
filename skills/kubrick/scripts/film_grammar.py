@@ -337,14 +337,12 @@ def _lens_clauses(
         phrases.append(phrase)
     return phrases, []
 
-
 def _chains(frame: Mapping[str, object]) -> bool:
     raw = frame_field(frame, "join")
     if not isinstance(raw, Mapping):
         return False
     source = raw.get("chain_from")
     return isinstance(source, str) and bool(source.strip())
-
 
 def _conflict_ids(entries: Sequence[Mapping[str, object]]) -> list[str]:
     names: list[str] = []
@@ -360,11 +358,22 @@ def _conflict_ids(entries: Sequence[Mapping[str, object]]) -> list[str]:
     return names
 
 
+_MOVE_MODIFIERS = frozenset({"handheld", "stabilised-float"})
+
+
 def _chain_warning(
     frame: Mapping[str, object],
     entries: Sequence[Mapping[str, object]],
     shot: str,
 ) -> WarningRow | None:
+    primary = [entry for entry in entries if str(entry.get("id") or "") not in _MOVE_MODIFIERS]
+    if len(primary) > 1:
+        listed = ", ".join(str(entry.get("id") or "move") for entry in primary)
+        return warning(
+            "MOVE_CHAIN_CONFLICT", shot,
+            f"{listed} on {shot} names more than one primary camera move",
+            "keep one camera move",
+        )
     if not _chains(frame):
         return None
     names = _conflict_ids(entries)
@@ -421,36 +430,29 @@ def _has_direction(frame: Mapping[str, object]) -> bool:
 
 
 def _unknown_rows(frame: Mapping[str, object], shot: str) -> list[WarningRow]:
-    found: list[WarningRow] = []
-    for key in frame:
-        if str(key) in KNOWN_FRAME_KEYS:
-            continue
-        found.append(warning(
-            "UNKNOWN_FIELD",
-            shot,
-            f"unknown frame field {str(key)!r} was not copied",
+    found = [
+        warning(
+            "UNKNOWN_FIELD", shot, f"unknown frame field {str(key)!r} was not copied",
             "remove the field or add it to the storyboard frame schema",
-        ))
+        )
+        for key in frame if str(key) not in KNOWN_FRAME_KEYS
+    ]
     camera = frame_field(frame, "camera")
     if camera is None:
         return found
     if not isinstance(camera, Mapping):
         found.append(warning(
-            "UNKNOWN_FIELD",
-            shot,
-            "camera must be an object",
+            "UNKNOWN_FIELD", shot, "camera must be an object",
             "set camera to size, angle, lens_mm, move, and focus",
         ))
         return found
-    for key in camera:
-        if str(key) in CAMERA_KEYS:
-            continue
-        found.append(warning(
-            "UNKNOWN_FIELD",
-            shot,
-            f"unknown camera field {str(key)!r} was not copied",
+    found.extend(
+        warning(
+            "UNKNOWN_FIELD", shot, f"unknown camera field {str(key)!r} was not copied",
             "use size, angle, lens_mm, move, or focus",
-        ))
+        )
+        for key in camera if str(key) not in CAMERA_KEYS
+    )
     return found
 
 

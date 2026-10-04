@@ -114,7 +114,30 @@ def test_registry_schema_unique_ids_and_coverage() -> None:
         "lighting",
         "edit",
         "composition_9_16",
+        "composition",
+        "blocking",
+        "camera_height",
+        "continuity",
     }
+    assert raw.get("schema_version") == "1.1.0"
+    by_id = {str(entry.get("id")): entry for entry in entries}
+    fresh = (
+        "rule-of-thirds-eyes", "joint-safe-crop", "both-shoulders-in",
+        "head-proportion-numeric", "negative-space-top", "short-side",
+        "foreground-layer", "frame-within-frame", "one-point-perspective",
+        "two-shot-vertical", "shoulder-level", "hip-level", "ground-level",
+        "front-on-square", "axis-anchor-body-part", "screen-direction-hold",
+        "eyeline-match", "shot-reverse-shot", "buffer-shot", "three-point",
+        "emitters-dark", "end-frame-anchor", "start-hold", "insert-i2v-start",
+    )
+    assert len(fresh) == 24
+    for ident in fresh:
+        assert ident in by_id
+        assert None not in by_id[ident].values()
+    assert by_id["two-shot-vertical"].get("category") == "composition_9_16"
+    assert "untested" in str(by_id["normal-lens"].get("provider_notes"))
+    assert "untested" in str(by_id["ots"].get("provider_notes"))
+    assert by_id["ots"].get("targets")
     for entry in entries:
         assert str(entry.get("definition") or "").strip()
         phrase = str(entry.get("prompt_phrase") or "")
@@ -297,6 +320,11 @@ def test_unknown_term_and_chain_conflict() -> None:
         camera={"move": "handheld, tilt-down"},
     )
     assert "MOVE_CHAIN_CONFLICT" not in _warning_codes([_frame("frame-001"), safe])
+    stacked = _frame("frame-003", camera={"move": "push-in and pull-out"})
+    assert any(
+        item.get("code") == "MOVE_CHAIN_CONFLICT" and "primary" in str(item.get("message"))
+        for item in frame_prep_warnings([stacked])
+    )
     packet = adapter_packet_from_document(_board(chained), provider="keyframe")
     movie = adapt(packet, "keyframe")
     assert _codes(movie, "MOVE_CHAIN_CONFLICT")
