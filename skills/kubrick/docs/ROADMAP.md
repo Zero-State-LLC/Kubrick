@@ -1,6 +1,6 @@
 # Kubrick roadmap
 
-Product version **0.27.0**. Local output stays **PROPOSED**. Weak evidence
+Product version **0.27.1**. Local output stays **PROPOSED**. Weak evidence
 stays `NOT_COMPUTABLE`. No provider is called from this plan.
 
 Project board: [Zero-State-LLC project 13](https://github.com/orgs/Zero-State-LLC/projects/13).
@@ -61,6 +61,10 @@ severity (`block` or `warn`); a left-or-right side question defaults to
 `warn`. On EP-01 through the Spark judge, clean boards blocked fell from 36
 to 19 of 60 and defective ones blocked from 7 to 5 of 7. See
 [`BOARD-IMAGE-CALIBRATION.md`](BOARD-IMAGE-CALIBRATION.md#atomic-lock-questions-0260-2026-10-04).
+
+## Shipped in 0.27.1
+
+- Dedicated offline regression for issue #106 (cut must not inherit a previous start_frame lock carrier; chain still can).
 
 ## Shipped in 0.27.0
 

@@ -1,7 +1,7 @@
 ---
 name: kubrick
 description: Builds continuity-safe cinematic stories and visuals.
-version: 0.27.0
+version: 0.27.1
 author: Daniel Meyer (scrimshawlife-ctrl), Hermes Agent
 license: LicenseRef-Zero-State-Proprietary-1.0
 platforms: [linux, macos, windows]

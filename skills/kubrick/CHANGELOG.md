@@ -2,6 +2,14 @@
 
 ## [Unreleased]
 
+## [0.27.1] - 2026-10-05
+
+### Fixed
+- Issue #106 close-out: dedicated offline regression for cut vs chain start_frame lock carriers (`scripts/test_issue_106_cut_start_frame.py`). A `join: cut` shot does not inherit a previous start frame as a lock carrier; a chained shot still can. Covers `source_shot`, `inherited: true`, and `join: {type: cut}`. The carrier fix itself shipped in 0.25.0 (#120); this release pins the acceptance cases so the open issue can close.
+
+### Notes
+- Product version is 0.27.1. Envelope schema id stays `0.16.0`.
+
 ## [0.27.0] - 2026-10-04
 
 ### Added
