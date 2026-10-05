@@ -11,7 +11,7 @@ from pathlib import Path
 ROOT = Path(__file__).resolve().parent.parent
 sys.path.insert(0, str(ROOT / "scripts"))
 
-from lock_carriers import carrier_for
+from lock_carriers import carrier_for  # noqa: E402
 
 HANDS = {"id": "silicon-hands", "kind": "material", "text": "silicon hands", "critical": True}
 
