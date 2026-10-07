@@ -2,6 +2,17 @@
 
 ## [Unreleased]
 
+## [0.27.12] - 2026-10-07
+
+### Added
+- #93: `scripts/hold_vision.py` (`kubrick.qc.hold_vision`) asks a vision judge each hold on each sampled frame and writes a PROPOSED per-hold table (`pass`, `fail`, `borderline`, `unverified`). Its `vlm` block is a `take_qc` verdict (`VLM_HOLD_FAIL` defects, `not_computable` when any hold is unverified).
+- Holds may name a `judge`; `--judge NAME=answers:PATH|vlm:URL[@MODEL]` routes them. An unrouted named judge leaves the hold unverified.
+- `tools/board_calibration/hold_vision_eval.py`: #93 acceptance on EP-01 restart takes, with recorded answers in `evals/fixtures/ep01/hold-vision/` (CI, offline).
+- Intent: `intent/hold-vision/intent.md`.
+
+### Notes
+- Product version is 0.27.12. Envelope schema id stays `0.16.0`.
+
 ## [0.27.11] - 2026-10-07
 
 ### Changed
