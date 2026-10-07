@@ -2,6 +2,15 @@
 
 ## [Unreleased]
 
+## [0.27.9] - 2026-10-07
+
+### Added
+- #91: second-opinion dramatic fit for registry retrieval (`kubrick.corpus.fit_judge`). With fit verdicts (`build_receipt(..., fit_recordings)` or `--fit-verdicts PATH`), a pattern is selected only when the judge says `fit` and its lexical total is at least the structural floor (0.40), or the judge says `weak` and it is fully lexically eligible. `none` is never selected. Refusals carry `JEV_FIT_NONE`, `JEV_FIT_BELOW_FLOOR`, or `JEV_FIT_UNAVAILABLE` (no recorded verdict; fails closed). The receipt gains `fit_judge` and its request hash a `-jevfit` suffix; `--fit-verdicts` skips the cache.
+- Recorded verdicts and plain-language briefs under `evals/fixtures/retrieval/`. Plain MYSLEF and authority-transfer briefs select without rewording; vocabulary-soup and unrelated briefs are refused. Without verdicts, retrieval is unchanged. Intent: `intent/retrieval-fit-judge/intent.md`.
+
+### Notes
+- Product version is 0.27.9. Envelope schema id stays `0.16.0`.
+
 ## [0.27.8] - 2026-10-07
 
 ### Added

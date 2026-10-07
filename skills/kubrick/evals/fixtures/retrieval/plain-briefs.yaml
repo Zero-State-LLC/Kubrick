@@ -1,0 +1,19 @@
+briefs:
+  myslef-plain:
+    dramatic_problem: a bored guy on night shift gets spooked by a creepy robot standing in the dark at the back of the server basement, then the lights die and he is just gone
+    desired_state_change: he is there, then only his knocked-over chair and the cartoon on his laptop are left
+    character_pressure: he is bored and alone; the robot never moves or talks
+    format: storyboard
+  authority-plain:
+    dramatic_problem: the old boss leaves but the office still runs the way he set it up because the keycards and the layout keep everyone in line
+    desired_state_change: one man's orders turn into the building's rules
+    character_pressure: his former assistant gets the keycard and he gets locked out
+    format: storyboard
+  nonsense-vocab:
+    dramatic_problem: consequence authority transfer withheld cause presence absence watcher
+    format: storyboard
+  nonsense-sourdough:
+    dramatic_problem: the cause of my sourdough failing is withheld by the oven and the consequence is flat bread
+    format: storyboard
+  cats-and-dogs:
+    dramatic_problem: cats and dogs
