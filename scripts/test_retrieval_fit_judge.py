@@ -95,7 +95,12 @@ def test_fit_select_rules() -> None:
         floor=STRUCTURAL_FLOOR, threshold=0.55, min_dramatic_fit=0.15, max_supporting=2,
     )
     assert reason is None
-    assert [str(x["pattern_id"]) for x in chosen] == ["c", "a"]
+    assert [str(x["pattern_id"]) for x in chosen] == ["c"]
+    weak_only, why_weak = fit_select(
+        ranked, {"a": "weak", "b": "weak"},
+        floor=0.4, threshold=0.55, min_dramatic_fit=0.15, max_supporting=2,
+    )
+    assert weak_only == [] and why_weak == "JEV_FIT_NONE"
     none, why = fit_select(
         ranked, {}, floor=0.4, threshold=0.55, min_dramatic_fit=0.15, max_supporting=2,
     )
@@ -104,3 +109,54 @@ def test_fit_select_rules() -> None:
         ranked, {"d": "fit"}, floor=0.4, threshold=0.55, min_dramatic_fit=0.15, max_supporting=2,
     )
     assert low == [] and below == "JEV_FIT_BELOW_FLOOR"
+
+
+def test_screen_floor_and_breadth_cap() -> None:
+    from kubrick.corpus.fit_judge import screen_verdicts
+
+    verdicts = {"a": "fit", "b": "fit", "c": "weak", "d": "fit"}
+    screened, reason = screen_verdicts(
+        verdicts, {"a": 0.9, "b": 0.5}, fit_floor=0.6, max_fit_share=0.2, corpus_size=10,
+    )
+    assert screened == {"a": "fit", "b": "weak", "c": "weak", "d": "fit"}
+    assert reason is None
+    many = {str(i): "fit" for i in range(4)}
+    _broad, too = screen_verdicts(many, {}, fit_floor=0.6, max_fit_share=0.2, corpus_size=10)
+    assert too == "JEV_FIT_TOO_BROAD"
+    assert verdicts["b"] == "fit"
+
+
+def test_fit_request_is_generic_and_carries_counter_examples() -> None:
+    from kubrick.corpus.fit_request import COUNTER_EXAMPLES, build_fit_request
+
+    request = build_fit_request(
+        {"dramatic_problem": "x", "unrelated": "y"},
+        {"p1": {"title": "t", "dramatic_operations": ["a", "b", "c", "d", "e"]}},
+    )
+    state = request["state"]
+    assert isinstance(state, dict)
+    assert state["brief"] == {"dramatic_problem": "x"}
+    assert state["counter_examples"] == COUNTER_EXAMPLES
+    questions = request["questions"]
+    assert isinstance(questions, dict) and set(questions) == {"p1"}
+
+
+def test_fit_tie_breaks_on_probability_then_order() -> None:
+    ranked = [
+        {"pattern_id": "a", "total_score": 0.5},
+        {"pattern_id": "b", "total_score": 0.5},
+        {"pattern_id": "c", "total_score": 0.5},
+        {"pattern_id": "d", "total_score": 0.7},
+    ]
+    verdicts = {k: "fit" for k in "abcd"}
+    chosen, reason = fit_select(
+        ranked, verdicts, floor=0.4, threshold=0.55, min_dramatic_fit=0.15, max_supporting=3,
+        probabilities={"a": 0.7, "b": 0.9, "c": 0.7, "d": 0.6},
+    )
+    assert reason is None
+    # Lexical stays primary (d), then b by probability, then a before c by order.
+    assert [str(x["pattern_id"]) for x in chosen] == ["d", "b", "a", "c"]
+    plain, _ = fit_select(
+        ranked, verdicts, floor=0.4, threshold=0.55, min_dramatic_fit=0.15, max_supporting=3
+    )
+    assert [str(x["pattern_id"]) for x in plain] == ["d", "a", "b", "c"]

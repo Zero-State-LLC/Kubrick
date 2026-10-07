@@ -2,6 +2,20 @@
 
 ## [Unreleased]
 
+## [0.27.10] - 2026-10-07
+
+### Changed
+- #91 follow-up: `evals/fixtures/retrieval/jev-fit-verdicts.yaml` holds live Jev recordings (seven text calls, one per fixture brief, verdicts plus fit probabilities) made with the new request below, instead of hand-labelled stand-ins.
+- Equal lexical totals among selected `fit` patterns are broken by Jev fit probability (higher first), then the existing order. Primary ranking stays lexical.
+- Only a `fit` verdict selects. A `weak` verdict never selects on its own; before, `weak` plus lexical eligibility let vocabulary-matched briefs through.
+
+### Added
+- Fit screening (`kubrick.corpus.fit_judge.screen_verdicts`): a `fit` with fit probability under 0.6 counts as `weak`, and a brief judged `fit` for more than 20% of the corpus (10 of 53) is refused with `JEV_FIT_TOO_BROAD`.
+- `kubrick.corpus.fit_request.build_fit_request`: the recording request, with generic counter-examples of briefs that share a pattern's words but not its structure.
+
+### Notes
+- Product version is 0.27.10. Envelope schema id stays `0.16.0`.
+
 ## [0.27.9] - 2026-10-07
 
 ### Added
