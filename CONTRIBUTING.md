@@ -20,7 +20,7 @@ there). Non-trivial work starts with [`intent/`](intent/README.md).
 ## Workflow
 
 1. Branch from `main` (Hermes) or `openclaw` (OpenClaw edition only).
-2. Edit root files — not only the hub mirror.
+2. Edit root files: not only the hub mirror.
 3. Refresh the hub copy before committing skill payload changes:
 
    ```bash

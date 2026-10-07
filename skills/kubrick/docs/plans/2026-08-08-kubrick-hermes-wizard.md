@@ -2,7 +2,7 @@
 
 > **For agentic workers:** REQUIRED SUB-SKILL: Use superpowers:subagent-driven-development (recommended) or superpowers:executing-plans to implement this plan task-by-task. Steps use checkbox (`- [ ]`) syntax for tracking.
 
-**Goal:** Ship `kubrick do wizard` (and soft alias `wizard`) — non-interactive `--answers`/`--preset` plan+run for Hermes Desktop/agents, optional TTY interactive — as Kubrick **0.15.0**, delivered toward **Zero-State-LLC/Kubrick**.
+**Goal:** Ship `kubrick do wizard` (and soft alias `wizard`) (non-interactive `--answers`/`--preset` plan+run for Hermes Desktop/agents, optional TTY interactive) as Kubrick **0.15.0**, delivered toward **Zero-State-LLC/Kubrick**.
 
 **Architecture:** Stdlib module `scripts/kubrick_wizard.py` validates answers, merges presets, builds `do <intent> …` argv plans. `scripts/kubrick.py` special-cases `do wizard` / top-level `wizard` (like `recipe`) so `--run` re-enters `ir.resolve` + normal subprocess dispatch without recursive wizard loops. Manifest lists `wizard` for help/discovery. Hermes protocol in `SKILL.md` + `references/hermes-runtime-contract.md`.
 
@@ -11,7 +11,7 @@
 ## Global Constraints
 
 - Wizard core: **stdlib only** (JSON answers, no PyYAML required for v1).
-- Do not reimplement compile/visual/adapt/ledger logic — only build argv for existing `do` paths.
+- Do not reimplement compile/visual/adapt/ledger logic: only build argv for existing `do` paths.
 - Default is **print-only**; `--run` is explicit.
 - `allow_mutate` must be real `bool`; default `false`; string `"false"` rejected.
 - Mutating actions (ledger `mutate`, learn `evolve`, operate lock-style writes) require `allow_mutate: true`.
@@ -174,7 +174,7 @@ def test_unknown_intent_rejected():
         )
 ```
 
-- [ ] **Step 2: Run tests — expect fail**
+- [ ] **Step 2: Run tests: expect fail**
 
 ```bash
 cd /home/scrimshawlife/Kubrick
@@ -189,7 +189,7 @@ Core logic (stdlib):
 
 ```python
 #!/usr/bin/env python3
-"""Kubrick wizard — guided plan/resolve for Hermes + CLI. Stdlib only."""
+"""Kubrick wizard: guided plan/resolve for Hermes + CLI. Stdlib only."""
 
 from __future__ import annotations
 
@@ -350,7 +350,7 @@ def validate_answers(answers: dict[str, Any], registry: dict) -> dict[str, Any]:
 
     # validate_answers: for print-only soft missing is OK for compile brief?
     # Spec: missing required → 2. Compile brief is required always in validate
-    # except we allow print-only warn — design says compile brief required for --run.
+    # except we allow print-only warn: design says compile brief required for --run.
     # Keep brief in missing only enforced at resolve_plan when run=True for compile.
     if intent == "compile":
         missing = [m for m in missing if m != "brief"]  # defer to resolve_plan
@@ -380,9 +380,9 @@ def resolve_plan(answers: dict[str, Any], *, run: bool = False) -> dict[str, Any
         if run and not answers.get("out"):
             raise WizardError("compile --run requires out")
         if not answers.get("brief"):
-            safety.append("warning: brief missing — required for --run")
+            safety.append("warning: brief missing, required for --run")
         if not answers.get("out"):
-            safety.append("warning: out missing — required for --run")
+            safety.append("warning: out missing, required for --run")
         add_opt("--brief", "brief")
         add_opt("--ledger", "ledger")
         add_opt("--storyboard-plan", "storyboard_plan")
@@ -405,7 +405,7 @@ def resolve_plan(answers: dict[str, Any], *, run: bool = False) -> dict[str, Any
         add_opt("--out", "out")
     elif intent == "retrieve":
         add_opt("--brief", "brief")
-        # retrieve script may use different flag — map query to --brief or documented flag
+        # retrieve script may use different flag: map query to --brief or documented flag
         if answers.get("query") and not answers.get("brief"):
             argv.extend(["--brief", answers["query"]])  # adjust if script uses --query
         add_opt("--out", "out")
@@ -438,7 +438,7 @@ def format_plan_json(plan: dict[str, Any]) -> str:
 def format_plan_human(plan: dict[str, Any], prog: str = "scripts/kubrick.py") -> str:
     line = " ".join(_q(a) for a in plan["argv"])
     return (
-        f"Kubrick wizard plan — {plan['group']}/{plan['intent']}/{plan['action']}\n"
+        f"Kubrick wizard plan: {plan['group']}/{plan['intent']}/{plan['action']}\n"
         f"{plan['rationale']}\n"
         f"Safety: {'; '.join(plan['safety'])}\n\n"
         f"python3 {prog} {line}\n\n"
@@ -455,7 +455,7 @@ def _q(s: str) -> str:
 def interactive_collect(registry: dict) -> dict[str, Any]:
     """TTY prompts → answers. Caller ensures isatty."""
     intents = sorted(registry.keys())
-    print("Kubrick wizard — intents:")
+    print("Kubrick wizard intents:")
     for i, name in enumerate(intents, 1):
         print(f"  {i}. {name}")
     choice = input("Intent number or name: ").strip()
@@ -502,7 +502,7 @@ def interactive_collect(registry: dict) -> dict[str, Any]:
 
 def parse_wizard_argv(argv: list[str]) -> dict[str, Any]:
     """Parse wizard flags from argv list (no program name). Returns namespace-like dict."""
-    # Implement simple argparse in main() of this module — see Task 2.
+    # Implement simple argparse in main() of this module: see Task 2.
     raise NotImplementedError
 
 
@@ -510,7 +510,7 @@ def main(argv: list[str] | None = None) -> int:
     """CLI entry for wizard flags. Used by kubrick.py special-case and direct invoke."""
     # Fully implemented in Task 2 when wiring; Task 1 may leave a minimal stub
     # that only supports library functions for unit tests.
-    raise SystemExit("use via kubrick do wizard — wire in Task 2")
+    raise SystemExit("use via kubrick do wizard; wire in Task 2")
 
 
 if __name__ == "__main__":
@@ -519,7 +519,7 @@ if __name__ == "__main__":
 
 **Note:** Adjust retrieve flag names to match `retrieve_symbolic_patterns_registry.py` (`--brief` is known from compile path). Inspect adapt_provider flags (`--packet`, `--provider`, `--output`) from existing router tests.
 
-- [ ] **Step 4: Run tests — expect pass**
+- [ ] **Step 4: Run tests: expect pass**
 
 ```bash
 pytest scripts/test_wizard.py -q
@@ -587,14 +587,14 @@ def test_wizard_non_tty_without_answers_exits_2():
     assert "answers" in r.stderr.lower() or "non-interactive" in r.stderr.lower()
 ```
 
-- [ ] **Step 2: Run — expect fail** (unknown intent wizard)
+- [ ] **Step 2: Run: expect fail** (unknown intent wizard)
 
 - [ ] **Step 3: Manifest + router expectation**
 
 In `kubrick.manifest.yaml` under `intents`:
 
 ```yaml
-# JSON-style file is actually JSON — use JSON syntax:
+# JSON-style file is actually JSON: use JSON syntax:
 "wizard": {
   "description": "Guided plan/execute for Hermes (answers JSON or interactive TTY)",
   "default_action": "plan",
@@ -764,7 +764,7 @@ git commit -m "feat(wizard): interactive TTY collect path"
 - Modify: `scripts/test_wizard.py`
 - Modify: `scripts/kubrick_wizard.py` if execute path incomplete
 
-- [ ] **Step 1: Integration test — verify preset --run**
+- [ ] **Step 1: Integration test: verify preset --run**
 
 ```python
 def test_wizard_run_verify_smoke():
@@ -807,7 +807,7 @@ git commit -m "feat(wizard): --run re-dispatch via kubrick do path"
 "wizard-verify": ["do", "wizard", "--preset", "verify", "--json"]
 ```
 
-Or smoke script line if project has smoke.sh — prefer recipe + pytest.
+Or smoke script line if project has smoke.sh; prefer recipe + pytest.
 
 - [ ] **Step 3: Run**
 
@@ -835,7 +835,7 @@ git commit -m "feat(wizard): answers JSON schema and verify recipe"
 - Bump: `VERSION` → `0.15.0`, `kubrick.manifest.yaml` version, `SKILL.md` version, `pyproject.toml` version
 - Follow existing release checklist patterns under `docs/archive/releases/RELEASE-CHECKLIST-v0.14.md` as template for notes if needed
 
-- [ ] **Step 1: Docs** — mirror Orchestra SKILL wizard section: chat collect → answers → print-only → run; never freestyle `allow_mutate`.
+- [ ] **Step 1: Docs**: mirror Orchestra SKILL wizard section: chat collect → answers → print-only → run; never freestyle `allow_mutate`.
 
 - [ ] **Step 2: Version bump** to 0.15.0 everywhere parity requires.
 
@@ -864,7 +864,7 @@ git push -u org feature/kubrick-hermes-wizard
 gh pr create --repo Zero-State-LLC/Kubrick --base <default-branch> --head ...
 ```
 
-Confirm default branch on org (may not be `main` — use `gh repo view Zero-State-LLC/Kubrick --json defaultBranchRef`).
+Confirm default branch on org (may not be `main`; use `gh repo view Zero-State-LLC/Kubrick --json defaultBranchRef`).
 
 ---
 
@@ -888,7 +888,7 @@ Confirm default branch on org (may not be `main` — use `gh repo view Zero-Stat
 
 - `EXPECTED_INTENTS` must include `wizard` or router tests fail.
 - Prefer re-invoke `kubrick.py` for `--run` so check smoke composite stays correct.
-- Manifest is JSON (despite `.yaml` name) — edit as JSON.
+- Manifest is JSON (despite `.yaml` name): edit as JSON.
 - Retrieve/adapt flag names must match real scripts (verify with `--help` / existing tests).
 
 ---
@@ -899,7 +899,7 @@ Plan complete and saved to `docs/plans/2026-08-08-kubrick-hermes-wizard.md`.
 
 **Two execution options:**
 
-1. **Subagent-Driven (recommended)** — fresh subagent per task, review between tasks  
-2. **Inline Execution** — this session with checkpoints  
+1. **Subagent-Driven (recommended)**: fresh subagent per task, review between tasks  
+2. **Inline Execution**: this session with checkpoints  
 
 Which approach?

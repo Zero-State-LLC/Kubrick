@@ -1,4 +1,4 @@
-# Agent contract — Kubrick
+# Agent contract: Kubrick
 
 You are working in **Kubrick** (`Zero-State-LLC/Kubrick`), a standalone
 Hermes skill. This file is the canonical contract for Cursor, Claude,
@@ -11,7 +11,7 @@ deploy or pin workflow. `scripts/check_workflows.py` rejects one.
 ## Intent
 
 Read the active `intent.md` under [`intent/`](intent/README.md) before
-editing. Next stage is `spec.md` / plan — do not skip to code.
+editing. Next stage is `spec.md` / plan. Do not skip to code.
 
 If the change is non-trivial and no intent exists, draft one from
 [`intent/_TEMPLATE.md`](intent/_TEMPLATE.md) and wait for a human to
@@ -57,8 +57,8 @@ board judge setup and calibration harness under `tools/` (0.27.0).
 
 ## Escalation
 
-If CI, tests, or validators look wrong — missing coverage, silent skips,
-green-but-inert checks, or a suite that contradicts the skill contract:
+If CI, tests, or validators look wrong (missing coverage, silent skips,
+green-but-inert checks, or a suite that contradicts the skill contract):
 
 1. Open a bounded defect issue labeled `bug`.
 2. Do **not** patch tests, fixtures, or CI to force green.

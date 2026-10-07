@@ -4,11 +4,11 @@ Kubrick constructs the motif graph privately, validates it, then translates only
 
 ## Required sequence
 
-1. **RUNE.GRAPH** — derive nodes from observed forms and explicit state changes.
-2. **RUNE.CONVERGE** — select one or two sites where multiple relations become observable together.
-3. **RUNE.CHORONZON** — detect leakage, arbitrary density, named esoterica, and disconnected complexity.
-4. **RUNE.COAGULA** — translate the valid graph into scene, storyboard, or single-frame constraints.
-5. **RUNE.TIKKUN** — repair invalid graphs without changing approved intent.
+1. **RUNE.GRAPH**: derive nodes from observed forms and explicit state changes.
+2. **RUNE.CONVERGE**: select one or two sites where multiple relations become observable together.
+3. **RUNE.CHORONZON**: detect leakage, arbitrary density, named esoterica, and disconnected complexity.
+4. **RUNE.COAGULA**: translate the valid graph into scene, storyboard, or single-frame constraints.
+5. **RUNE.TIKKUN**: repair invalid graphs without changing approved intent.
 
 ## Operator contracts
 

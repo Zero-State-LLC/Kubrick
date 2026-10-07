@@ -1,4 +1,4 @@
-# Kubrick — Windows-native Hermes Skill Installer (parity with install.sh)
+# Kubrick: Windows-native Hermes Skill Installer (parity with install.sh)
 # Usage:
 #   .\install.ps1
 #   .\install.ps1 -Creative

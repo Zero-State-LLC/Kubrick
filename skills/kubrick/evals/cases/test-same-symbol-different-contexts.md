@@ -1,4 +1,4 @@
-# Validation Test — Same Symbol Interpreted Differently in Different Contexts
+# Validation Test: Same Symbol Interpreted Differently in Different Contexts
 
 **Input**: "Use a doorway or threshold image in two scenes: once for a character escaping a toxic home, once for a character entering a new but dangerous community. Do not use the same meaning."
 

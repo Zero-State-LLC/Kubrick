@@ -28,7 +28,7 @@ _CACHE: dict[str, object] | None = None
 _SKIP = {"source", "verified_on", "input_mode", "max_references", "native_audio"}
 _DEFAULT_AGE = 180
 
-# Declared capabilities — keep conservative; unknown providers inherit generic.
+# Declared capabilities: keep conservative; unknown providers inherit generic.
 PROVIDER_CAPABILITIES: dict[str, dict[str, object]] = {
     "generic": {
         "image": True,

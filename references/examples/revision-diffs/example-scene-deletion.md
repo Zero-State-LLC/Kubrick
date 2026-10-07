@@ -1,4 +1,4 @@
-# Example: Symbolic Revision Diff — Scene Deletion
+# Example: Symbolic Revision Diff (Scene Deletion)
 
 **Project**: Identity dissolution arc with recurring red geometric motif (from Shining influence + alchemical putrefaction).
 
@@ -6,7 +6,7 @@
 - Scene 3: Introduction of red carpet in home.
 - Scene 7: First mutation (blood-like stain appears).
 - Scene 12: Character walks the pattern in trance.
-- Scene 18: Final convergence — motif owns the character.
+- Scene 18: Final convergence: motif owns the character.
 
 **Revision**: User deletes Scenes 7 and 12 for runtime. Reorders 3 after 18.
 

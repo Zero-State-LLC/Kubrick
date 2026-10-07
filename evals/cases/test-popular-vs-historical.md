@@ -1,4 +1,4 @@
-# Validation Test — Popular Symbolic Meaning Separated from Historical
+# Validation Test: Popular Symbolic Meaning Separated from Historical
 
 **Input**: "A character sees a black bird and says 'it means death.' Diagnose and provide alternative grounded structure."
 

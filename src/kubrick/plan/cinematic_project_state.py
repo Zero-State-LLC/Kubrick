@@ -2,7 +2,7 @@
 """Cinematic project state helper for cross-surface continuity (v0.16).
 
 Builds a provider-neutral shared state snapshot from design.md / script /
-brief evidence. Used by production surfaces and golden fixtures — does not
+brief evidence. Used by production surfaces and golden fixtures. Does not
 replace Continuity Forge authority.
 """
 from __future__ import annotations

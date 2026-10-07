@@ -1,4 +1,4 @@
-# Test — Retrieval Scoring and NOT_COMPUTABLE
+# Test: Retrieval Scoring and NOT_COMPUTABLE
 
 **Input**: Dramatic problem with very low dramatic_fit and high cliché_risk for all candidate patterns (e.g., "add a mysterious black bird to a light comedy").
 

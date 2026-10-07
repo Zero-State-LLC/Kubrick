@@ -7,7 +7,7 @@
 | Wave 2 + Wave 3 implementation | Merged to `main` ([PR #24](https://github.com/scrimshawlife-ctrl/Kubrick/pull/24)) |
 | Issues #3 / #4 | Closed |
 | Hermes Skill Evals on PR | Passed at merge |
-| `v0.13.0` git tag / GitHub Release | **Published** — https://github.com/scrimshawlife-ctrl/Kubrick/releases/tag/v0.13.0 |
+| `v0.13.0` git tag / GitHub Release | **Published**: https://github.com/scrimshawlife-ctrl/Kubrick/releases/tag/v0.13.0 |
 
 ## Required gates
 

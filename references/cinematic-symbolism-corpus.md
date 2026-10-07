@@ -76,7 +76,7 @@ This corpus is drawn from analysis of films that use form as latent symbolic str
 
 These are analyzed patterns from specific films/directors. Meaning is never fixed; it emerges from recurrence, mutation, contrast, and relation to the dramatic problem. Each is mapped to affordances and transformation grammars.
 
-### 1. Kubrick — The Monolith (2001: A Space Odyssey)
+### 1. Kubrick: The Monolith (2001: A Space Odyssey)
 - Observed: Black rectangular form appears at evolutionary thresholds.
 - Cinematic techniques: Perfect symmetry, low angle, graphic match from bone to spacecraft, silence or Ligeti music.
 - Affordances: ENCLOSE (contains mystery), CROSS (threshold), DESCEND (humanity descends into knowledge).
@@ -84,7 +84,7 @@ These are analyzed patterns from specific films/directors. Meaning is never fixe
 - Mutation example: From bone tool → orbiting station → monolith on moon → Jupiter monolith.
 - Key: Never explained; its presence alters behavior and composition without dialogue.
 
-### 2. Kubrick — Red and the Overlook Carpet (The Shining)
+### 2. Kubrick: Red and the Overlook Carpet (The Shining)
 - Observed: Red color and geometric carpet patterns recur.
 - Cinematic: Steadicam following Danny on carpet; blood elevator; red bathroom.
 - Affordances: CONTAMINATE (red spreads), REPEAT with mutation, INVERT (playroom becomes horror).
@@ -92,7 +92,7 @@ These are analyzed patterns from specific films/directors. Meaning is never fixe
 - Mutation: Carpet pattern appears in blood, in hallucinations, in final photo.
 - Key: Geometry + color as pressure, not "red = danger" cliché.
 
-### 3. Tarkovsky — Water and Reflection (Stalker / Mirror)
+### 3. Tarkovsky: Water and Reflection (Stalker / Mirror)
 - Observed: Water pools, reflections, rain that carries memory or zone effects.
 - Cinematic: Long takes of water, reflections that distort faces or rooms, sound of water dominating.
 - Affordances: MIRROR (doubling with distortion), REVEAL through reflection, DESCEND (into water/memory).
@@ -100,14 +100,14 @@ These are analyzed patterns from specific films/directors. Meaning is never fixe
 - Mutation: Clear reflection → distorted → the reflection acts independently or disappears.
 - Key: Water as memory medium; acousmatic water sounds.
 
-### 4. Tarkovsky — The Room with the Burning House (Mirror)
+### 4. Tarkovsky: The Room with the Burning House (Mirror)
 - Observed: House on fire intercut with personal memory.
 - Cinematic: Fire as both destructive and purifying; slow camera through smoke; sound of crackling mixed with voiceover.
 - Affordances: CONTAMINATE (fire spreads to memory), INVERT (home becomes site of destruction), RELEASE.
 - Transformation: PUTREFACTION leading to new integration.
 - Key: Fire as alchemical stage enacted through editing and sound.
 
-### 5. Bresson — Hands and Objects (Pickpocket / Au Hasard Balthazar)
+### 5. Bresson: Hands and Objects (Pickpocket / Au Hasard Balthazar)
 - Observed: Extreme close-ups on hands performing theft or labor; objects (wallet, donkey) carry charge.
 - Cinematic: Hands isolated from face; sound of objects (keys, coins) emphasized; minimal camera movement.
 - Affordances: TRANSFER (object moves from owner to thief), BIND (hand to object), CONCEAL/REVEAL.
@@ -115,7 +115,7 @@ These are analyzed patterns from specific films/directors. Meaning is never fixe
 - Mutation: Hands that steal become hands that caress or pray in later films.
 - Key: Meaning through precise action and sound, not psychology.
 
-### 6. Denis — Marching Bodies and Skin (Beau Travail)
+### 6. Denis: Marching Bodies and Skin (Beau Travail)
 - Observed: Legionnaires marching in formation; bodies in space; skin and sweat as surface.
 - Cinematic: Repetitive camera movements following formations; close-ups on skin and muscle; sound of boots and breathing.
 - Affordances: BIND (group as one body), REPEAT with mutation, INVERT (discipline becomes desire or breakdown).
@@ -123,7 +123,7 @@ These are analyzed patterns from specific films/directors. Meaning is never fixe
 - Mutation: Marching rhythm mutates into dance or collapse.
 - Key: Geometry of bodies as social and erotic pressure.
 
-### 7. Lynch — Red Curtain and Room (Twin Peaks: Fire Walk With Me / Mulholland Drive)
+### 7. Lynch: Red Curtain and Room (Twin Peaks: Fire Walk With Me / Mulholland Drive)
 - Observed: Red curtain or room that appears as portal or stage.
 - Cinematic: Red lighting, slow camera into the space, sound design that warps, actors performing "as if" on stage.
 - Affordances: CROSS (into other reality), ENCLOSE (trapped in performance), HAUNT.
@@ -131,7 +131,7 @@ These are analyzed patterns from specific films/directors. Meaning is never fixe
 - Mutation: The red room changes rules across appearances.
 - Key: Theatrical space invading "real" space.
 
-### 8. Resnais — Repetition and Memory Architecture (Last Year at Marienbad)
+### 8. Resnais: Repetition and Memory Architecture (Last Year at Marienbad)
 - Observed: Repeated shots of corridors, statues, gardens; dialogue that contradicts image.
 - Cinematic: Precise tracking shots that repeat with tiny variations; graphic matches across time; sound that loops or contradicts.
 - Affordances: REPEAT (mandatory mutation), MIRROR (false or true), INVERT (memory as trap).
@@ -139,14 +139,14 @@ These are analyzed patterns from specific films/directors. Meaning is never fixe
 - Mutation: Same shot returns with different occupant or lighting.
 - Key: Architecture and repetition as the structure of unreliable memory.
 
-### 9. Additional Kubrick — Blood Elevator and Twins (The Shining)
+### 9. Additional Kubrick: Blood Elevator and Twins (The Shining)
 - Observed: Elevator of blood; Grady twins in hallway.
 - Cinematic: Slow push into blood; twins as perfect symmetry that is broken.
 - Affordances: CONTAMINATE (blood floods), MIRROR (twins as double), HAUNT.
 - Transformation: PUTREFACTION of the hotel/family.
 - Key: Overdetermination through color, geometry, and recurrence.
 
-### 10. Godard / Resnais Influence — Graphic Match as Historical or Emotional Substitution
+### 10. Godard / Resnais Influence: Graphic Match as Historical or Emotional Substitution
 - Observed: Match cuts that link disparate times or emotions (e.g., bone to spaceship in 2001, or in Hiroshima mon amour).
 - Cinematic: Exact graphic match on shape or movement.
 - Affordances: TRANSFER, INVERT, CONJUNCTION.
@@ -253,7 +253,7 @@ These techniques are required for profound symbolic work. They create interlocki
 - **Object as carrier and modifier**: Secondary elements that bear marks of previous interaction and, in their current state or action, actively alter the primary motif or figure.
 - **Perceptual residue and layering**: Details that are coherent on first viewing but reveal additional structural pressure, inversion, or residue only on sustained or repeated looking. The image must support both a surface causal reading and a deeper interlocking one.
 
-When these are active, symbolism is not added content — it is the operating system of the image.
+When these are active, symbolism is not added content; it is the operating system of the image.
 
 ## Expanded Cinematic Systems (Profound & Interlocking)
 
@@ -311,7 +311,7 @@ When using this corpus for image prompts or stills:
 - Require at least one profound technique from each major system (light + geometry + trace + inversion) to interlock at a convergence point.
 - Use state differentials instead of recurrence.
 - Write prompts so the model must resolve relational tensions (e.g., "shadow overlaps the softening print" rather than generic "dramatic lighting").
-- Test prompt: Remove one system — does the image lose structural pressure or perceptual depth?
+- Test prompt: Remove one system: does the image lose structural pressure or perceptual depth?
 
 Example mappings:
 - "Light as transformer" → "sharp rim light on upper body from low left sun; cool reflected fill dissolving lower legs and stone into wet sand"
@@ -391,7 +391,7 @@ This layer enables **latent, dynamic, and symbolically dense** encoding. The sys
 3. **Application Rules (Always Latent)**:
    - Translate selected concepts exclusively into cinematic constraints (geometry, light behavior, material memory, inversion, rhythm, prop persistence, figure–environment pressure).
    - Never surface names, explanations, or "this uses X principle".
-   - User may explicitly query "what esoteric concepts were used?" — only then reveal the selected lexicon entries with justification.
+   - User may explicitly query "what esoteric concepts were used?"; only then reveal the selected lexicon entries with justification.
    - Default behavior: produce the densest possible observable structure. The esoteric layer improves symbolic density, causality, and transformation logic without token cost on disclosure.
 
 4. **Dynamic Triggers from Content**:

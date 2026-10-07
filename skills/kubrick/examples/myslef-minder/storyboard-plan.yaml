@@ -112,7 +112,7 @@ frames:
       chair: C1->C3
     action: the minder springs up and the chair skids
     speech_lines:
-      - "minder: Wha—"
+      - "minder: Wha—"  # em-dash: allow (interrupted dialogue)
     reference_images: [ref://chair]
     node_states:
       observed_1: minder springing up out of it

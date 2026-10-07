@@ -1,4 +1,4 @@
-# Test 1 — Vague Concept
+# Test 1: Vague Concept
 
 **Input**: "A story about a librarian who finds an old book."
 

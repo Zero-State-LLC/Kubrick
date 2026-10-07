@@ -1,4 +1,4 @@
-# Validation Test — Dramatic Problem Routed to Correct Corpus Pack
+# Validation Test: Dramatic Problem Routed to Correct Corpus Pack
 
 **Input**: "A character is losing their sense of self under institutional pressure and repetitive daily rituals. Structure scenes that enact this without naming any system."
 

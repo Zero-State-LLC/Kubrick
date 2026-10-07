@@ -30,7 +30,7 @@ Remote tip: `origin/openclaw` (see `git log origin/openclaw -1`).
 ## Acceptance
 
 - [x] `do check --action smoke` passes on OpenClaw edition (`origin/openclaw` @ `db695bc`)
-- [x] `python scripts/doctor.py` — prohibited patterns excluded
+- [x] `python scripts/doctor.py`: prohibited patterns excluded
 - [x] `python scripts/test_v016_phased_acceptance.py` PASS
 - [x] `python scripts/test_golden_v016.py` PASS (baseline six fixtures; Hermes main may be ahead on expanded goldens)
 - [ ] `pytest evals/test_openclaw_portability.py` PASS (run when pytest env available)

@@ -1,4 +1,4 @@
-# Validation Test — Cross-Tradition Resemblance Rejected as Historical Equivalence
+# Validation Test: Cross-Tradition Resemblance Rejected as Historical Equivalence
 
 **Input**: "A scene involves a circular motif and a spiral path. A character suggests it 'means' unity across cultures. Diagnose and repair."
 

@@ -38,15 +38,15 @@ User inputs and outputs must accept explicit paths. Runtime artifacts should def
 
 The canonical manifest names four runtime profiles: `prose`, `stdlib`, `validation`, and `dev`. The tiers below define their guarantees. Kubrick remains a Hermes skill directory in every profile and is never required to install as a Python package.
 
-### Tier 0 — Hermes prose runtime
+### Tier 0: Hermes prose runtime
 
 No external dependencies. All creative routing, diagnosis, drafting, revision, and symbolic translation must remain possible through `SKILL.md` and bundled references.
 
-### Tier 1 — Standard-library helpers
+### Tier 1: Standard-library helpers
 
 Install validation, graph structural checks, receipt hashing, cache keys, gap reporting, and basic JSON operations should use Python's standard library wherever practical.
 
-### Tier 2 — Optional local dependencies
+### Tier 2: Optional local dependencies
 
 Examples: PyYAML or jsonschema. A helper that needs one must:
 
@@ -55,7 +55,7 @@ Examples: PyYAML or jsonschema. A helper that needs one must:
 3. preserve a useful degraded path where feasible,
 4. never imply that the entire Hermes skill is unavailable.
 
-### Tier 3 — Optional companion systems
+### Tier 3: Optional companion systems
 
 Continuity Forge, MCP servers, model APIs, and rendering providers are optional extensions. Their absence cannot block local creative work.
 

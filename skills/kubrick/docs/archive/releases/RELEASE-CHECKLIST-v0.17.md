@@ -1,4 +1,4 @@
-# Release checklist — v0.17.1
+# Release checklist: v0.17.1
 
 - [x] VERSION / manifest / SKILL / pyproject / README / CHANGELOG aligned to v0.17.1
 - [x] Hermes Agent v0.21.0 SKILL.md contract (frontmatter, body order, terminal, as_document)

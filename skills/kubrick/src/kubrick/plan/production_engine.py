@@ -388,7 +388,7 @@ class _RequestArgs:
         # Prefer explicit design text; fall back to context-linked design revision marker.
         design = request.design_text
         if not design and request.context and request.context.design_revision:
-            design = f"# Design — {request.project_id}\n\nRevision: `{request.context.design_revision}`\n"
+            design = f"# Design: {request.project_id}\n\nRevision: `{request.context.design_revision}`\n"
         self._loaded_design = design
         if request.context and request.context.provider and request.provider == "generic":
             self.provider = request.context.provider

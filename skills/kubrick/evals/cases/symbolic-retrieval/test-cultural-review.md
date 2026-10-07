@@ -1,4 +1,4 @@
-# Test — Cultural Review Gate Trigger
+# Test: Cultural Review Gate Trigger
 
 **Input**: Scene uses a circular threshold motif in a context that resembles a funerary or initiation rite from a marginalized living tradition.
 

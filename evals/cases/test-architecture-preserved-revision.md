@@ -1,4 +1,4 @@
-# Validation Test — Symbolic Architecture Preserved Through Screenplay Revision
+# Validation Test: Symbolic Architecture Preserved Through Screenplay Revision
 
 **Input**: "Initial symbolic_architecture has a recurring circular motif with specific mutation plan and provenance. User requests a major structural revision that removes two scenes. Ensure the symbolic layer survives and mutates appropriately."
 

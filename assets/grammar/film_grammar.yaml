@@ -38,7 +38,7 @@ entries:
   - medium wide
   - medium-wide
   - medium wide shot
-  provider_notes: Mid-thigh crop; wide plate pulls it to full body (EP-01 shot 11) — pre-crop location
+  provider_notes: Mid-thigh crop; wide plate pulls it to full body (EP-01 shot 11); pre-crop location
     ref.
   targets:
     crop_landmark: mid_thigh
@@ -484,7 +484,7 @@ entries:
   - motivated
   - motivated key
   - motivated-key
-  provider_notes: Name source object and screen side; renders brighter than asked — ask darker.
+  provider_notes: Name source object and screen side; renders brighter than asked, so ask darker.
   targets:
     key_fill_stops:
     - 1.0

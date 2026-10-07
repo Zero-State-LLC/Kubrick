@@ -1,4 +1,4 @@
-# Release checklist — v0.21.0
+# Release checklist: v0.21.0
 
 - [x] Audit fixes #48–#60 aligned to v0.21.1
 

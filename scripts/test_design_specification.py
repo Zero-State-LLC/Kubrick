@@ -32,13 +32,13 @@ def main() -> None:
             raise SystemExit(result.stderr or result.stdout)
         text = output.read_text(encoding="utf-8")
         required = [
-            "# Example Project — Design Specification",
+            "# Example Project: Design Specification",
             "## Design Pillars",
             "## Invariants",
             "## Design Languages",
             "## Continuity Contract",
             "## Drift Rule",
-            "`OBSERVED` — document: README.md",
+            "`OBSERVED`: document: README.md",
         ]
         missing = [heading for heading in required if heading not in text]
         if missing:

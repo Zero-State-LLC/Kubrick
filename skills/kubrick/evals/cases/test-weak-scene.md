@@ -1,4 +1,4 @@
-# Test 3 — Weak Existing Scene
+# Test 3: Weak Existing Scene
 
 **Input**: A scene where two characters sit in a cafe and one explains the plot to the other. No conflict, no turn, emotional labels present.
 

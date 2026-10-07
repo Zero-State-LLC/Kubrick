@@ -1,4 +1,4 @@
-# Release checklist — v0.22.0
+# Release checklist: v0.22.0
 
 - [x] VERSION / manifest / SKILL / pyproject / README / CHANGELOG aligned to v0.22.0
 - [x] Release notes, roadmap, and checklist present for v0.22.0

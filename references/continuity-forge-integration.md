@@ -126,7 +126,7 @@ symbolic_architecture:
 ### Handoff Rules
 - Only include symbolic_architecture when it has passed quality gates and has provenance.
 - For every motif or pattern exported, include at minimum: observed_form, mutation history, provenance reference, and intended dramatic function.
-- Never export "meaning" — export the structural instructions (what must recur, how it must mutate, which cinematic parameters carry the charge).
+- Never export "meaning": export the structural instructions (what must recur, how it must mutate, which cinematic parameters carry the charge).
 - Forge will treat these as constraints on the Production IR and shot contracts, not as interpretive notes.
 
 Example (simplified):

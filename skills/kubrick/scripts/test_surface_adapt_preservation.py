@@ -59,7 +59,7 @@ def test_image_adapt_preservation() -> None:
 
 
 def test_video_adapt_fail_closed_on_image_only_provider() -> None:
-    """Flux is image-only — video adapt must NOT_COMPUTABLE."""
+    """Flux is image-only, so video adapt must NOT_COMPUTABLE."""
     assert check_video_adapt("flux") is not None
     with tempfile.TemporaryDirectory() as td:
         out = Path(td)

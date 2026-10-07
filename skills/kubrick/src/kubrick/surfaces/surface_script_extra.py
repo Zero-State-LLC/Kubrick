@@ -54,7 +54,7 @@ def script_compress(existing: str, project_id: str) -> dict[str, Any]:
     keep = lines[:12]
     body = "\n".join(
         [
-            f"# Compressed script — {project_id}",
+            f"# Compressed script: {project_id}",
             "",
             *keep,
             "",
@@ -161,12 +161,12 @@ def script_dialog_validate(existing: str, project_id: str) -> dict[str, Any]:
             "diagnostic": {"code": "INSUFFICIENT_EVIDENCE", "message": "--input script is required"},
         }
     findings = []
-    if "NOT_COMPUTABLE — no dialogue" in existing or "Dialogue" in existing and "NOT_COMPUTABLE" in existing:
+    if "NOT_COMPUTABLE: no dialogue" in existing or "Dialogue" in existing and "NOT_COMPUTABLE" in existing:
         findings.append(
             {
                 "severity": "low",
                 "code": "DIALOGUE_ABSENT",
-                "message": "Dialogue not evidenced — valid fail-closed state",
+                "message": "Dialogue not evidenced; valid fail-closed state",
             }
         )
     if re.search(r"\b(as you know|let me explain)\b", existing, re.I):

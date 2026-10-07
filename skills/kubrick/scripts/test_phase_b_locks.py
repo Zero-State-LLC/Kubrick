@@ -113,7 +113,8 @@ def test_dialogue_length() -> None:
         "speaks": True,
     }}}}
     short = [_frame(
-        "frame-002", characters=["minder"], duration_seconds=1.0, speech_lines=["minder: Wha—"],
+        "frame-002", characters=["minder"], duration_seconds=1.0,
+        speech_lines=["minder: Wha—"],  # em-dash: allow
     )]
     warnings, errors = lint(document, short)
     assert errors == []
@@ -248,7 +249,7 @@ def test_muted_native_and_example_line() -> None:
     assert isinstance(audio, dict)
     speech = audio["speech"]
     assert isinstance(speech, dict)
-    assert "Wha—" in " ".join(str(item) for item in speech["lines"])
+    assert "Wha—" in " ".join(str(item) for item in speech["lines"])  # em-dash: allow
     assert guide_sound("room tone", "native") == "room tone"
     assert guide_sound("room tone", None) == "room tone"
     assert note in guide_sound("room tone", "external")

@@ -141,7 +141,7 @@ def resolve_bounded_path(
     """Resolve ``raw`` and enforce containment.
 
     Reads may come from the project root or (when ``allow_skill_read``) the skill
-    root — so examples/, schemas/, and references/ remain usable.
+    root, so examples/, schemas/, and references/ remain usable.
 
     Writes never land in protected skill trees. When ``KUBRICK_PROJECT_DIR`` is set
     (or ``enforce_project=True``, as used by MCP), writes must also stay inside the
@@ -300,7 +300,7 @@ def validate_mcp_tool_args(
                 continue
             i += 1
             continue
-        # Positional tokens (ledger/operate actions) — tight pattern
+        # Positional tokens (ledger/operate actions): tight pattern
         if not re.fullmatch(r"[A-Za-z0-9][A-Za-z0-9._:-]{0,127}", tok):
             raise PathSafetyError(f"disallowed positional token: {tok!r}")
         cleaned.append(tok)

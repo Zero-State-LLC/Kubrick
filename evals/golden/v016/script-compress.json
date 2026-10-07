@@ -1,6 +1,6 @@
 {
   "action": "compress",
-  "artifact_id": "kubrick-script-compress-fb31c2cfccc31d1a",
+  "artifact_id": "kubrick-script-compress-2f685d3db52ee7c3",
   "artifact_type": "script-development-packet",
   "authority": "PROPOSED",
   "generated_at": "FROZEN",
@@ -23,13 +23,13 @@
       "duration": 8.0,
       "evidence": "",
       "format": "markdown",
-      "input": "# Script package \u2014 golden-authority\n\nFormat: markdown\nDesign revision link: r-81a44fd28fa41daf\nScript revision: s-81a44fd28fa41daf\n\n## Dramatic intent\nauthority remains active after the leader exits because access and geometry preserve the system\n\n## Observable action\npersonal command becomes institutional pressure\n\n## Character pressure\na former subordinate receives access while the former authority is excluded\n\n## Dialogue\nNOT_COMPUTABLE \u2014 no dialogue evidenced\n\n## Continuity requirements\n- Preserve identity, ownership, chronology, residue\n\n## Production implications\n- practical office location\n- one badge prop\n",
+      "input": "# Script package: golden-authority\n\nFormat: markdown\nDesign revision link: r-81a44fd28fa41daf\nScript revision: s-81a44fd28fa41daf\n\n## Dramatic intent\nauthority remains active after the leader exits because access and geometry preserve the system\n\n## Observable action\npersonal command becomes institutional pressure\n\n## Character pressure\na former subordinate receives access while the former authority is excluded\n\n## Dialogue\nNOT_COMPUTABLE: no dialogue evidenced\n\n## Continuity requirements\n- Preserve identity, ownership, chronology, residue\n\n## Production implications\n- practical office location\n- one badge prop\n",
       "project_id": "golden-authority",
       "provider": "generic",
       "surface": "script"
     },
     "outputs": {
-      "artifact_id": "kubrick-script-compress-fb31c2cfccc31d1a",
+      "artifact_id": "kubrick-script-compress-2f685d3db52ee7c3",
       "artifact_type": "script-development-packet",
       "has_document": true,
       "status": "PROPOSED"
@@ -42,8 +42,8 @@
       ],
       "speculative": []
     },
-    "receipt_hash": "d4acb67a4ea2ba2d64918f99a22a478f",
-    "receipt_id": "receipt-140bbd0f053cf3f8",
+    "receipt_hash": "962fb435d8939719d67c63e555ff0836",
+    "receipt_id": "receipt-5d9b056a44c1c27d",
     "schema_version": "0.16.0",
     "surface": "script",
     "timestamp": "FROZEN",
@@ -55,9 +55,9 @@
     "warnings": []
   },
   "result": {
-    "document_markdown": "# Compressed script \u2014 golden-authority\n\nFormat: markdown\nDesign revision link: r-81a44fd28fa41daf\nScript revision: s-81a44fd28fa41daf\nauthority remains active after the leader exits because access and geometry preserve the system\npersonal command becomes institutional pressure\na former subordinate receives access while the former authority is excluded\nNOT_COMPUTABLE \u2014 no dialogue evidenced\n- Preserve identity, ownership, chronology, residue\n- practical office location\n- one badge prop\n\nNOTE: Compression preserves observable action lines; dialogue may be omitted.",
+    "document_markdown": "# Compressed script: golden-authority\n\nFormat: markdown\nDesign revision link: r-81a44fd28fa41daf\nScript revision: s-81a44fd28fa41daf\nauthority remains active after the leader exits because access and geometry preserve the system\npersonal command becomes institutional pressure\na former subordinate receives access while the former authority is excluded\nNOT_COMPUTABLE: no dialogue evidenced\n- Preserve identity, ownership, chronology, residue\n- practical office location\n- one badge prop\n\nNOTE: Compression preserves observable action lines; dialogue may be omitted.",
     "implementation_state": "DOMAIN",
-    "script_revision": "s-fa07b6f0f76851ec"
+    "script_revision": "s-c22006c938a0191f"
   },
   "schema_version": "0.16.0",
   "shared_invariants": {
@@ -69,7 +69,7 @@
     "preserve_ownership": true,
     "preserve_residue": true
   },
-  "source_state_id": "state-5ed8e51192c599da",
+  "source_state_id": "state-512cac0e9641793a",
   "status": "PROPOSED",
   "surface": "script",
   "warnings": []

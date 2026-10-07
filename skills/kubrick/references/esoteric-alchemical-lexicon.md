@@ -1,6 +1,6 @@
 # Kubrick Esoteric–Alchemical Encoding Lexicon
 
-## OPEN — Governing Principle
+## OPEN: Governing Principle
 
 **OBSERVED:** Kubrick functions as a cinematic continuity and scene-construction intelligence: it decomposes scripts, preserves identities and objects across generations, tracks visual causality, and prevents narrative drift.
 
@@ -249,11 +249,11 @@ The entire narrative can be modeled as an alchemical transformation rather than 
 
 ### Kubrick transformation spine
 
-1. **Prima Materia** — unresolved raw situation
-2. **Nigredo** — disintegration
-3. **Albedo** — clarification
-4. **Citrinitas** — awakening
-5. **Rubedo** — embodied integration
+1. **Prima Materia**: unresolved raw situation
+2. **Nigredo**: disintegration
+3. **Albedo**: clarification
+4. **Citrinitas**: awakening
+5. **Rubedo**: embodied integration
 
 ---
 
@@ -2847,7 +2847,7 @@ RUNE.RUBEDO(sequence)
 Verify that internal transformation has become embodied action.
 ```
 
-# SEAL — Core Compression
+# SEAL: Core Compression
 
 The deepest alchemical architecture for Kubrick is:
 

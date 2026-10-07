@@ -77,7 +77,7 @@ def test_cli_design_create_writes_markdown() -> None:
         assert proc.returncode == 0, proc.stderr
         assert out.is_file()
         text = out.read_text(encoding="utf-8")
-        assert text.startswith("# Design — demo")
+        assert text.startswith("# Design: demo")
         assert "empty chair holds power" in text
         receipt = out.with_name("design.receipt.json")
         assert receipt.is_file()
@@ -202,7 +202,7 @@ def test_resolve_design_auto_discover(monkeypatch=None) -> None:
     with tempfile.TemporaryDirectory() as td:
         root = Path(td)
         design = root / "design.md"
-        design.write_text("# Design — demo\n\nRevision: `r-abc123`\n\n## Creative objective\n- hi\n", encoding="utf-8")
+        design.write_text("# Design: demo\n\nRevision: `r-abc123`\n\n## Creative objective\n- hi\n", encoding="utf-8")
         import os
 
         old = os.environ.get("KUBRICK_PROJECT_DIR")

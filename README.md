@@ -1,5 +1,5 @@
 <p align="center">
-  <img src="assets/hero.jpg" alt="Kubrick — symbolic cinematic engineering" width="100%">
+  <img src="assets/hero.jpg" alt="Kubrick: symbolic cinematic engineering" width="100%">
 </p>
 
 <h1 align="center">Kubrick</h1>
@@ -7,7 +7,7 @@
 <p align="center">
   <strong>Observed form first. Dramatic function first.</strong><br>
   A Hermes skill that turns a brief into continuity-safe storyboards and prompts.<br>
-  <em>0.27.10: Live Jev fit recordings replace hand-labelled verdicts</em>
+  <em>0.27.11: Em dash cleanup; the em dash check covers the whole repo</em>
 </p>
 
 <p align="center">
@@ -91,7 +91,7 @@ Words the code actually emits:
 | `PROPOSAL` | A change that is not applied |
 | `NOT_COMPUTABLE` | Weak or contradictory evidence; fail closed |
 
-The product version is the `VERSION` file (`0.27.10`). The production envelope
+The product version is the `VERSION` file (`0.27.11`). The production envelope
 schema id stays `0.16.0` and does not track that version.
 
 ## Atlas

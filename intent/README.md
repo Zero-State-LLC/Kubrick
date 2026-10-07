@@ -7,8 +7,8 @@ section before writing a spec, plan, or code.
 Do not invent a parallel process. After the intent is written, continue with
 the flow this repo already uses:
 
-1. `intent.md` — problem, proposed outcome, constraints, verified vs assumed
-2. `spec.md` / plan — existing `docs/` specs, `references/` contracts, and
+1. `intent.md`: problem, proposed outcome, constraints, verified vs assumed
+2. `spec.md` / plan: existing `docs/` specs, `references/` contracts, and
    `CONTRIBUTING.md` gates. Revise `SKILL.md` only when the accepted intent
    is the Hermes contract itself.
 3. Implementation in the allowed trees (root skill payload; then hub sync)

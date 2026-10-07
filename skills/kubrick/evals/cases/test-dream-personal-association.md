@@ -1,4 +1,4 @@
-# Validation Test — Dream Sequence Grounded in Personal Association
+# Validation Test: Dream Sequence Grounded in Personal Association
 
 **Input**: "Create a dream-like sequence for a character who recently lost a specific everyday object (a childhood keychain). Use only their personal residue, not universal symbols."
 

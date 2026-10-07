@@ -1,4 +1,4 @@
-# Validation Test 4 — Alchemical Process Translated to Structure
+# Validation Test 4: Alchemical Process Translated to Structure
 
 **Input**: "A character undergoes a breakdown of their public identity and previous certainties. Structure a sequence that enacts dissolution without naming any esoteric system."
 

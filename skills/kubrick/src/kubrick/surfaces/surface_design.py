@@ -55,11 +55,11 @@ def design_create(brief: str | None, evidence: str | None, project_id: str) -> d
         [
             _claim(fields["dramatic_problem"], "OBSERVED"),
             _claim(
-                fields["desired_state_change"] or "NOT_COMPUTABLE — desired state change not evidenced",
+                fields["desired_state_change"] or "NOT_COMPUTABLE: desired state change not evidenced",
                 "OBSERVED" if fields["desired_state_change"] else "NOT_COMPUTABLE",
             ),
             _claim(
-                fields["character_pressure"] or "NOT_COMPUTABLE — character pressure not evidenced",
+                fields["character_pressure"] or "NOT_COMPUTABLE: character pressure not evidenced",
                 "OBSERVED" if fields["character_pressure"] else "NOT_COMPUTABLE",
             ),
         ]
@@ -73,9 +73,9 @@ def design_create(brief: str | None, evidence: str | None, project_id: str) -> d
     if fields.get("geometry") or fields.get("cinematic_channel"):
         sections["visual-grammar"] = _claims_from_list(
             list(fields.get("geometry") or []) + list(fields.get("cinematic_channel") or [])
-        ) or _claim("NOT_COMPUTABLE — visual grammar not evidenced", "NOT_COMPUTABLE")
+        ) or _claim("NOT_COMPUTABLE: visual grammar not evidenced", "NOT_COMPUTABLE")
         sections["composition-camera"] = _claims_from_list(list(fields.get("cinematic_channel") or [])) or _claim(
-            "NOT_COMPUTABLE — camera language not evidenced",
+            "NOT_COMPUTABLE: camera language not evidenced",
             "NOT_COMPUTABLE",
         )
     if fields.get("observable_evidence") or fields.get("residue"):
@@ -164,11 +164,11 @@ def design_improve(existing: str, evidence: str | None, project_id: str) -> dict
                     [
                         _claim(fields["dramatic_problem"], "OBSERVED"),
                         _claim(
-                            fields["desired_state_change"] or "NOT_COMPUTABLE — desired state change not evidenced",
+                            fields["desired_state_change"] or "NOT_COMPUTABLE: desired state change not evidenced",
                             "OBSERVED" if fields["desired_state_change"] else "NOT_COMPUTABLE",
                         ),
                         _claim(
-                            fields["character_pressure"] or "NOT_COMPUTABLE — character pressure not evidenced",
+                            fields["character_pressure"] or "NOT_COMPUTABLE: character pressure not evidenced",
                             "OBSERVED" if fields["character_pressure"] else "NOT_COMPUTABLE",
                         ),
                     ]
@@ -203,7 +203,7 @@ def design_improve(existing: str, evidence: str | None, project_id: str) -> dict
                 (
                     "visual-grammar",
                     _claim(
-                        "NOT_COMPUTABLE — visual grammar not evidenced; refuse invented shot language",
+                        "NOT_COMPUTABLE: visual grammar not evidenced; refuse invented shot language",
                         "NOT_COMPUTABLE",
                     ),
                     "missing production-critical section",

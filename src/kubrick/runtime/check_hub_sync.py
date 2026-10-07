@@ -90,7 +90,7 @@ def collect_mismatches() -> list[str]:
         # Packaged Hermes optional-skill installs omit the hub mirror on purpose.
         if not (ROOT / ".git").exists():
             return []
-        return ["skills/kubrick missing — run scripts/sync_hub_skill.sh"]
+        return ["skills/kubrick missing; run scripts/sync_hub_skill.sh"]
 
     for relative in COMPARE_ROOTS:
         src = ROOT / relative
@@ -144,7 +144,7 @@ def generator_mismatches() -> list[str]:
     if not HUB.is_dir():
         if not (ROOT / ".git").exists():
             return []
-        return ["skills/kubrick missing — run scripts/sync_hub_skill.sh"]
+        return ["skills/kubrick missing; run scripts/sync_hub_skill.sh"]
     if not script.is_file():
         return ["scripts/sync_hub_skill.sh is missing"]
     with tempfile.TemporaryDirectory() as tmp:

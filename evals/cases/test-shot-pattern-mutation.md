@@ -1,4 +1,4 @@
-# Validation Test — Symbolic Shot Pattern Mutated Across Three Scenes
+# Validation Test: Symbolic Shot Pattern Mutated Across Three Scenes
 
 **Input**: "Establish a repeated low-angle wide shot of a doorway in scene 1. Mutate it across scene 2 and scene 3 with clear dramatic consequence."
 

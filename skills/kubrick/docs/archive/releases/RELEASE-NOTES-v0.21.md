@@ -86,7 +86,7 @@ walks out of frame right`.
 - `multi-shot-merges-short-beats` on frame-001 through frame-004
 
 Voice locks pass. myslef has `speaks: false` and no speech line. The minder's
-line is `minder: Wha—` on the 1.0s beat, with `library_id`
+line is `minder: Wha—` on the 1.0s beat, with `library_id` <!-- em-dash: allow -->
 `ibrahim-talkative-friend` and `never_clone_of: [danny]`. Every shot's
 `audio.sound` says native audio is a guide track. A cap below 186 exits
 non-zero with `BUDGET_CAP_EXCEEDED`.

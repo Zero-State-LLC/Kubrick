@@ -1,4 +1,4 @@
-# Hermes Official Submission — Kubrick
+# Hermes Official Submission: Kubrick
 
 This document is the operator checklist for getting Kubrick into Nous Research’s
 **official optional skills catalog** while also publishing the community path.
@@ -26,8 +26,8 @@ Pursue both: community installability first, official PR for catalog trust.
 - [x] Provenance notes in `SKILL.md`
 - [x] In-repo validators green on v0.16.0 (`skill` / `smoke` / `validate_hermes_skill` / release audit)
 - [x] Package dry-run path documented (`scripts/package_optional_skill.sh`)
-- [ ] Local Hermes activation test (positive) — requires local `hermes` CLI
-- [ ] Local Hermes negative activation test — requires local `hermes` CLI
+- [ ] Local Hermes activation test (positive): requires local `hermes` CLI
+- [ ] Local Hermes negative activation test: requires local `hermes` CLI
 - [ ] Upstream PR opened against `NousResearch/hermes-agent`
 
 ## Frontmatter contract (current)
@@ -40,7 +40,7 @@ platforms: [linux, macos, windows]
 metadata.hermes.category: creative
 ```
 
-Stable slug: **`kubrick`** — do not rename between releases.
+Stable slug: **`kubrick`**. Do not rename between releases.
 
 ## v0.16 packaging highlights
 
@@ -167,7 +167,7 @@ Adds `kubrick` **v0.16.0** under `optional-skills/creative/kubrick/`.
 
 ## Why optional-skills
 
-Specialized cinematic continuity / production handoff — useful, not default-bundled.
+Specialized cinematic continuity / production handoff: useful, not default-bundled.
 
 ## Validation
 

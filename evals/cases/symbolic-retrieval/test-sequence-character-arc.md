@@ -1,4 +1,4 @@
-# Test — Sequence-Level Architecture + Symbolic Character Arc
+# Test: Sequence-Level Architecture + Symbolic Character Arc
 
 **Input**: A character who begins by controlling every threshold in their life undergoes a forced crossing they cannot govern.
 

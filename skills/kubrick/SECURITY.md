@@ -1,4 +1,4 @@
-# Security and Threat Model — Kubrick
+# Security and Threat Model: Kubrick
 
 Kubrick is a local, stdlib-first Hermes skill. It does not require network access,
 API keys, or privileged installation for core creative work.

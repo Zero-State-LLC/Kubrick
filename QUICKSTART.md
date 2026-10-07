@@ -2,7 +2,7 @@
 
 Kubrick is a **standalone Hermes skill** on branch **`main`** (v0.27.0). Continuity Forge, MCP servers, model APIs, and external generation providers remain optional. Film grammar is [`docs/FILM-GRAMMAR.md`](docs/FILM-GRAMMAR.md). The symbolic corpus is [`docs/CORPUS.md`](docs/CORPUS.md). Carrier order is [`docs/CONTINUITY.md`](docs/CONTINUITY.md).
 
-**OpenClaw?** Use the permanent [`openclaw`](https://github.com/Zero-State-LLC/Kubrick/tree/openclaw) branch (OpenClaw Agent Skill packaging by **Prabu**). See [`docs/OPENCLAW.md`](docs/OPENCLAW.md) — install target is `~/.openclaw/skills/kubrick`, not Hermes.
+**OpenClaw?** Use the permanent [`openclaw`](https://github.com/Zero-State-LLC/Kubrick/tree/openclaw) branch (OpenClaw Agent Skill packaging by **Prabu**). See [`docs/OPENCLAW.md`](docs/OPENCLAW.md): install target is `~/.openclaw/skills/kubrick`, not Hermes.
 
 ## 1. Install (Hermes / `main`)
 
@@ -289,7 +289,7 @@ python scripts/kubrick.py do operate symbolic-architecture-export \
   --ledger project/symbolic-ledger.yaml \
   --output out/symbolic-architecture-export.yaml
 
-# Optional MCP surface — single tool kubrick_do, never authoritative
+# Optional MCP surface: single tool kubrick_do, never authoritative
 python scripts/kubrick.py do mcp
 ```
 

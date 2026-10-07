@@ -1,8 +1,9 @@
 #!/usr/bin/env python3
-"""Fail when a change adds an em dash (U+2014). Lines already on the base are not checked.
+"""Fail on em dashes (U+2014): in added lines (default) or anywhere in tracked files (--all).
 
-About 150 Markdown files on main already contain em dashes, so this is a ratchet: it reads
-``git diff --unified=0 BASE...HEAD`` and checks only the added lines. Rewrite a hit with a
+The default mode reads ``git diff --unified=0 BASE...HEAD`` and checks only the added lines.
+Since 0.27.11 the repo has no legacy em dashes, so ``--all`` checks every tracked file that
+matches PATTERNS. Rewrite a hit with a
 period, comma, colon, or parentheses. A line that must keep one (a fixture that tests em dash
 detection) carries the marker ``em-dash: allow`` on the same line.
 """
@@ -80,24 +81,50 @@ def git_diff(base: str, root: Path) -> str:
     return proc.stdout
 
 
+def tracked_hits(root: Path) -> list[Hit]:
+    """Every em dash line in tracked files matching PATTERNS, outside the hub mirror."""
+    cmd = ["git", "-C", str(root), "-c", "core.quotePath=false", "ls-files", "-z", "--", *PATTERNS]
+    proc = subprocess.run(cmd, capture_output=True, check=False)
+    if proc.returncode != 0:
+        raise GitFailed(proc.stderr.decode("utf-8", "replace").strip() or "git ls-files failed")
+    out: list[Hit] = []
+    for rel in sorted(p for p in proc.stdout.decode("utf-8").split("\0") if p):
+        if rel.startswith(MIRROR_PREFIX):
+            continue
+        try:
+            text = (root / rel).read_text(encoding="utf-8", errors="replace")
+        except OSError:
+            continue
+        for number, line in enumerate(text.splitlines(), start=1):
+            if EM_DASH in line and ALLOW_MARKER not in line:
+                out.append(Hit(rel, number, line))
+    return out
+
+
 def main(argv: list[str] | None = None) -> int:
     parser = argparse.ArgumentParser(description=__doc__.splitlines()[0])
     parser.add_argument("--base", default="origin/main",
                         help="ref to compare against (default origin/main)")
     parser.add_argument("--root", type=Path, default=ROOT)
+    parser.add_argument("--all", action="store_true",
+                        help="check every tracked file, not only lines added since --base")
     args = parser.parse_args(argv)
     try:
-        hits = find_hits(git_diff(args.base, args.root))
+        if args.all:
+            hits = tracked_hits(args.root)
+        else:
+            hits = find_hits(git_diff(args.base, args.root))
     except GitFailed as exc:
         print(f"em dash check: ERROR (fail closed): {exc}", file=sys.stderr)
         return 2
+    scope = "tracked files" if args.all else f"lines added since {args.base}"
     if hits:
-        print(f"em dash check: FAIL ({len(hits)} added line(s) since {args.base})", file=sys.stderr)
+        print(f"em dash check: FAIL ({len(hits)} line(s) in {scope})", file=sys.stderr)
         for hit in hits:
             print(f"{hit.path}:{hit.line}: {FIX}", file=sys.stderr)
             print(f"    {hit.text.strip()[:160]}", file=sys.stderr)
         return 1
-    print(f"em dash check: PASS (no em dash added since {args.base})")
+    print(f"em dash check: PASS (no em dash in {scope})")
     return 0
 
 

@@ -21,7 +21,7 @@
     "required": true,
     "variables": ["sign mode", "observer knowledge", "causal trace", "conventional rule", "misreading consequence"]
   },
-  "transferable_structure": "Change how an observable sign connects to its referent—through resemblance, trace, or convention—and make that change alter action or belief.",
+  "transferable_structure": "Change how an observable sign connects to its referent, through resemblance, trace, or convention, and make that change alter action or belief.",
   "non_transferable_surface": "Do not copy a famous emblem, coded symbol system, or culturally protected sign without provenance and context.",
   "production_cost": "low",
   "confidence": 0.75

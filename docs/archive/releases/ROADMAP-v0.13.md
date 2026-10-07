@@ -15,7 +15,7 @@ Kubrick closes Wave 2 and Wave 3 from the production-hardening roadmap:
 
 Also on `main` (adjacent capability): deterministic **design specification compiler** (`design-build`).
 
-### Post-0.13 — Operator intent router (**merged to main**)
+### Post-0.13: Operator intent router (**merged to main**)
 
 Simplifies the Hermes/human CLI from ~29 flat peers to **`kubrick do <intent>`** (12 intents) with soft aliases, recipes, and MCP tool `kubrick_do`. Listed under CHANGELOG **[Unreleased]** until the next version tag.
 
@@ -34,7 +34,7 @@ Simplifies the Hermes/human CLI from ~29 flat peers to **`kubrick do <intent>`**
 
 ## Completed in 0.13
 
-### Wave 2 — Forge feedback and evolution
+### Wave 2: Forge feedback and evolution
 
 - Forge signal extraction from ledger diffs, revisions, saturation, collisions, ingestion, and payoff records (`forge-signals`).
 - Multi-signal evolution receipts: mutation success, production feasibility, anti-slop, cultural-boundary, and payoff signals.
@@ -42,7 +42,7 @@ Simplifies the Hermes/human CLI from ~29 flat peers to **`kubrick do <intent>`**
 - Retirement and deprecation proposals without automatic corpus mutation.
 - Project symbolic ledgers as persistent retrieval/evolution inputs with pattern history, rehydrate, and apply-forge.
 
-### Wave 3 — Adapters, QA, operators
+### Wave 3: Adapters, QA, operators
 
 - Syntax-only adapters for Grok Imagine, Flux, SD3, and Midjourney over a shared latent graph.
 - Closed-loop visual QA with separate geometry, state, residue, and convergence fidelity scores.
@@ -107,4 +107,4 @@ See root `README.md`, `QUICKSTART.md`, and `scripts/intent_router.py`.
 
 ## Related editions
 
-- **OpenClaw Agent Skill** — permanent branch [`openclaw`](https://github.com/scrimshawlife-ctrl/Kubrick/tree/openclaw), packaging by Prabu ([PR #1](https://github.com/scrimshawlife-ctrl/Kubrick/pull/1)). See [`OPENCLAW.md`](../../OPENCLAW.md).
+- **OpenClaw Agent Skill**: permanent branch [`openclaw`](https://github.com/scrimshawlife-ctrl/Kubrick/tree/openclaw), packaging by Prabu ([PR #1](https://github.com/scrimshawlife-ctrl/Kubrick/pull/1)). See [`OPENCLAW.md`](../../OPENCLAW.md).

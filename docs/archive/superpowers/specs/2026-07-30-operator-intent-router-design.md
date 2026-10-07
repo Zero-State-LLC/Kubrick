@@ -3,7 +3,7 @@
 **Date:** 2026-07-30  
 **Status:** Approved for planning (pending user review of this written spec)  
 **Repo:** `scrimshawlife-ctrl/Kubrick` (Hermes skill)  
-**Scope:** CLI / operator surface only — not corpus, Forge kernel, or generation APIs
+**Scope:** CLI / operator surface only, not corpus, Forge kernel, or generation APIs
 
 ## Problem
 
@@ -209,10 +209,10 @@ Optional later: thin per-intent tools that still call `do` (not required for v1)
 
 ## Documentation touch list
 
-- `SKILL.md` — Unified CLI section → intents first
-- `QUICKSTART.md` — reorganize around intents + recipes
-- `README.md` — operator commands table
-- `scripts/mcp_kubrick_server.py` — tool surface
+- `SKILL.md`: Unified CLI section → intents first
+- `QUICKSTART.md`: reorganize around intents + recipes
+- `README.md`: operator commands table
+- `scripts/mcp_kubrick_server.py`: tool surface
 - `docs/archive/releases/ROADMAP-v0.13.md` or a short note in changelog under Unreleased / next patch
 
 ## Risks and mitigations
