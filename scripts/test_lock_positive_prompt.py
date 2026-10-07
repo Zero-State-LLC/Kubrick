@@ -163,7 +163,9 @@ def test_no_positive_not_in_prompt_without_drift() -> None:
 
 def test_adapter_frame_prompt_is_the_one_checked() -> None:
     plan = _plan()
-    frames = [dict(frame) for frame in plan["frames"]]  # type: ignore[union-attr]
+    raw = plan["frames"]
+    assert isinstance(raw, list)
+    frames = [dict(frame) for frame in raw]
     frames[0]["prompt"] = "hero reads; a prompt edited after compile"
     rows = lock_table(plan, frames)
     drifted = [r for r in rows if r.get("code") == "LOCK_POSITIVE_NOT_IN_PROMPT"]
