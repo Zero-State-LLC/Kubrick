@@ -2,6 +2,16 @@
 
 ## [Unreleased]
 
+## [0.27.8] - 2026-10-07
+
+### Added
+- #92: `schemas/retake-route-report.schema.json` defines the retake router (QC failure classifier) output.
+- An ambiguous drift draft carries `drift_entry`, a candidate known-drift entry that validates against `schemas/drift-registry.schema.json`, or `missing_fields` when the defect lacks `trigger_kind`, `model`, `effect` (`detail`), `observed_on`, or `evidence`. `trigger_kind` must be stated on the defect; it is never guessed from the label. `validate_drafts` checks drafts against the drift schema.
+- Approval step: `apply_drafts(drafts, approved_by=..., out=...)`. Without an approver nothing is written (unchanged). With an approver and valid drafts it returns a registry patch and writes it to `out` when given. It never writes the known-drift registry; that stays a reviewed PR. Intent: `intent/drift-drafts-schema/intent.md`.
+
+### Notes
+- Product version is 0.27.8. Envelope schema id stays `0.16.0`.
+
 ## [0.27.7] - 2026-10-07
 
 ### Added
