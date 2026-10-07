@@ -2,6 +2,17 @@
 
 ## [Unreleased]
 
+## [0.27.10] - 2026-10-07
+
+### Changed
+- #91 follow-up: `evals/fixtures/retrieval/jev-fit-verdicts.yaml` now holds live Jev recordings (seven text calls, one per fixture brief, verdicts plus fit probabilities) instead of hand-labelled stand-ins. The request shape is in `evals/fixtures/retrieval/jev-fit-request.md`.
+
+### Known failures
+- Live Jev disagrees with the hand labels. It gives `fit` to all three nonsense briefs (vocabulary soup at p=0.97, sourdough at 0.47, cats and dogs at 0.42), so they are `SELECTED`, and the plain authority brief selects `bresson_gesture_object_transfer`. `test_nonsense_briefs_are_refused` and `test_plain_briefs_pass_without_rewording` fail. Test expectations are unchanged on purpose.
+
+### Notes
+- Product version is 0.27.10. Envelope schema id stays `0.16.0`.
+
 ## [0.27.9] - 2026-10-07
 
 ### Added

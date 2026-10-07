@@ -50,7 +50,16 @@ stand-ins, not live Jev output.
 | Plain briefs fail and vocabulary soup passes on lexical scoring alone | `OBSERVED` | `test_lexical_alone_shows_the_bug` |
 | With recorded verdicts, plain briefs select a fitting pattern and nonsense is refused | `OBSERVED` | `scripts/test_retrieval_fit_judge.py` |
 | Existing retrieval tests are unchanged and pass | `OBSERVED` | full suite |
-| Live Jev would label these briefs as the fixture does | `NOT_COMPUTABLE` | verdicts are hand-labelled; no live call made |
+| Live Jev labels these briefs as the hand labels did | `OBSERVED` false (0.27.10) | live recordings give `fit` to all three nonsense briefs; two acceptance tests fail |
+
+## 0.27.10 finding
+
+Live Jev recordings (seven calls) replaced the hand labels. Jev is permissive:
+the vocabulary-soup brief gets ten `fit` verdicts (top p=0.97), sourdough one
+(p=0.47), cats and dogs one (p=0.42). All three are `SELECTED`. A fit
+probability floor of 0.8 would refuse two of them but not the vocabulary soup.
+The acceptance tests are left failing until the owner picks a fix (question
+wording, a probability floor, a fit-count cap, or a different judge).
 
 ## Author / date
 
