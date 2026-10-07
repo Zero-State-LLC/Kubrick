@@ -7,7 +7,7 @@
 <p align="center">
   <strong>Observed form first. Dramatic function first.</strong><br>
   A Hermes skill that turns a brief into continuity-safe storyboards and prompts.<br>
-  <em>0.27.2: Every critical lock line is enforced; MYSLEF fixture matches chest LED canon</em>
+  <em>0.27.3: Video cues price frame SFX from fixtures</em>
 </p>
 
 <p align="center">
@@ -91,7 +91,7 @@ Words the code actually emits:
 | `PROPOSAL` | A change that is not applied |
 | `NOT_COMPUTABLE` | Weak or contradictory evidence; fail closed |
 
-The product version is the `VERSION` file (`0.27.2`). The production envelope
+The product version is the `VERSION` file (`0.27.3`). The production envelope
 schema id stays `0.16.0` and does not track that version.
 
 ## Atlas

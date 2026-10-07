@@ -2,6 +2,14 @@
 
 ## [Unreleased]
 
+## [0.27.3] - 2026-10-07
+
+### Fixed
+- Issue #108: `video cues` prices frame-level `sfx` effects from plan fixtures (`sfx.credits_per_second`, `sfx.default_seconds`) with per-effect rows, keeps the explicit `sfx 0` line when there are no effects, and fails closed with `SFX_ESTIMATE_MISSING` when frames declare effects but the plan has no SFX rate. Generic for any project; no ElevenLabs call. Regression: `scripts/test_issue_108_sfx_estimate.py`.
+
+### Notes
+- Product version is 0.27.3. Envelope schema id stays `0.16.0`.
+
 ## [0.27.2] - 2026-10-07
 
 ### Fixed

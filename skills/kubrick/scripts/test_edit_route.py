@@ -83,7 +83,9 @@ def test_ambiguous_jev_label_drafts_an_unapplied_drift_entry() -> None:
 
 def test_sfx_estimate_is_a_fixture_and_zero_when_absent() -> None:
     quiet = sfx_estimate({})
-    assert quiet == {"status": "PROPOSED", "credits": 0, "line": "sfx 0", "source": "fixture"}
+    assert quiet == {
+        "status": "PROPOSED", "credits": 0, "line": "sfx 0", "source": "fixture", "effects": 0,
+    }
     stated = sfx_estimate({"sfx": {"credits": 2}})
     assert stated["line"] == "sfx 2"
     assert stated["source"] == "fixture"

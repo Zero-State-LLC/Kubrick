@@ -19,8 +19,21 @@ drift entry. The draft is `PROPOSED`, `applied: false`, and
 `needs_human_approval: true`. `apply_drafts` returns `NOT_COMPUTABLE` and
 does not create a file. Pattern evolution stays proposal-only.
 
-Video cues add `sfx_estimate`. The line is `sfx 0` when the plan has no
-`sfx` fixture. A declared `sfx.credits` number is copied onto the line.
-That estimate is not an ElevenLabs call.
+Video cues add `sfx_estimate` (issue #108). Any frame may list sound effects
+under `sfx`, each a name or `{effect, seconds}`. The plan prices them with
+`sfx.credits_per_second` (and `sfx.default_seconds` for effects without
+`seconds`), and the cue sheet shows one row per effect under
+`effects_detail`. A flat `sfx.credits` number wins and is copied onto the
+line. No effects and no `sfx` block gives the explicit line `sfx 0`. Frames
+that declare effects with no rate fail closed with `SFX_ESTIMATE_MISSING`, and
+a bad number is `SFX_NOT_COMPUTABLE`. The estimate comes from plan fixtures
+only and is not an ElevenLabs call.
+
+```yaml
+sfx: {credits_per_second: 40, default_seconds: 2}
+frames:
+  - shot_id: "01"
+    sfx: [{effect: door slam, seconds: 1.5}, rain bed]
+```
 
 Fixtures: `evals/fixtures/ep01/retake_routes.yaml`.
