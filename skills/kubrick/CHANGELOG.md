@@ -6,7 +6,9 @@
 
 ### Changed
 - About 390 legacy em dashes in docs, references, code comments, and output strings rewritten by context (colon, comma, semicolon, parentheses, hyphen, or a sentence split). Surface headings now read `# Design: <project>` and `NOT_COMPUTABLE: <reason>`; goldens regenerated.
-- `scripts/check_no_new_em_dash.py --all` checks every tracked text file, not only added lines; CI runs it. Kept on purpose with an `em-dash: allow` marker: the interrupted line of dialogue `minder: Wha` followed by an em dash (test data: one fixture, one example plan, two test lines, and the 0.21 release note that quotes it). `LICENSE` is not a checked file type and keeps its two.
+- `scripts/check_no_new_em_dash.py --all` checks every tracked text file, not only added lines; CI runs it. Kept on purpose with an `em-dash: allow` marker: the interrupted line of dialogue `minder: Wha` followed by an em dash (test data: one fixture, one example plan, two test lines, and the 0.21 release note that quotes it). `--all` reads every tracked text file (binary skipped); `LICENSE` is legal text and exempt.
+- `dialog-validate` still finds the no-dialogue sentinel in artifacts written before 0.27.11 (em dash separator).
+- Intent: `intent/em-dash-cleanup/intent.md`.
 
 ### Notes
 - Product version is 0.27.11. Envelope schema id stays `0.16.0`.
