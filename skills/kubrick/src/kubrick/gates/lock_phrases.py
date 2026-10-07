@@ -7,17 +7,18 @@ from collections.abc import Mapping, Sequence
 from kubrick.gates.jev_client import prompt_sha256
 
 
-def _lock_phrase(hold: Mapping[str, object]) -> str | None:
-    """Critical present locks carry a negative or positive line that must appear."""
+def _lock_phrases(hold: Mapping[str, object]) -> list[str]:
+    """Critical present locks: every negative and positive line must appear."""
     if hold.get("critical") is not True or hold.get("blocked") is True:
-        return None
+        return []
     if hold.get("requirement") not in (None, "present"):
-        return None
+        return []
+    lines: list[str] = []
     for key in ("negative", "positive"):
         value = hold.get(key)
         if isinstance(value, str) and value.strip():
-            return " ".join(value.split())
-    return None
+            lines.append(" ".join(value.split()))
+    return lines
 
 
 def _scope_applies(hold: Mapping[str, object], prompt: Mapping[str, object]) -> bool:
@@ -46,8 +47,7 @@ def missing_lock_phrases(
     """A recorded pass cannot bless a picture prompt that drops a critical lock line."""
     phrases: list[tuple[Mapping[str, object], str]] = []
     for hold in holds:
-        phrase = _lock_phrase(hold)
-        if phrase is not None:
+        for phrase in _lock_phrases(hold):
             phrases.append((hold, phrase))
     checks: list[dict[str, object]] = []
     for prompt in prompts:
