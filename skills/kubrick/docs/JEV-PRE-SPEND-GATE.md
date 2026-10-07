@@ -248,6 +248,18 @@ stderr line, `BOARD_IMAGE_OPT_OUT` plus a JSON record with the reason and the
 shots, and the gate result (`opt_out_reason`) goes into the run ledger. The
 opt-out does not touch the Jev gate.
 
+## Canon lock file
+
+A plan may name its canon lock file with `canon_locks: <path>`. A relative
+path is looked up from the plan's folder, then each parent folder, then the
+working directory. A plan lock can map to a canon lock with a
+different id through `canon_id`. Before `video runbook`, `cues`, or `cut-qa`
+load anything else, each mapped lock's `positive` and `negative` lines are
+compared with the canon (whitespace ignored). Any difference fails closed with
+`LOCK_CANON_DRIFT`. Kubrick holds no canon itself; the plan names its own
+file. The MYSLEF example points at
+`evals/calibration/board-image-ep01/locks-v0.27.yaml` as a test case.
+
 ## MYSLEF
 
 `evals/fixtures/jev/myslef-v023.json` stores the v0.23 compiled prompts for
@@ -272,6 +284,9 @@ not inherit an old verdict.
 | `JEV_UNREACHABLE` | Jev is down, unconfigured, or returned a verdict the gate cannot trust. |
 | `JEV_OVERRIDE` | Jev was unreachable and the operator override was logged. |
 | `JEV_PROMPT_MISSING` | A paid shot has no compiled prompt. |
+| `LOCK_CANON_DRIFT` | A plan lock's `positive` or `negative` line differs from the same lock (or its `canon_id`) in the plan's `canon_locks` file. |
+| `LOCK_CANON_MISSING` | A plan lock names a `canon_id` that the canon lock file does not have. |
+| `LOCK_CANON_UNREADABLE` | `canon_locks` is not a path, or the file cannot be loaded or has no `locks` list. |
 | `HOLD_LIST_INVALID` | `hold_list` is not a list, or an entry has no text. |
 | `NO_HOLDS` | The plan has nothing to check. |
 | `NO_SPEND` | This step has no prompt that would be spent. |
