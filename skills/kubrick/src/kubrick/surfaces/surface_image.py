@@ -262,7 +262,7 @@ def image_adapt(packet_text: str | None, project_id: str, provider: str) -> dict
             meta["status"] = "NOT_COMPUTABLE"
             meta["authority"] = "NOT_COMPUTABLE"
             meta["not_computable"] = ["provider_semantic_preservation"]
-    except Exception as exc:  # noqa: BLE001 — surface must fail closed, not crash
+    except Exception as exc:  # noqa: BLE001; surface must fail closed, not crash
         meta["status"] = "NOT_COMPUTABLE"
         meta["authority"] = "NOT_COMPUTABLE"
         meta["diagnostic"] = {"code": "ADAPTER_NOT_COMPUTABLE", "message": str(exc)}
@@ -315,14 +315,14 @@ def _image_analysis(kind: str, text: str, project_id: str) -> dict[str, Any]:
     fields = _extract_brief_fields(text, None)
     meta = _base_meta("image", kind, project_id, {"text": text})
     observations = {
-        "composition": list(fields.get("geometry") or [])[:4] or ["NOT_COMPUTABLE — composition not evidenced"],
-        "lighting": ["NOT_COMPUTABLE — lighting not evidenced"]
+        "composition": list(fields.get("geometry") or [])[:4] or ["NOT_COMPUTABLE: composition not evidenced"],
+        "lighting": ["NOT_COMPUTABLE: lighting not evidenced"]
         if "light" not in text.lower() and "color" not in text.lower()
         else ["lighting cues evidenced in brief"],
         "camera": list(fields.get("cinematic_channel") or [])[:3]
-        or ["NOT_COMPUTABLE — camera language not evidenced"],
+        or ["NOT_COMPUTABLE: camera language not evidenced"],
         "symbol-extract": list(fields.get("observable_evidence") or [])[:6]
-        or ["NOT_COMPUTABLE — symbols not evidenced"],
+        or ["NOT_COMPUTABLE: symbols not evidenced"],
     }
     meta["result"] = {
         "implementation_state": "DOMAIN",

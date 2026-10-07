@@ -11,6 +11,8 @@ from typing import Any
 from kubrick.surfaces.surface_common import _base_meta, _digest
 from kubrick.surfaces.surface_script import script_continuity, script_diagnose, script_improve
 
+_NO_DIALOGUE = re.compile(r"NOT_COMPUTABLE\s*[:\u2014-]\s*no dialogue")
+
 
 def script_rewrite(existing: str, project_id: str) -> dict[str, Any]:
     improved = script_improve(existing, project_id)
@@ -54,7 +56,7 @@ def script_compress(existing: str, project_id: str) -> dict[str, Any]:
     keep = lines[:12]
     body = "\n".join(
         [
-            f"# Compressed script — {project_id}",
+            f"# Compressed script: {project_id}",
             "",
             *keep,
             "",
@@ -161,12 +163,13 @@ def script_dialog_validate(existing: str, project_id: str) -> dict[str, Any]:
             "diagnostic": {"code": "INSUFFICIENT_EVIDENCE", "message": "--input script is required"},
         }
     findings = []
-    if "NOT_COMPUTABLE — no dialogue" in existing or "Dialogue" in existing and "NOT_COMPUTABLE" in existing:
+    # Artifacts before 0.27.11 wrote the sentinel with an em dash; accept any separator.
+    if _NO_DIALOGUE.search(existing) or "Dialogue" in existing and "NOT_COMPUTABLE" in existing:
         findings.append(
             {
                 "severity": "low",
                 "code": "DIALOGUE_ABSENT",
-                "message": "Dialogue not evidenced — valid fail-closed state",
+                "message": "Dialogue not evidenced; valid fail-closed state",
             }
         )
     if re.search(r"\b(as you know|let me explain)\b", existing, re.I):

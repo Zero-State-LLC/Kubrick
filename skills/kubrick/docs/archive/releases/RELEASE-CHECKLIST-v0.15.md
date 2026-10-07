@@ -1,4 +1,4 @@
-# Release checklist — v0.15.0
+# Release checklist: v0.15.0
 
 - [x] VERSION / manifest / SKILL / pyproject / README / CHANGELOG aligned to v0.15.0
 - [x] `python scripts/kubrick.py do check --action smoke`

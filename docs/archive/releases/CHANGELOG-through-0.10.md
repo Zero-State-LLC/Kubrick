@@ -1,15 +1,15 @@
-# Changelog archive — Kubrick through 0.10.0
+# Changelog archive: Kubrick through 0.10.0
 
 Moved out of CHANGELOG.md so the live changelog stays under 500 lines.
 Historical notes below are not a list of what the current skill ships.
 
 ## [0.10.0] - 2026-07-29
 
-### Added — Neuro-Symbolic & Compositional Upgrades
+### Added: Neuro-Symbolic & Compositional Upgrades
 
 - **Internal Motif/Structure Graph Layer**: Lightweight neuro-symbolic graph (nodes = motifs + observed states; edges = relational pressures and state transformations) used internally by the Dynamic Selection Engine. Translated exclusively into observable constraints.
 - **Explicit Disentanglement of Cinematic Systems**: Layout/Geometry, Semantics/Function, and Attributes/States factored (SL-VAE style) to reduce leakage and enable cleaner interlocking.
-- **Compositional Layered Encoding**: Analogs to Compositional Masked Attention (CMA) and Multi-Layered Sampler (MLS) — convergence masking, independent layers with controlled interaction, prioritized constraints.
+- **Compositional Layered Encoding**: Analogs to Compositional Masked Attention (CMA) and Multi-Layered Sampler (MLS): convergence masking, independent layers with controlled interaction, prioritized constraints.
 - **Conditioning-Style Prompt Engineering**: Prompt sections act as precise control signals (geometry, state differentials, dual light, object participation).
 - **Neuro-Symbolic Predicate Validation**: Internal combinatorial coherence checks treating lexicon entries as observable predicates.
 - **Enhanced Single-Frame State Modeling**: Stronger before/after differentials, persistent residue as charge, layered time within one frame.
@@ -21,7 +21,7 @@ Historical notes below are not a list of what the current skill ships.
 
 ## [0.9.0] - 2026-07-29
 
-### Added — Dynamic Latent Esoteric–Alchemical Encoding
+### Added: Dynamic Latent Esoteric–Alchemical Encoding
 
 - Full **Kubrick Esoteric–Alchemical Encoding Lexicon** (200+ entries across Hermetic Principles, Classical Alchemical Operations, Magnum Opus stages, Substances, Vessels, Polarity, Geometry, Elements, Planetary Forces, Initiatory Structures, Mythic Archetypes, Magical Operations, Chaos Magic, Theurgy, Kabbalah, Gnosticism, Neoplatonism, Time/Recursion, Shadow work, Dream/Astral, Divination, Ritual, Color, Sound, and Kubrick-native hidden structures).
 - **Dynamic Esoteric–Alchemical Selection Engine**:
@@ -39,11 +39,11 @@ See `examples/beach-threshold.md` for baseline; 0.9.0+ runs will be denser.
 
 ## [0.8.0] - 2026-07-29
 
-### Added — Profound Esoteric & Single-Frame Integration
+### Added: Profound Esoteric & Single-Frame Integration
 
 - **Esoteric Structural Translation** in `references/cinematic-symbolism-corpus.md`
   - Formal translation layer for ancient magical and esoteric concepts (liminal/threshold, trace as binding/erasure, witness objects, erasure as active operation, inversion as crossing, dual preservation/dissolution, residue/charge).
-  - All concepts enter exclusively via enforceable structural rules and constraint — never naming, iconography, or occult collage.
+  - All concepts enter exclusively via enforceable structural rules and constraint, never naming, iconography, or occult collage.
   - New "Core Translation Principles", "Rules for Profound Esoteric Work", and "Single-Frame Esoteric Mappings".
 
 - Expanded **Cinematic Systems** in corpus: Light Systems, Geometry & Negative Space, Material & Trace, Inversion & Reflection, Perceptual Layering & Residue (with profound interlocking requirements).
@@ -52,8 +52,8 @@ See `examples/beach-threshold.md` for baseline; 0.9.0+ runs will be denser.
 - Stronger requirement for image prompts: interlocking from Light + Geometry + Material/Trace + Inversion at convergence point with state differentials.
 
 ## [0.7.1] - 2026-07-29
-### Added — Autonomous Evolution from Use
-- `scripts/evolve_from_use.py` — self-improvement engine
+### Added: Autonomous Evolution from Use
+- `scripts/evolve_from_use.py`: self-improvement engine
   - Aggregates retrieval receipts (auto-logged by retrieve script)
   - Incorporates project outcomes (success/failure signals)
   - Adjusts `confidence` in sidecars
@@ -70,8 +70,8 @@ The corpus now improves from real application in projects and Forge workflows wi
 > **Superseded in 0.12.0:** automatic corpus changes are no longer part of the supported workflow. Outcome evidence now produces human-reviewed proposals only.
 
 ## [0.7.0] - 2026-07-29
-### Added — Executable Retrieval (P0 of next campaign)
-- `scripts/retrieve_symbolic_patterns.py` — deterministic retrieval helper
+### Added: Executable Retrieval (P0 of next campaign)
+- `scripts/retrieve_symbolic_patterns.py`: deterministic retrieval helper
   - Loads index + sidecars
   - Scores with decomposition
   - Applies exclusions/prohibited
@@ -114,7 +114,7 @@ This begins the shift from reference skill to operational symbolic compiler.
 This continues the P1/P2 hardening after the P0 merge.
 
 ## [0.6.0] - 2026-07-28
-### Added — Symbolic Retrieval and Continuity Hardening (P0)
+### Added: Symbolic Retrieval and Continuity Hardening (P0)
 - Machine-readable schemas/ (symbolic-narrative-pattern, cinematic-pattern, transformation-grammar, narrative-affordance, symbolic-architecture, continuity-forge-symbolic-export)
 - Retrieval scoring model with composite formula and NOT_COMPUTABLE threshold
 - Negative retrieval / exclusion_profiles
@@ -163,7 +163,7 @@ Kubrick now provides a rigorous, auditable bridge from historically grounded sym
 
 ## [0.4.0] - 2026-07-28
 
-### Added — Public-Ready Improvements
+### Added: Public-Ready Improvements
 
 - Fixed frontmatter to Hermes standards.
 - Added symbolic-specific eval rubric and regression cases.

@@ -2,7 +2,7 @@
 
 **Date:** 2026-08-08  
 **Status:** Approved  
-**Version target:** 0.15.0 (minor — new public operator surface)  
+**Version target:** 0.15.0 (minor: new public operator surface)  
 **Hosts:** Hermes (CLI, gateway, Desktop); optional OpenClaw packaging unchanged  
 **Repos:** Target delivery **Zero-State-LLC/Kubrick** (org) via PR; local development may start from `scrimshawlife-ctrl/Kubrick` / `~/Kubrick` and sync  
 **Related:** Operator intent router  
@@ -15,7 +15,7 @@ Add a guided **wizard** that collapses Kubrick’s twelve-intent operator surfac
 
 The wizard is **Approach C**:
 
-1. A thin **CLI intent** (`wizard`) on the existing intent router — interactive for real TTYs, fully non-interactive for agents.
+1. A thin **CLI intent** (`wizard`) on the existing intent router: interactive for real TTYs, fully non-interactive for agents.
 2. A **Hermes routing protocol** in `SKILL.md` / runtime contract: chat-driven Q&A → answers JSON → `do wizard --print-only` / `--run`.
 3. **Presets** for the production happy path **and** free resolution of any registered intent/action.
 
@@ -76,7 +76,7 @@ python3 scripts/kubrick.py wizard [options]
 
 - Prefer print-only. `--run` is explicit.
 - Never set `allow_mutate: true` unless answers explicitly include it as JSON boolean `true`.
-- Bool fields (`allow_mutate`, and any future flags of that class) must be real JSON/Python `bool`s — string `"false"` is rejected (Orchestra lesson).
+- Bool fields (`allow_mutate`, and any future flags of that class) must be real JSON/Python `bool`s; string `"false"` is rejected (Orchestra lesson).
 - Non-TTY without enough answers to resolve → exit `2` with guidance to use `--answers` / chat (Desktop-safe).
 - Never write into `references/` from wizard-driven paths.
 - Preserve authority classes: draft/proposal unless external authority is explicit.
@@ -210,7 +210,7 @@ python3 scripts/kubrick.py do compile --brief … --out …
 
 **Implementation constraints:**
 
-- Prefer stdlib-only wizard core (match router posture). Optional PyYAML only if reading YAML answers is explicitly required later — **v1 answers are JSON**.
+- Prefer stdlib-only wizard core (match router posture). Optional PyYAML only if reading YAML answers is explicitly required later; **v1 answers are JSON**.
 - Reuse `intent_router` resolve for `--run`; do not duplicate script maps.
 - Prefer in-process dispatch equivalent to `kubrick.py do …`.
 - Interactive TTY only when `sys.stdin.isatty()` and answers incomplete.
@@ -247,7 +247,7 @@ Update Hermes routing tables:
 
 ## Testing
 
-`tests/test_wizard.py` (project test style — pytest if suite is pytest, else unittest):
+`tests/test_wizard.py` (project test style: pytest if suite is pytest, else unittest):
 
 1. Each preset resolves to expected intent + critical argv tokens.
 2. Default plan never includes mutate/evolve/lock without `allow_mutate`.
@@ -266,7 +266,7 @@ Update Hermes routing tables:
 
 ## Implementation order (for writing-plans)
 
-1. `kubrick_wizard.py` — pure resolve/validate + plan structs (unit-testable).
+1. `kubrick_wizard.py`: pure resolve/validate + plan structs (unit-testable).
 2. Wire `wizard` intent + argparse flags; register in manifest + router.
 3. Interactive prompts (TTY only).
 4. `--run` via existing `do` dispatch.

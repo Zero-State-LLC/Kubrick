@@ -16,7 +16,7 @@ fi
 TARGET="${DEST_ROOT%/}/optional-skills/creative/kubrick"
 mkdir -p "${TARGET}"
 
-# Core skill payload only — exclude git metadata, CI, historical planning docs,
+# Core skill payload only: exclude git metadata, CI, historical planning docs,
 # and packaging helpers that are not needed inside hermes-agent.
 if command -v rsync >/dev/null 2>&1; then
   rsync -a --delete \

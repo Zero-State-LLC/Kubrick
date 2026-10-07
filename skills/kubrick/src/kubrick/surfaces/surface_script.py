@@ -57,34 +57,34 @@ def script_create(
                 (
                     f"Observable action: {fields['desired_state_change']}"
                     if fields["desired_state_change"]
-                    else "NOT_COMPUTABLE — desired state change not evidenced"
+                    else "NOT_COMPUTABLE: desired state change not evidenced"
                 ),
                 "",
                 (
                     f"Character pressure: {fields['character_pressure']}"
                     if fields["character_pressure"]
-                    else "NOT_COMPUTABLE — character pressure not evidenced"
+                    else "NOT_COMPUTABLE: character pressure not evidenced"
                 ),
                 "",
-                "NOTE: Dialogue is NOT_COMPUTABLE — no dialogue evidenced.",
+                "NOTE: Dialogue is NOT_COMPUTABLE: no dialogue evidenced.",
                 "",
             ]
         )
     elif fmt_norm in {"beat-sheet", "beats"}:
         body = "\n".join(
             [
-                f"# Beat sheet — {project_id}",
+                f"# Beat sheet: {project_id}",
                 "",
                 f"Design revision: {design_rev}",
                 f"Script revision: {revision}",
                 "",
-                "1. Setup — " + (fields["dramatic_problem"] or "NOT_COMPUTABLE"),
-                "2. Pressure — " + (fields["character_pressure"] or "NOT_COMPUTABLE"),
-                "3. Turn — " + (fields["desired_state_change"] or "NOT_COMPUTABLE"),
-                "4. Residue — "
+                "1. Setup: " + (fields["dramatic_problem"] or "NOT_COMPUTABLE"),
+                "2. Pressure: " + (fields["character_pressure"] or "NOT_COMPUTABLE"),
+                "3. Turn: " + (fields["desired_state_change"] or "NOT_COMPUTABLE"),
+                "4. Residue: "
                 + (
                     "; ".join(fields.get("residue") or [])
-                    or "NOT_COMPUTABLE — residue not evidenced"
+                    or "NOT_COMPUTABLE: residue not evidenced"
                 ),
                 "",
             ]
@@ -92,7 +92,7 @@ def script_create(
     else:
         body = "\n".join(
             [
-                f"# Script package — {project_id}",
+                f"# Script package: {project_id}",
                 "",
                 f"Format: {fmt_norm}",
                 f"Design revision link: {design_rev}",
@@ -108,7 +108,7 @@ def script_create(
                 fields["character_pressure"] or "NOT_COMPUTABLE",
                 "",
                 "## Dialogue",
-                "NOT_COMPUTABLE — no dialogue evidenced",
+                "NOT_COMPUTABLE: no dialogue evidenced",
                 "",
                 "## Continuity requirements",
                 "- Preserve identity, ownership, chronology, residue",
@@ -116,7 +116,7 @@ def script_create(
                 "## Production implications",
                 (
                     "\n".join(f"- {c}" for c in (fields.get("production_constraints") or [])[:4])
-                    or "NOT_COMPUTABLE — awaiting production constraints"
+                    or "NOT_COMPUTABLE: awaiting production constraints"
                 ),
                 "",
             ]
@@ -163,7 +163,7 @@ def script_diagnose(existing: str, project_id: str) -> dict[str, Any]:
             {
                 "severity": "medium",
                 "code": "UNDER_SPECIFIED",
-                "message": "Many NOT_COMPUTABLE fields — script needs more observable action",
+                "message": "Many NOT_COMPUTABLE fields; script needs more observable action",
             }
         )
     if len(existing.strip()) < 80:

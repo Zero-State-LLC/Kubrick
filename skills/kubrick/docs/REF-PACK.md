@@ -11,11 +11,11 @@ not emitted.
 
 The resolver picks one mode:
 
-- `refs_only` — no start frame. The pack paths are the references.
-- `start_frame` — a start image or a `join.chain_from`. Seedance
+- `refs_only`: no start frame. The pack paths are the references.
+- `start_frame`: a start image or a `join.chain_from`. Seedance
   `startImage` and `referenceImages` are mutually exclusive, so the
   references are dropped with `REFS_DROPPED_BY_CHAIN`.
-- `first_last` — a start and an end framing. Keyframe `create_movie` has
+- `first_last`: a start and an end framing. Keyframe `create_movie` has
   `startImage` and no end-image field, so `end_image.supported` is false.
   References are still dropped.
 

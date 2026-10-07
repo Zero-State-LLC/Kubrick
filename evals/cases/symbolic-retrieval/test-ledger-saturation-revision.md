@@ -1,4 +1,4 @@
-# Test — Project Ledger, Saturation, and Revision Diff
+# Test: Project Ledger, Saturation, and Revision Diff
 
 **Input**: Multi-scene project. After initial symbolic work, delete two scenes and reorder one sequence. Re-run.
 

@@ -6,7 +6,7 @@ Convert Kubrick from a high-signal symbolic reference and prompt-engineering ski
 
 ## Execution waves
 
-### Wave 1 — Executable substrate
+### Wave 1: Executable substrate
 
 - Ledger-aware retrieval scoring and reason-vector diagnostics.
 - First-class collision prefilters and saturation/debt penalties.
@@ -16,7 +16,7 @@ Convert Kubrick from a high-signal symbolic reference and prompt-engineering ski
 - Initial corpus-density expansion with high-transfer patterns.
 - Adversarial and regression fixtures.
 
-### Wave 2 — Feedback and production adapters
+### Wave 2: Feedback and production adapters
 
 - Forge outcome extraction from ledger diffs, revisions, collision reports, and ingestion results.
 - Multi-signal pattern evolution and retirement proposals.
@@ -24,7 +24,7 @@ Convert Kubrick from a high-signal symbolic reference and prompt-engineering ski
 - Model adapters for Grok Imagine, Flux, SD3, and Midjourney.
 - Shared graph and residue tracking for storyboard consistency.
 
-### Wave 3 — Ecosystem surface
+### Wave 3: Ecosystem surface
 
 - MCP operators for ledger-aware retrieval, mutation, saturation scoring, graph export, and symbolic-architecture export.
 - Closed-loop image evaluation against original symbolic architecture.

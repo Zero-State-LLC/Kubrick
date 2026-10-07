@@ -368,7 +368,7 @@ def compile_video_adapt(
         _store_adapt_result(meta, adapted, provider, normalized, duration)
         token = digest({"packet": packet_text, "provider": provider})
         meta["artifact_id"] = f"kubrick-video-adapt-{token}"
-    except Exception as exc:  # noqa: BLE001 — surface must fail closed, not crash
+    except Exception as exc:  # noqa: BLE001; surface must fail closed, not crash
         meta["status"] = "NOT_COMPUTABLE"
         meta["authority"] = "NOT_COMPUTABLE"
         meta["diagnostic"] = {"code": "ADAPTER_NOT_COMPUTABLE", "message": str(exc)}

@@ -18,10 +18,10 @@ See `docs/ARCHITECTURE-v0.16.md`.
 
 ## 3. Files modified (high level)
 
-- `scripts/production_surface.py` — engine adapter + artifact-root
-- `scripts/surface_compilers.py` — v0.16 action expansions
-- `scripts/{design,script,image,video}_surface.py` — action sets
-- `scripts/kubrick.py` — `design|script|image|video` sugar, `qa`, `receipts`
+- `scripts/production_surface.py`: engine adapter + artifact-root
+- `scripts/surface_compilers.py`: v0.16 action expansions
+- `scripts/{design,script,image,video}_surface.py`: action sets
+- `scripts/kubrick.py`: `design|script|image|video` sugar, `qa`, `receipts`
 - `kubrick.manifest.yaml`, `VERSION`, `SKILL.md`, `CHANGELOG.md`
 - `docs/FIRST-CLASS-PRODUCTION-SURFACES.md`
 - `examples/production-surfaces/*`

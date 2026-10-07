@@ -1,4 +1,4 @@
-# Symbolic Dramaturgy and Cinematic Encoding — Module 5B
+# Symbolic Dramaturgy and Cinematic Encoding: Module 5B
 
 **Governing Law**:
 
@@ -25,10 +25,10 @@ Profound symbolism does not decorate or illustrate. It operates as a **latent co
 
 Requirements for profound integration:
 - **Interlocking systems**: At least two (ideally three) channels must be active and mutually transformative. A cinematic choice (light, geometry, negative space) must change the reading of a diegetic element (object, trace, material state), and vice versa.
-- **Motif as transformer**: The primary motif must not only recur or mutate — it must actively reshape the conditions under which other elements (including the figure) are read. Removing it must collapse or fundamentally shift the perceptual structure.
+- **Motif as transformer**: The primary motif must not only recur or mutate; it must actively reshape the conditions under which other elements (including the figure) are read. Removing it must collapse or fundamentally shift the perceptual structure.
 - **State and relational depth**: In single frames, use visible state differentials (multiple "ages," reflections, shadows, material memory, erosion) so the image contains layered time and transformation without explicit narrative.
 - **Perceptual layering**: The work must reward sustained looking. First reading is coherent and causal. Sustained reading reveals additional relational pressures, inversions, or residues that were always present but not foregrounded.
-- **Constraint as depth**: Any hidden system (alchemical, geometric, ritual, mnemonic) enters only through enforceable structural rules — phase, inversion, residue, boundary behavior — never through citation or aesthetic borrowing.
+- **Constraint as depth**: Any hidden system (alchemical, geometric, ritual, mnemonic) enters only through enforceable structural rules (phase, inversion, residue, boundary behavior) never through citation or aesthetic borrowing.
 - **Field conditioning**: Geometry, light, and negative space are not backdrops. They are active agents that can invert, contain, dissolve, or preserve other elements.
 
 Surface integration (motif present + nice lighting + geometric composition) fails this standard. Profound integration produces an image or scene whose full meaning cannot be extracted without the interlocking structure.
@@ -51,7 +51,7 @@ symbolic_intent:
 
 The skill must reject symbolism that exists only because it is aesthetically “cool,” obscure, or esoteric. Every symbolic element must serve a dramatic function.
 
-## 2. Separate Symbol From Meaning — Symbolic Packet
+## 2. Separate Symbol From Meaning: Symbolic Packet
 
 Never begin with declared meaning. Begin with observable structure.
 
@@ -105,15 +105,15 @@ motif_lifecycle:
 Each recurrence should alter at least one variable:
 - scale, ownership, orientation, color, material, sound, framing, distance, completeness, rhythm, context, agency, emotional valence.
 
-## 4. Symbolic Pressure, Not Decoration — SIGIL / CADENCE / LOAD / ROLES / AFTER
+## 4. Symbolic Pressure, Not Decoration: SIGIL / CADENCE / LOAD / ROLES / AFTER
 
 Adapt ritual-like structures:
 
-- **SIGIL** — Motif Density: Do not introduce more symbolic channels than the scene can carry without reducing dramatic clarity.
-- **CADENCE** — Recurrence Timing: close repetition (compulsion), widening intervals (decay), shortening (convergence), at thresholds (ritual), unexpected absence (stronger signal).
-- **LOAD** — Unreleased Symbolic Affect: Track whether an image or object retains emotional pressure after its plot function ends (broken glass stays visible, migrates, cuts later, repaired incorrectly).
-- **ROLES** — Symbolic Position: witness, gatekeeper, sacrifice, double, guide, contaminant, absent center, false king, shadow companion, threshold guardian. These describe **scene behavior**, not dialogue labels.
-- **AFTER** — Residual Persistence: The motif may be gone while its shape, sound, framing, behavioral pattern, negative space, or causal consequence remains.
+- **SIGIL** (Motif Density): Do not introduce more symbolic channels than the scene can carry without reducing dramatic clarity.
+- **CADENCE** (Recurrence Timing): close repetition (compulsion), widening intervals (decay), shortening (convergence), at thresholds (ritual), unexpected absence (stronger signal).
+- **LOAD** (Unreleased Symbolic Affect): Track whether an image or object retains emotional pressure after its plot function ends (broken glass stays visible, migrates, cuts later, repaired incorrectly).
+- **ROLES** (Symbolic Position): witness, gatekeeper, sacrifice, double, guide, contaminant, absent center, false king, shadow companion, threshold guardian. These describe **scene behavior**, not dialogue labels.
+- **AFTER** (Residual Persistence): The motif may be gone while its shape, sound, framing, behavioral pattern, negative space, or causal consequence remains.
 
 ## 5. Archetypal Function Without Naming
 
@@ -150,7 +150,7 @@ Rules:
 6. Where the project is fictional, create a coherent internal symbolic grammar rather than randomly borrowing real ritual forms.
 7. Do not use living sacred practices as horror texture without acknowledging the narrative implication.
 
-## 7. Shot-Level Symbolic Grammar — symbolic_shot
+## 7. Shot-Level Symbolic Grammar: symbolic_shot
 
 ```yaml
 symbolic_shot:
@@ -220,7 +220,7 @@ symbolic_blocking:
 
 Blocking must still arise from plausible objectives. Examples: one character repeatedly cleans a space another continually contaminates; protagonist follows circular paths until first direct crossing.
 
-## 11. Shot Recurrence and Mutation — shot_motif_ledger
+## 11. Shot Recurrence and Mutation: shot_motif_ledger
 
 ```yaml
 shot_motif:
@@ -285,7 +285,7 @@ Instead, selected system governs: phase progression, transformations, opposition
 Examples:
 - **Alchemical**: breakdown, separation, clarification, reintegration via changing material states, color temperature, environmental behavior, relationship purification (no nigredo lecture).
 - **Tarot**: sequence function, relational position, reversal mechanic, progression from potential to consequence, recurring role exchange (no card tableaux).
-- **Astrology**: timing, pressure and relational grammar — not fate exposition.
+- **Astrology**: timing, pressure and relational grammar, not fate exposition.
 - **Ritual**: preparation, boundary creation, role assignment, repetition, sacrifice or cost, transformation, closure, residue. Audience need not know it is ritualized.
 
 ## 15. Hidden Structural Correspondence Map (private, never directly shown)
@@ -307,7 +307,7 @@ correspondence_map:
   audience_exposure: indirect
 ```
 
-Express bindings through behavior, setting, movement and material transformation — not dialogue about elements.
+Express bindings through behavior, setting, movement and material transformation, not dialogue about elements.
 
 ## 16. Profound Single-Frame Integration (for images and stills)
 
@@ -325,37 +325,37 @@ The prompt must be written so that the resulting image contains a coherent surfa
 
 Apply in addition to A–L. Flag specific lines/passages. Provide concrete replacements.
 
-## Gate M — Symbol Explanation
+## Gate M: Symbol Explanation
 Flag any line that explains a symbol the scene has already made legible.
 
-## Gate N — Occult Collage
+## Gate N: Occult Collage
 Flag arbitrary mixtures of sigils, astrology, tarot, sacred geometry, alchemy, deity imagery, numerology without a governing grammar.
 
-## Gate O — Symbolic Redundancy
+## Gate O: Symbolic Redundancy
 Flag when composition, dialogue, prop, music and color all communicate the exact same meaning simultaneously. Use two channels at most unless deliberate overdetermination is dramatically justified.
 
-## Gate P — One-to-One Symbolism
+## Gate P: One-to-One Symbolism
 Flag simplistic equations (bird = freedom, water = emotion, mirror = identity, red = danger). Require contextual transformation.
 
-## Gate Q — Repetition Without Mutation
+## Gate Q: Repetition Without Mutation
 Flag recurring images that do not change meaning, ownership, context, form or consequence.
 
-## Gate R — Archetype Costume
+## Gate R: Archetype Costume
 Flag characters who resemble archetypes only through clothing, names, props or iconography but do not enact the archetypal function.
 
-## Gate S — Tradition Flattening
+## Gate S: Tradition Flattening
 Flag unsupported equivalence or aesthetic blending across cultural and religious systems.
 
-## Gate T — Numerology Inflation
+## Gate T: Numerology Inflation
 Flag arbitrary number insertion that has no perceptible structural effect.
 
-## Gate U — Symbolic Supremacy
+## Gate U: Symbolic Supremacy
 Flag scenes where symbolic design compromises: causality, character agency, spatial clarity, tone, emotional credibility, production feasibility.
 
-## Gate V — Mystery by Obscurity
+## Gate V: Mystery by Obscurity
 Flag ambiguity created merely by withholding basic causal information or using cryptic dialogue. True symbolic ambiguity preserves clear events while leaving their larger relation open.
 
-## Gate W — Premature Closure
+## Gate W: Premature Closure
 Flag explicit confirmation of the “correct” symbolic interpretation.
 
 ## Required Outputs for Symbolic Work

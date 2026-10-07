@@ -1,5 +1,5 @@
 #!/usr/bin/env bash
-# Kubrick — atomic Hermes Skill Installer
+# Kubrick: atomic Hermes Skill Installer
 # Usage:
 #   ./install.sh                  # ~/.hermes/skills/kubrick
 #   ./install.sh creative         # ~/.hermes/skills/creative/kubrick
@@ -175,4 +175,4 @@ write_receipt "INSTALLED" "$BACKUP_PATH"
 echo "Kubrick installed successfully."
 echo "Location: ${DEST}"
 echo "Validated before activation: manifest, Hermes skill, pattern corpus, release version"
-echo "Standalone Hermes skill — Continuity Forge optional."
+echo "Standalone Hermes skill. Continuity Forge optional."

@@ -16,6 +16,8 @@ jobs:
     - name: No new em dashes (added lines only)
       if: github.event_name == 'pull_request'
       run: python3 scripts/check_no_new_em_dash.py --base origin/${{ github.base_ref }}
+    - name: Em dash check (whole repo)
+      run: python3 scripts/check_no_new_em_dash.py --all
     - name: Set up Python
       uses: actions/setup-python@v5
       with:

@@ -1,10 +1,10 @@
-# Example: Esoteric Threshold Operation — "A Man on the Beach"
+# Example: Esoteric Threshold Operation: "A Man on the Beach"
 
 **Seed**: "a man on the beach"  
 **Skill version**: 0.8.0  
 **Focus**: Constraint-based embedding of ancient magical concepts (liminal threshold, trace as sympathetic binding/erasure, witness object, inversion as crossing, dual operation of preservation vs dissolution).
 
-## Private Hidden Correspondence (internal only — never in prompt or output)
+## Private Hidden Correspondence (internal only: never in prompt or output)
 - Beach edge = active **liminal threshold** (land/sea, known/undifferentiated, self/other).
 - Footprints = **sympathetic record / binding** of passage. The place itself is the agent that edits the trace.
 - Stone = **witness object / charged vessel** carrying prior state or "other." Lowering it at the boundary = operative act.
@@ -26,7 +26,7 @@ symbolic_intent:
   thematic_tension: singular self meeting an active, editing threshold
   audience_visibility: peripheral on first viewing, accumulating on sustained looking
   interpretation_openness: high
-  intended_payoff: the place is not passive — it participates in the editing of presence
+  intended_payoff: the place is not passive; it participates in the editing of presence
   prohibited_explanation: any direct reference to magic, ritual, symbolism, or meaning
 ```
 
@@ -55,7 +55,7 @@ Asymmetric composition, man in the right vertical third. A strong, unbroken hori
 
 Low sun from behind and to the left creates a sharp bright rim light that isolates and holds the upper body, head, left side, and the stone in the hand. At the same time, reflected and fill light from the sky and water softens and partially dissolves the lower legs, feet, and the stone where they meet the wet sand. The long diagonal cast shadow of the man and the lowered stone crosses the wet band and overlaps one of the actively softening footprints. Thin water films on the wet sand create precise mirror-like reflections of the sky directly at the point of contact between the front foot, the stone, and the receding water.
 
-Camera at mid-chest height, natural perspective (approximately 45-50mm equivalent). Medium-wide framing with substantial negative space to the left and above the horizon. The horizontal wet band and open space exert clear pressure on the figure. High material fidelity: granular sand with wind ripples in the dry areas, individual grains, fabric texture with adhered particles, exact water film edges and reflections, soft yet defined shadow boundaries. Coherent lighting and perspective. Restrained palette — warm rim on preserved surfaces, cooler desaturated tones where light and water interact with the figure and trace. Sharp focus on the convergence zone at the water's edge, gentle falloff toward the horizon.
+Camera at mid-chest height, natural perspective (approximately 45-50mm equivalent). Medium-wide framing with substantial negative space to the left and above the horizon. The horizontal wet band and open space exert clear pressure on the figure. High material fidelity: granular sand with wind ripples in the dry areas, individual grains, fabric texture with adhered particles, exact water film edges and reflections, soft yet defined shadow boundaries. Coherent lighting and perspective. Restrained palette: warm rim on preserved surfaces, cooler desaturated tones where light and water interact with the figure and trace. Sharp focus on the convergence zone at the water's edge, gentle falloff toward the horizon.
 
 No other people, no boats, no structures, no text.
 ```

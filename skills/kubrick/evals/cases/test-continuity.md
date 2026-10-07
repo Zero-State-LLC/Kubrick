@@ -1,4 +1,4 @@
-# Test 5 — Continuity Conflict
+# Test 5: Continuity Conflict
 
 **Input**: Scene 3 has Character A learn a secret in the library. Scene 7 has Character A act on that secret in the antagonist's office without any scene showing how A got there or who told them.
 

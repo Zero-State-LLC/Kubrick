@@ -1,4 +1,4 @@
-# Test — Exclusion Profile + Motif Collision
+# Test: Exclusion Profile + Motif Collision
 
 **Input**: Identity fragmentation scene. Propose "broken mirror" + "twin imagery" + editing repetition.
 

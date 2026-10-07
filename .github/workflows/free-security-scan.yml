@@ -3,7 +3,7 @@ name: security
 # Free replacement for CodeQL, which is licensed for open source only unless
 # you hold GitHub Code Security.
 #
-# This workflow deliberately contains no scanning logic — it just calls
+# This workflow deliberately contains no scanning logic: it just calls
 # scripts/security-scan.sh, the same script you run locally:
 #
 #     ./scripts/security-scan.sh
@@ -13,7 +13,7 @@ name: security
 #
 # Runs on the self-hosted Macs: no billed minutes, and no dependency on the
 # Actions billing state. Once billing is healthy, switch to ubuntu-latest for
-# cleaner isolation — Linux minutes fit inside the included tier.
+# cleaner isolation: Linux minutes fit inside the included tier.
 
 on:
   push:

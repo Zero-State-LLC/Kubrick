@@ -1,4 +1,4 @@
-# Validation Test 5 — Ritual Structure Without Terminology
+# Validation Test 5: Ritual Structure Without Terminology
 
 **Input**: "A character must cross a personal threshold (leaving a toxic relationship/home). Use liminal structure without using words like ritual, initiation, threshold, or naming any tradition."
 

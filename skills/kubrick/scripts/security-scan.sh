@@ -1,6 +1,6 @@
 #!/usr/bin/env bash
 #
-# Security scan — run this locally, exactly as CI runs it.
+# Security scan: run this locally, exactly as CI runs it.
 #
 #   ./scripts/security-scan.sh                 # scan, fail on findings
 #   REPORT_ONLY=1 ./scripts/security-scan.sh   # scan, always exit 0
@@ -78,14 +78,14 @@ if [ "$has_python" = 1 ]; then
   # -i/-ii/-iii is the same for confidence. So -ll -ii means MEDIUM and above,
   # NOT high -- which is why this gate first failed on repos whose worst
   # finding was medium.
-  note "python SAST (bandit) — informational, medium severity and above"
+  note "python SAST (bandit): informational, medium severity and above"
   "$VENV/bin/bandit" -r "$ROOT" -ll -ii -q --exclude "$BANDIT_EXCLUDE" || true
 
-  note "python SAST (bandit) — gate, high severity AND high confidence"
+  note "python SAST (bandit): gate, high severity AND high confidence"
   "$VENV/bin/bandit" -r "$ROOT" -lll -iii -q --exclude "$BANDIT_EXCLUDE" \
     || record "bandit: high-severity, high-confidence python findings"
 else
-  note "python SAST (bandit) — no python sources, skipped"
+  note "python SAST (bandit): no python sources, skipped"
 fi
 
 note "multi-language SAST (semgrep)"
@@ -93,7 +93,7 @@ note "multi-language SAST (semgrep)"
   --metrics=off --error --severity=ERROR --quiet \
   "${EXCLUDES[@]}" "$ROOT" || record "semgrep: ERROR-severity findings"
 
-note "dependencies (osv-scanner) — advisory only"
+note "dependencies (osv-scanner): advisory only"
 # Never blocking: a fresh CVE in a transitive dependency should not stop an
 # unrelated PR. Review these, do not gate on them.
 "$BIN/osv-scanner" scan source --recursive "$ROOT" || true
@@ -106,5 +106,5 @@ if [ ${#failed[@]} -eq 0 ]; then
 fi
 printf '\033[31m%d blocking check(s) failed:\033[0m\n' "${#failed[@]}"
 printf '  - %s\n' "${failed[@]}"
-[ "$REPORT_ONLY" = "1" ] && { echo "REPORT_ONLY=1 — exiting 0 anyway."; exit 0; }
+[ "$REPORT_ONLY" = "1" ] && { echo "REPORT_ONLY=1, exiting 0 anyway."; exit 0; }
 exit 1

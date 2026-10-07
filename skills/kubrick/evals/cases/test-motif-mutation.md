@@ -1,4 +1,4 @@
-# Test — Motif Mutation Under Pressure
+# Test: Motif Mutation Under Pressure
 
 **Input**: "Develop a short scene where a recurring unlit red exit sign appears in three moments. The protagonist is a night security guard who has been lying about an incident."
 

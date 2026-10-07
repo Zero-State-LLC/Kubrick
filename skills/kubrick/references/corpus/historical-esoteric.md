@@ -1,6 +1,6 @@
 # Domain: Historical Esoteric Systems
 
-## Pattern 1: Corpus Hermeticum — "As Above, So Below" as Correspondence and Inversion
+## Pattern 1: Corpus Hermeticum: "As Above, So Below" as Correspondence and Inversion
 
 **SymbolicNarrativePattern**:
   pattern_id: "hermetic_as_above_so_below"

@@ -2,13 +2,13 @@
 
 ## Summary
 
-Wave 2 and Wave 3 delivery: Forge multi-signal feedback, multi-provider generative adaptation, closed-loop differential visual QA, and optional MCP/CLI operators — without weakening fail-closed, proposal-only, or Forge-canonical governance.
+Wave 2 and Wave 3 delivery: Forge multi-signal feedback, multi-provider generative adaptation, closed-loop differential visual QA, and optional MCP/CLI operators, without weakening fail-closed, proposal-only, or Forge-canonical governance.
 
 **Tracking:** Issues [#3](https://github.com/scrimshawlife-ctrl/Kubrick/issues/3) and [#4](https://github.com/scrimshawlife-ctrl/Kubrick/issues/4) closed via [PR #24](https://github.com/scrimshawlife-ctrl/Kubrick/pull/24).
 
 Also included on `main` in this generation of the skill: deterministic design-specification compilation (`design-build`).
 
-## Wave 2 — Forge feedback, multi-signal evolution, project ledgers
+## Wave 2: Forge feedback, multi-signal evolution, project ledgers
 
 - `forge-signals` extracts deterministic observation bundles from ledger diffs, revision records, saturation trends, collisions, ingestion results, and payoff realization.
 - Every evolution event emits a multi-signal receipt covering confidence evidence, mutation success, production feasibility, anti-slop compliance, cultural-boundary respect, and payoff realization.
@@ -21,7 +21,7 @@ Also included on `main` in this generation of the skill: deterministic design-sp
 **Schemas:** `schemas/forge-signal-bundle.schema.yaml`, `schemas/multi-signal-evolution-receipt.schema.yaml`  
 **Fixture:** `references/examples/forge-signals/ledger-before-after.yaml`
 
-## Wave 3 — Model adapters, closed-loop QA, MCP operators
+## Wave 3: Model adapters, closed-loop QA, MCP operators
 
 - Shared latent graph adapter path for Grok Imagine, Flux, SD3, and Midjourney.
 - Adapters change provider syntax only; canonical symbolic intent and graph identity are immutable.

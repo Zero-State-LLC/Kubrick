@@ -1,4 +1,4 @@
-# Test — Relational Geometry and Cinematic Encoding
+# Test: Relational Geometry and Cinematic Encoding
 
 **Input**: "Block a confrontation in a circular room between two characters where one has power and the other is trying to escape the conversation."
 

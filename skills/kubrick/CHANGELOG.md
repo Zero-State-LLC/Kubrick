@@ -1,6 +1,17 @@
-# Changelog — Kubrick
+# Changelog: Kubrick
 
 ## [Unreleased]
+
+## [0.27.11] - 2026-10-07
+
+### Changed
+- About 390 legacy em dashes in docs, references, code comments, and output strings rewritten by context (colon, comma, semicolon, parentheses, hyphen, or a sentence split). Surface headings now read `# Design: <project>` and `NOT_COMPUTABLE: <reason>`; goldens regenerated.
+- `scripts/check_no_new_em_dash.py --all` checks every tracked text file, not only added lines; CI runs it. Kept on purpose with an `em-dash: allow` marker: the interrupted line of dialogue `minder: Wha` followed by an em dash (test data: one fixture, one example plan, two test lines, and the 0.21 release note that quotes it). `--all` reads every tracked text file (binary skipped); `LICENSE` is legal text and exempt.
+- `dialog-validate` still finds the no-dialogue sentinel in artifacts written before 0.27.11 (em dash separator).
+- Intent: `intent/em-dash-cleanup/intent.md`.
+
+### Notes
+- Product version is 0.27.11. Envelope schema id stays `0.16.0`.
 
 ## [0.27.10] - 2026-10-07
 
@@ -179,7 +190,7 @@
 ### Notes
 - Product version is 0.24.0. The production envelope schema id stays `0.16.0`. No provider is called.
 
-## [0.23.0] — 2026-10-03
+## [0.23.0] - 2026-10-03
 
 ### Added
 - #78: `assets/grammar/film_grammar.yaml` with 66 hand-written entries (shot size, angle, lens band, move, lighting, edit, 9:16 composition), its schema, and `scripts/film_grammar.py`. Known terms expand to their prompt phrase and `lens_mm` maps to a lens band. New warnings `UNKNOWN_GRAMMAR_TERM`, `LENS_BAND_UNMAPPED`, and `MOVE_CHAIN_CONFLICT`. Negated terms ("no push-in") never resolve, and `camera.focus` only resolves focus entries.
@@ -197,7 +208,7 @@
 - Product version is 0.23.0. The production envelope schema id stays `0.16.0`. `corpus_version` stays 0.11.5; `corpus_digest` changes with the corpus bytes (#80, #81). `schema_bundle_version` changes separately because the manifest-listed schemas changed: the new film-grammar schema and the `keep`, `camera`, and `cut` properties on the storyboard and adapter-packet schemas. No provider is called.
 
 
-## [0.22.0] — 2026-10-03
+## [0.22.0] - 2026-10-03
 
 ### Added
 - #61: CI runs `pytest -q scripts tests tests_audit`, every script test, and the evals under subprocess-aware coverage with a 75% floor, then fails on a dirty tree. `Pygments` and `coverage` are pinned in `requirements-ci.txt`.
@@ -219,7 +230,7 @@
 - Product version is 0.22.0. The production envelope schema id stays `0.16.0`. Retime overlay limits are deferred.
 
 
-## [0.21.1] — 2026-10-03
+## [0.21.1] - 2026-10-03
 
 ### Fixed
 - #48: A sequence packet with more than one shot fails closed on video adapt and names the dropped shots. A single-shot sequence still adapts. Storyboard adapt is unchanged.
@@ -241,7 +252,7 @@
 - MYSLEF retime stays script 6.0, final 6.0, generated 12.0, delta 0.0.
 
 
-## [0.21.0] — 2026-10-02
+## [0.21.0] - 2026-10-02
 
 ### Added
 - #39: `known_drift` lives in `assets/drift/known_drift.yaml`, validated by `schemas/drift-registry.schema.json`. Entries are model-keyed and dated. A plain top plus motion on Keyframe still warns with the #30 text. An entry older than 180 days warns `DRIFT_ENTRY_STALE`. Tests inject the reference date.
@@ -255,12 +266,12 @@
 - The production envelope schema id stays `0.16.0`. The installer receipt schema id stays `1.0.0`.
 - MYSLEF shots 03–06 are the example under `examples/myslef-minder/`. Generic compile shows the asymmetry line once on each prompt where myslef is on screen. Keyframe adapt is `PROPOSED` and exits 0. The spend estimate is 4 × 3s at 15.5 credits per second, 186 credits total, labelled INFERRED. The exact commands are in `docs/archive/releases/RELEASE-NOTES-v0.21.md`.
 
-## [0.20.1] — 2026-10-02
+## [0.20.1] - 2026-10-02
 
 ### Fixed
 - #36: `video retime` `final_clock` is the edited runtime, the sum of edit-plan `out` minus `in`. `delta` is `final_clock` minus `script_clock`. `generated_clock` is generated seconds, counting each shared clip once. The MYSLEF example no longer sets `accept_clock_delta`. Its script clock, final clock, and delta are 6, 6, and 0, and its generated clock is 12. An edit window longer than the script beat is still `CLOCK_DELTA_UNACCEPTED` unless accepted.
 
-## [0.20.0] — 2026-10-02
+## [0.20.0] - 2026-10-02
 
 ### Added
 - #33: Optional `applies_to` scopes a character reference. An attached reference on a two-person frame that is not scoped to exactly one on-screen id warns `REFERENCE_BLEED_RISK`. A scoped reference adds one binding line. `scope` without `applies_to` does not scope the reference.
@@ -302,7 +313,7 @@ python3 scripts/kubrick.py storyboard --action impact \
   --output /tmp/myslef-minder-impact.yaml
 ```
 
-## [0.19.0] — 2026-10-02
+## [0.19.0] - 2026-10-02
 
 ### Added
 - #25: Keyframe short-beat warnings for shots at or below `short_beat_threshold_seconds` (default 2.0). The warning names the shot, the duration, and the recommendation to generate that shot as its own clip at the provider minimum, then trim. Shots under that minimum are generated at the minimum and trimmed. The warning is stored on the compile receipt and the adapter output.
@@ -335,7 +346,7 @@ python3 scripts/kubrick.py video --action adapt \
   --output /tmp/myslef-minder-keyframe.yaml
 ```
 
-## [0.18.0] — 2026-10-02
+## [0.18.0] - 2026-10-02
 
 ### Fixed
 - #23: VERSION, `kubrick.manifest.yaml`, `pyproject.toml`, `SKILL.md`, README, CHANGELOG, and the v0.18 release notes are audited together, including the `skills/kubrick` mirror. Both installers run `audit_release_version.py --strict` before activation. The 0.17.0 smoke failure was a VERSION bump while the manifest stayed at 0.16.0; the installer did not run the release audit, and hub sync only byte-compares trees.
@@ -350,7 +361,7 @@ python3 scripts/kubrick.py video --action adapt \
 ### Notes
 - The production envelope schema id stays `0.16.0`. It does not track the product version. The installer receipt schema id stays `1.0.0`.
 
-## [0.17.1] — 2026-09-01
+## [0.17.1] - 2026-09-01
 
 ### Changed
 - Hermes Agent v0.21.0 `SKILL.md` contract: required frontmatter, body order,
@@ -364,7 +375,7 @@ python3 scripts/kubrick.py video --action adapt \
 - Creative CLI, router, and production-surface behavior are unchanged.
 - OpenClaw edition remains on the `openclaw` branch.
 
-## [0.17.0] — 2026-08-08
+## [0.17.0] - 2026-08-08
 
 ### Added
 - Hermes **wizard** (`do wizard`): presets, `--answers`, print-only default, `--run`, `--json`.
@@ -381,7 +392,7 @@ Kubrick is the primary symbolic cinematic narrative engineering skill. It replac
 
 ## [0.16.0] - 2026-08-04
 
-### Added — Canonical production engine
+### Added: Canonical production engine
 
 - `scripts/cinematic_project_state.py` shared state helper + `evals/golden/v016/` fixtures.
 
@@ -399,7 +410,7 @@ Kubrick is the primary symbolic cinematic narrative engineering skill. It replac
 
 ## [0.15.0] - 2026-08-04
 
-### Added — First-class production surfaces (foundation)
+### Added: First-class production surfaces (foundation)
 
 - Domain compilers for design.md lifecycle, script packets, image prompts, and video shot/sequence contracts (`scripts/surface_compilers.py`).
 - `design improve` preserves valid sections and emits bounded diffs; video sequences fail closed on incompatible transitions.
@@ -419,7 +430,7 @@ Kubrick is the primary symbolic cinematic narrative engineering skill. It replac
 - Added `scripts/production_surface.py` foundation runtime and surface entrypoints.
 - Documented the v0.15 contract in `docs/FIRST-CLASS-PRODUCTION-SURFACES.md`.
 
-### Added — Hardening
+### Added: Hardening
 
 - Path containment and bounded YAML/JSON intake (`scripts/io_safety.py`).
 - MCP `kubrick_do` intent/action allowlisting, flag validation, and path policy.
@@ -440,7 +451,7 @@ Kubrick is the primary symbolic cinematic narrative engineering skill. It replac
 
 ## [0.14.0] - 2026-07-30
 
-### Added — Deterministic contract consolidation
+### Added: Deterministic contract consolidation
 
 - Added `kubrick.manifest.yaml` as the stdlib-readable canonical Hermes registry for runtime profiles, intents, actions, aliases, recipes, schemas, providers, artifacts, authority classes, and exit codes.
 - Added `pyproject.toml` to declare Python compatibility and optional `validation` / `dev` tooling without turning Kubrick into a required Python package.
@@ -459,7 +470,7 @@ Kubrick is the primary symbolic cinematic narrative engineering skill. It replac
 - Grok Imagine now uses the shared provider adaptation path; all adapters fail closed when a critical semantic invariant is lost.
 - The Hermes installer now validates before activation, atomically swaps installations, writes receipts, restores on activation failure, and supports `--dry-run`, `--rollback`, and `--version`.
 
-### Changed — Operator intent router
+### Changed: Operator intent router
 
 - Primary CLI surface is `kubrick do <intent> [--action …]` (12 intents) for Hermes and humans.
 - Soft aliases preserve all prior top-level command names (`adapt-flux`, `closed-loop-qa`, `validate-skill`, …).
@@ -468,14 +479,14 @@ Kubrick is the primary symbolic cinematic narrative engineering skill. It replac
 - MCP: single tool `kubrick_do` over the same router (never authoritative).
 - Implementation: `scripts/intent_router.py`; design/plan under `docs/archive/superpowers/`.
 
-### Documentation — OpenClaw edition pointer
+### Documentation: OpenClaw edition pointer
 
 - Added `docs/OPENCLAW.md` documenting the permanent **`openclaw`** branch Agent Skill packaging contributed by **Prabu** ([@prabu-openclaw](https://github.com/prabu-openclaw); [PR #1](https://github.com/scrimshawlife-ctrl/Kubrick/pull/1), commits `77fa721`, `15defae`).
 - Cross-links from README, QUICKSTART, SKILL, and docs index so Hermes `main` and OpenClaw users can find the correct edition.
 
 ## [0.13.0] - 2026-07-30
 
-### Added — Wave 2: Forge Feedback, Multi-Signal Evolution, Project Ledgers
+### Added: Wave 2: Forge Feedback, Multi-Signal Evolution, Project Ledgers
 
 - `scripts/extract_forge_signals.py` extracts multi-signal observation bundles from ledger diffs, revision records, saturation trends, collisions, ingestion results, and payoff realization.
 - `schemas/forge-signal-bundle.schema.yaml` and `schemas/multi-signal-evolution-receipt.schema.yaml`.
@@ -485,7 +496,7 @@ Kubrick is the primary symbolic cinematic narrative engineering skill. It replac
 - First-class project symbolic ledgers with pattern history (evidence-of-use, source projects, outcome confidence), forge rehydrate/apply, and retrieval snapshots.
 - Example Forge signal fixture under `references/examples/forge-signals/`.
 
-### Added — Wave 3: Model Adapters, Closed-Loop QA, MCP Operators
+### Added: Wave 3: Model Adapters, Closed-Loop QA, MCP Operators
 
 - Shared latent-graph adapters for Flux, SD3, and Midjourney (plus existing Grok Imagine) via `adapt_provider.py`.
 - Compiler provider support for `flux`, `sd3`, and `midjourney`.
@@ -502,7 +513,7 @@ Kubrick is the primary symbolic cinematic narrative engineering skill. It replac
 - Operators fail closed on weak evidence and emit auditable receipts.
 - Audience-facing prompts remain free of named esoterica unless explicitly requested.
 
-### Added — Design Specification Compiler
+### Added: Design Specification Compiler
 
 - `design-build` compiles heterogeneous creative and technical evidence into a schema-valid design specification.
 - Schema `schemas/design-specification.schema.yaml`, template `templates/design-specification.yaml`, and contract `references/design-specification-compiler.md`.
@@ -515,7 +526,7 @@ Kubrick is the primary symbolic cinematic narrative engineering skill. It replac
 
 ## [0.12.0] - 2026-07-29
 
-### Added — Unified Symbolic Storyboard Compiler
+### Added: Unified Symbolic Storyboard Compiler
 
 - Unified `scripts/kubrick.py` operator CLI.
 - Compiler `0.3.0` orchestration from brief through retrieval, private graph, structured audit, audience translation, storyboard propagation, provider adaptation, and compile receipt.
@@ -526,7 +537,7 @@ Kubrick is the primary symbolic cinematic narrative engineering skill. It replac
 - Provider-neutral model-adapter packet contract.
 - First Grok Imagine prompt adapter without mandatory credentials, network access, or model invocation.
 
-### Added — Closed-Loop Visual QA
+### Added: Closed-Loop Visual QA
 
 - Structured visual-observation schema and normalization for human, generic JSON, and optional Grok Vision outputs.
 - Dimension-specific visual-fidelity reports for geometry, state, ownership, object, light, material, residue, convergence, and continuity.
@@ -534,13 +545,13 @@ Kubrick is the primary symbolic cinematic narrative engineering skill. It replac
 - Bounded correction-loop governance with progress, regression, iteration-limit, and human-review decisions.
 - Complete Grok generation/review bundle manifests and observation templates.
 
-### Added — Governed Outcome Learning
+### Added: Governed Outcome Learning
 
 - Pattern-use receipts recording retrieval confidence, compile validity, production feasibility, visual fidelity, correction count, payoff realization, cultural-boundary compliance, and operator outcome.
 - Proposal-only pattern-evolution packets with bounded confidence deltas, misuse-risk additions, mutation-variable additions, and lifecycle review actions.
 - Explicit prohibition on automatic corpus mutation or autonomous authority promotion.
 
-### Added — Release and Runtime Hardening
+### Added: Release and Runtime Hardening
 
 - Deterministic repeatability check across two clean canonical compiles.
 - Stable hashes for private graph, structured packet, storyboard state, transition report, neutral adapter packet, and Grok Imagine packet.

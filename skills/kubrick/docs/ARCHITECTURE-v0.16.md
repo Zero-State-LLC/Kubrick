@@ -1,4 +1,4 @@
-# Kubrick v0.16 — First-Class Production Surfaces
+# Kubrick v0.16: First-Class Production Surfaces
 
 Status: **IMPLEMENTED**  
 Target: **v0.16.0**  
@@ -15,7 +15,7 @@ Scope: Hermes `main` (OpenClaw parity tracked separately)
 
 ## Architecture summary
 
-Four peer surfaces — **design**, **script**, **image**, **video** — share one
+Four peer surfaces (**design**, **script**, **image**, **video**) share one
 canonical execution lifecycle:
 
 ```text
@@ -63,10 +63,10 @@ kubrick do design --action create --brief brief.yaml \
 
 Every surface exposes `qa`:
 
-- `design qa` — missing sections, provider coupling, reconcile signals
-- `script qa` — diagnosis + continuity
-- `image qa` — observation overlap
-- `video qa` — motion/timing/camera/physics/identity/end-state dimensions
+- `design qa`: missing sections, provider coupling, reconcile signals
+- `script qa`: diagnosis + continuity
+- `image qa`: observation overlap
+- `video qa`: motion/timing/camera/physics/identity/end-state dimensions
 
 ## Artifact layout
 

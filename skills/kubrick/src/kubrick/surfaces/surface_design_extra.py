@@ -211,7 +211,7 @@ def design_summarize(existing: str, project_id: str) -> dict[str, Any]:
     weak = [sid for sid, _ in DESIGN_SECTIONS if sid not in filled]
     objective = sections.get("creative-objective") or sections.get("dramatic-engine") or ""
     summary_lines = [
-        f"# Design summary — {project_id}",
+        f"# Design summary: {project_id}",
         "",
         f"Revision: {_design_revision(existing) or 'unknown'}",
         f"Sections filled: {len(filled)} / {len(DESIGN_SECTIONS)}",

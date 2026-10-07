@@ -2,7 +2,7 @@
 
 > **For agentic workers:** REQUIRED SUB-SKILL: Use superpowers:subagent-driven-development (recommended) or superpowers:executing-plans to implement this plan task-by-task. Steps use checkbox (`- [ ]`) syntax for tracking.
 
-**Goal:** Replace Kubrick’s flat 29-command CLI surface with a `do <intent>` router (12 intents), soft legacy aliases, human-friendly help/defaults/recipes, and a single MCP `kubrick_do` tool — without changing domain script behavior.
+**Goal:** Replace Kubrick’s flat 29-command CLI surface with a `do <intent>` router (12 intents), soft legacy aliases, human-friendly help/defaults/recipes, and a single MCP `kubrick_do` tool, without changing domain script behavior.
 
 **Architecture:** New pure module `scripts/intent_router.py` owns `INTENT_REGISTRY`, `ALIAS_TABLE`, resolve functions, and argv builders. `scripts/kubrick.py` becomes a thin entry that resolves to an `IntentCall` and subprocesses the existing implementation script. MCP and docs switch primary teaching surface to `do`.
 
@@ -62,7 +62,7 @@ EXPECTED_INTENTS = {
     "visual", "learn", "check", "operate", "mcp", "bundle",
 }
 
-# From design spec — must stay complete
+# From design spec: must stay complete
 EXPECTED_LEGACY = {
     "compile", "retrieve", "ledger", "design-build",
     "storyboard-propagate", "storyboard-compare",
@@ -89,7 +89,7 @@ def test_every_legacy_maps_exactly_once():
         assert alias.action in actions or alias.passthrough_action, name
 ```
 
-- [ ] **Step 2: Run tests — expect fail (module missing)**
+- [ ] **Step 2: Run tests: expect fail (module missing)**
 
 Run: `python3 scripts/test_intent_router.py`  
 (or `python3 -c "import runpy; runpy.run_path('scripts/test_intent_router.py')"` with a `if __name__` runner)
@@ -231,7 +231,7 @@ def test_ledger_passthrough_action():
     assert call.argv[0] == "audit"
 ```
 
-- [ ] **Step 2: Run — expect fail**
+- [ ] **Step 2: Run: expect fail**
 
 Run: `python3 scripts/test_intent_router.py`  
 Expected: fail on missing `resolve`
@@ -251,7 +251,7 @@ def resolve(argv: list[str]) -> IntentCall:
     if argv[0] == "do":
         return _resolve_do(argv[1:])
     if argv[0] in {"help", "--help", "-h"} and len(argv) == 1:
-        raise RouterError("HELP")  # entrypoint handles help specially — or return a HelpSentinel
+        raise RouterError("HELP")  # entrypoint handles help specially, or return a HelpSentinel
     if argv[0] in ALIAS_TABLE or argv[0] in _legacy_direct():
         return _resolve_alias(argv[0], argv[1:])
     # also allow bare intent without do? Spec says primary is `do`; optional: `kubrick adapt …`
@@ -268,7 +268,7 @@ Implement `_resolve_do` and `_resolve_alias`:
   - `visual`: if enough closed-loop flags later → `closed-loop`; for v1 only apply default when `--action` omitted and no conflicting single-step flags; simplest v1: default `closed-loop` only when `--expected` and `--observation-input` present, else require `--action`
   - `check` with no action → `smoke`
 - Strip router-only flags (`--action`) before building script argv.
-- For provider adapters, map `provider` action always to `adapt_provider.py` with `--provider X` (except keep `adapt_grok` alias using either `adapt_grok_imagine.py` OR `adapt_provider.py --provider grok-imagine` — **prefer `adapt_provider.py` for all** to reduce scripts, but parity with current grok path requires calling `adapt_grok_imagine.py` for `adapt-grok` only if behavior differs; check scripts — if identical enough, use `adapt_provider.py` for all providers).
+- For provider adapters, map `provider` action always to `adapt_provider.py` with `--provider X` (except keep `adapt_grok` alias using either `adapt_grok_imagine.py` OR `adapt_provider.py --provider grok-imagine` (**prefer `adapt_provider.py` for all** to reduce scripts, but parity with current grok path requires calling `adapt_grok_imagine.py` for `adapt-grok` only if behavior differs; check scripts) if identical enough, use `adapt_provider.py` for all providers).
 
 **Decision locked for plan:**  
 - `adapt-grok` → script `adapt_grok_imagine.py` (preserve exact current path)  
@@ -288,7 +288,7 @@ def _script_for(intent: str, action: str, flags: list[str]) -> Path:
 
 For `ledger` and `operate`/`operator`: first positional is action/subcommand and remains first argv element for the script.
 
-- [ ] **Step 4: Run tests — expect PASS**
+- [ ] **Step 4: Run tests: expect PASS**
 
 Run: `python3 scripts/test_intent_router.py`  
 Expected: all resolve tests PASS
@@ -364,7 +364,7 @@ def format_top_level_help() -> str:
     return "\n".join(lines) + "\n"
 ```
 
-`check` action `smoke`: argv builder runs two scripts sequentially — **not pure single-script**. Handle in `kubrick.py` dispatch:
+`check` action `smoke`: argv builder runs two scripts sequentially, **not pure single-script**. Handle in `kubrick.py` dispatch:
 
 ```python
 if call.intent == "check" and call.action == "smoke":
@@ -453,7 +453,7 @@ git commit -m "feat(cli): wire intent router into kubrick entrypoint"
 - Modify: `scripts/test_intent_router.py`
 - Optionally: `scripts/test_wave2_wave3.py` (no change if aliases preserved)
 
-- [ ] **Step 1: Parity tests — same script for alias vs do**
+- [ ] **Step 1: Parity tests: same script for alias vs do**
 
 ```python
 def test_alias_do_parity_matrix():
@@ -567,7 +567,7 @@ git commit -m "feat(mcp): expose single kubrick_do tool over intent router"
 
 ---
 
-### Task 6: Docs — SKILL, QUICKSTART, README, CHANGELOG
+### Task 6: Docs: SKILL, QUICKSTART, README, CHANGELOG
 
 **Files:**
 - Modify: `SKILL.md` (Unified CLI section)
@@ -595,7 +595,7 @@ Examples:
 Legacy names (adapt-flux, closed-loop-qa, …) remain as aliases.
 ```
 
-- [ ] **Step 2: QUICKSTART — lead with intents; keep one “Aliases” subsection**
+- [ ] **Step 2: QUICKSTART: lead with intents; keep one “Aliases” subsection**
 
 Update each numbered section’s example command to `do` form; leave one legacy example for compat.
 

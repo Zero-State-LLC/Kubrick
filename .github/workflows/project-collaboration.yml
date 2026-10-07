@@ -86,12 +86,12 @@ jobs:
                     ? 'The token CAN read ProjectsV2, so PROJECT_NUMBER is simply wrong. Available: ' +
                       nodes.map(n => `#${n.number} "${n.title}"${n.closed ? ' (closed)' : ''}`).join(', ')
                     : `The query returned no boards for ${process.env.ORG_NAME}. That means none are VISIBLE to this token, ` +
-                      'which is not proof none exist — an org board can read as empty to a token without `project` scope ' +
+                      'which is not proof none exist: an org board can read as empty to a token without `project` scope ' +
                       'rather than erroring. Confirm with a PROJECT_TOKEN before concluding the board is gone.';
                 } catch (error) {
                   const msg = String(error.message || error);
                   diagnosis = /scope/i.test(msg)
-                    ? 'The token CANNOT read ProjectsV2 — this is a permissions problem, not a wrong number. ' +
+                    ? 'The token CANNOT read ProjectsV2. This is a permissions problem, not a wrong number. ' +
                       'The default GITHUB_TOKEN never can; set a PROJECT_TOKEN secret with `project` scope.'
                     : `Could not enumerate projects either: ${msg}`;
                 }

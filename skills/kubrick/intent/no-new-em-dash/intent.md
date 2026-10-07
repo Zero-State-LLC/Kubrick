@@ -16,6 +16,9 @@ file, the line, and the fix.
 Out of scope: rewriting the existing em dashes, and checking pushes to `main`
 (the pull request gate is where the change is reviewed).
 
+Follow-up (0.27.11): the legacy rewrite and the whole-repo check are
+[`intent/em-dash-cleanup`](../em-dash-cleanup/intent.md).
+
 ## Affected users / systems
 
 CI (`ci.yml` build job), contributors and agents opening pull requests, the

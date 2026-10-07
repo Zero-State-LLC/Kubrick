@@ -1,4 +1,4 @@
-# Validation Test — Unsupported Numerology Rejected
+# Validation Test: Unsupported Numerology Rejected
 
 **Input**: "A writer wants to put exactly seven red objects in a room because 'seven is powerful.' Diagnose."
 

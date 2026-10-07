@@ -1,4 +1,4 @@
-# Test — Symbolic Slop Detection (Gates M–W)
+# Test: Symbolic Slop Detection (Gates M–W)
 
 **Input**: "Write a scene with a black bird that represents death, a clock that stops at the moment of revelation, and red lighting for danger. The character realizes the truth."
 

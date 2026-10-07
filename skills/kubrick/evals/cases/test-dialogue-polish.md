@@ -1,4 +1,4 @@
-# Test 4 — Dialogue Polish
+# Test 4: Dialogue Polish
 
 **Input**: Raw scene with two characters where one explains the entire backstory in long speeches; voices identical; direct emotional statements.
 

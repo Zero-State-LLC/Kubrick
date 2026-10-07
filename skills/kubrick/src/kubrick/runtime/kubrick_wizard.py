@@ -1,5 +1,5 @@
 #!/usr/bin/env python3
-"""Kubrick wizard — guided plan/resolve for Hermes + CLI. Stdlib only."""
+"""Kubrick wizard: guided plan/resolve for Hermes + CLI. Stdlib only."""
 
 from __future__ import annotations
 
@@ -194,9 +194,9 @@ def resolve_plan(answers: dict[str, Any], *, run: bool = False) -> dict[str, Any
         if run and not answers.get("out"):
             raise WizardError("compile --run requires out")
         if not answers.get("brief"):
-            safety.append("warning: brief missing — required for --run")
+            safety.append("warning: brief missing, required for --run")
         if not answers.get("out"):
-            safety.append("warning: out missing — required for --run")
+            safety.append("warning: out missing, required for --run")
         add_opt("--brief", "brief")
         add_opt("--ledger", "ledger")
         add_opt("--storyboard-plan", "storyboard_plan")
@@ -219,7 +219,7 @@ def resolve_plan(answers: dict[str, Any], *, run: bool = False) -> dict[str, Any
         add_opt("--out", "out")
     elif intent == "retrieve":
         add_opt("--brief", "brief")
-        # retrieve script may use different flag — map query to --brief when no brief
+        # retrieve script may use different flag: map query to --brief when no brief
         if answers.get("query") and not answers.get("brief"):
             argv.extend(["--brief", answers["query"]])
         add_opt("--out", "out")
@@ -252,7 +252,7 @@ def format_plan_json(plan: dict[str, Any]) -> str:
 def format_plan_human(plan: dict[str, Any], prog: str = "scripts/kubrick.py") -> str:
     line = " ".join(_q(a) for a in plan["argv"])
     return (
-        f"Kubrick wizard plan — {plan['group']}/{plan['intent']}/{plan['action']}\n"
+        f"Kubrick wizard plan: {plan['group']}/{plan['intent']}/{plan['action']}\n"
         f"{plan['rationale']}\n"
         f"Safety: {'; '.join(plan['safety'])}\n\n"
         f"python3 {prog} {line}\n\n"
@@ -273,7 +273,7 @@ def _q(s: str) -> str:
 def interactive_collect(registry: dict) -> dict[str, Any]:
     """TTY prompts → answers. Caller ensures isatty."""
     intents = sorted(registry.keys())
-    print("Kubrick wizard — intents:")
+    print("Kubrick wizard intents:")
     for i, name in enumerate(intents, 1):
         print(f"  {i}. {name}")
     choice = input("Intent number or name: ").strip()

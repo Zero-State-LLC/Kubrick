@@ -45,10 +45,10 @@ Render `design.md` and optional domain documents from the validated artifact.
 
 Every claim is routed as one of:
 
-- `OBSERVED` — directly present in a source;
-- `INFERRED` — supported by multiple observations or an explicit design relationship;
-- `SPECULATIVE` — plausible but not sufficiently supported;
-- `NOT_COMPUTABLE` — evidence is missing, contradictory, or outside the declared boundary.
+- `OBSERVED`: directly present in a source;
+- `INFERRED`: supported by multiple observations or an explicit design relationship;
+- `SPECULATIVE`: plausible but not sufficiently supported;
+- `NOT_COMPUTABLE`: evidence is missing, contradictory, or outside the declared boundary.
 
 A generated document defaults to `PROPOSED`. It must not claim `LOCKED` or canonical authority without an external authorization receipt.
 
@@ -126,8 +126,8 @@ python scripts/kubrick.py artifact-validate \
 
 A future revision should classify each material change as:
 
-- `PRESERVED` — design intent and invariant remain intact;
-- `MUTATED` — an allowed variable changed with lineage preserved;
-- `CONFLICT` — two active rules cannot both remain true;
-- `DRIFT` — a locked fact, invariant, pillar, or prohibited-drift rule changed without authorization;
-- `NOT_COMPUTABLE` — evidence is insufficient to classify the change.
+- `PRESERVED`: design intent and invariant remain intact;
+- `MUTATED`: an allowed variable changed with lineage preserved;
+- `CONFLICT`: two active rules cannot both remain true;
+- `DRIFT`: a locked fact, invariant, pillar, or prohibited-drift rule changed without authorization;
+- `NOT_COMPUTABLE`: evidence is insufficient to classify the change.

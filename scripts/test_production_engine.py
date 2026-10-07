@@ -34,7 +34,7 @@ def test_engine_design_create_receipt() -> None:
     result = surface.execute(req)
     assert result.status == "PROPOSED"
     assert result.receipt.receipt_hash
-    assert result.document_markdown and "Design — engine-demo" in result.document_markdown
+    assert result.document_markdown and "Design: engine-demo" in result.document_markdown
     envelope = result.to_dict()
     assert envelope["schema_version"] == "0.16.0"
     assert envelope["receipt"]["receipt_id"].startswith("receipt-")
@@ -58,7 +58,7 @@ def test_artifact_tree_layout() -> None:
     req = ProductionRequest(
         surface="design",
         action="summarize",
-        input_text="# Design — x\n\nRevision: `r-test`\n\n## Creative objective\n- [OBSERVED] hi\n",
+        input_text="# Design: x\n\nRevision: `r-test`\n\n## Creative objective\n- [OBSERVED] hi\n",
         project_id="x",
     )
     result = surface.execute(req)

@@ -91,3 +91,28 @@ def main() -> None:
 
 if __name__ == "__main__":
     main()
+
+
+def test_all_mode_scans_tracked_files(tmp_path: Path) -> None:
+    import subprocess
+
+    from kubrick.runtime.check_no_new_em_dash import tracked_hits
+
+    subprocess.run(["git", "init", "-q", str(tmp_path)], check=True)
+    (tmp_path / "a.md").write_text("fine\nbad " + EM + " line\n", encoding="utf-8")
+    (tmp_path / "b.md").write_text("kept " + EM + " em-dash: allow\n", encoding="utf-8")
+    (tmp_path / "c.bin").write_bytes(b"\0" + EM.encode("utf-8"))
+    (tmp_path / "LICENSE").write_text("Version 1.0 " + EM + " 2026\n", encoding="utf-8")
+    (tmp_path / "run-tool").write_text("echo " + EM + "\n", encoding="utf-8")
+    (tmp_path / "skills" / "kubrick").mkdir(parents=True)
+    (tmp_path / "skills" / "kubrick" / "m.md").write_text(EM, encoding="utf-8")
+    subprocess.run(["git", "-C", str(tmp_path), "add", "-A"], check=True)
+    hits = tracked_hits(tmp_path)
+    assert [(h.path, h.line) for h in hits] == [("a.md", 2), ("run-tool", 1)]
+
+
+def test_repo_has_no_em_dash() -> None:
+    from kubrick.paths import SKILL_ROOT
+    from kubrick.runtime.check_no_new_em_dash import tracked_hits
+
+    assert tracked_hits(SKILL_ROOT) == []

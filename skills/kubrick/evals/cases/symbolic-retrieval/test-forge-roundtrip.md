@@ -1,4 +1,4 @@
-# Test — Continuity Forge Round-Trip
+# Test: Continuity Forge Round-Trip
 
 **Input**: Symbolic architecture exported, ingested into Forge, then project state re-hydrated in a later session with some Forge-side scene changes.
 

@@ -2,49 +2,49 @@
 
 Each case must produce a deterministic receipt and preserve the observed-first and fail-closed laws.
 
-## R1 — Zero semantic overlap
+## R1: Zero semantic overlap
 
 Brief explicitly requests esoteric encoding but asks only to “make the joke funnier.” Observable evidence is present but no dramatic operation overlaps the corpus.
 
 Expected: `NOT_COMPUTABLE`; reason vector includes `LOW_DRAMATIC_FIT` or `BELOW_CONFIDENCE_THRESHOLD`; no patterns selected.
 
-## R2 — Saturated ledger
+## R2: Saturated ledger
 
 Ledger has `saturation_score: 0.92`, `symbolic_debt: 0.8`, three active motifs, and two unresolved payoffs.
 
 Expected: `NOT_COMPUTABLE` or a selection whose continuity component remains above threshold after penalties; reason vector includes `SYMBOLIC_OVERLOAD` when rejected.
 
-## R3 — Hard cultural collision
+## R3: Hard cultural collision
 
 Candidate participates in a declared `CULTURALLY_INCOMPATIBLE` collision.
 
 Expected: candidate score forced to zero and excluded from primary/supporting selections.
 
-## R4 — Payoff competition
+## R4: Payoff competition
 
 Two candidates compete with an unresolved motif payoff.
 
 Expected: collision recorded as `PAYOFF_COMPETITION`; no more than one competing pattern selected.
 
-## G1 — Attribute leakage
+## G1: Attribute leakage
 
 The same controlling adjective is placed in layout, semantic, and attribute layers.
 
 Expected: graph validator returns `INVALID` with `attribute_leakage` entries.
 
-## G2 — Named esoterica surface leak
+## G2: Named esoterica surface leak
 
 Observable prompt contains “nigredo,” “rubedo,” or “Hermetic.”
 
 Expected: graph validator returns `INVALID`; `named_esoterica_surface` identifies leaked terms.
 
-## G3 — Weak convergence
+## G3: Weak convergence
 
 Graph has zero convergence sites or a site containing one node and no edge.
 
 Expected: `INVALID`; validator reports relational-density failure.
 
-## G4 — Valid single-frame graph
+## G4: Valid single-frame graph
 
 Graph has disentangled layers, two state-bearing objects, three relational edges, one convergence site, residue, and no named source terminology.
 

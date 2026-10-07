@@ -8,10 +8,10 @@ Scope: Hermes `main` (tracks [#33](https://github.com/Zero-State-LLC/Kubrick/iss
 
 Kubrick must treat the following as peer, first-class production functions rather than secondary helpers attached to symbolic compilation:
 
-1. `design` — create, improve, audit, and reconcile `design.md`
-2. `script` — develop, rewrite, diagnose, and package scripts and screenplays
-3. `image` — construct provider-ready still-image prompts and continuity packets
-4. `video` — construct shot-aware video prompts, motion contracts, and sequence packets
+1. `design`: create, improve, audit, and reconcile `design.md`
+2. `script`: develop, rewrite, diagnose, and package scripts and screenplays
+3. `image`: construct provider-ready still-image prompts and continuity packets
+4. `video`: construct shot-aware video prompts, motion contracts, and sequence packets
 
 All four surfaces operate over one shared cinematic state model. They may produce different artifacts, but they must not silently diverge in character identity, world rules, visual grammar, motif state, object ownership, chronology, material residue, camera logic, or production constraints.
 
@@ -154,12 +154,12 @@ A Kubrick-governed `design.md` should contain the sections below when applicable
 
 Each normative statement should be one of:
 
-- `LOCKED` — explicitly approved and authoritative
-- `PROPOSED` — generated or suggested for approval
-- `OBSERVED` — directly present in evidence
-- `INFERRED` — supported interpretation
-- `SPECULATIVE` — low-confidence creative possibility
-- `NOT_COMPUTABLE` — insufficient or contradictory evidence
+- `LOCKED`: explicitly approved and authoritative
+- `PROPOSED`: generated or suggested for approval
+- `OBSERVED`: directly present in evidence
+- `INFERRED`: supported interpretation
+- `SPECULATIVE`: low-confidence creative possibility
+- `NOT_COMPUTABLE`: insufficient or contradictory evidence
 
 ## Shared Artifact Contracts
 
@@ -320,7 +320,7 @@ kubrick do video adapt --packet shot.yaml --provider <provider>
 
 ## Implementation Workstreams
 
-### P0 — Contract and routing
+### P0: Contract and routing
 
 - expand the manifest with `script`, `image`, and `video` intents
 - expand `design` actions
@@ -329,7 +329,7 @@ kubrick do video adapt --packet shot.yaml --provider <provider>
 - update `SKILL.md` trigger and procedure language
 - add router tests for every action and default
 
-### P0 — `design.md` lifecycle
+### P0: `design.md` lifecycle
 
 - create parser and normalized internal model
 - implement create/improve/audit/reconcile/update/validate
@@ -337,21 +337,21 @@ kubrick do video adapt --packet shot.yaml --provider <provider>
 - add schema and fixtures
 - preserve Markdown readability and stable section IDs
 
-### P1 — Script surface
+### P1: Script surface
 
 - add screenplay/treatment/beat-sheet artifact models
 - implement diagnostic and continuity passes
 - support Fountain and Markdown initially
 - emit production handoff packets linked to design revision
 
-### P1 — Image surface
+### P1: Image surface
 
 - wrap neutral adapter construction as `image prompt`
 - add reference-prompt and sequence modes
 - unify negative constraints and visual QA
 - retain provider preservation reports
 
-### P1 — Video surface
+### P1: Video surface
 
 - add shot and motion schemas
 - implement temporal state propagation
@@ -359,7 +359,7 @@ kubrick do video adapt --packet shot.yaml --provider <provider>
 - add provider capability declarations and fail-closed adaptation
 - extend QA to motion, timing, camera, physics, identity persistence, and end state
 
-### P2 — Cross-surface reconciliation
+### P2: Cross-surface reconciliation
 
 - `design drift` (directory or multi-artifact evidence)
 - design ↔ script
@@ -369,7 +369,7 @@ kubrick do video adapt --packet shot.yaml --provider <provider>
 - prompt ↔ generated observation
 - project-wide drift report
 
-### P2 — Documentation and examples
+### P2: Documentation and examples
 
 Add end-to-end examples for:
 
@@ -404,4 +404,4 @@ Add end-to-end examples for:
 
 ## Recommended Release Boundary
 
-Ship this as **v0.15 — First-Class Production Surfaces**. Do not combine it with unrelated corpus expansion. The release should be considered complete only when the four peer surfaces are visible in the skill contract, router, schemas, examples, and regression suite.
+Ship this as **v0.15: First-Class Production Surfaces**. Do not combine it with unrelated corpus expansion. The release should be considered complete only when the four peer surfaces are visible in the skill contract, router, schemas, examples, and regression suite.
