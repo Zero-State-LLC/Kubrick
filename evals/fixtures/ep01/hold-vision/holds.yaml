@@ -1,0 +1,18 @@
+# EP-01 hold list for hold_vision (#93). MYSLEF test data: the board calibration
+# manifest questions, one yes-or-no question per hold with the expected answer.
+holds:
+- hold_id: hands_silicon
+  question: Answer only yes or no. Look at the character myslef in this image. Are the character's hands grey-green silicon with no fingernails, not human skin?
+  expect: 'yes'
+- hold_id: head_dome
+  question: Answer only yes or no. Look at the character myslef in this image. Is the character's head a smooth hairless dome with no hair and no ears?
+  expect: 'yes'
+- hold_id: lens_glow
+  question: Answer only yes or no. Look at the character myslef in this image. Is either of the character's round camera lenses glowing or emitting light?
+  expect: 'no'
+- hold_id: light_head_back
+  question: Answer only yes or no. Look at the character myslef in this image. Is there any light or glowing dot on the character's head, mouth grille, hood, back or spine?
+  expect: 'no'
+- hold_id: lens_sides
+  question: Answer only yes or no. Look at the character myslef in this image. Is the darker cracked lens on the left side of the image and the yellowed lens on the right side?
+  expect: 'yes'
