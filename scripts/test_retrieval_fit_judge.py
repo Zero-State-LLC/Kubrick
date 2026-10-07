@@ -95,7 +95,12 @@ def test_fit_select_rules() -> None:
         floor=STRUCTURAL_FLOOR, threshold=0.55, min_dramatic_fit=0.15, max_supporting=2,
     )
     assert reason is None
-    assert [str(x["pattern_id"]) for x in chosen] == ["c", "a"]
+    assert [str(x["pattern_id"]) for x in chosen] == ["c"]
+    weak_only, why_weak = fit_select(
+        ranked, {"a": "weak", "b": "weak"},
+        floor=0.4, threshold=0.55, min_dramatic_fit=0.15, max_supporting=2,
+    )
+    assert weak_only == [] and why_weak == "JEV_FIT_NONE"
     none, why = fit_select(
         ranked, {}, floor=0.4, threshold=0.55, min_dramatic_fit=0.15, max_supporting=2,
     )

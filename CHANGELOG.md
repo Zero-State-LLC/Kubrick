@@ -5,14 +5,15 @@
 ## [0.27.10] - 2026-10-07
 
 ### Changed
-- #91 follow-up: `evals/fixtures/retrieval/jev-fit-verdicts.yaml` now holds live Jev recordings (seven text calls, one per fixture brief, verdicts plus fit probabilities) instead of hand-labelled stand-ins. The request shape is in `evals/fixtures/retrieval/jev-fit-request.md`.
+- #91 follow-up: `evals/fixtures/retrieval/jev-fit-verdicts.yaml` holds live Jev recordings (seven text calls, one per fixture brief, verdicts plus fit probabilities) made with the new request below, instead of hand-labelled stand-ins.
+- Only a `fit` verdict selects. A `weak` verdict never selects on its own; before, `weak` plus lexical eligibility let vocabulary-matched briefs through.
 
 ### Added
-- Fit screening (`kubrick.corpus.fit_judge.screen_verdicts`): a `fit` with fit probability under 0.6 counts as `weak`, and a brief judged `fit` for more than 20% of the corpus is refused with `JEV_FIT_TOO_BROAD`. Recordings may carry `fit_probability`.
-- `kubrick.corpus.fit_request.build_fit_request`: the recording request, with generic counter-examples of briefs that share a pattern's words but not its structure. Not yet re-recorded live (usage gate returned ask_human).
+- Fit screening (`kubrick.corpus.fit_judge.screen_verdicts`): a `fit` with fit probability under 0.6 counts as `weak`, and a brief judged `fit` for more than 20% of the corpus (10 of 53) is refused with `JEV_FIT_TOO_BROAD`.
+- `kubrick.corpus.fit_request.build_fit_request`: the recording request, with generic counter-examples of briefs that share a pattern's words but not its structure.
 
 ### Known failures
-- Live Jev disagrees with the hand labels. It gives `fit` to all three nonsense briefs (vocabulary soup at p=0.97, sourdough at 0.47, cats and dogs at 0.42), so they are `SELECTED`, and the plain authority brief selects `bresson_gesture_object_transfer`. `test_nonsense_briefs_are_refused` and `test_plain_briefs_pass_without_rewording` fail. Test expectations are unchanged on purpose.
+- The plain authority-transfer brief selects `bresson_gesture_object_transfer`. Jev rates ten patterns `fit` after the floor; bresson and `kubrick_center_transfer_authority` tie on lexical total (0.488) and the tie goes to the alphabetically first id. `test_plain_briefs_pass_without_rewording` fails. The other six briefs match.
 
 ### Notes
 - Product version is 0.27.10. Envelope schema id stays `0.16.0`.

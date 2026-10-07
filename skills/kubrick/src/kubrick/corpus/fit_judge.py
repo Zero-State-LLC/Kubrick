@@ -6,8 +6,8 @@ or ``none``. Selection needs both signals:
 
 - ``fit`` and a lexical total at or above ``STRUCTURAL_FLOOR``. The floor keeps
   hard collisions (score 0) and heavy cost, ledger or collision penalties out.
-- ``weak`` and full lexical eligibility (threshold and dramatic-fit floor).
-- ``none`` (or no verdict) is never selected.
+- ``weak``, ``none`` or no verdict is never selected (0.27.10). Lexical
+  eligibility alone let vocabulary-matched briefs through on ``weak``.
 
 CI uses recorded verdicts keyed by the brief's SHA-256. A brief with no
 recorded verdict fails closed (``JEV_FIT_UNAVAILABLE``).
@@ -81,50 +81,31 @@ def fit_select(
     min_dramatic_fit: float,
     max_supporting: int,
 ) -> tuple[list[Mapping[str, object]], str | None]:
+    """Patterns judged ``fit`` with a lexical total at least ``floor``, best first.
+
+    ``weak`` never selects (0.27.10). ``threshold`` and ``min_dramatic_fit`` are kept
+    for callers; they no longer open a path on their own.
+    """
+    del threshold, min_dramatic_fit
+
     def as_float(value: object) -> float:
-        if isinstance(value, bool):
+        if isinstance(value, bool) or not isinstance(value, (int, float)):
             return 0.0
-        if isinstance(value, (int, float)):
-            return float(value)
-        return 0.0
+        return float(value)
 
-    fit_items: list[Mapping[str, object]] = []
-    weak_items: list[Mapping[str, object]] = []
-    has_fit_or_weak = False
-
+    eligible: list[Mapping[str, object]] = []
+    any_fit = False
     for item in ranked:
-        pattern_id_obj = item.get("pattern_id")
-        if isinstance(pattern_id_obj, str):
-            verdict = verdicts.get(pattern_id_obj, "none")
-        else:
-            verdict = "none"
-        verdict = verdict.strip().casefold()
-        if verdict in {"fit", "weak"}:
-            has_fit_or_weak = True
-
-        total_score = as_float(item.get("total_score"))
-        components_obj = item.get("score_components")
-        dramatic_fit = 0.0
-        if isinstance(components_obj, Mapping):
-            dramatic_fit = as_float(components_obj.get("dramatic_fit"))
-
-        if verdict == "fit" and total_score >= floor:
-            fit_items.append(item)
-        elif verdict == "weak" and total_score >= threshold and dramatic_fit >= min_dramatic_fit:
-            weak_items.append(item)
-
-    eligible = fit_items + weak_items
+        pattern_id = item.get("pattern_id")
+        verdict = verdicts.get(pattern_id, "none") if isinstance(pattern_id, str) else "none"
+        if verdict.strip().casefold() != "fit":
+            continue
+        any_fit = True
+        if as_float(item.get("total_score")) >= floor:
+            eligible.append(item)
     if not eligible:
-        reason = "JEV_FIT_BELOW_FLOOR" if has_fit_or_weak else "JEV_FIT_NONE"
-        return [], reason
-
-    limit = max_supporting + 1
-    chosen: list[Mapping[str, object]]
-    if limit > 0:
-        chosen = eligible[:limit]
-    else:
-        chosen = []
-    return chosen, None
+        return [], "JEV_FIT_BELOW_FLOOR" if any_fit else "JEV_FIT_NONE"
+    return eligible[: max(0, max_supporting) + 1], None
 
 
 def screen_verdicts(
