@@ -7,6 +7,11 @@ A shot's picture is carried in this order:
 3. **End image.** The frame the shot has to land on, when one is anchored.
 4. **Prompt.** Motion and the one camera move. It does not restate the still.
 
+A plan lock with a `positive` line counts as a prompt carrier only when the
+compiled shot prompt actually says that line. When the prompt omits it, the
+`lock_carriers` row is `unverified` with code `LOCK_POSITIVE_NOT_IN_PROMPT`.
+A lock with a `character` only applies to shots where that character is cast.
+
 Local plans stay **PROPOSED**. A weak or contradictory carrier is
 `NOT_COMPUTABLE`. This note is the carrier model. It does not add a provider
 call.

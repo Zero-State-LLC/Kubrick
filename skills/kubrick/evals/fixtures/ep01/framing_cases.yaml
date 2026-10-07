@@ -72,7 +72,7 @@ cases:
           crop: mcu
           head_ratio: [0.55, 0.60]
           facing: camera
-          emitters: [chest LED]
+          emitters: [temple light]
           key_side: left
         end_framing:
           head_ratio: [0.40, 0.45]

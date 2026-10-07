@@ -125,7 +125,7 @@ def _carrier_case() -> tuple[dict[str, object], list[dict[str, object]]]:
         ),
         _frame("frame-004", characters=["myslef"]),
         _frame("frame-005", characters=["myslef"]),
-        _frame("frame-006", characters=["myslef"]),
+        _frame("frame-006", characters=["myslef"], residue=["soft fill from the left"]),
     ]
     document = _board(
         frames,
@@ -164,7 +164,11 @@ def test_each_carrier_and_negative_only_lock() -> None:
     assert _by(rows, "frame-003", "red-chest-light")["carrier"] == "unverified"
     red = _by(rows, "frame-004", "red-chest-light")
     assert red["carrier"] == "prompt_negative_only" and red["critical"] is True
-    assert _by(rows, "frame-005", "fill")["carrier"] == "prompt_positive"
+    fill = _by(rows, "frame-005", "fill")
+    assert fill["carrier"] == "unverified"
+    assert fill["code"] == "LOCK_POSITIVE_NOT_IN_PROMPT"
+    said = _by(rows, "frame-006", "fill")
+    assert said["carrier"] == "prompt_positive" and "code" not in said
     dim = [row for row in rows if row.get("lock") == "glow"]
     assert dim
     assert all(
@@ -212,11 +216,13 @@ def test_example_carriers_are_on_generic_and_keyframe() -> None:
         assert {str(row["carrier"]) for row in rows} >= {"unverified", "prompt_positive"}
         red = [row for row in rows if row.get("lock") == "red-chest-light"]
         by_shot = {str(row["shot"]): str(row["carrier"]) for row in red}
-        # Issue #107: the tenant lock now carries the canon positive (one red chest LED).
-        assert by_shot["frame-001"] == "prompt_positive"
+        # #133 review: the lock defines a positive, but the compiled prompts omit it.
+        assert by_shot["frame-001"] == "unverified"
         assert by_shot["frame-002"] == "unverified"
-        assert by_shot["frame-003"] == "prompt_positive"
+        assert by_shot["frame-003"] == "unverified"
         assert "frame-004" not in by_shot
+        omitted = [row for row in red if row.get("code") == "LOCK_POSITIVE_NOT_IN_PROMPT"]
+        assert {str(row["shot"]) for row in omitted} == {"frame-001", "frame-003"}
     assert _codes(movie, "NEGATIVE_ONLY_LOCK") == []
     bare = copy.deepcopy(document)
     locks = bare["locks"]
