@@ -11,8 +11,9 @@ primary moves warns `MOVE_CHAIN_CONFLICT`. One move does not.
 
 `board_prompt` orders the start board as size and lens, angle and height,
 placement, crop, head-ratio band (`head ratio 0.55 to 0.60`), facing, emitters
-as positive dark wording (`the chest LED stays dark`), and key side. An end
-band is included when `end_framing` has one.
+that must stay off as positive dark wording (an emitter `desk lamp` becomes
+`the desk lamp stays dark`), and key side. An end band is included when
+`end_framing` has one.
 
 An end anchor is required when size or crop changes, or the head-ratio
 midpoint moves by more than 0.05. Shot 09 (0.55–0.60 to 0.40–0.45) is an

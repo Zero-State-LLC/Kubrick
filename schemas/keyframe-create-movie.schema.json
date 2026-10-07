@@ -81,7 +81,8 @@
           "lock": {"type": "string"},
           "kind": {"type": "string"},
           "carrier": {"type": "string"},
-          "critical": {"type": "boolean"}
+          "critical": {"type": "boolean"},
+          "code": {"type": "string", "enum": ["LOCK_POSITIVE_NOT_IN_PROMPT"]}
         }
       }
     },

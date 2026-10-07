@@ -2,6 +2,14 @@
 
 ## [Unreleased]
 
+## [0.27.4] - 2026-10-07
+
+### Fixed
+- #133 review follow-up (#107): lock carriers report `unverified` with `LOCK_POSITIVE_NOT_IN_PROMPT` when a lock's positive line is missing from the shot's compiled prompt, instead of `prompt_positive` from the lock definition alone. The pre-spend phrase check skips a character lock on shots whose cast leaves that character out. Keyframe movie schema allows `lock_carriers[].code`. Accepted intent: `intent/critical-lock-lines/intent.md`. `docs/FRAMING.md` example and the EP-01 framing fixture no longer use chest LED dark wording.
+
+### Notes
+- Product version is 0.27.4. Envelope schema id stays `0.16.0`.
+
 ## [0.27.3] - 2026-10-07
 
 ### Fixed

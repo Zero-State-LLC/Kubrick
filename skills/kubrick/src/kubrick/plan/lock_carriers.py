@@ -11,6 +11,7 @@ from __future__ import annotations
 from collections.abc import Mapping, Sequence
 
 from kubrick.plan.continuity_locks import frame_field, frame_id, prop_assignments, warning
+from kubrick.plan.lock_prompt_text import compiled_prompt_text, positive_omitted
 from kubrick.plan.shot_plan import chain_source
 from kubrick.prompts.prompt_text import character_lock_feature, character_lock_positive
 from kubrick.prompts.reference_lint import (
@@ -267,6 +268,7 @@ def carrier_for(
     text: str,
     character: str | None = None,
     lock: Mapping[str, object] | None = None,
+    prompt_text: str | None = None,
 ) -> dict[str, object]:
     """Carrier plus image status. A start frame with no evidence is unverified."""
     lock_id = text
@@ -287,6 +289,10 @@ def carrier_for(
         )
     if _reference_carries(document, frame, kind, text, character, lock):
         return _carrier_record(lock_id, "reference", "reference", "verified")
+    if positive_omitted(lock, prompt_text):
+        return _carrier_record(
+            lock_id, "unverified", None, "unverified", "LOCK_POSITIVE_NOT_IN_PROMPT",
+        )
     if _is_positive(kind, text, lock):
         return _carrier_record(lock_id, "prompt_positive", "prompt", "verified")
     return _carrier_record(lock_id, "prompt_negative_only", None, "unverified")
@@ -314,7 +320,10 @@ def _recorded(
     *,
     critical: bool = False,
 ) -> dict[str, object]:
-    return _row(shot, lock, kind, str(record.get("carrier") or ""), critical=critical)
+    row = _row(shot, lock, kind, str(record.get("carrier") or ""), critical=critical)
+    if record.get("code") == "LOCK_POSITIVE_NOT_IN_PROMPT":
+        row["code"] = "LOCK_POSITIVE_NOT_IN_PROMPT"
+    return row
 
 
 def _identity_rows(
@@ -401,6 +410,7 @@ def _structured_rows(
     document: Mapping[str, object],
     frame: Mapping[str, object],
     shot: str,
+    prompt_text: str | None = None,
 ) -> list[dict[str, object]]:
     raw = document.get("locks")
     if not isinstance(raw, Sequence) or isinstance(raw, (str, bytes)):
@@ -416,7 +426,7 @@ def _structured_rows(
         kind = str(lock.get("kind") or "light").strip() or "light"
         ident = str(lock.get("id") or lock.get("negative") or kind)
         text = str(lock.get("negative") or lock.get("positive") or ident)
-        chosen = carrier_for(document, frame, kind, text, owner, lock)
+        chosen = carrier_for(document, frame, kind, text, owner, lock, prompt_text)
         rows.append(_recorded(
             shot, ident, kind, chosen, critical=lock.get("critical") is True,
         ))
@@ -429,13 +439,16 @@ def lock_table(
 ) -> list[dict[str, object]]:
     """Per-shot carriers. The provider does not change the carrier."""
     lines, _errors = prop_assignments(document, frames)
+    prompts = compiled_prompt_text(document)
     rows: list[dict[str, object]] = []
     for index, frame in enumerate(frames, start=1):
         shot = frame_id(frame, index)
         rows.extend(_identity_rows(document, frame, shot))
         rows.extend(_wardrobe_rows(document, frame, shot))
         rows.extend(_prop_rows(document, frame, shot, lines.get(shot, [])))
-        rows.extend(_structured_rows(document, frame, shot))
+        rows.extend(_structured_rows(
+            document, frame, shot, None if prompts is None else prompts.get(shot, ""),
+        ))
     return rows
 
 

@@ -31,6 +31,18 @@ def _scope_applies(hold: Mapping[str, object], prompt: Mapping[str, object]) -> 
     return scope.strip() == location.strip()
 
 
+def _cast_applies(hold: Mapping[str, object], prompt: Mapping[str, object]) -> bool:
+    """A character lock skips a prompt whose cast list leaves that character out."""
+    character = hold.get("character")
+    cast = prompt.get("characters")
+    if not isinstance(character, str) or not character.strip():
+        return True
+    if not isinstance(cast, Sequence) or isinstance(cast, (str, bytes)):
+        return True
+    names = {str(name).strip().casefold() for name in cast}
+    return character.strip().casefold() in names
+
+
 def _visual_prompt(prompt: Mapping[str, object]) -> bool:
     """Picture prompts carry light locks. Spoken cues do not."""
     surfaces = prompt.get("surfaces")
@@ -57,7 +69,9 @@ def missing_lock_phrases(
         body = " ".join(raw.split()) if isinstance(raw, str) else ""
         folded = body.casefold()
         for hold, phrase in phrases:
-            if not _scope_applies(hold, prompt) or phrase.casefold() in folded:
+            if not _scope_applies(hold, prompt) or not _cast_applies(hold, prompt):
+                continue
+            if phrase.casefold() in folded:
                 continue
             shot = prompt.get("shot")
             checks.append({

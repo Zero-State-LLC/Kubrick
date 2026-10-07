@@ -100,10 +100,10 @@ def test_shot_09_anchor_prompt_and_motion_line() -> None:
     prompt = board_prompt(framing, end)
     assert "0.55" in prompt and "0.60" in prompt
     assert "0.40" in prompt and "0.45" in prompt
-    assert "the chest LED stays dark" in prompt
+    assert "the temple light stays dark" in prompt
     assert prompt.index("35mm") < prompt.index("head ratio 0.55")
     assert prompt.index("head ratio 0.55") < prompt.index("head ratio 0.40")
-    assert prompt.index("the chest LED stays dark") < prompt.index("left")
+    assert prompt.index("the temple light stays dark") < prompt.index("left")
     line = motion_line(frame)
     assert line == "the figure steps back as push-in"
     assert "head ratio" not in str(line)
