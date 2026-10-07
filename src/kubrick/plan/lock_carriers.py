@@ -10,7 +10,9 @@ from __future__ import annotations
 
 from collections.abc import Mapping, Sequence
 
+from kubrick.gates.hold_scope import frame_view
 from kubrick.plan.continuity_locks import frame_field, frame_id, prop_assignments, warning
+from kubrick.plan.lock_aspect import pov_skips
 from kubrick.plan.lock_prompt_text import compiled_prompt_text, positive_omitted
 from kubrick.plan.shot_plan import chain_source
 from kubrick.prompts.prompt_text import character_lock_feature, character_lock_positive
@@ -421,7 +423,7 @@ def _structured_rows(
             continue
         character = lock.get("character")
         owner = character.strip() if isinstance(character, str) and character.strip() else None
-        if not _applies(frame, owner):
+        if not _applies(frame, owner) or pov_skips(lock, frame_view(frame)):
             continue
         kind = str(lock.get("kind") or "light").strip() or "light"
         ident = str(lock.get("id") or lock.get("negative") or kind)

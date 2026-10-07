@@ -10,6 +10,8 @@ from __future__ import annotations
 
 from collections.abc import Mapping, Sequence
 
+from kubrick.gates.hold_scope import frame_view
+from kubrick.plan.lock_aspect import pov_skips
 from kubrick.prompts.reference_lint import screen_mode
 
 
@@ -29,6 +31,7 @@ def lock_positive_lines(
     locks = document.get("locks")
     if not isinstance(locks, Sequence) or isinstance(locks, (str, bytes)):
         return []
+    view = frame_view(frame)
     seen: set[str] = set()
     lines: list[str] = []
     for lock in locks:
@@ -36,7 +39,7 @@ def lock_positive_lines(
             continue
         character = lock.get("character")
         owner = character.strip() if isinstance(character, str) and character.strip() else None
-        if not _applies(frame, owner):
+        if not _applies(frame, owner) or pov_skips(lock, view):
             continue
         positive = lock.get("positive")
         if not isinstance(positive, str) or not positive.strip():

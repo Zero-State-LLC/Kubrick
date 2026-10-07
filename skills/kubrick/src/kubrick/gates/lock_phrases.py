@@ -5,6 +5,7 @@ from __future__ import annotations
 from collections.abc import Mapping, Sequence
 
 from kubrick.gates.jev_client import prompt_sha256
+from kubrick.plan.lock_aspect import pov_skips
 
 
 def _lock_phrases(hold: Mapping[str, object]) -> list[str]:
@@ -70,6 +71,9 @@ def missing_lock_phrases(
         folded = body.casefold()
         for hold, phrase in phrases:
             if not _scope_applies(hold, prompt) or not _cast_applies(hold, prompt):
+                continue
+            view = prompt.get("view")
+            if pov_skips(hold, view if isinstance(view, str) else None):
                 continue
             if phrase.casefold() in folded:
                 continue
