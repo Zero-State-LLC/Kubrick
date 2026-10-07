@@ -2,6 +2,15 @@
 
 ## [Unreleased]
 
+## [0.27.7] - 2026-10-07
+
+### Added
+- Plan locks take an optional `aspect: appearance | action`. Without it, `kind: identity` and `kind: wardrobe` are appearance and every other kind is action (`kubrick.plan.lock_aspect`). Lock text is not inspected.
+- On a first-person shot (the existing `view: pov`, on the frame or under `camera`), a lock with a `character` and appearance aspect is skipped: the compiler does not write its positive line, the lock carrier table has no row for it, the critical phrase check does not require it, and Jev holds scope it out. Action locks stay. Intent: `intent/pov-appearance-locks/intent.md`.
+
+### Notes
+- Product version is 0.27.7. Envelope schema id stays `0.16.0`.
+
 ## [0.27.6] - 2026-10-07
 
 ### Changed

@@ -8,6 +8,8 @@ from __future__ import annotations
 
 from collections.abc import Mapping, Sequence
 
+from kubrick.plan.lock_aspect import ASPECTS, pov_skips
+
 _VIEWS = frozenset({"front", "rear", "pov"})
 _SAMPLE_LIMIT = 3
 _REAR = "seen from behind there is NO visible light"
@@ -92,6 +94,8 @@ def scoped_out(
         return True
     if rule["characters"] and characters.isdisjoint(rule["characters"]):
         return True
+    if pov_skips(hold, view):
+        return True
     views = _names(hold.get("views"))
     return bool(views) and view not in views
 
@@ -162,6 +166,9 @@ def annotate_hold(item: Mapping[str, object], built: dict[str, object]) -> dict[
     salience = item.get("salience")
     if isinstance(salience, (int, float)) and not isinstance(salience, bool):
         built["salience"] = float(salience)
+    aspect = item.get("aspect")
+    if isinstance(aspect, str) and aspect.strip().casefold() in ASPECTS:
+        built["aspect"] = aspect.strip().casefold()
     rear = item.get("rear")
     if isinstance(rear, str) and rear.strip():
         built["rear"] = rear.strip()
