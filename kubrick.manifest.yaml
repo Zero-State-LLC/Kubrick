@@ -1,7 +1,7 @@
 {
   "manifest_version": 1,
   "name": "kubrick",
-  "version": "0.27.7",
+  "version": "0.27.8",
   "host": "hermes",
   "runtime_profiles": {
     "prose": {
@@ -584,6 +584,7 @@
     "schemas/pattern-use-receipt.schema.yaml",
     "schemas/project-symbolic-ledger.schema.yaml",
     "schemas/provider-preservation-report.schema.json",
+    "schemas/retake-route-report.schema.json",
     "schemas/shot-contract.schema.json",
     "schemas/storyboard-symbolic-state.schema.yaml",
     "schemas/structured-symbolic-audit.schema.yaml",
