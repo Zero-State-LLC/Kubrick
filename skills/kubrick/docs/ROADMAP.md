@@ -1,6 +1,6 @@
 # Kubrick roadmap
 
-Product version **0.27.5**. Local output stays **PROPOSED**. Weak evidence
+Product version **0.27.6**. Local output stays **PROPOSED**. Weak evidence
 stays `NOT_COMPUTABLE`. No provider is called from this plan.
 
 Project board: [Zero-State-LLC project 13](https://github.com/orgs/Zero-State-LLC/projects/13).
@@ -8,6 +8,10 @@ Project board: [Zero-State-LLC project 13](https://github.com/orgs/Zero-State-LL
 Shipped history is [`CHANGELOG.md`](../CHANGELOG.md). The standing release
 gate is [`RELEASE-CHECKLIST.md`](RELEASE-CHECKLIST.md). Versioned notes from
 v0.11 through v0.23 are in [`archive/releases/`](archive/releases/).
+
+## Shipped in 0.27.6
+
+- The prompt compiler writes each applicable lock `positive` line (cast-scoped for character locks); `LOCK_POSITIVE_NOT_IN_PROMPT` now means real drift. Canon drift also compares `critical`.
 
 ## Shipped in 0.27.5
 

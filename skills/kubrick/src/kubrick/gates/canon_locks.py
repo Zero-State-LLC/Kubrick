@@ -3,7 +3,8 @@
 A plan may set ``canon_locks: <path>``. A relative path is looked up from the
 plan's folder, then each parent folder, then the working directory. Each plan
 lock is matched to the canon lock with the same id, or with its ``canon_id``.
-A different ``positive`` or ``negative`` line is ``LOCK_CANON_DRIFT``. No
+A different ``positive`` or ``negative`` line, or a different ``critical`` flag,
+is ``LOCK_CANON_DRIFT``. ``kind`` is not compared. No
 canon is built in; the plan names its own file.
 """
 
@@ -23,6 +24,10 @@ def _line(value: object) -> str | None:
     if isinstance(value, str) and value.strip():
         return " ".join(value.split())
     return None
+
+
+def _critical(value: object) -> bool:
+    return value is True
 
 
 def _canon_by_id(raw: object) -> dict[str, Mapping[str, object]] | None:
@@ -62,6 +67,14 @@ def _lock_drift(
             f"lock {ident} {field} differs from canon {canon_id}",
             lock=ident, canon_id=canon_id, field=field,
             plan_text=mine or "", canon_text=theirs or "",
+        ))
+    mine_flag, canon_flag = _critical(lock.get("critical")), _critical(source.get("critical"))
+    if mine_flag != canon_flag:
+        found.append(_finding(
+            "LOCK_CANON_DRIFT",
+            f"lock {ident} critical differs from canon {canon_id}",
+            lock=ident, canon_id=canon_id, field="critical",
+            plan_text=str(mine_flag).lower(), canon_text=str(canon_flag).lower(),
         ))
     return found
 

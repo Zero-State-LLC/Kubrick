@@ -172,12 +172,17 @@ def test_myslef_v023_fails_and_hand_fixed_passes() -> None:
     recorded = _load("myslef-v023.json")
     shots = _rows(recorded["shots"])
     assert [item["shot"] for item in compiled] == [item["shot"] for item in shots]
+    # 0.27.6: the compiler now writes the lock positive itself. Replay the
+    # recorded v0.23 prompts, which predate that, to show the gate still holds them.
+    led = "red LED pinpoint at the centre of the chest"
+    assert any(led in str(live["prompt"]) for live in compiled)
+    replay: list[dict[str, object]] = []
     for live, saved in zip(compiled, shots):
-        assert live["prompt"] == saved["prompt"]
-        assert "red LED pinpoint at the centre of the chest" not in str(live["prompt"])
+        assert led not in str(saved["prompt"])
         assert live["surfaces"] == ["image", "video"]
-    client = _recorded(compiled, holds, shots)
-    failed = check_before_spend(holds, compiled, client=client)
+        replay.append({**live, "prompt": saved["prompt"]})
+    client = _recorded(replay, holds, shots)
+    failed = check_before_spend(holds, replay, client=client)
     assert failed["blocks_spend"] is True
     assert failed["code"] == "JEV_HOLD"
     assert failed["checks"] and all(

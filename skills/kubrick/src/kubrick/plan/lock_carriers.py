@@ -433,6 +433,16 @@ def _structured_rows(
     return rows
 
 
+def _frame_prompt(
+    frame: Mapping[str, object], shot: str, prompts: Mapping[str, str] | None,
+) -> str | None:
+    """An adapter frame carries its compiled prompt; a plan frame is compiled here (0.27.6)."""
+    own = frame.get("prompt")
+    if isinstance(own, str) and own.strip():
+        return own
+    return None if prompts is None else prompts.get(shot, "")
+
+
 def lock_table(
     document: Mapping[str, object],
     frames: Sequence[Mapping[str, object]],
@@ -446,9 +456,7 @@ def lock_table(
         rows.extend(_identity_rows(document, frame, shot))
         rows.extend(_wardrobe_rows(document, frame, shot))
         rows.extend(_prop_rows(document, frame, shot, lines.get(shot, [])))
-        rows.extend(_structured_rows(
-            document, frame, shot, None if prompts is None else prompts.get(shot, ""),
-        ))
+        rows.extend(_structured_rows(document, frame, shot, _frame_prompt(frame, shot, prompts)))
     return rows
 
 

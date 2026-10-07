@@ -2,6 +2,16 @@
 
 ## [Unreleased]
 
+## [0.27.6] - 2026-10-07
+
+### Changed
+- The prompt compiler writes each applicable plan lock's `positive` line into the compiled frame prompt (`kubrick.plan.lock_positive_lines`, via `prompt_lines`). A lock with a `character` is written only on shots where that character is cast, the same rule as the lock carrier table. `LOCK_POSITIVE_NOT_IN_PROMPT` now fires only when a prompt drops the line after compile.
+- The lock carrier table checks an adapter frame's own compiled `prompt`. Before, provider payloads (generic, Keyframe) compared against an empty prompt map and flagged `LOCK_POSITIVE_NOT_IN_PROMPT` on every shot.
+- The canon drift check also compares the `critical` flag and reports `LOCK_CANON_DRIFT` with `field: critical` on a mismatch. `kind` is not compared. Intent: `intent/lock-positive-in-prompt/intent.md`.
+
+### Notes
+- Product version is 0.27.6. Envelope schema id stays `0.16.0`.
+
 ## [0.27.5] - 2026-10-07
 
 ### Added
