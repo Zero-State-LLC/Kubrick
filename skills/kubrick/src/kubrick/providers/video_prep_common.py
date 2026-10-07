@@ -63,6 +63,11 @@ def prepare(args: argparse.Namespace, regenerate: Sequence[str] | None = None) -
     if not isinstance(raw, Mapping):
         return closed("", "INPUT_INVALID", "storyboard plan must be a mapping")
     document: dict[str, object] = {str(k): v for k, v in raw.items()}
+    from kubrick.gates.canon_locks import canon_block
+
+    drift = canon_block(document, args.input)
+    if drift is not None:
+        return closed("", drift.split()[0], drift)
     try:
         overrides = parse_take_overrides(args.take)
     except ValueError as exc:

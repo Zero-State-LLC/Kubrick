@@ -47,8 +47,10 @@ location:
         - one laptop
 counts:
   laptop: 1
+canon_locks: evals/calibration/board-image-ep01/locks-v0.27.yaml
 locks:
   - id: red-chest-light
+    canon_id: red-chest-led
     kind: light
     critical: true
     character: myslef

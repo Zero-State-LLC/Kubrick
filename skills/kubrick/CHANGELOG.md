@@ -2,6 +2,14 @@
 
 ## [Unreleased]
 
+## [0.27.5] - 2026-10-07
+
+### Added
+- Plans can name a canon lock file (`canon_locks`, with per-lock `canon_id`). Video prep (`runbook`, `cues`, `cut-qa`) fails closed with `LOCK_CANON_DRIFT` when a plan lock's positive or negative line differs from the canon, `LOCK_CANON_MISSING` for an unknown `canon_id`, and `LOCK_CANON_UNREADABLE` for a bad file (`kubrick.gates.canon_locks`). The MYSLEF example and fixture plan point at `locks-v0.27.yaml` as the test case. Intent: `intent/canon-lock-drift/intent.md`.
+
+### Notes
+- Product version is 0.27.5. Envelope schema id stays `0.16.0`.
+
 ## [0.27.4] - 2026-10-07
 
 ### Fixed
