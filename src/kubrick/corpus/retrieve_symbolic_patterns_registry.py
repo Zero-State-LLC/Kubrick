@@ -70,7 +70,28 @@ def gap_report(brief,ranked,matched,routes):
     if not matched:report.setdefault("weak_dimensions",[]).append("registry_route")
     return report
 
-def build_receipt(brief,ranked,ledger,matched,routes):
+def build_receipt(
+    brief, ranked, ledger, matched, routes, fit_recordings=None, fit_source="recorded",
+):
+    """``fit_recordings`` maps brief SHA-256 to verdicts and turns on the #91 fit judge.
+
+    A brief with no recording fails closed.
+    """
+    receipt = _lexical_receipt(brief, ranked, ledger, matched, routes)
+    if fit_recordings is None:
+        return receipt
+    from kubrick.corpus.fit_judge import apply_fit, brief_sha256
+
+    inner = receipt["retrieval_receipt"]
+    inner["request_hash"] = inner["request_hash"] + "-jevfit"
+    apply_fit(
+        inner, ranked, fit_recordings.get(brief_sha256(brief)),
+        threshold=base.THRESHOLD, min_dramatic_fit=base.MIN_DRAMATIC_FIT,
+        max_supporting=base.MAX_SUPPORTING, source=fit_source,
+    )
+    return receipt
+
+def _lexical_receipt(brief,ranked,ledger,matched,routes):
     eligible=[x for x in ranked if base.selection_eligible(x)]; primary=eligible[0] if eligible else None; supporting=eligible[1:1+base.MAX_SUPPORTING]; key=cache_key(brief,ledger)
     return {"retrieval_receipt":{"request_hash":key,"algorithm":"registry-aware-v1","corpus_version":CORPUS_VERSION,"timestamp":datetime.now(timezone.utc).isoformat(),"selected_primary_grammar":primary["pattern_id"] if primary else None,"selected_supporting_grammars":[x["pattern_id"] for x in supporting],"ranked_patterns":base.receipt_ranking(ranked,primary,supporting),"confidence":primary["total_score"] if primary else 0.0,"status":"SELECTED" if primary else "NOT_COMPUTABLE","reason_vector":[] if primary else base.reason_vector(ranked,ledger),"pattern_gap_report":gap_report(brief,ranked,matched,routes),"matched_registry_routes":matched,"ledger_snapshot":ledger,"brief":brief}}
 
@@ -83,16 +104,28 @@ def persist(receipt):
     cache=write_json_artifact(cache_dir(),f"{key}.json",payload); logged=write_json_artifact(receipt_dir(),f"receipt-registry-{key}-{stamp}.json",payload)
     return cache,logged
 
+def _with_fit(parser):
+    parser.add_argument(
+        "--fit-verdicts",
+        help="recorded Jev fit verdicts (#91); turns on the fit judge and skips the cache",
+    )
+    return parser
+
 def main():
-    p=argparse.ArgumentParser();p.add_argument("--brief");p.add_argument("--no-cache",action="store_true");p.add_argument("--gap-report-only",action="store_true");p.add_argument("--show-routes",action="store_true");a=p.parse_args()
+    p=argparse.ArgumentParser();p.add_argument("--brief");p.add_argument("--no-cache",action="store_true");p.add_argument("--gap-report-only",action="store_true");p.add_argument("--show-routes",action="store_true");a=_with_fit(p).parse_args()
     brief=base.read_brief(a.brief);ledger=base.ledger_snapshot(brief);routes,strong=route_registry();matched=route_matches(brief,routes)
     if a.show_routes:print(yaml.safe_dump({"matched_routes":matched},sort_keys=False));return
     key=cache_key(brief,ledger)
-    if not a.no_cache:
+    fit = None
+    if a.fit_verdicts:
+        from kubrick.corpus.fit_judge import load_recorded
+
+        fit = load_recorded(Path(a.fit_verdicts))
+    if not a.no_cache and fit is None:
         cached=load_cached(key)
         if cached:
             cached["retrieval_receipt"]["cache_hit"]=True;print(yaml.safe_dump(cached,sort_keys=False));raise SystemExit(0 if cached["retrieval_receipt"]["status"]=="SELECTED" else 4)
-    patterns=base.load_all_patterns();ranked=sorted((score_with_registry(pattern,brief,ledger,routes,matched,strong) for pattern in patterns.values()),key=lambda item:(-item["total_score"],item["pattern_id"]));receipt=build_receipt(brief,ranked,ledger,matched,routes);receipt["retrieval_receipt"]["cache_hit"]=False
+    patterns=base.load_all_patterns();ranked=sorted((score_with_registry(pattern,brief,ledger,routes,matched,strong) for pattern in patterns.values()),key=lambda item:(-item["total_score"],item["pattern_id"]));receipt=build_receipt(brief,ranked,ledger,matched,routes,fit);receipt["retrieval_receipt"]["cache_hit"]=False
     if a.gap_report_only:print(yaml.safe_dump(receipt["retrieval_receipt"]["pattern_gap_report"],sort_keys=False));return
     cache,logged=persist(receipt);receipt["retrieval_receipt"]["cached_to"]=str(cache);receipt["retrieval_receipt"]["logged_to"]=str(logged);print(yaml.safe_dump(receipt,sort_keys=False));raise SystemExit(0 if receipt["retrieval_receipt"]["status"]=="SELECTED" else 4)
 

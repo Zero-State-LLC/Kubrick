@@ -1,0 +1,46 @@
+# Recorded fit verdicts for #91. Unlisted patterns are none.
+# Keys are SHA-256 of the brief's canonical JSON (kubrick.corpus.fit_judge.brief_sha256).
+recordings:
+- label: myslef-plain
+  brief_sha256: 3c1409ea02dd0d63bbc26f8a4444cde4d4949ae02440f7e2f7b051d97ef49586
+  source: hand-labelled stand-in for a Jev verdict set; not a live Jev call
+  verdicts:
+    withheld_cause_consequence_only: fit
+    dormant_watcher_background_presence: fit
+    automaton_uncanny_double: weak
+    acousmatic_sound: weak
+- label: authority-plain
+  brief_sha256: 40ce6c3f617c15f46d25c70381c73429f86eefac83da34525181f25c49bbbdb0
+  source: hand-labelled stand-in for a Jev verdict set; not a live Jev call
+  verdicts:
+    kubrick_center_transfer_authority: fit
+    interface_badge_authority_transfer: fit
+    negative_space_authority_vacancy: weak
+- label: nonsense-vocab
+  brief_sha256: 1a710ac5d16954ee078420886ca5ccf88b44d7f7de618e9221e9133ca6fcb05d
+  source: hand-labelled stand-in for a Jev verdict set; not a live Jev call
+  verdicts: {}
+- label: nonsense-sourdough
+  brief_sha256: 3ea176f2c88637306d5b60b89f402b10a1c5c95c9e7be212d7c9570d97c7a1a3
+  source: hand-labelled stand-in for a Jev verdict set; not a live Jev call
+  verdicts: {}
+- label: cats-and-dogs
+  brief_sha256: be661bdc4c69c58bc35f34988917f55e3af390c2770bb5e1094d279f48d0437a
+  source: hand-labelled stand-in for a Jev verdict set; not a live Jev call
+  verdicts: {}
+- label: myslef-example
+  brief_sha256: 9a27408597da20016e3ca177da0a92cdc1522847f1154698660ff96dfa6850ed
+  source: hand-labelled stand-in for a Jev verdict set; not a live Jev call
+  verdicts:
+    withheld_cause_consequence_only: fit
+    dormant_watcher_background_presence: fit
+    automaton_uncanny_double: weak
+    acousmatic_sound: weak
+    anempathetic_sound_indifference: weak
+- label: authority-example
+  brief_sha256: 649fcc2f7a9a49319800ff83a440efb4e8e84aff0f871b3d44c01177f52a3ae8
+  source: hand-labelled stand-in for a Jev verdict set; not a live Jev call
+  verdicts:
+    kubrick_center_transfer_authority: fit
+    interface_badge_authority_transfer: fit
+    negative_space_authority_vacancy: weak
