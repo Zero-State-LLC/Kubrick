@@ -173,7 +173,7 @@ def test_myslef_v023_fails_and_hand_fixed_passes() -> None:
     assert [item["shot"] for item in compiled] == [item["shot"] for item in shots]
     for live, saved in zip(compiled, shots):
         assert live["prompt"] == saved["prompt"]
-        assert "no red light on the head or chest" not in str(live["prompt"])
+        assert "red LED pinpoint at the centre of the chest" not in str(live["prompt"])
         assert live["surfaces"] == ["image", "video"]
     client = _recorded(compiled, holds, shots)
     failed = check_before_spend(holds, compiled, client=client)
@@ -184,12 +184,15 @@ def test_myslef_v023_fails_and_hand_fixed_passes() -> None:
     )
     assert "red-chest-light" in client.seen_hold_ids[0]
     fixed = _rows(_load("myslef-hand-fixed.json")["shots"])
+    red = next(item for item in holds if item["id"] == "red-chest-light")
     for shot in fixed:
-        assert "chest LED" in str(shot["prompt"])
+        text = str(shot["prompt"])
+        assert str(red["positive"]) in text and str(red["negative"]) in text
+        assert "stays dark" not in text and "no red light on the head or chest" not in text
         if shot["location"] == "alley":
-            assert "CHAIR LOCK" not in str(shot["prompt"])
+            assert "CHAIR LOCK" not in text
         else:
-            assert str(shot["prompt"]).startswith("no red light on the head or chest")
+            assert text.startswith(str(red["positive"]))
     fixed_prompts = [_prompt(shot) for shot in fixed]
     passed = check_before_spend(
         holds, fixed_prompts, client=_recorded(fixed_prompts, holds, fixed),
@@ -220,6 +223,53 @@ def test_prompt_that_omits_the_chest_led_fails_without_jev() -> None:
     assert "MISSING_LOCK" in str(gate["message"])
     assert "red-chest-light" in str(gate["message"])
     assert "chest" in str(gate["message"])
+
+
+def test_every_critical_lock_line_is_enforced_on_fixtures() -> None:
+    """Issue #107: a lock with a positive and a negative line enforces both."""
+    hold = {
+        "id": "lit-badge",
+        "kind": "light",
+        "critical": True,
+        "positive": "one small green badge light on the collar",
+        "negative": "no light on the sleeves",
+    }
+    both = _prompt({"shot": "01", "prompt": "a figure; one small green badge light on the collar; "
+                    "no light on the sleeves"})
+    clear = check_before_spend(
+        [hold], [both], client=_recorded([both], [hold], [{"verdict": "pass"}]),
+    )
+    assert clear["code"] == "CLEAR"
+    for text, gone in (
+        ("a figure; no light on the sleeves", "green badge light"),
+        ("a figure; one small green badge light on the collar", "no light on the sleeves"),
+    ):
+        prompt = _prompt({"shot": "01", "prompt": text})
+        gate = check_before_spend(
+            [hold], [prompt], client=_recorded([prompt], [hold], [{"verdict": "pass"}]),
+        )
+        assert gate["blocks_spend"] is True
+        assert gate["code"] == "JEV_HOLD"
+        assert "MISSING_LOCK" in str(gate["message"]) and gone in str(gate["message"])
+
+
+def test_tenant_fixture_without_the_chest_led_fails_the_hold() -> None:
+    """Issue #107: dropping the canon chest LED from the hand-fixed fixture blocks spend."""
+    plan = load_structured(MYSLEF)
+    assert isinstance(plan, dict)
+    holds = hold_list(plan)
+    assert isinstance(holds, list)
+    red = next(item for item in holds if item["id"] == "red-chest-light")
+    shot = _rows(_load("myslef-hand-fixed.json")["shots"])[0]
+    text = str(shot["prompt"]).replace(str(red["positive"]), "chest LED stays dark")
+    dark = dict(shot, prompt=text)
+    prompt = _prompt(dark)
+    gate = check_before_spend(
+        holds, [prompt], client=_recorded([prompt], holds, [{"verdict": "pass"}]),
+    )
+    assert gate["blocks_spend"] is True
+    assert gate["code"] == "JEV_HOLD"
+    assert "red-chest-light" in str(gate["message"])
 
 
 def test_run_ledger_records_the_gate_before_spend() -> None:

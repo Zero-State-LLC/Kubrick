@@ -52,7 +52,8 @@ locks:
     kind: light
     critical: true
     character: myslef
-    negative: no red light on the head or chest
+    positive: the only light on the body is ONE small red LED pinpoint at the centre of the chest under the hoodie, front only
+    negative: no light on the head, hood or temple, no light inside the mouth grille, no light along the spine or on the back
 props:
   chair:
     states:

@@ -2,6 +2,14 @@
 
 ## [Unreleased]
 
+## [0.27.2] - 2026-10-07
+
+### Fixed
+- Issue #107: the pre-spend lock check requires every positive and negative line of a critical lock, not just the first one. MYSLEF test tenant fixtures (`evals/fixtures/jev/myslef-hand-fixed.json`, `examples/myslef-minder/storyboard-plan.yaml`, `evals/fixtures/myslef/minder-storyboard.yaml`) now state the chest LED as canon does (one small red LED at the chest) instead of "chest LED stays dark".
+
+### Notes
+- Product version is 0.27.2. Envelope schema id stays `0.16.0`.
+
 ## [0.27.1] - 2026-10-05
 
 ### Fixed

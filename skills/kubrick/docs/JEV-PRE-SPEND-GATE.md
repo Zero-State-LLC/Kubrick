@@ -253,10 +253,11 @@ opt-out does not touch the Jev gate.
 `evals/fixtures/jev/myslef-v023.json` stores the v0.23 compiled prompts for
 shots 03–06 and recorded fail verdicts for the missing red-chest lock.
 `evals/fixtures/jev/myslef-hand-fixed.json` stores the same prompts with the
-lock restored, including the words "chest LED", plus an alley shot that does
-not carry the chair lock. Those recorded verdicts pass. A picture prompt that
-drops a critical negative or positive line is `MISSING_LOCK` even when the
-recorded verdict says pass. Spoken cues are not picture prompts. `scripts/test_jev_gate.py`
+lock restored as the plan states it (the positive line naming the one red
+chest LED and the negative line), plus an alley shot that does not carry the
+chair lock. Those recorded verdicts pass. A critical lock with both lines
+enforces both: a picture prompt that drops either the negative or the positive
+line is `MISSING_LOCK` even when the recorded verdict says pass (issue #107). Spoken cues are not picture prompts. `scripts/test_jev_gate.py`
 checks the live compiler against the v0.23 snapshot, so a prompt change does
 not inherit an old verdict.
 

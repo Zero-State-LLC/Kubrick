@@ -3,6 +3,7 @@
 
 from __future__ import annotations
 
+import copy
 import json
 import subprocess
 import sys
@@ -208,16 +209,23 @@ def test_example_carriers_are_on_generic_and_keyframe() -> None:
     jsonschema.validate(movie, MOVIE)
     for payload in (generic, movie):
         rows = _rows(payload.get("lock_carriers"))
-        assert {str(row["carrier"]) for row in rows} >= {
-            "unverified", "prompt_positive", "prompt_negative_only",
-        }
+        assert {str(row["carrier"]) for row in rows} >= {"unverified", "prompt_positive"}
         red = [row for row in rows if row.get("lock") == "red-chest-light"]
         by_shot = {str(row["shot"]): str(row["carrier"]) for row in red}
-        assert by_shot["frame-001"] == "prompt_negative_only"
+        # Issue #107: the tenant lock now carries the canon positive (one red chest LED).
+        assert by_shot["frame-001"] == "prompt_positive"
         assert by_shot["frame-002"] == "unverified"
-        assert by_shot["frame-003"] == "prompt_negative_only"
+        assert by_shot["frame-003"] == "prompt_positive"
         assert "frame-004" not in by_shot
-    only = _codes(movie, "NEGATIVE_ONLY_LOCK")
+    assert _codes(movie, "NEGATIVE_ONLY_LOCK") == []
+    bare = copy.deepcopy(document)
+    locks = bare["locks"]
+    assert isinstance(locks, list)
+    for lock in locks:
+        if isinstance(lock, dict) and lock.get("id") == "red-chest-light":
+            lock.pop("positive")
+    stripped = adapt_keyframe_packet(adapter_packet_from_document(bare, "keyframe"))
+    only = _codes(stripped, "NEGATIVE_ONLY_LOCK")
     assert {str(item["shot"]) for item in only} == {"frame-001", "frame-003"}
     assert all("red-chest-light" in str(item["message"]) for item in only)
     shots = _rows(movie["shots"])
