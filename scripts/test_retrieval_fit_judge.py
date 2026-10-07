@@ -139,3 +139,24 @@ def test_fit_request_is_generic_and_carries_counter_examples() -> None:
     assert state["counter_examples"] == COUNTER_EXAMPLES
     questions = request["questions"]
     assert isinstance(questions, dict) and set(questions) == {"p1"}
+
+
+def test_fit_tie_breaks_on_probability_then_order() -> None:
+    ranked = [
+        {"pattern_id": "a", "total_score": 0.5},
+        {"pattern_id": "b", "total_score": 0.5},
+        {"pattern_id": "c", "total_score": 0.5},
+        {"pattern_id": "d", "total_score": 0.7},
+    ]
+    verdicts = {k: "fit" for k in "abcd"}
+    chosen, reason = fit_select(
+        ranked, verdicts, floor=0.4, threshold=0.55, min_dramatic_fit=0.15, max_supporting=3,
+        probabilities={"a": 0.7, "b": 0.9, "c": 0.7, "d": 0.6},
+    )
+    assert reason is None
+    # Lexical stays primary (d), then b by probability, then a before c by order.
+    assert [str(x["pattern_id"]) for x in chosen] == ["d", "b", "a", "c"]
+    plain, _ = fit_select(
+        ranked, verdicts, floor=0.4, threshold=0.55, min_dramatic_fit=0.15, max_supporting=3
+    )
+    assert [str(x["pattern_id"]) for x in plain] == ["d", "a", "b", "c"]

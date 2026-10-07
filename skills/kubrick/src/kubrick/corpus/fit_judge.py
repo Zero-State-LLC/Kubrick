@@ -80,11 +80,14 @@ def fit_select(
     threshold: float,
     min_dramatic_fit: float,
     max_supporting: int,
+    probabilities: Mapping[str, float] | None = None,
 ) -> tuple[list[Mapping[str, object]], str | None]:
     """Patterns judged ``fit`` with a lexical total at least ``floor``, best first.
 
     ``weak`` never selects (0.27.10). ``threshold`` and ``min_dramatic_fit`` are kept
-    for callers; they no longer open a path on their own.
+    for callers; they no longer open a path on their own. Ranking is lexical; equal
+    lexical totals are broken by Jev fit probability (higher first), then by the
+    incoming order (0.27.10).
     """
     del threshold, min_dramatic_fit
 
@@ -105,6 +108,14 @@ def fit_select(
             eligible.append(item)
     if not eligible:
         return [], "JEV_FIT_BELOW_FLOOR" if any_fit else "JEV_FIT_NONE"
+    probs = probabilities or {}
+
+    def rank_key(item: Mapping[str, object]) -> tuple[float, float]:
+        pattern_id = item.get("pattern_id")
+        prob = probs.get(pattern_id, 0.0) if isinstance(pattern_id, str) else 0.0
+        return (-as_float(item.get("total_score")), -float(prob))
+
+    eligible.sort(key=rank_key)  # stable: still-tied items keep the incoming order
     return eligible[: max(0, max_supporting) + 1], None
 
 
@@ -163,6 +174,7 @@ def apply_fit(
     chosen: list[Mapping[str, object]] = []
     reason: str | None = "JEV_FIT_UNAVAILABLE"
     verdicts: dict[str, str] | None = None
+    probs: dict[str, float] = {}
     if recording is not None:
         raw, probs = _unpack(recording)
         verdicts, reason = screen_verdicts(
@@ -173,6 +185,7 @@ def apply_fit(
         chosen, reason = fit_select(
             ranked, verdicts, floor=STRUCTURAL_FLOOR, threshold=threshold,
             min_dramatic_fit=min_dramatic_fit, max_supporting=max_supporting,
+            probabilities=probs,
         )
     primary = dict(chosen[0]) if chosen else None
     supporting = [dict(item) for item in chosen[1:]]

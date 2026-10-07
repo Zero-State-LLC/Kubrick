@@ -11,7 +11,7 @@ v0.11 through v0.23 are in [`archive/releases/`](archive/releases/).
 
 ## Shipped in 0.27.10
 
-- #91 follow-up: live Jev fit recordings with a generic counter-example request; fit probability floor 0.6, breadth cap 20%, `weak` never selects. Plain authority brief still picks a lexical tie-break winner (open).
+- #91 follow-up: live Jev fit recordings with a generic counter-example request; fit probability floor 0.6, breadth cap 20%, `weak` never selects; lexical ties broken by Jev fit probability. All seven fixture briefs match.
 
 ## Shipped in 0.27.9
 

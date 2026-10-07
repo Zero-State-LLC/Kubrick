@@ -52,7 +52,7 @@ stand-ins, not live Jev output.
 | Plain briefs fail and vocabulary soup passes on lexical scoring alone | `OBSERVED` | `test_lexical_alone_shows_the_bug` |
 | With recorded verdicts, plain briefs select a fitting pattern and nonsense is refused | `OBSERVED` | `scripts/test_retrieval_fit_judge.py` |
 | Existing retrieval tests are unchanged and pass | `OBSERVED` | full suite |
-| Live Jev labels these briefs as the hand labels did | `OBSERVED` false (0.27.10) | first recording: nonsense judged `fit`; after the reworded request and screening, 6 of 7 briefs match |
+| Live Jev labels these briefs as the hand labels did | `OBSERVED` false (0.27.10) | first recording: nonsense judged `fit`; after the reworded request, screening and the probability tie-break, 7 of 7 briefs match |
 
 ## 0.27.10 finding
 
@@ -64,11 +64,11 @@ The owner chose: reword the question with generic counter-examples, add a
 0.6 fit probability floor and a 20% breadth cap, and stop `weak` from
 selecting. Re-recorded live with the new request: all three nonsense briefs are
 refused (`JEV_FIT_NONE`) and both MYSLEF briefs and the authority example
-select as expected. Open: the plain authority brief has ten `fit` patterns and
-the primary falls to a lexical tie (0.488) broken by pattern id, which picks
-`bresson_gesture_object_transfer` over `kubrick_center_transfer_authority`
-(Jev p=0.76 vs 0.91). Ordering fits by Jev probability would pick
-`negative_space_authority_vacancy` (p=1.0), also outside the expected set.
+select as expected. The plain authority brief tied on lexical total (0.488) between
+`bresson_gesture_object_transfer` and `kubrick_center_transfer_authority`; the
+owner chose to break lexical ties among `fit` patterns by Jev fit probability
+(higher first), then the existing order. It now selects the center pattern
+(p=0.91 over 0.76). All seven briefs match.
 
 ## Author / date
 
