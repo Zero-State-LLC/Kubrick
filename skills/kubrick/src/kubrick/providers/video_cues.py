@@ -171,24 +171,89 @@ def _gate_lines(
     return gate, payload
 
 
-def sfx_estimate(document: Mapping[str, object]) -> dict[str, object]:
-    """Fixture SFX credits. Missing means an explicit zero. ElevenLabs is not called."""
+def _amount(value: object) -> float | None:
+    """A non-negative fixture number, or None. Booleans are not numbers here."""
+    if isinstance(value, bool) or not isinstance(value, (int, float)) or value < 0:
+        return None
+    return float(value)
+
+
+def _shown(value: float) -> int | float:
+    return int(value) if float(value).is_integer() else value
+
+
+def _sfx_line(
+    status: str, credits: int | float | None, line: str, **extra: object,
+) -> dict[str, object]:
+    return {"status": status, "credits": credits, "line": line, "source": "fixture", **extra}
+
+
+def _frame_effects(frames: Sequence[Mapping[str, object]]) -> list[tuple[object, object]]:
+    found: list[tuple[object, object]] = []
+    for frame in frames:
+        raw = frame.get("sfx")
+        if raw is None:
+            continue
+        shot = frame.get("shot_id", frame.get("frame_id"))
+        entries = raw if isinstance(raw, list) else [raw]
+        found.extend((shot, entry) for entry in entries)
+    return found
+
+
+def sfx_estimate(
+    document: Mapping[str, object], frames: Sequence[Mapping[str, object]] = (),
+) -> dict[str, object]:
+    """SFX credits from fixtures only. ElevenLabs is not called. Issue #108.
+
+    A flat ``sfx.credits`` wins. Otherwise frame ``sfx`` effects are priced at
+    ``sfx.credits_per_second`` (``seconds`` per effect, else ``sfx.default_seconds``).
+    No effects and no ``sfx`` block is an explicit zero. Effects with no rate are
+    ``MISSING`` so the cue sheet cannot look fully costed.
+    """
     raw = document.get("sfx")
-    if raw is None:
-        return {"status": "PROPOSED", "credits": 0, "line": "sfx 0", "source": "fixture"}
-    found = raw if isinstance(raw, Mapping) else None
-    credits = found.get("credits") if found is not None else None
-    bad = found is None or isinstance(credits, bool) or not isinstance(credits, (int, float))
-    if bad or (isinstance(credits, (int, float)) and credits < 0):
-        return {
-            "status": "NOT_COMPUTABLE",
-            "credits": None,
-            "line": "sfx not computable",
-            "source": "fixture",
-        }
-    assert isinstance(credits, (int, float))
-    shown: int | float = int(credits) if float(credits).is_integer() else float(credits)
-    return {"status": "PROPOSED", "credits": shown, "line": f"sfx {shown}", "source": "fixture"}
+    effects = _frame_effects(frames)
+    bad = _sfx_line("NOT_COMPUTABLE", None, "sfx not computable")
+    if raw is not None and not isinstance(raw, Mapping):
+        return bad
+    cfg: Mapping[str, object] = raw if isinstance(raw, Mapping) else {}
+    if "credits" in cfg:
+        flat = _amount(cfg.get("credits"))
+        if flat is None:
+            return bad
+        return _sfx_line("PROPOSED", _shown(flat), f"sfx {_shown(flat)}", effects=len(effects))
+    if not effects:
+        return _sfx_line("PROPOSED", 0, "sfx 0", effects=0)
+    if "credits_per_second" not in cfg:
+        return _sfx_line(
+            "MISSING", None, "sfx estimate missing", code="SFX_ESTIMATE_MISSING",
+            effects=len(effects),
+        )
+    rate = _amount(cfg.get("credits_per_second"))
+    default = _amount(cfg.get("default_seconds")) if "default_seconds" in cfg else None
+    if rate is None or ("default_seconds" in cfg and default is None):
+        return bad
+    detail: list[dict[str, object]] = []
+    total = 0.0
+    for shot, entry in effects:
+        name: object = entry
+        seconds: float | None = default
+        if isinstance(entry, Mapping):
+            name = entry.get("effect", entry.get("name"))
+            if "seconds" in entry:
+                seconds = _amount(entry.get("seconds"))
+        if not isinstance(name, str) or not name.strip() or seconds is None:
+            return bad
+        cost = round(seconds * rate, 4)
+        total += cost
+        detail.append({
+            "shot": shot, "effect": name.strip(), "seconds": _shown(seconds),
+            "credits": _shown(cost),
+        })
+    shown = _shown(round(total, 4))
+    return _sfx_line(
+        "PROPOSED", shown, f"sfx {shown}", effects=len(detail),
+        credits_per_second=_shown(rate), effects_detail=detail,
+    )
 
 
 def cue_sheet(
@@ -233,7 +298,18 @@ def cue_sheet(
         )
         attach_gate(payload, gate, run_ledger)
         return payload
-    sfx = sfx_estimate(document)
+    cued = [
+        frame for frame in frames_of(document)
+        if any(frame_label_matches(frame, row.get("shot")) for row in rows)
+    ]
+    sfx = sfx_estimate(document, cued)
+    if sfx.get("status") == "MISSING":
+        refused = closed(
+            ACTION, "SFX_ESTIMATE_MISSING",
+            "frames declare sfx but the plan has no sfx.credits or sfx.credits_per_second",
+        )
+        attach_gate(refused, gate, run_ledger)
+        return refused
     if sfx.get("status") != "PROPOSED":
         refused = closed(ACTION, "SFX_NOT_COMPUTABLE", "sfx estimate is not a fixture number")
         attach_gate(refused, gate, run_ledger)

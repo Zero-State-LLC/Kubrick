@@ -1,6 +1,6 @@
 # Kubrick roadmap
 
-Product version **0.27.2**. Local output stays **PROPOSED**. Weak evidence
+Product version **0.27.3**. Local output stays **PROPOSED**. Weak evidence
 stays `NOT_COMPUTABLE`. No provider is called from this plan.
 
 Project board: [Zero-State-LLC project 13](https://github.com/orgs/Zero-State-LLC/projects/13).
@@ -8,6 +8,10 @@ Project board: [Zero-State-LLC project 13](https://github.com/orgs/Zero-State-LL
 Shipped history is [`CHANGELOG.md`](../CHANGELOG.md). The standing release
 gate is [`RELEASE-CHECKLIST.md`](RELEASE-CHECKLIST.md). Versioned notes from
 v0.11 through v0.23 are in [`archive/releases/`](archive/releases/).
+
+## Shipped in 0.27.3
+
+- Issue #108: video cues SFX estimate computed from frame fixtures for any project; `SFX_ESTIMATE_MISSING` fails closed.
 
 ## Shipped in 0.27.2
 
