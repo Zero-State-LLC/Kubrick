@@ -7,6 +7,10 @@
 ### Changed
 - #91 follow-up: `evals/fixtures/retrieval/jev-fit-verdicts.yaml` now holds live Jev recordings (seven text calls, one per fixture brief, verdicts plus fit probabilities) instead of hand-labelled stand-ins. The request shape is in `evals/fixtures/retrieval/jev-fit-request.md`.
 
+### Added
+- Fit screening (`kubrick.corpus.fit_judge.screen_verdicts`): a `fit` with fit probability under 0.6 counts as `weak`, and a brief judged `fit` for more than 20% of the corpus is refused with `JEV_FIT_TOO_BROAD`. Recordings may carry `fit_probability`.
+- `kubrick.corpus.fit_request.build_fit_request`: the recording request, with generic counter-examples of briefs that share a pattern's words but not its structure. Not yet re-recorded live (usage gate returned ask_human).
+
 ### Known failures
 - Live Jev disagrees with the hand labels. It gives `fit` to all three nonsense briefs (vocabulary soup at p=0.97, sourdough at 0.47, cats and dogs at 0.42), so they are `SELECTED`, and the plain authority brief selects `bresson_gesture_object_transfer`. `test_nonsense_briefs_are_refused` and `test_plain_briefs_pass_without_rewording` fail. Test expectations are unchanged on purpose.
 
