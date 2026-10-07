@@ -19,10 +19,17 @@ from kubrick.qc.hold_vision import (  # noqa: E402
     main,
     markdown,
     parse_holds,
+    parse_judge_route,
 )
 from kubrick.qc.take_qc import score_full  # noqa: E402
 
 IMG = RGBImage(1, 1, b"\0\0\0")
+
+
+def by_id(report: dict[str, object]) -> dict[str, dict[str, object]]:
+    holds = report["holds"]
+    assert isinstance(holds, list)
+    return {str(row["hold_id"]): row for row in holds if isinstance(row, dict)}
 
 
 class Table:
@@ -69,7 +76,7 @@ def test_fail_becomes_take_qc_defect() -> None:
     judge = Table({("a", "Silicon hands?"): "no", ("b", "Silicon hands?"): "No.",
                    ("a", "Lens glowing?"): "no", ("b", "Lens glowing?"): "yes"})
     report = judge_holds(HOLDS, FRAMES, judge)
-    rows = {r["hold_id"]: r for r in report["holds"]}  # type: ignore[union-attr]
+    rows = by_id(report)
     assert rows["hands"]["verdict"] == "fail"
     assert (rows["hands"]["t_start"], rows["hands"]["t_end"]) == (2.0, 4.0)
     assert rows["glow"]["verdict"] == "borderline"
@@ -112,3 +119,43 @@ def test_cli_with_recorded_answers(tmp_path: Path, capsys: pytest.CaptureFixture
     assert json.loads(out.read_text(encoding="utf-8"))["vlm"] == {"status": "pass"}
     assert main(["--holds", str(holds), "--answers", str(answers)]) == 2
     capsys.readouterr()
+
+
+def test_routed_hold_uses_its_judge_and_unrouted_fails_closed() -> None:
+    holds = parse_holds([
+        {"hold_id": "hands", "question": "Silicon hands?", "expect": "yes"},
+        {"hold_id": "glow", "question": "Lens glowing?", "expect": "no", "judge": "detail"},
+    ])
+    assert holds[1].judge == "detail"
+    cheap = Table({(s, "Silicon hands?"): "yes" for s in "ab"})
+    detail = Table({(s, "Lens glowing?"): "no" for s in "ab"})
+    report = judge_holds(holds, FRAMES, cheap, {"detail": detail})
+    assert report["vlm"] == {"status": "pass"}
+    unrouted = judge_holds(holds, FRAMES, cheap)
+    rows = by_id(unrouted)
+    assert rows["glow"]["verdict"] == "unverified"
+    assert unrouted["vlm"] == {"status": "not_computable"}
+
+
+def test_parse_judge_route(tmp_path: Path) -> None:
+    answers = tmp_path / "a.json"
+    answers.write_text(json.dumps({"answers": {}}), encoding="utf-8")
+    name, judge = parse_judge_route(f"detail=answers:{answers}")
+    assert (name, getattr(judge, "name", "")) == ("detail", "recorded")
+    for bad in ("detail", "=answers:x", "detail=x", "detail=web:x", "detail=vlm:", "d=vlm:@m"):
+        with pytest.raises(ValueError):
+            parse_judge_route(bad)
+
+
+def test_ep01_acceptance_with_recorded_answers() -> None:
+    """#93 acceptance on recorded EP-01 answers: within one item per shot (offline)."""
+    root = Path(__file__).resolve().parents[1]
+    fixtures = root / "evals/fixtures/ep01/hold-vision"
+    sys.path.insert(0, str(root / "tools/board_calibration"))
+    import hold_vision_eval
+
+    code = hold_vision_eval.main([
+        "--answers", str(fixtures / "recorded-qwen3.5-flash.json"),
+        "--route", f"detail=answers:{fixtures / 'recorded-gemini-2.5-flash.json'}",
+    ])
+    assert code == 0

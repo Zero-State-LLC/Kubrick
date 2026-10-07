@@ -20,7 +20,10 @@ otherwise ``pass`` (borderline holds are listed but, like a marginal score, are 
       --frame end=4.0=frames/a-end.png [--answers recorded.json] [--crop full] [--out r.json]
 
 The judge is resolved like the board gate: ``--answers`` / ``KUBRICK_BOARD_JUDGE_ANSWERS``
-replays recorded answers, otherwise ``KUBRICK_BOARD_VLM_URL`` (loopback only). A paid model
+replays recorded answers, otherwise ``KUBRICK_BOARD_VLM_URL`` (loopback only). A hold may
+name a ``judge``; ``--judge NAME=answers:PATH`` or ``--judge NAME=vlm:URL[@MODEL]`` routes
+those holds to another judge, so a cheap model can take the easy holds and a stronger one
+the hard ones. A paid model
 is reached only through a loopback adapter that enforces its own budget; this module never
 holds a key and never calls a remote host.
 """
@@ -34,7 +37,14 @@ from dataclasses import dataclass
 from pathlib import Path
 
 from kubrick.qc.board_pixels import RGBImage, file_sha256, isolate_subject, load_rgb
-from kubrick.qc.board_vision import BackendUnavailable, LockJudge, parse_answer, resolve_judge
+from kubrick.qc.board_vision import (
+    BackendUnavailable,
+    LockJudge,
+    LoopbackVlmJudge,
+    RecordedJudge,
+    parse_answer,
+    resolve_judge,
+)
 
 ANSWERS = ("yes", "no")
 DEFECT_CODE = "VLM_HOLD_FAIL"
@@ -45,6 +55,7 @@ class Hold:
     hold_id: str
     question: str
     expect: str
+    judge: str | None = None
 
 
 @dataclass(frozen=True)
@@ -73,7 +84,8 @@ def parse_holds(raw: object) -> list[Hold]:
         if hold_id in seen:
             raise ValueError(f"duplicate hold_id {hold_id!r}")
         seen.add(hold_id)
-        holds.append(Hold(hold_id, question, expect))
+        judge = str(row.get("judge") or "").strip() or None
+        holds.append(Hold(hold_id, question, expect, judge))
     if not holds:
         raise ValueError("no holds")
     return holds
@@ -104,13 +116,20 @@ def _ask(judge: LockJudge, frame: Frame, question: str) -> str:
 
 def judge_holds(
     holds: Sequence[Hold], frames: Sequence[Frame], judge: LockJudge,
+    routes: Mapping[str, LockJudge] | None = None,
 ) -> dict[str, object]:
-    """Ask every hold on every frame and return the per-hold report."""
+    """Ask every hold on every frame and return the per-hold report.
+
+    A hold naming a ``judge`` is asked through ``routes[judge]``; a named judge that is not
+    routed makes that hold unverified (fail closed). Other holds use ``judge``.
+    """
+    routes = routes or {}
     rows: list[dict[str, object]] = []
     for hold in holds:
         per_frame: list[dict[str, object]] = []
+        hold_judge = routes.get(hold.judge) if hold.judge else judge
         for frame in frames:
-            answer = _ask(judge, frame, hold.question)
+            answer = "unrouted" if hold_judge is None else _ask(hold_judge, frame, hold.question)
             per_frame.append({"frame": frame.label, "t": frame.t, "answer": answer,
                               "verdict": frame_verdict(answer, hold.expect)})
         verdict = hold_verdict([str(item["verdict"]) for item in per_frame])
@@ -118,6 +137,7 @@ def judge_holds(
                    if item["verdict"] == "fail" and isinstance(item["t"], (int, float))]
         rows.append({
             "hold_id": hold.hold_id, "question": hold.question, "expect": hold.expect,
+            "judge": str(getattr(hold_judge, "name", hold.judge)),
             "verdict": verdict, "frames": per_frame,
             "t_start": min(failing) if failing else None,
             "t_end": max(failing) if failing else None,
@@ -156,6 +176,49 @@ def markdown(report: Mapping[str, object]) -> str:
     return "\n".join(lines)
 
 
+def parse_judge_route(spec: str) -> tuple[str, LockJudge]:
+    """Parse a ``--judge`` value ``NAME=answers:PATH`` or ``NAME=vlm:URL[@MODEL]``."""
+    if "=" not in spec:
+        raise ValueError("missing '=' in judge spec")
+
+    name_part, rest = spec.split("=", 1)
+    name = name_part.strip()
+    if not name:
+        raise ValueError("empty NAME in judge spec")
+
+    if ":" not in rest:
+        raise ValueError("missing ':' after '=' in judge spec")
+
+    kind_part, value = rest.split(":", 1)
+    kind = kind_part.strip().lower()
+
+    if kind == "answers":
+        if value == "":
+            raise ValueError("empty VALUE in judge spec")
+        return (name, RecordedJudge.from_file(value))
+
+    if kind == "vlm":
+        if value == "":
+            raise ValueError("empty VALUE in judge spec")
+
+        url: str
+        model: str | None
+        if "@" in value:
+            parts = value.rsplit("@", 1)
+            url = parts[0]
+            model = parts[1] or None
+        else:
+            url = value
+            model = None
+
+        if url == "":
+            raise ValueError("empty URL in vlm judge spec")
+
+        return (name, LoopbackVlmJudge(url=url, model=model))
+
+    raise ValueError(f"unknown KIND: {kind!r}")
+
+
 def _load_frame(spec: str, use_crop: bool) -> Frame:
     label, sep, rest = spec.partition("=")
     t_text, sep2, path = rest.partition("=")
@@ -182,6 +245,8 @@ def main(argv: list[str] | None = None) -> int:
     parser.add_argument("--holds", required=True, help="YAML or JSON hold list")
     parser.add_argument("--frame", action="append", default=[], metavar="LABEL=T=PATH")
     parser.add_argument("--answers", help="recorded judge answers (offline)")
+    parser.add_argument("--judge", action="append", default=[], metavar="NAME=KIND:VALUE",
+                        help="route holds with judge: NAME to answers:PATH or vlm:URL[@MODEL]")
     parser.add_argument("--crop", choices=("subject", "full"), default="subject",
                         help="subject: the board gate's default crop (default); full: whole frame")
     parser.add_argument("--out", help="write the JSON report here")
@@ -193,10 +258,11 @@ def main(argv: list[str] | None = None) -> int:
             raise ValueError("at least one --frame is required")
         frames = [_load_frame(spec, args.crop == "subject") for spec in args.frame]
         judge = resolve_judge(args.answers)
+        routes = dict(parse_judge_route(spec) for spec in args.judge)
     except (OSError, ValueError, BackendUnavailable) as exc:
         print(f"hold vision: ERROR: {exc}", file=sys.stderr)
         return 2
-    report = judge_holds(holds, frames, judge)
+    report = judge_holds(holds, frames, judge, routes)
     text = json.dumps(report, indent=2)
     if args.out:
         Path(args.out).write_text(text + "\n", encoding="utf-8")

@@ -3,7 +3,8 @@
 
   python tools/board_calibration/hold_vision_eval.py --record /tmp/answers.json --out /tmp/r.json
   python tools/board_calibration/hold_vision_eval.py \
-      --answers evals/fixtures/ep01/hold-vision/recorded-answers.json
+      --answers evals/fixtures/ep01/hold-vision/recorded-qwen3.5-flash.json \
+      --route detail=answers:evals/fixtures/ep01/hold-vision/recorded-gemini-2.5-flash.json
 
 For each take of the chosen shots (default 01 07 09 10 11 12), the manifest's take frames (mid
 and end) are judged with ``kubrick.qc.hold_vision`` on the gate's default crop. The labeled
@@ -38,6 +39,7 @@ from kubrick.qc.hold_vision import (  # noqa: E402
     hold_verdict,
     judge_holds,
     parse_holds,
+    parse_judge_route,
 )
 
 ROOT = Path(__file__).resolve().parents[2]
@@ -72,6 +74,8 @@ def main(argv: list[str] | None = None) -> int:
     mf.add_common_args(parser)
     parser.add_argument("--shots", nargs="*", default=["01", "07", "09", "10", "11", "12"])
     parser.add_argument("--answers", help="recorded answers (offline replay)")
+    parser.add_argument("--route", action="append", default=[], metavar="NAME=KIND:VALUE",
+                        help="judge route for holds naming judge NAME (see hold_vision --judge)")
     parser.add_argument("--record", help="write live answers here")
     parser.add_argument("--out")
     args = parser.parse_args(argv)
@@ -86,6 +90,9 @@ def main(argv: list[str] | None = None) -> int:
     else:
         judge = Recorder(LoopbackVlmJudge())
         root_map = mf.roots(man, args.root)
+    routes = dict(parse_judge_route(spec) for spec in args.route)
+    if not args.answers:
+        routes = {name: Recorder(inner) for name, inner in routes.items()}
     blank = RGBImage(1, 1, b"\0\0\0")
     rows, per_shot = [], defaultdict(int)
     for take, items in takes(man, shots).items():
@@ -95,7 +102,7 @@ def main(argv: list[str] | None = None) -> int:
                 load_rgb(mf.resolve(item["path"], root_map))).image
             frames.append(Frame(item["pos"], POS_T[item["pos"]], image, item["sha256"]))
         labeled = [h for h in holds if all(h.hold_id in i["truth"] for i in items)]
-        report = judge_holds(labeled, frames, judge)
+        report = judge_holds(labeled, frames, judge, routes)
         mismatches = []
         for row in report["holds"]:  # type: ignore[union-attr]
             truth = hold_verdict([frame_verdict(i["truth"][row["hold_id"]], row["expect"])
@@ -118,6 +125,11 @@ def main(argv: list[str] | None = None) -> int:
     if args.record and isinstance(judge, Recorder):
         Path(args.record).write_text(json.dumps({"answers": judge.table}, indent=1, sort_keys=True)
                                      + "\n", encoding="utf-8")
+        for name, route in routes.items():
+            if isinstance(route, Recorder):
+                Path(f"{args.record}.{name}.json").write_text(
+                    json.dumps({"answers": route.table}, indent=1, sort_keys=True) + "\n",
+                    encoding="utf-8")
     return 0 if ok else 1
 
 
