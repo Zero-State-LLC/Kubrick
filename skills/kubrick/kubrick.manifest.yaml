@@ -1,7 +1,7 @@
 {
   "manifest_version": 1,
   "name": "kubrick",
-  "version": "0.27.12",
+  "version": "0.27.13",
   "host": "hermes",
   "runtime_profiles": {
     "prose": {

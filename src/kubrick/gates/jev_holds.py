@@ -250,6 +250,7 @@ def compiled_prompts(
     frames = _frames(document)
     if not frames:
         return []
+    from kubrick.prompts.reference_lint import screen_mode
     from kubrick.prompts.storyboard_prompts import shots_from_document
 
     rendered = shots_from_document(document)
@@ -271,15 +272,14 @@ def compiled_prompts(
             "location": shot_location(document, frame),
             "prompt": text,
         }
-        characters = frame.get("characters")
-        if isinstance(characters, list):
-            row["characters"] = [str(name) for name in characters if isinstance(name, str)]
+        mode, names = screen_mode(frame)
+        if mode != "absent":
+            row["characters"] = names
         view = frame_view(frame)
         if view:
             row["view"] = view
         prompts.append(row)
     return prompts
-
 
 def select_prompts(
     prompts: Sequence[Mapping[str, object]], labels: set[str],

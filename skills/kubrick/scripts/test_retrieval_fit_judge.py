@@ -160,3 +160,93 @@ def test_fit_tie_breaks_on_probability_then_order() -> None:
         ranked, verdicts, floor=0.4, threshold=0.55, min_dramatic_fit=0.15, max_supporting=3
     )
     assert [str(x["pattern_id"]) for x in plain] == ["d", "a", "b", "c"]
+
+
+from kubrick.corpus.fit_judge import PRIMARY_FIT_PROBABILITY  # noqa: E402
+
+PERMISSIVE = load_recorded(FIXTURES / "jev-fit-verdicts-permissive.yaml")
+
+
+def test_permissive_judge_refuses_vocab_soup() -> None:
+    receipt = _receipt(BRIEFS["nonsense-vocab"], PERMISSIVE)
+    assert receipt["status"] == "NOT_COMPUTABLE"
+    assert receipt["selected_primary_grammar"] is None
+    assert receipt["reason_vector"][0] == "JEV_FIT_PRIMARY_MARGINAL"
+    assert receipt["fit_judge"]["fit_count"] == 7
+
+
+def test_permissive_judge_refuses_sourdough_weak_lexical_leader() -> None:
+    brief = BRIEFS["nonsense-sourdough"]
+    receipt = _receipt(brief, PERMISSIVE)
+    assert receipt["status"] == "NOT_COMPUTABLE"
+    assert receipt["reason_vector"][0] == "JEV_FIT_NONE"
+    assert receipt["fit_judge"]["lexical_primary"] == "withheld_cause_consequence_only"
+    assert _receipt(brief, None)["status"] == "SELECTED"
+
+
+def test_permissive_judge_keeps_myslef_briefs() -> None:
+    for brief in (BRIEFS["myslef-plain"], _example("myslef-minder")):
+        receipt = _receipt(brief, PERMISSIVE)
+        assert receipt["status"] == "SELECTED"
+        assert receipt["selected_primary_grammar"] in MYSLEF_FIT
+
+
+def test_primary_floor_refuses_without_falling_through() -> None:
+    ranked: list[dict[str, Any]] = [
+        {"pattern_id": "a", "total_score": 0.65},
+        {"pattern_id": "b", "total_score": 0.60},
+        {"pattern_id": "c", "total_score": 0.55},
+    ]
+    verdicts: dict[str, str] = {"a": "fit", "b": "fit", "c": "fit"}
+    common: dict[str, Any] = {
+        "floor": 0.4,
+        "threshold": 0.55,
+        "min_dramatic_fit": 0.15,
+        "max_supporting": 2,
+    }
+
+    probabilities = {"a": 0.68, "b": 0.97, "c": 0.9}
+    selected, reason = fit_select(
+        ranked, verdicts, probabilities=probabilities, primary_floor=0.75, **common
+    )
+    assert selected == []
+    assert reason == "JEV_FIT_PRIMARY_MARGINAL"
+
+    selected, reason = fit_select(
+        ranked, verdicts, probabilities=probabilities, primary_floor=None, **common
+    )
+    assert [item["pattern_id"] for item in selected] == ["a", "b", "c"]
+    assert reason is None
+
+    missing_a = {"b": 0.97, "c": 0.9}
+    selected, reason = fit_select(
+        ranked, verdicts, probabilities=missing_a, primary_floor=0.75, **common
+    )
+    assert [item["pattern_id"] for item in selected] == ["a", "b", "c"]
+
+    higher = {"a": 0.8, "b": 0.97, "c": 0.9}
+    selected, reason = fit_select(
+        ranked, verdicts, probabilities=higher, primary_floor=0.75, **common
+    )
+    assert [item["pattern_id"] for item in selected] == ["a", "b", "c"]
+    assert selected[0]["pattern_id"] == "a"
+
+
+def test_current_recordings_unchanged_by_primary_floor() -> None:
+    expected = {
+        "myslef-plain": "SELECTED",
+        "authority-plain": "SELECTED",
+        "nonsense-vocab": "NOT_COMPUTABLE",
+        "nonsense-sourdough": "NOT_COMPUTABLE",
+        "cats-and-dogs": "NOT_COMPUTABLE",
+    }
+    receipts: dict[str, dict[str, Any]] = {}
+    for name, status in expected.items():
+        receipt = _receipt(BRIEFS[name], RECORDED)
+        assert receipt["status"] == status
+        receipts[name] = receipt
+    probabilities = [
+        receipt["fit_judge"].get("primary_fit_probability")
+        for receipt in receipts.values()
+    ]
+    assert PRIMARY_FIT_PROBABILITY in probabilities

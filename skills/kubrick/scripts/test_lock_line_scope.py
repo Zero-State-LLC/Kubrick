@@ -92,3 +92,63 @@ def test_character_lock_skips_shots_without_that_character() -> None:
     assert "MISSING_LOCK" in message
     shots = {str(row["shot"]) for row in _rows(gate["checks"]) if row["verdict"] == "fail"}
     assert shots == {"08"}
+
+
+import copy  # noqa: E402
+
+from io_safety import load_structured  # noqa: E402
+from jev_holds import compiled_prompts, hold_list  # noqa: E402
+
+
+def test_cast_only_empty_shot_skips_character_lock() -> None:
+    plan = load_structured(ROOT / "examples" / "myslef-minder" / "storyboard-plan.yaml")
+    assert isinstance(plan, dict)
+    plan = copy.deepcopy(plan)
+    frames = plan["frames"]
+    assert isinstance(frames, list)
+    frame = frames[3]
+    assert isinstance(frame, dict)
+    frame.pop("characters", None)
+    frame["cast"] = []
+    lock = plan["locks"][0]
+    assert isinstance(lock, dict)
+    positive = lock["positive"]
+    assert isinstance(positive, str)
+    rows = _rows(compiled_prompts(plan, "image"))
+    row = rows[3]
+    assert row.get("characters") == []
+    prompt = row["prompt"]
+    assert isinstance(prompt, str)
+    assert positive not in prompt
+    holds = _rows(hold_list(plan))
+    client = _recorded([row], holds, [{"verdict": "pass"}])
+    result = check_before_spend(holds, [row], client=client)
+    assert isinstance(result, dict)
+    assert result["code"] == "CLEAR"
+
+
+def test_cast_wins_over_characters_in_gate_rows() -> None:
+    plan = load_structured(ROOT / "examples" / "myslef-minder" / "storyboard-plan.yaml")
+    assert isinstance(plan, dict)
+    plan = copy.deepcopy(plan)
+    frames = plan["frames"]
+    assert isinstance(frames, list)
+    frame2 = frames[2]
+    assert isinstance(frame2, dict)
+    frame2["cast"] = ["minder"]
+    frame1 = frames[1]
+    assert isinstance(frame1, dict)
+    frame1.pop("characters", None)
+    frame1.pop("cast", None)
+    lock = plan["locks"][0]
+    assert isinstance(lock, dict)
+    positive = lock["positive"]
+    assert isinstance(positive, str)
+    rows = _rows(compiled_prompts(plan, "image"))
+    row2 = rows[2]
+    assert row2.get("characters") == ["minder"]
+    prompt2 = row2["prompt"]
+    assert isinstance(prompt2, str)
+    assert positive not in prompt2
+    row1 = rows[1]
+    assert "characters" not in row1

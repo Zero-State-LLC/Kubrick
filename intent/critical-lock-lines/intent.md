@@ -63,6 +63,12 @@ generation.
 | Frame-004 (shot 06) has an empty cast | `OBSERVED` | `cast: []` in the example plan |
 | No other tenant relies on a positive being reported as carried without prompt text | `INFERRED` | full suite green; no other fixture asserts it |
 
+## 0.27.13 follow-up
+
+The gate's compiled rows now take the cast from `cast` first, then
+`characters`, as the compiler does, so a `cast: []` only shot is not asked
+for a character lock. See `intent/fit-primary-and-gate-cast/intent.md`.
+
 ## Author / date
 
 - Author: Grok Bot for Errnerner Shernerner (scrimshawlife-ctrl)
