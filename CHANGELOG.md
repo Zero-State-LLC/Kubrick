@@ -2,6 +2,19 @@
 
 ## [Unreleased]
 
+## [0.27.14] - 2026-10-07
+
+### Changed
+- The prompt compiler writes each applicable lock `negative` line into the frame prompt, right after the lock positive lines (`kubrick.plan.lock_positive_lines.lock_negative_lines`, called from `prompt_lines`). It uses the 0.27.6 rules: plan order, one copy each (case and spacing ignored), every lock with a line (critical or not), character locks only where the character is cast (`cast` first, `cast: []` means nobody), and POV frames skip appearance locks. The lines are inline for every provider; negative-prompt fields (Flux, SD3, Midjourney `--no`) keep only the general negatives.
+- The pre-spend lint does not read a plan lock's own negative line as a `POSITIVE_NEGATIVE_CONFLICT` with the rest of the prompt (`lint_text(..., declared=...)`). Other negations of a word used elsewhere still block.
+
+### Fixed
+- The live example plan no longer fails the phrase check with `MISSING_LOCK` for its critical negative line on shots 03 to 05. With recorded passes the gate is `CLEAR`.
+
+### Notes
+- `scripts/test_jev_gate.py`: the omitted-lock runbook test now puts the lock in an explicit `hold_list`, because the compiler writes plan `locks` lines.
+- Intent: `intent/lock-negative-in-prompt/intent.md`. Product version is 0.27.14. Envelope schema id stays `0.16.0`. No live Jev or provider call.
+
 ## [0.27.13] - 2026-10-07
 
 ### Fixed

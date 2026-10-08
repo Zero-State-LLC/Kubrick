@@ -373,12 +373,14 @@ def _lint_block(
     document: Mapping[str, object],
     prompts: Sequence[Mapping[str, object]],
 ) -> dict[str, object] | None:
+    from kubrick.plan.lock_positive_lines import plan_lock_negatives
     from kubrick.prompts.prompt_lint import BLOCKING, lint_text
 
     if not prompts:
         return None
     holds = _hold_texts(document)
     raw_holds = hold_list(document)
+    declared = plan_lock_negatives(document)
     findings: list[dict[str, str]] = []
     for prompt in prompts:
         text = prompt.get("prompt")
@@ -391,7 +393,9 @@ def _lint_block(
             if isinstance(chosen, str):
                 return _closed(chosen.split()[0], chosen, raw_holds)
             locks = chosen
-        findings.extend(lint_text(text, holds=holds, frame=frame or None, locks=locks))
+        findings.extend(lint_text(
+            text, holds=holds, frame=frame or None, locks=locks, declared=declared,
+        ))
     blocking = [item for item in findings if item["code"] in BLOCKING]
     if not blocking:
         return None
