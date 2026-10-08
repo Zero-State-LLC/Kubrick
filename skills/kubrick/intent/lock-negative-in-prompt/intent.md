@@ -30,8 +30,12 @@ would trade `MISSING_LOCK` for a lint block.
   and Midjourney `--no` take terms to avoid, so a "no ..." sentence there would
   be a double negative. They keep only the general negatives, as before.
 - `lint_text` takes `declared` lines. A declared negative line (case and spacing
-  ignored) is masked before the conflict scan. The gate passes every plan lock
-  negative. Undeclared negations still block.
+  ignored, whole words only) is masked before the conflict scan. The gate passes
+  only the negatives of locks that apply to the prompt's frame, and only the
+  hold texts that apply to the prompt. Undeclared negations still block.
+- Positive and negative lock lines follow the lock's `scope` and `views` with
+  the hold gate's `scoped_out` rule, so the compiler, the carrier table and the
+  gate agree on which frames a lock covers.
 
 Out of scope: rewording lock lines, compiling `location.locks` or explicit
 `hold_list` texts into prompts, live Jev or provider calls.

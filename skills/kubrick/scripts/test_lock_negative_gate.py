@@ -13,7 +13,7 @@ sys.path.insert(0, str(ROOT / "src"))
 import yaml  # noqa: E402
 
 from kubrick.gates.jev_client import RecordedJev, verdict_key  # noqa: E402
-from kubrick.gates.jev_gate import gate_prompts  # noqa: E402
+from kubrick.gates.jev_gate import _lint_block, gate_prompts  # noqa: E402
 from kubrick.gates.jev_holds import compiled_prompts, hold_list  # noqa: E402
 from kubrick.gates.lock_phrases import missing_lock_phrases  # noqa: E402
 from kubrick.prompts.prompt_lint import lint_text  # noqa: E402
@@ -85,3 +85,60 @@ def test_explicit_empty_hold_list_still_masks_plan_lock_negatives() -> None:
     client = RecordedJev(mapping)
     result = gate_prompts(plan, compiled, client=client)
     assert result["code"] != "POSITIVE_NEGATIVE_CONFLICT"
+
+
+def test_declared_negatives_are_per_frame() -> None:
+    document = {
+        "characters": {"hero": {}, "villain": {}},
+        "locks": [
+            {
+                "id": "hero-cape",
+                "character": "hero",
+                "negative": "no cape",
+                "critical": True,
+            }
+        ],
+        "frames": [
+            {
+                "frame_id": "frame-001",
+                "shot_id": "01",
+                "location": "street",
+                "characters": ["hero"],
+            },
+            {
+                "frame_id": "frame-002",
+                "shot_id": "02",
+                "location": "street",
+                "characters": ["villain"],
+            },
+        ],
+    }
+    villain_row = {
+        "shot": "02",
+        "location": "street",
+        "characters": ["villain"],
+        "prompt": "the villain wears a red cape; no cape",
+    }
+    hero_row = {
+        "shot": "01",
+        "location": "street",
+        "characters": ["hero"],
+        "prompt": "a cape rack stands behind the hero; no cape",
+    }
+
+    result = _lint_block(document, [villain_row])
+    assert result is not None
+    assert result["code"] == "POSITIVE_NEGATIVE_CONFLICT"
+    assert _lint_block(document, [hero_row]) is None
+
+
+def test_declared_mask_keeps_token_boundaries() -> None:
+    declared = ["no light"]
+    codes = [d["code"] for d in lint_text(
+        "a lighthouse on the cliff; no lighthouse", declared=declared)]
+    assert "POSITIVE_NEGATIVE_CONFLICT" in codes
+
+    codes = [d["code"] for d in lint_text(
+        "one lamp gives the only light; no light", declared=declared)]
+    assert "POSITIVE_NEGATIVE_CONFLICT" not in codes
+

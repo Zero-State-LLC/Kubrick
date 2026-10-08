@@ -170,3 +170,27 @@ def test_adapter_frame_prompt_is_the_one_checked() -> None:
     rows = lock_table(plan, frames)
     drifted = [r for r in rows if r.get("code") == "LOCK_POSITIVE_NOT_IN_PROMPT"]
     assert {(r["shot"], r["lock"]) for r in drifted} == {("f1", "hero-badge"), ("f1", "lamp")}
+
+
+def test_scoped_out_lock_has_no_carrier_row_or_drift() -> None:
+    plan = _plan()
+    locks = plan["locks"]
+    assert isinstance(locks, list)
+    locks[1]["scope"] = {"shots": ["f1"]}
+    shots = {
+        str(s["shot_id"]): str(s["prompt"])
+        for s in shots_from_document(plan)
+    }
+    lamp = locks[1]["positive"]
+    assert lamp in shots["f1"]
+    assert lamp not in shots["f2"]
+    frames = plan["frames"]
+    assert isinstance(frames, list)
+    rows = lock_table(plan, frames)
+    assert all(row.get("code") != "LOCK_POSITIVE_NOT_IN_PROMPT" for row in rows)
+    assert not any(
+        row.get("shot") == "f2" and row.get("lock") == "lamp" for row in rows
+    )
+    assert any(
+        row.get("shot") == "f1" and row.get("lock") == "lamp" for row in rows
+    )

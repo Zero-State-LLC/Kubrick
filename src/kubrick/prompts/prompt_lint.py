@@ -199,7 +199,8 @@ def _conflicts(
 
     masked = text
     for line in sorted(negative_lines, key=len, reverse=True):
-        pattern = r"\s+".join(re.escape(word) for word in line.split())
+        words = r"\s+".join(re.escape(word) for word in line.split())
+        pattern = rf"(?<!\w){words}(?!\w)"
         masked = re.sub(pattern, " ", masked, flags=re.IGNORECASE)
 
     negated = {word.casefold() for word in _NEGATED.findall(masked)}

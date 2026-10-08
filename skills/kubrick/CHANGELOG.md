@@ -6,10 +6,13 @@
 
 ### Changed
 - The prompt compiler writes each applicable lock `negative` line into the frame prompt, right after the lock positive lines (`kubrick.plan.lock_positive_lines.lock_negative_lines`, called from `prompt_lines`). It uses the 0.27.6 rules: plan order, one copy each (case and spacing ignored), every lock with a line (critical or not), character locks only where the character is cast (`cast` first, `cast: []` means nobody), and POV frames skip appearance locks. The lines are inline for every provider; negative-prompt fields (Flux, SD3, Midjourney `--no`) keep only the general negatives.
-- The pre-spend lint does not read a plan lock's own negative line as a `POSITIVE_NEGATIVE_CONFLICT` with the rest of the prompt (`lint_text(..., declared=...)`). Other negations of a word used elsewhere still block.
+- The pre-spend lint does not read the negative line of a lock that applies to the frame as a `POSITIVE_NEGATIVE_CONFLICT` with the rest of the prompt (`lint_text(..., declared=...)`). Other negations of a word used elsewhere still block.
 
 ### Fixed
 - The live example plan no longer fails the phrase check with `MISSING_LOCK` for its critical negative line on shots 03 to 05. With recorded passes the gate is `CLEAR`.
+- Lock positive and negative lines follow the lock's `scope` (locations, shots, characters) and `views` with the hold gate's `scoped_out` rule (`lock_applies`). A rear-only lock scoped to one shot and location no longer lands in front, POV, other-shot or other-location prompts. The 0.27.6 positive lines had the same gap and use the same rule, and the carrier table no longer reports `LOCK_POSITIVE_NOT_IN_PROMPT` for a scoped-out frame.
+- The gate lint masks lock negatives per frame: only the negative lines of locks that apply to the prompt's frame (`lock_negative_lines`, the compiler's function) and the hold texts that apply to the prompt by scope, view and cast (`prompt_hold_texts`). A villain-only frame that says "a red cape; no cape" still blocks when only a hero lock says "no cape". The gate now also finds a prompt's frame by `shot_id`, not only `frame_id`.
+- The declared-line mask matches whole words only, so a declared "no light" no longer masks part of "no lighthouse".
 
 ### Notes
 - `scripts/test_jev_gate.py`: the omitted-lock runbook test now puts the lock in an explicit `hold_list`, because the compiler writes plan `locks` lines.

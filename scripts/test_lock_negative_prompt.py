@@ -9,7 +9,11 @@ from typing import Any
 ROOT = Path(__file__).resolve().parents[1]
 sys.path.insert(0, str(ROOT / "src"))
 
-from kubrick.plan.lock_positive_lines import lock_negative_lines  # noqa: E402
+from kubrick.plan.lock_positive_lines import (  # noqa: E402
+    lock_negative_lines,
+    lock_positive_lines,
+)
+from kubrick.prompts.reference_lint import prompt_lines  # noqa: E402
 from kubrick.prompts.storyboard_prompts import shots_from_document  # noqa: E402
 
 
@@ -138,3 +142,46 @@ def test_compiled_prompt_carries_negatives_after_positives() -> None:
     assert lamp_neg in f2
     assert f2.count(lamp_neg) == 1
     assert f2.count(badge_neg) == 0
+
+
+def test_scoped_lock_lines_follow_scope_and_views() -> None:
+    document = {
+        "characters": {"myslef": {}},
+        "locks": [
+            {
+                "id": "back-led",
+                "character": "myslef",
+                "positive": "a matte black back panel",
+                "negative": "no light on head, hood, back or spine",
+                "views": ["rear"],
+                "scope": {"locations": ["basement"], "shots": ["07"]},
+            }
+        ],
+    }
+    base = {
+        "frame_id": "frame-007",
+        "shot_id": "07",
+        "view": "rear",
+        "location": "basement",
+        "characters": ["myslef"],
+    }
+    pos = lock_positive_lines(document, base)
+    neg = lock_negative_lines(document, base)
+    text = " ".join(prompt_lines(document, base, []))
+    assert pos == ["a matte black back panel"]
+    assert neg == ["no light on head, hood, back or spine"]
+    assert "a matte black back panel" in text
+    assert "no light on head, hood, back or spine" in text
+
+    variants = [
+        {**base, "view": "front"},
+        {**base, "shot_id": "08", "frame_id": "frame-008"},
+        {**base, "location": "kitchen"},
+        {**base, "view": "pov"},
+    ]
+    for frame in variants:
+        assert lock_positive_lines(document, frame) == []
+        assert lock_negative_lines(document, frame) == []
+        joined = " ".join(prompt_lines(document, frame, []))
+        assert "a matte black back panel" not in joined
+        assert "no light on head, hood, back or spine" not in joined
