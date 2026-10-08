@@ -155,6 +155,24 @@ def scoped_lock_lines(
     return lines
 
 
+def prompt_hold_texts(
+    holds: Sequence[Mapping[str, object]],
+    prompt: Mapping[str, object],
+) -> list[str] | str:
+    """Hold texts that apply to this prompt by scope, view and cast (0.27.14)."""
+    from kubrick.gates.lock_phrases import _cast_applies
+
+    chosen = holds_for_prompt(holds, prompt)
+    if isinstance(chosen, str):
+        return chosen
+    texts: list[str] = []
+    for hold in chosen:
+        text = hold.get("text")
+        if _cast_applies(hold, prompt) and isinstance(text, str) and text.strip():
+            texts.append(text.strip())
+    return texts
+
+
 def annotate_hold(item: Mapping[str, object], built: dict[str, object]) -> dict[str, object]:
     """Copy scope, anchor, views, and salience when the author set them."""
     anchor = item.get("anchor")

@@ -403,8 +403,18 @@ def _phrase_plan() -> dict[str, object]:
     return plan
 
 
+def _omitted_plan() -> dict[str, object]:
+    """The lock as an explicit hold. The compiler writes plan ``locks`` lines (0.27.14),
+    so a hold the plan does not declare as a lock is the one a prompt can omit."""
+    plan = _locked_plan()
+    locks = plan.pop("locks")
+    assert isinstance(locks, list)
+    plan["hold_list"] = locks
+    return plan
+
+
 def test_runbook_and_cues_block_before_spend() -> None:
-    omitted = _locked_plan()
+    omitted = _omitted_plan()
     for extra in ((), ("--jev-override",)):
         code, data, err = _run("video_runbook.py", omitted, *extra)
         assert code == 4

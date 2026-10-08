@@ -11,6 +11,9 @@ A plan lock with a `positive` line counts as a prompt carrier only when the
 compiled shot prompt actually says that line. When the prompt omits it, the
 `lock_carriers` row is `unverified` with code `LOCK_POSITIVE_NOT_IN_PROMPT`.
 A lock with a `character` only applies to shots where that character is cast.
+The prompt compiler writes each applicable lock `positive` line and then each
+`negative` line into the shot prompt, inline, for every provider (0.27.6 and
+0.27.14). A provider negative-prompt field keeps only the general negatives.
 
 Local plans stay **PROPOSED**. A weak or contradictory carrier is
 `NOT_COMPUTABLE`. This note is the carrier model. It does not add a provider

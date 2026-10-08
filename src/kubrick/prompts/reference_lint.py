@@ -406,9 +406,10 @@ def prompt_lines(
 
         lines.extend(asymmetry_lines(document, frame))
     lines.extend(view_clauses(document, frame))
-    from kubrick.plan.lock_positive_lines import lock_positive_lines
+    from kubrick.plan.lock_positive_lines import lock_negative_lines, lock_positive_lines
 
     lines.extend(lock_positive_lines(document, frame))
+    lines.extend(lock_negative_lines(document, frame))
     return lines
 
 

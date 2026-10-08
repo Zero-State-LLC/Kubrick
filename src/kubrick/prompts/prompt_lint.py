@@ -99,10 +99,15 @@ def lint_text(
     duration: object = None,
     chained: bool = False,
     locks: Sequence[str] = (),
+    declared: Sequence[str] = (),
 ) -> list[dict[str, str]]:
-    """Findings for one prompt. Rewrites are not applied here."""
+    """Findings for one prompt. Rewrites are not applied here.
+
+    ``declared`` adds plan lock lines (0.27.14) to the hold texts whose own negative
+    wording is not read as a conflict.
+    """
     findings: list[dict[str, str]] = []
-    findings.extend(_conflicts(text))
+    findings.extend(_conflicts(text, [*holds, *declared]))
     findings.extend(_hold_conflicts(text, holds))
     if _META.search(text):
         findings.append(_finding(
@@ -113,8 +118,6 @@ def lint_text(
     findings.extend(_motion(text, frame, resolution, duration, chained))
     findings.extend(_missing_board(text, locks))
     return findings
-
-
 def review_prompt(
     text: str,
     *,
@@ -177,11 +180,33 @@ def emit_board_prompt(prompt: str, locks: Sequence[str]) -> str:
     return text
 
 
-def _conflicts(text: str) -> list[dict[str, str]]:
-    negated = {word.casefold() for word in _NEGATED.findall(text)}
+def _conflicts(
+    text: str,
+    declared: Sequence[str] = (),
+) -> list[dict[str, str]]:
+    """Return positive-negative conflicts after masking declared negatives.
+
+    A plan's own declared negative line is not a conflict with the rest of
+    the prompt (0.27.14).
+    """
+    negative_lines: list[str] = []
+    for line in declared:
+        if not isinstance(line, str) or not line.strip():
+            continue
+        if _NEGATED.search(line) is None:
+            continue
+        negative_lines.append(line)
+
+    masked = text
+    for line in sorted(negative_lines, key=len, reverse=True):
+        words = r"\s+".join(re.escape(word) for word in line.split())
+        pattern = rf"(?<!\w){words}(?!\w)"
+        masked = re.sub(pattern, " ", masked, flags=re.IGNORECASE)
+
+    negated = {word.casefold() for word in _NEGATED.findall(masked)}
     if not negated:
         return []
-    outside = _NEGATED.sub(" ", text).casefold()
+    outside = _NEGATED.sub(" ", masked).casefold()
     findings: list[dict[str, str]] = []
     for word in sorted(negated):
         if re.search(rf"\b{re.escape(word)}\b", outside):
@@ -191,7 +216,6 @@ def _conflicts(text: str) -> list[dict[str, str]]:
                 f"keep one statement about {word}",
             ))
     return findings
-
 
 def _hold_conflicts(text: str, holds: Sequence[str]) -> list[dict[str, str]]:
     blob = " ".join(holds)

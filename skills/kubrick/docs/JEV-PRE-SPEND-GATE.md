@@ -273,7 +273,11 @@ line is `MISSING_LOCK` even when the recorded verdict says pass (issue #107).
 A lock with a `character` is skipped for a prompt whose `characters` list
 leaves that character out, so an empty-cast shot (MYSLEF shot 06) does not
 have to state a body light. Each compiled row takes that list from the frame's
-`cast` first, then `characters`, as the prompt compiler does (0.27.13). Spoken cues are not picture prompts. `scripts/test_jev_gate.py`
+`cast` first, then `characters`, as the prompt compiler does (0.27.13). Since
+0.27.14 the compiler writes each applicable lock `negative` line after the
+positive lines, so the live example plan states both critical lines on shots
+03 to 05. The prompt lint does not read a plan lock's own negative line as a
+`POSITIVE_NEGATIVE_CONFLICT`; other negations still are. Spoken cues are not picture prompts. `scripts/test_jev_gate.py`
 checks the live compiler against the v0.23 snapshot, so a prompt change does
 not inherit an old verdict.
 

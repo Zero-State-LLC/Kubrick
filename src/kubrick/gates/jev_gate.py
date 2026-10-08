@@ -17,7 +17,7 @@ from collections.abc import Callable, Mapping, Sequence
 from datetime import datetime, timezone
 from typing import TextIO
 
-from kubrick.gates.hold_scope import holds_for_prompt, scoped_lock_lines
+from kubrick.gates.hold_scope import holds_for_prompt, prompt_hold_texts, scoped_lock_lines
 from kubrick.gates.jev_client import (
     JevClient,
     JevUnreachable,
@@ -343,20 +343,8 @@ def _unreachable(
     )
 
 
-def _hold_texts(document: Mapping[str, object]) -> list[str]:
-    holds = hold_list(document)
-    if isinstance(holds, str):
-        return []
-    texts: list[str] = []
-    for item in holds:
-        text = item.get("text")
-        if isinstance(text, str) and text.strip():
-            texts.append(text.strip())
-    return texts
-
-
 def _frame_for(document: Mapping[str, object], shot: object) -> Mapping[str, object]:
-    from kubrick.plan.continuity_locks import frame_id
+    from kubrick.gates.jev_holds import _labels
 
     label = shot.strip() if isinstance(shot, str) else ""
     raw = document.get("frames")
@@ -364,7 +352,7 @@ def _frame_for(document: Mapping[str, object], shot: object) -> Mapping[str, obj
         return {}
     frames = [frame for frame in raw if isinstance(frame, Mapping)]
     for index, frame in enumerate(frames, start=1):
-        if label and label in {frame_id(frame, index), str(frame.get("frame_id") or "")}:
+        if label and label in _labels(frame, index):
             return frame
     return {}
 
@@ -373,11 +361,11 @@ def _lint_block(
     document: Mapping[str, object],
     prompts: Sequence[Mapping[str, object]],
 ) -> dict[str, object] | None:
+    from kubrick.plan.lock_positive_lines import lock_negative_lines
     from kubrick.prompts.prompt_lint import BLOCKING, lint_text
 
     if not prompts:
         return None
-    holds = _hold_texts(document)
     raw_holds = hold_list(document)
     findings: list[dict[str, str]] = []
     for prompt in prompts:
@@ -385,13 +373,19 @@ def _lint_block(
         if not isinstance(text, str):
             continue
         frame = _frame_for(document, prompt.get("shot"))
+        declared = lock_negative_lines(document, frame) if frame else []
         locks: Sequence[str] = ()
+        holds: Sequence[str] = ()
         if isinstance(raw_holds, list):
             chosen = scoped_lock_lines(raw_holds, prompt)
             if isinstance(chosen, str):
                 return _closed(chosen.split()[0], chosen, raw_holds)
             locks = chosen
-        findings.extend(lint_text(text, holds=holds, frame=frame or None, locks=locks))
+            texts = prompt_hold_texts(raw_holds, prompt)
+            holds = texts if isinstance(texts, list) else []
+        findings.extend(lint_text(
+            text, holds=holds, frame=frame or None, locks=locks, declared=declared,
+        ))
     blocking = [item for item in findings if item["code"] in BLOCKING]
     if not blocking:
         return None

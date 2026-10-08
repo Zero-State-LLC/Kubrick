@@ -10,9 +10,8 @@ from __future__ import annotations
 
 from collections.abc import Mapping, Sequence
 
-from kubrick.gates.hold_scope import frame_view
 from kubrick.plan.continuity_locks import frame_field, frame_id, prop_assignments, warning
-from kubrick.plan.lock_aspect import pov_skips
+from kubrick.plan.lock_positive_lines import lock_applies
 from kubrick.plan.lock_prompt_text import compiled_prompt_text, positive_omitted
 from kubrick.plan.shot_plan import chain_source
 from kubrick.prompts.prompt_text import character_lock_feature, character_lock_positive
@@ -20,7 +19,6 @@ from kubrick.prompts.reference_lint import (
     declares_feature,
     frame_locks,
     reference_attached,
-    screen_mode,
     wardrobe_lines_for,
 )
 from kubrick.providers.provider_capabilities import capabilities_for_document
@@ -399,15 +397,6 @@ def _prop_id(line: str) -> str | None:
     return line.split(" LOCK:", 1)[0].strip().casefold().replace(" ", "_")
 
 
-def _applies(frame: Mapping[str, object], character: str | None) -> bool:
-    if not character:
-        return True
-    _mode, present = screen_mode(frame)
-    if not present and _mode == "absent":
-        return True
-    return character in present
-
-
 def _structured_rows(
     document: Mapping[str, object],
     frame: Mapping[str, object],
@@ -423,7 +412,7 @@ def _structured_rows(
             continue
         character = lock.get("character")
         owner = character.strip() if isinstance(character, str) and character.strip() else None
-        if not _applies(frame, owner) or pov_skips(lock, frame_view(frame)):
+        if not lock_applies(document, frame, lock):
             continue
         kind = str(lock.get("kind") or "light").strip() or "light"
         ident = str(lock.get("id") or lock.get("negative") or kind)
