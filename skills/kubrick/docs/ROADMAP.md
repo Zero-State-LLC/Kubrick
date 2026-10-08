@@ -1,6 +1,6 @@
 # Kubrick roadmap
 
-Product version **0.27.12**. Local output stays **PROPOSED**. Weak evidence
+Product version **0.27.13**. Local output stays **PROPOSED**. Weak evidence
 stays `NOT_COMPUTABLE`. No provider is called from this plan.
 
 Project board: [Zero-State-LLC project 13](https://github.com/orgs/Zero-State-LLC/projects/13).
@@ -8,6 +8,11 @@ Project board: [Zero-State-LLC project 13](https://github.com/orgs/Zero-State-LL
 Shipped history is [`CHANGELOG.md`](../CHANGELOG.md). The standing release
 gate is [`RELEASE-CHECKLIST.md`](RELEASE-CHECKLIST.md). Versioned notes from
 v0.11 through v0.23 are in [`archive/releases/`](archive/releases/).
+
+## Shipped in 0.27.13
+
+- #91 follow-up: a lexical leader the fit judge rates under 0.75 is refused (`JEV_FIT_PRIMARY_MARGINAL`); permissive-judge recordings kept as regression data.
+- #133 review follow-up: pre-spend gate rows take the shot cast the compiler uses (`cast` first), so an empty-cast shot is not asked for a character lock.
 
 ## Shipped in 0.27.12
 

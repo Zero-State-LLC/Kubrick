@@ -16,6 +16,11 @@ recorded verdict fails closed (``JEV_FIT_UNAVAILABLE``).
 ``FIT_PROBABILITY_FLOOR`` counts as ``weak``, and a brief judged ``fit`` for more
 than ``MAX_FIT_SHARE`` of the corpus is refused (``JEV_FIT_TOO_BROAD``). A
 brief that fits many unrelated patterns is matching vocabulary, not structure.
+
+0.27.13: the primary is the lexical leader among eligible ``fit`` patterns. When
+its recorded fit probability is under ``PRIMARY_FIT_PROBABILITY`` the brief is
+refused (``JEV_FIT_PRIMARY_MARGINAL``) instead of falling through to another
+pattern: a lukewarm judge verdict is not rescued by lexical overlap.
 """
 
 from __future__ import annotations
@@ -28,6 +33,7 @@ from pathlib import Path
 STRUCTURAL_FLOOR = 0.40
 FIT_PROBABILITY_FLOOR = 0.6
 MAX_FIT_SHARE = 0.2
+PRIMARY_FIT_PROBABILITY = 0.75
 VERDICTS = frozenset({"fit", "weak", "none"})
 
 
@@ -81,13 +87,16 @@ def fit_select(
     min_dramatic_fit: float,
     max_supporting: int,
     probabilities: Mapping[str, float] | None = None,
+    primary_floor: float | None = None,
 ) -> tuple[list[Mapping[str, object]], str | None]:
     """Patterns judged ``fit`` with a lexical total at least ``floor``, best first.
 
-    ``weak`` never selects (0.27.10). ``threshold`` and ``min_dramatic_fit`` are kept
-    for callers; they no longer open a path on their own. Ranking is lexical; equal
-    lexical totals are broken by Jev fit probability (higher first), then by the
-    incoming order (0.27.10).
+    A ``fit`` that ranks first only on lexical overlap but whose fit probability is
+    under ``primary_floor`` is refused (0.27.13); a ``weak`` verdict never selects
+    (0.27.10). ``threshold`` and ``min_dramatic_fit`` are kept for callers; they no
+    longer open a path on their own. Ranking is lexical; equal lexical totals are
+    broken by Jev fit probability (higher first), then by the incoming order
+    (0.27.10).
     """
     del threshold, min_dramatic_fit
 
@@ -116,8 +125,13 @@ def fit_select(
         return (-as_float(item.get("total_score")), -float(prob))
 
     eligible.sort(key=rank_key)  # stable: still-tied items keep the incoming order
+    if primary_floor is not None:
+        primary_id = eligible[0].get("pattern_id")
+        if isinstance(primary_id, str) and primary_id in probs:
+            primary_prob = float(probs[primary_id])
+            if primary_prob < primary_floor:
+                return [], "JEV_FIT_PRIMARY_MARGINAL"
     return eligible[: max(0, max_supporting) + 1], None
-
 
 def screen_verdicts(
     verdicts: Mapping[str, str],
@@ -185,7 +199,7 @@ def apply_fit(
         chosen, reason = fit_select(
             ranked, verdicts, floor=STRUCTURAL_FLOOR, threshold=threshold,
             min_dramatic_fit=min_dramatic_fit, max_supporting=max_supporting,
-            probabilities=probs,
+            probabilities=probs, primary_floor=PRIMARY_FIT_PROBABILITY,
         )
     primary = dict(chosen[0]) if chosen else None
     supporting = [dict(item) for item in chosen[1:]]
@@ -206,6 +220,7 @@ def apply_fit(
         "structural_floor": STRUCTURAL_FLOOR,
         "fit_probability_floor": FIT_PROBABILITY_FLOOR,
         "max_fit_share": MAX_FIT_SHARE,
+        "primary_fit_probability": PRIMARY_FIT_PROBABILITY,
         "fit_count": sum(1 for v in (verdicts or {}).values() if v.strip().casefold() == "fit"),
         "lexical_primary": lexical,
         "primary_verdict": (verdicts or {}).get(str(primary["pattern_id"])) if primary else None,

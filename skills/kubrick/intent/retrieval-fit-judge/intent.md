@@ -70,6 +70,13 @@ owner chose to break lexical ties among `fit` patterns by Jev fit probability
 (higher first), then the existing order. It now selects the center pattern
 (p=0.91 over 0.76). All seven briefs match.
 
+## 0.27.13 follow-up
+
+On the first, permissive recordings, vocabulary soup still selected through a
+0.68 `fit` on its lexical leader. A lexical leader under fit probability 0.75
+is now refused (`JEV_FIT_PRIMARY_MARGINAL`). See
+`intent/fit-primary-and-gate-cast/intent.md`.
+
 ## Author / date
 
 - Author: Errnerner Shernerner (agent assisted)

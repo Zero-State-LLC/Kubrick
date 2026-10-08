@@ -2,6 +2,20 @@
 
 ## [Unreleased]
 
+## [0.27.13] - 2026-10-07
+
+### Fixed
+- #91 follow-up: retrieval with fit verdicts refuses a brief when the lexical leader among eligible `fit` patterns has a recorded fit probability under `PRIMARY_FIT_PROBABILITY` (0.75). The reason is `JEV_FIT_PRIMARY_MARGINAL`, and selection does not fall through to another pattern. On the first, permissive live recordings the vocabulary-soup brief was `SELECTED` through a 0.68 fit on its lexical leader; it is now refused. A `weak` verdict still never selects (0.27.10), so the sourdough brief stays refused. Every brief that passed on the active recordings still passes. Receipts report `fit_judge.primary_fit_probability`.
+- #133 review follow-up: pre-spend gate rows (`compiled_prompts`) take the shot cast from the frame's `cast` key first, then `characters`, as the prompt compiler does. A shot with only `cast: []` no longer has to state a character lock that the compiler correctly left out, and a `cast` that differs from `characters` now wins in the gate too.
+
+### Added
+- `evals/fixtures/retrieval/jev-fit-verdicts-permissive.yaml`: the first 0.27.10 live recordings (before the counter-example request), replayed in tests as a permissive judge.
+- Regression tests for vocabulary soup and sourdough under that judge, the primary floor, and cast-only shots in the gate.
+- Intent: `intent/fit-primary-and-gate-cast/intent.md`.
+
+### Notes
+- Product version is 0.27.13. Envelope schema id stays `0.16.0`. No live Jev or provider call; recorded verdicts only.
+
 ## [0.27.12] - 2026-10-07
 
 ### Added
