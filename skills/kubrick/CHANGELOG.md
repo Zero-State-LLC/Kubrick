@@ -2,6 +2,22 @@
 
 ## [Unreleased]
 
+## [0.27.15] - 2026-10-10
+
+### Added
+
+- New module `src/kubrick/prompts/prompt_guardrails.py`.
+- Five deterministic lint codes: `END_CARD_SPACE`, `UI_OUTSIDE_SCREEN`, `PROP_LETTERING_UNLOCKED`, `ACTION_NOT_COMPLETED`, `HANDWRITTEN_TEXT_IN_PROMPT`.
+- `END_CARD_SPACE` and `UI_OUTSIDE_SCREEN` join `BLOCKING`.
+- New tests file `scripts/test_prompt_guardrails.py`.
+- New doc `docs/PROMPT-GUARDRAILS.md`.
+
+### Notes
+
+- The checks are deterministic. They make no model or provider call.
+- Existing tests pass.
+- Warnings do not block. Only the two blocking codes stop the run.
+
 ## [0.27.14] - 2026-10-07
 
 ### Changed

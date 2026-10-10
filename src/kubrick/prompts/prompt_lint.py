@@ -8,6 +8,8 @@ from __future__ import annotations
 import re
 from collections.abc import Mapping, Sequence
 
+from kubrick.prompts.prompt_guardrails import GUARDRAIL_BLOCKING, guardrail_findings
+
 _DEFAULT_ALIASES = {
     "black-and-red high-tops": "unbranded canvas high-tops",
     "nike swoosh": "plain canvas with no logo",
@@ -37,7 +39,7 @@ BLOCKING = frozenset({
     "LOCK_MISSING_IN_BOARD",
     "SMALL_FG_MOTION_LOW_RES",
     "SUBSECOND_TIMING_IGNORED",
-})
+}) | GUARDRAIL_BLOCKING
 
 
 def _finding(code: str, message: str, suggestion: str = "") -> dict[str, str]:
@@ -117,6 +119,7 @@ def lint_text(
         ))
     findings.extend(_motion(text, frame, resolution, duration, chained))
     findings.extend(_missing_board(text, locks))
+    findings.extend(guardrail_findings(text, frame))
     return findings
 def review_prompt(
     text: str,
