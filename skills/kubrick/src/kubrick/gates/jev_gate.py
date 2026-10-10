@@ -26,6 +26,7 @@ from kubrick.gates.jev_client import (
     resolve_client,
 )
 from kubrick.gates.jev_holds import hold_list
+from kubrick.gates.lint_warnings import lint_warnings
 from kubrick.gates.lock_phrases import missing_lock_phrases as _missing_lock_phrases
 
 _OVERRIDE_VALUES = frozenset({"1", "true", "yes"})
@@ -404,6 +405,8 @@ def _lint_block(
     )
 
 
+
+
 def ledger_entry(gate: Mapping[str, object]) -> dict[str, object]:
     return {
         "kind": "jev_gate",
@@ -473,11 +476,14 @@ def gate_prompts(
             override=override,
             override_source=override_source,
         )
+    warnings = lint_warnings(document, prompts)
     blocked = _lint_block(document, prompts)
     if blocked is not None:
+        if warnings:
+            blocked["lint_warnings"] = warnings
         return blocked
     holds = hold_list(document)
-    return check_before_spend(
+    result = check_before_spend(
         holds,
         prompts,
         override=override,
@@ -486,3 +492,6 @@ def gate_prompts(
         verdicts_path=verdicts_path,
         log=log,
     )
+    if warnings:
+        result["lint_warnings"] = warnings
+    return result

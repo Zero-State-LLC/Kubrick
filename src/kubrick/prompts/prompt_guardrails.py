@@ -9,6 +9,26 @@ from __future__ import annotations
 import re
 from collections.abc import Mapping
 
+_END_CARD_PURPOSE = (
+    r"(?:end\s*-?\s*cards?|titles?|logos?|captions?|text|overlays?|"
+    r"lower\s*thirds?|ctas?|call\s+to\s+action|graphics)"
+)
+_CLAUSE_SPLIT_RE = re.compile(r"[.;,]|\bbeside\b|\bnext\s+to\b", re.I)
+_SCREEN_CUE_RE = re.compile(
+    r"(?:\bon(?:\s+the)?\s+screen\b|\bon\s+the\s+display\b|\bonscreen\b|"
+    r"\bscreens?\s+shows?\b|\bdisplays?\s+shows?\b|\bapps?\b|\bappears?\b|"
+    r"\bpops?\s+up\b|\bpop-?ups?\b|\bslides?\s+up\b|\brises?\s+from\b|"
+    r"\bnotifications?\b|\binterfaces?\b|\bui\b)",
+    re.I,
+)
+_UI_UNAMBIGUOUS_RE = re.compile(
+    r"\b(?:popups?|pop-ups?|notifications?|toasts?|dialogs?|banners?|check\s?marks?|ui)\b",
+    re.I,
+)
+_SENTENCE_SPLIT_RE = re.compile(r"[.!?;\n]+")
+_CAPS_TOKEN_RE = re.compile(r"\b[A-Z]{2,}\b")
+_WORD_SPEC_RE = re.compile(r"\bthe\s+words?\b", re.I)
+
 GUARDRAIL_CODES = (
     "END_CARD_SPACE",
     "PROP_LETTERING_UNLOCKED",
@@ -24,11 +44,13 @@ _END_CARD_SPACE_RE = re.compile(
     r"(?:"
     r"(?:empty|blank|clear|open|negative|clean|spare)\s+(?:\w+\s+){0,3}?"
     r"(?:space|area|room|region|zone|section|part|gap|third|half|quarter)\b"
-    r"(?:\s+\w+){0,4}?\s+for\b"
-    r"|(?:space|area|room|region|zone|gap)\b(?:\s+\w+){0,4}?\s+for\b"
-    r"(?:\s+\w+){0,3}?\s+(?:end\s*card|title|logo|caption|text|overlay|subtitle|lettering|credit)"
-    r"|\bleave\b(?:\s+\w+){0,6}?\s(?:clear|blank|empty|open)\b"
-    r"|\bend\s*card\s+(?:space|area|room)\b"
+    r"(?:\s+\w+){0,4}?\s+for\s+(?:\w+\s+){0,3}?"
+    + _END_CARD_PURPOSE
+    + r"|(?:space|area|room|region|zone|gap)\b(?:\s+\w+){0,4}?\s+for\s+"
+    r"(?:\w+\s+){0,3}?"
+    + _END_CARD_PURPOSE
+    + r"|\bleave\b(?:\s+\w+){0,6}?\s(?:clear|blank|empty|open)\b"
+    r"(?:\s+\w+){0,5}?\s+" + _END_CARD_PURPOSE + r"|\bend\s*-?\s*card\s+(?:space|area|room)\b"
     r")"
 )
 
@@ -63,8 +85,8 @@ _COMPLETION_RE = re.compile(
 _HANDS_RE = re.compile(r"\bhands?\b", re.I)
 
 _HANDWRITING_CUE_RE = re.compile(
-    r"\b(?:writes|write|written|handwritten|handwriting|reads|spelled|lettering|"
-    r"label says|sign says)\b",
+    r"\b(?:handwriting|handwritten|written|writes?|wrote|reads|says|spells?|spelled|"
+    r"lettering|label\s+says|sign\s+says|sign\s+reading)\b",
     re.I,
 )
 _QUOTED_TEXT_RE = re.compile(r'["\u201c\u201d][^"\u201c\u201d]{3,}["\u201c\u201d]')
@@ -89,31 +111,45 @@ def _check_end_card_space(text: str) -> dict[str, str] | None:
 
 
 def _check_prop_lettering(text: str) -> dict[str, str] | None:
-    """Flag a named handheld prop that carries no unbranded lock phrase."""
-    prop = _PROP_RE.search(text)
-    if prop is None or _UNBRANDED_RE.search(text):
-        return None
-    return _finding(
-        "PROP_LETTERING_UNLOCKED",
-        f"the prop '{prop.group(0)}' is named without an unbranded lock phrase, so the "
-        "generator may print lettering on it",
-        "name the prop as unbranded with no printed lettering on it, or keep the "
-        "printed surface out of frame",
-    )
+    """Flag a named handheld prop whose own clause carries no unbranded lock phrase."""
+    props: list[tuple[str, bool]] = []
+    for clause in _CLAUSE_SPLIT_RE.split(text):
+        prop = _PROP_RE.search(clause)
+        if prop is not None:
+            props.append((prop.group(0), _UNBRANDED_RE.search(clause) is not None))
+        elif props and _clause_is_lock_only(clause):
+            props[-1] = (props[-1][0], True)
+    for name, locked in props:
+        if not locked:
+            return _finding(
+                "PROP_LETTERING_UNLOCKED",
+                f"the prop '{name}' is named without an unbranded lock phrase, so the "
+                "generator may print lettering on it",
+                "name the prop as unbranded with no printed lettering on it, or keep the "
+                "printed surface out of frame",
+            )
+    return None
 
 
 def _check_ui_outside_screen(text: str) -> dict[str, str] | None:
-    """Flag a UI element named without a phrase that keeps it inside the screen."""
-    if not _SCREEN_RE.search(text) or not _UI_ELEMENT_RE.search(text):
-        return None
+    """Flag a UI element that reads as device UI but is not kept inside the screen."""
     if _UI_CONTAINED_RE.search(text):
         return None
-    return _finding(
-        "UI_OUTSIDE_SCREEN",
-        "an on-screen UI element is named without a phrase that keeps it inside the device screen",
-        "say the UI element stays inside the device screen edges and never extends "
-        "past the frame of the device",
-    )
+    for sentence in _SENTENCE_SPLIT_RE.split(text):
+        ui = _UI_ELEMENT_RE.search(sentence)
+        if ui is None:
+            continue
+        if _UI_UNAMBIGUOUS_RE.search(sentence) or (
+            _SCREEN_RE.search(sentence) and _SCREEN_CUE_RE.search(sentence)
+        ):
+            return _finding(
+                "UI_OUTSIDE_SCREEN",
+                "an on-screen UI element is named without a phrase that keeps it "
+                "inside the device screen",
+                "say the UI element stays inside the device screen edges and never extends "
+                "past the frame of the device",
+            )
+    return None
 
 
 def _check_action_not_completed(
@@ -130,7 +166,12 @@ def _check_action_not_completed(
 
     action = data.get("action")
     if isinstance(action, Mapping):
-        action = action.get("subject") or action.get("path_or_change") or ""
+        parts = [
+            action.get("verb"),
+            action.get("path_or_change"),
+            action.get("subject"),
+        ]
+        action = " ".join(part for part in parts if isinstance(part, str))
     if "action" not in data:
         if not has_hands:
             return None
@@ -151,8 +192,13 @@ def _check_action_not_completed(
 def _check_handwritten_text(text: str) -> dict[str, str] | None:
     """Flag prompts that ask the generator to render specific legible text."""
     for cue in _HANDWRITING_CUE_RE.finditer(text):
-        window = text[cue.end() : cue.end() + 60]
-        if _QUOTED_TEXT_RE.search(window) or _JOINED_TOKEN_RE.search(window):
+        window = text[cue.end() : cue.end() + 40]
+        if (
+            _QUOTED_TEXT_RE.search(window)
+            or _JOINED_TOKEN_RE.search(window)
+            or _CAPS_TOKEN_RE.search(window)
+            or _WORD_SPEC_RE.search(window)
+        ):
             return _finding(
                 "HANDWRITTEN_TEXT_IN_PROMPT",
                 "the prompt asks the generator to render specific legible written text",
@@ -161,6 +207,13 @@ def _check_handwritten_text(text: str) -> dict[str, str] | None:
                 "or film a real insert",
             )
     return None
+
+
+def _clause_is_lock_only(clause: str) -> bool:
+    """True when a clause carries only unbranded lock phrases and no other words."""
+    if not _UNBRANDED_RE.search(clause):
+        return False
+    return not re.search(r"[A-Za-z]", _UNBRANDED_RE.sub(" ", clause))
 
 
 def guardrail_findings(
