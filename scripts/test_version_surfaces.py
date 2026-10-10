@@ -52,12 +52,12 @@ def _aligned(root: Path, version: str = "0.18.0") -> None:
 def test_repo_surfaces_match_product_version() -> None:
     report = build_report(ROOT)
     assert report["status"] == "READY", report["mismatches"]
-    assert report["expected_version"] == "0.27.14"
+    assert report["expected_version"] == "0.27.15"
     assert report["tag_allowed"] is True
     declarations = report["declarations"]
     assert isinstance(declarations, dict)
     for name, observed in declarations.items():
-        assert observed == "0.27.14", (name, observed)
+        assert observed == "0.27.15", (name, observed)
     envelopes = report["envelope_schema_versions"]
     assert envelopes == {
         ENGINE_SOURCE: ENVELOPE_SCHEMA_VERSION,

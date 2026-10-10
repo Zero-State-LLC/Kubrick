@@ -2,6 +2,31 @@
 
 ## [Unreleased]
 
+## [0.27.15] - 2026-10-10
+
+### Added
+
+- New module `src/kubrick/prompts/prompt_guardrails.py`.
+- Five deterministic lint codes: `END_CARD_SPACE`, `UI_OUTSIDE_SCREEN`, `PROP_LETTERING_UNLOCKED`, `ACTION_NOT_COMPLETED`, `HANDWRITTEN_TEXT_IN_PROMPT`.
+- `END_CARD_SPACE` and `UI_OUTSIDE_SCREEN` join `BLOCKING`.
+- New tests file `scripts/test_prompt_guardrails.py`.
+- New doc `docs/PROMPT-GUARDRAILS.md`.
+
+### Fixed (review on #148)
+- `END_CARD_SPACE` blocks only when an overlay purpose (end card, title, logo, caption, text, overlay) is named, so "an open area for the dancer to cross" passes.
+- `UI_OUTSIDE_SCREEN` blocks only when the UI element is presented on a device screen in the same sentence, so "a phone lies beside a birthday card" passes.
+- `ACTION_NOT_COMPLETED` reads `verb`, `path_or_change` and `subject` of a structured action.
+- `HANDWRITTEN_TEXT_IN_PROMPT` also catches unquoted ALL-CAPS words and "the word X" after a writing cue.
+- `PROP_LETTERING_UNLOCKED` scopes the unbranded lock to each prop's clause.
+- The pre-spend gate result carries the three warnings as `lint_warnings` (`jev_gate.lint_warnings`). They never block.
+- Intent: `intent/prompt-guardrails/intent.md`.
+
+### Notes
+
+- The checks are deterministic. They make no model or provider call.
+- Existing tests pass.
+- Warnings do not block. Only the two blocking codes stop the run.
+
 ## [0.27.14] - 2026-10-07
 
 ### Changed

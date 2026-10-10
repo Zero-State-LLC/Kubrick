@@ -7,7 +7,7 @@
 <p align="center">
   An agent skill that turns a brief into continuity-safe storyboards and prompts.<br>
   Works as a skill for agents such as Hermes, Grok Bot and OpenClaw.<br>
-  <em>0.27.14: The prompt compiler writes lock negative lines too</em>
+  <em>0.27.15: Prompt guardrails block end-card space and off-screen UI</em>
 </p>
 
 <p align="center">
@@ -106,7 +106,7 @@ Status words the code emits:
 | `PROPOSAL` | A change that is not applied |
 | `NOT_COMPUTABLE` | Weak or contradictory evidence; fail closed |
 
-The product version is the `VERSION` file (`0.27.14`). The production envelope schema id stays `0.16.0` and does not track that version.
+The product version is the `VERSION` file (`0.27.15`). The production envelope schema id stays `0.16.0` and does not track that version.
 
 ## Example workflow
 
