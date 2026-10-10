@@ -160,7 +160,7 @@ def main() -> int:
             f"{EXPECTED_AUTHOR!r} (got {author!r})"
         )
     license_value = (frontmatter.get("license") or "").strip()
-    if license_value != "LicenseRef-Zero-State-Proprietary-1.0":
+    if license_value != "MIT":
         errors.append("Frontmatter license must match the root LICENSE policy")
     if frontmatter.get("platforms") != "[linux, macos, windows]":
         errors.append("Frontmatter platforms must be [linux, macos, windows]")

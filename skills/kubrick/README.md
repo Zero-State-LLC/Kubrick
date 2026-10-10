@@ -31,11 +31,11 @@
 ## Tags
 
 <p align="center">
+  <a href="https://github.com/Zero-State-LLC/Kubrick/actions/workflows/ci.yml"><img src="https://github.com/Zero-State-LLC/Kubrick/actions/workflows/ci.yml/badge.svg?branch=main" alt="CI"></a>
   <a href="https://github.com/Zero-State-LLC/Kubrick/releases"><img src="https://img.shields.io/github/v/release/Zero-State-LLC/Kubrick?style=flat-square" alt="Latest release"></a>
-  <a href="https://github.com/Zero-State-LLC/Kubrick/actions/workflows/ci.yml"><img src="https://img.shields.io/github/actions/workflow/status/Zero-State-LLC/Kubrick/ci.yml?style=flat-square" alt="CI"></a>
   <a href="https://github.com/Zero-State-LLC/Kubrick/stargazers"><img src="https://img.shields.io/github/stars/Zero-State-LLC/Kubrick?style=flat-square" alt="Stars"></a>
   <a href="https://github.com/Zero-State-LLC/Kubrick/issues"><img src="https://img.shields.io/github/issues/Zero-State-LLC/Kubrick?style=flat-square" alt="Issues"></a>
-  <a href="LICENSE"><img src="https://img.shields.io/badge/license-LicenseRef--Zero--State--Proprietary--1.0-1a1f2e?style=flat-square" alt="License"></a>
+  <a href="LICENSE"><img src="https://img.shields.io/badge/license-MIT-1a1f2e?style=flat-square" alt="License"></a>
 </p>
 
 Repository topics for this repo: `hermes-skill`, `cinematography`, `storyboard`, `continuity`, `film-grammar`.
@@ -175,4 +175,4 @@ python scripts/kubrick.py do <job> [options…]
 
 ## License
 
-Copyright © 2026 Zero State LLC. All Rights Reserved. Licensed under the Zero State Proprietary License v1.0. See [`LICENSE`](LICENSE).
+Copyright (c) 2026 Zero State LLC. Licensed under the MIT License. See [`LICENSE`](LICENSE).
