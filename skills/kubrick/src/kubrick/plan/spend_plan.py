@@ -8,6 +8,7 @@ missing price is ``NOT_COMPUTABLE``, never 0. No provider is called.
 """
 from __future__ import annotations
 
+import math
 from collections.abc import Mapping, Sequence
 
 from kubrick.plan.continuity_locks import frame_field, warning
@@ -19,6 +20,27 @@ CHECKLIST = (
     "wait on processingJobId, not generationJobIds",
 )
 _LABEL = "INFERRED"
+
+
+def _is_finite_number(value: object) -> bool:
+    if isinstance(value, bool) or not isinstance(value, (int, float)):
+        return False
+    try:
+        return math.isfinite(float(value))
+    except OverflowError:
+        return False
+
+
+def _not_computable_estimate() -> dict[str, object]:
+    return {
+        "label": _LABEL,
+        "status": "NOT_COMPUTABLE",
+        "unit": None,
+        "resolution": None,
+        "rate": None,
+        "shots": [],
+        "total_credits": None,
+    }
 
 
 def whole_number(value: float) -> int | float:
@@ -54,23 +76,31 @@ def spend_estimate(
     """Per-shot and total credits. Missing pricing is NOT_COMPUTABLE, not 0."""
     pricing = pricing_for(provider)
     rate = None if pricing is None else pricing.get("rate")
-    if pricing is None or isinstance(rate, bool) or not isinstance(rate, (int, float)):
-        return {
-            "label": _LABEL,
-            "status": "NOT_COMPUTABLE",
-            "unit": None,
-            "resolution": None,
-            "rate": None,
-            "shots": [],
-            "total_credits": None,
-        }
+    if (
+        pricing is None
+        or isinstance(rate, bool)
+        or not isinstance(rate, (int, float))
+        or not _is_finite_number(rate)
+    ):
+        return _not_computable_estimate()
+    if any(
+        isinstance(seconds, (int, float))
+        and not isinstance(seconds, bool)
+        and not _is_finite_number(seconds)
+        for item in rows
+        for seconds in (item.get("generated_seconds"),)
+    ):
+        return _not_computable_estimate()
     shots: list[dict[str, object]] = []
     total = 0.0
     for label, seconds in _shot_rows(rows):
         from kubrick.providers.provider_limits import billed_credits
 
         credits = billed_credits(seconds, float(rate))
-        total += credits
+        next_total = total + credits
+        if not _is_finite_number(credits) or not _is_finite_number(next_total):
+            return _not_computable_estimate()
+        total = next_total
         shots.append({
             "shot": label,
             "generated_seconds": whole_number(seconds),
@@ -93,6 +123,8 @@ def budget_error(estimate: Mapping[str, object], cap: object) -> str | None:
     """Fail closed when a numeric cap is set and the estimate is missing or over it."""
     if isinstance(cap, bool) or not isinstance(cap, (int, float)):
         return None
+    if not _is_finite_number(cap):
+        return "BUDGET_CAP_UNVERIFIABLE budget_cap_credits must be finite"
     cap_text = whole_number(float(cap))
     unverifiable = (
         f"BUDGET_CAP_UNVERIFIABLE budget_cap_credits {cap_text} "
@@ -101,7 +133,11 @@ def budget_error(estimate: Mapping[str, object], cap: object) -> str | None:
     if estimate.get("status") != _LABEL:
         return unverifiable
     total = estimate.get("total_credits")
-    if isinstance(total, bool) or not isinstance(total, (int, float)):
+    if (
+        isinstance(total, bool)
+        or not isinstance(total, (int, float))
+        or not _is_finite_number(total)
+    ):
         return unverifiable
     if float(total) > float(cap):
         return (
