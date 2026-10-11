@@ -1,6 +1,8 @@
 from __future__ import annotations
 
 import json
+import os
+import subprocess
 import sys
 from pathlib import Path
 from types import SimpleNamespace
@@ -79,6 +81,65 @@ def test_telemetry_cli_consent_controls_do_not_reveal_endpoint_secrets(
     assert get_consent(state_dir) == frozenset({"usage"})
     assert telemetry_cli.main(["--action", "disable"]) == 0
     assert get_consent(state_dir) == frozenset()
+
+
+def test_pattern_allowlist_uses_only_the_versioned_shipped_catalog(
+    tmp_path: Path, monkeypatch: pytest.MonkeyPatch
+) -> None:
+    shipped = "shipped_pattern"
+    local = "local_only_pattern"
+    catalog = tmp_path / "references" / "telemetry-catalogs" / "0.27.15.json"
+    catalog.parent.mkdir(parents=True)
+    catalog.write_text(
+        json.dumps({"kubrick_version": "0.27.15", "pattern_ids": [shipped]}),
+        encoding="utf-8",
+    )
+    local_pattern = tmp_path / "references" / "patterns" / f"{local}.json"
+    local_pattern.parent.mkdir(parents=True)
+    local_pattern.write_text(json.dumps({"pattern_id": local}), encoding="utf-8")
+    monkeypatch.setattr(telemetry_cli, "SKILL_ROOT", tmp_path)
+    monkeypatch.setitem(telemetry_cli.MANIFEST, "version", "0.27.15")
+
+    assert telemetry_cli._pattern_ids() == frozenset({shipped})
+    monkeypatch.setitem(telemetry_cli.MANIFEST, "version", "0.27.16")
+    assert telemetry_cli._pattern_ids() == frozenset()
+
+
+def test_current_release_catalog_covers_the_shipped_pattern_corpus() -> None:
+    corpus_ids = {
+        payload["pattern_id"]
+        for path in (ROOT / "references" / "patterns").rglob("*.json")
+        for payload in [json.loads(path.read_text(encoding="utf-8"))]
+        if isinstance(payload, dict) and isinstance(payload.get("pattern_id"), str)
+    }
+
+    assert telemetry_cli._pattern_ids() == frozenset(corpus_ids)
+
+
+def test_telemetry_script_propagates_failure_exit_status(tmp_path: Path) -> None:
+    env = dict(os.environ)
+    env["XDG_STATE_HOME"] = str(tmp_path)
+    env.pop("KUBRICK_TELEMETRY_TOKEN", None)
+    result = subprocess.run(
+        [
+            sys.executable,
+            str(ROOT / "scripts" / "telemetry.py"),
+            "--action",
+            "feedback",
+            "--pattern-id",
+            "known_pattern",
+            "--vote",
+            "useful",
+        ],
+        cwd=ROOT,
+        env=env,
+        capture_output=True,
+        text=True,
+        check=False,
+    )
+
+    assert result.returncode == 2
+    assert json.loads(result.stdout)["status"] == "consent_required"
 
 
 def test_cli_dispatch_records_only_allowlisted_usage_after_explicit_opt_in(

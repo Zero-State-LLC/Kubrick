@@ -27,7 +27,7 @@ These details were checked in `src/kubrick/runtime/telemetry.py`, `src/kubrick/r
 - The client accepts only HTTP `202` as acknowledgment. It rejects redirects and retains events on every other response or network failure. It removes the batch after `202`.
 - Usage and quality-feedback consent are separate and default off. Revoking a scope clears its queued events. No event is queued or sent without consent and valid endpoint and token configuration.
 - The client does not currently report a maximum queue age. A queued event can be retried after an arbitrary delay unless the client adds an expiry rule.
-- `_pattern_ids()` loads IDs from `references/patterns/**/*.json` in the installed skill tree. That may include locally added pattern files. The current check proves that an ID exists in that tree, not that Kubrick shipped it.
+- Feedback IDs are allowlisted by the frozen, version-specific `references/telemetry-catalogs/<version>.json` shipped with Kubrick. The client reads only the file matching the installed manifest version and does not scan local pattern files. A queued event that no longer validates against the installed contract is discarded individually so it cannot block later valid events.
 
 The accepted intent limits this phase to a design. This research resolves technical defaults but cannot establish private account ownership, user geography, legal approval, or spending authority.
 
@@ -52,7 +52,7 @@ Research used official IETF, Cloudflare, and Databricks documentation retrieved 
 4. **Set an initial ceiling of 500 accepted batches per UTC day, with at most 20 events and 32 KiB per request.** Separately throttle all incoming requests at the edge. This is an ingestion limit, not a billing ceiling: public invalid or abusive requests can still invoke the Worker. The maximum accepted payload is 16,384,000 bytes per day, or 468.75 MiB over 30 days, before aggregates. Return `429` after the accepted-data ceiling and keep events queued locally.
 5. **Expire the local outbox when `event_day` is more than 30 calendar days old; reject older events. Retain raw objects for 30 days from receipt and aggregates for 13 months.** These are engineering defaults, not legal conclusions. Keep only event-ID digests until 60 days after `event_day`. R2 lifecycle objects are typically deleted within 24 hours after expiry, but this is not an exact-time deletion guarantee and lifecycle-rule changes can take longer.[4] Since the client reports a UTC day, raw data may ordinarily remain for about 62 days from event occurrence; do not present that as a guaranteed maximum.
 6. **Suppress aggregate cells with fewer than 20 events.** Treat this as a small-cell safeguard, not anonymization. Do not report unique users or cohorts.
-7. **Allow feedback only for pattern IDs shipped in the reported Kubrick version.** The current `_pattern_ids()` scan reads every local JSON file under `references/patterns/`; that is not a shipped-catalog check. The client must switch to a release-owned catalog before any endpoint is enabled.
+7. **Allow feedback only for pattern IDs shipped in the reported Kubrick version.** The client now reads the frozen catalog for the installed Kubrick version, not arbitrary local pattern files. The release catalog is `references/telemetry-catalogs/0.27.15.json`; a future release must deliberately add its own versioned catalog before feedback IDs are accepted.
 8. **Keep the client's 0.5-second timeout as its command-wait budget.** Add `Retry-After` handling and jittered exponential backoff, capped at one attempt per eligible invocation and a six-hour maximum delay. Each POST writes a new uniquely named raw batch object; if a `202` is lost, the retry can create a duplicate raw batch, but downstream event-ID deduplication must prevent duplicate analytical events. Do not overwrite a content-derived key because R2 limits concurrent writes to the same key.[16]
 9. **Disable persisted request logging for the telemetry service.** Set `observability.enabled = false` and `observability.logs.invocation_logs = false`. Do not enable Traces, Issues, Logpush, or R2 Data Access Logs. Do not put request bodies, tokens, event IDs, or exception payloads in logs. Verify the deployed configuration rather than relying on defaults.
 
@@ -211,21 +211,21 @@ Checked against `SECURITY.md`, `references/telemetry.md`, and the accepted inten
 
 ## Sources
 
-[1] https://www.rfc-editor.org/rfc/rfc8252: IETF RFC 8252, OAuth 2.0 for Native Apps
-[2] https://developers.cloudflare.com/r2/reference/durability: Cloudflare R2, Durability
-[3] https://developers.cloudflare.com/r2/reference/consistency: Cloudflare R2, Consistency model
-[4] https://developers.cloudflare.com/r2/buckets/object-lifecycles: Cloudflare R2, Object lifecycles
-[5] https://developers.cloudflare.com/r2/reference/data-location: Cloudflare R2, Data location
-[6] https://developers.cloudflare.com/workers/wrangler/configuration: Cloudflare Workers, Wrangler observability configuration
-[7] https://developers.cloudflare.com/workers/observability/logs: Cloudflare Workers, Logs
-[8] https://developers.cloudflare.com/workers/configuration/cron-triggers: Cloudflare Workers, Cron Triggers
-[9] https://developers.cloudflare.com/workers/platform/limits: Cloudflare Workers, Limits
-[10] https://developers.cloudflare.com/workers/platform/pricing: Cloudflare Workers, Pricing
-[11] https://developers.cloudflare.com/r2/pricing: Cloudflare R2, Pricing
-[12] https://developers.cloudflare.com/queues/reference/delivery-guarantees: Cloudflare Queues, Delivery guarantees
-[13] https://developers.cloudflare.com/workers/observability/pricing: Cloudflare Workers, Observability pricing
-[14] https://docs.databricks.com/aws/en/ingestion/cloud-object-storage/auto-loader: Databricks, What is Auto Loader?
-[15] https://docs.databricks.com/aws/en/connect/unity-catalog/cloud-storage/external-locations-r2: Databricks, Connect to a Cloudflare R2 external location
-[16] https://developers.cloudflare.com/r2/platform/limits/: Cloudflare R2, Limits
-[17] https://docs.databricks.com/aws/en/ingestion/cloud-object-storage/auto-loader/unity-catalog: Databricks, Auto Loader with Unity Catalog
-[18] https://docs.databricks.com/aws/en/ingestion/cloud-object-storage/auto-loader/file-detection-modes: Databricks, Compare Auto Loader file detection modes
+[1] https://www.rfc-editor.org/rfc/rfc8252 (IETF RFC 8252, OAuth 2.0 for Native Apps)
+[2] https://developers.cloudflare.com/r2/reference/durability (Cloudflare R2, Durability)
+[3] https://developers.cloudflare.com/r2/reference/consistency (Cloudflare R2, Consistency model)
+[4] https://developers.cloudflare.com/r2/buckets/object-lifecycles (Cloudflare R2, Object lifecycles)
+[5] https://developers.cloudflare.com/r2/reference/data-location (Cloudflare R2, Data location)
+[6] https://developers.cloudflare.com/workers/wrangler/configuration (Cloudflare Workers, Wrangler observability configuration)
+[7] https://developers.cloudflare.com/workers/observability/logs (Cloudflare Workers, Logs)
+[8] https://developers.cloudflare.com/workers/configuration/cron-triggers (Cloudflare Workers, Cron Triggers)
+[9] https://developers.cloudflare.com/workers/platform/limits (Cloudflare Workers, Limits)
+[10] https://developers.cloudflare.com/workers/platform/pricing (Cloudflare Workers, Pricing)
+[11] https://developers.cloudflare.com/r2/pricing (Cloudflare R2, Pricing)
+[12] https://developers.cloudflare.com/queues/reference/delivery-guarantees (Cloudflare Queues, Delivery guarantees)
+[13] https://developers.cloudflare.com/workers/observability/pricing (Cloudflare Workers, Observability pricing)
+[14] https://docs.databricks.com/aws/en/ingestion/cloud-object-storage/auto-loader (Databricks, What is Auto Loader?)
+[15] https://docs.databricks.com/aws/en/connect/unity-catalog/cloud-storage/external-locations-r2 (Databricks, Connect to a Cloudflare R2 external location)
+[16] https://developers.cloudflare.com/r2/platform/limits/ (Cloudflare R2, Limits)
+[17] https://docs.databricks.com/aws/en/ingestion/cloud-object-storage/auto-loader/unity-catalog (Databricks, Auto Loader with Unity Catalog)
+[18] https://docs.databricks.com/aws/en/ingestion/cloud-object-storage/auto-loader/file-detection-modes (Databricks, Compare Auto Loader file detection modes)

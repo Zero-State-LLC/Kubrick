@@ -205,23 +205,28 @@ def pending_events(
     if connection is None:
         return []
     events: list[dict[str, Any]] = []
+    invalid_sequences: list[int] = []
     try:
-        rows = connection.execute("SELECT event_type, payload FROM pending_event ORDER BY sequence")
-        for event_type, payload in rows:
+        rows = connection.execute(
+            "SELECT sequence, event_type, payload FROM pending_event ORDER BY sequence"
+        ).fetchall()
+        for sequence, event_type, payload in rows:
             if event_type not in scopes:
                 continue
             try:
                 candidate = json.loads(payload)
-            except (TypeError, json.JSONDecodeError) as exc:
-                raise TelemetryError("OUTBOX_CORRUPT") from exc
-            validated = validate_event(
-                candidate,
-                allowed_actions=allowed_actions,
-                allowed_pattern_ids=allowed_pattern_ids,
-                feedback_enabled="quality_feedback" in scopes,
-            )
+                validated = validate_event(
+                    candidate,
+                    allowed_actions=allowed_actions,
+                    allowed_pattern_ids=allowed_pattern_ids,
+                    feedback_enabled="quality_feedback" in scopes,
+                )
+            except (TypeError, json.JSONDecodeError, TelemetryError):
+                invalid_sequences.append(sequence)
+                continue
             if validated["event_type"] != event_type:
-                raise TelemetryError("OUTBOX_CORRUPT")
+                invalid_sequences.append(sequence)
+                continue
             next_events = [*events, validated]
             batch = {"schema_version": "1", "events": next_events}
             batch_bytes = len(
@@ -230,8 +235,15 @@ def pending_events(
             if len(events) >= MAX_BATCH_EVENTS or batch_bytes > MAX_BATCH_BYTES:
                 break
             events.append(validated)
+        if invalid_sequences:
+            connection.executemany(
+                "DELETE FROM pending_event WHERE sequence = ?",
+                [(sequence,) for sequence in invalid_sequences],
+            )
+            connection.commit()
         return events
     except sqlite3.Error as exc:
+        connection.rollback()
         raise TelemetryError("STATE_UNREADABLE") from exc
     finally:
         connection.close()

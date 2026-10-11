@@ -30,19 +30,22 @@ _SCOPE_NAMES = {"usage": "usage", "quality-feedback": "quality_feedback"}
 
 
 def _pattern_ids() -> frozenset[str]:
-    pattern_root = SKILL_ROOT / "references" / "patterns"
-    if not pattern_root.is_dir():
+    version = str(MANIFEST["version"])
+    catalog_path = SKILL_ROOT / "references" / "telemetry-catalogs" / f"{version}.json"
+    try:
+        payload = json.loads(catalog_path.read_text(encoding="utf-8"))
+    except (OSError, json.JSONDecodeError):
         return frozenset()
-    found: set[str] = set()
-    for path in pattern_root.rglob("*.json"):
-        try:
-            payload = json.loads(path.read_text(encoding="utf-8"))
-        except (OSError, json.JSONDecodeError):
-            continue
-        pattern_id = payload.get("pattern_id") if isinstance(payload, dict) else None
-        if isinstance(pattern_id, str) and _PATTERN_ID.fullmatch(pattern_id):
-            found.add(pattern_id)
-    return frozenset(found)
+    if not isinstance(payload, dict) or payload.get("kubrick_version") != version:
+        return frozenset()
+    pattern_ids = payload.get("pattern_ids")
+    if not isinstance(pattern_ids, list):
+        return frozenset()
+    return frozenset(
+        pattern_id
+        for pattern_id in pattern_ids
+        if isinstance(pattern_id, str) and _PATTERN_ID.fullmatch(pattern_id)
+    )
 
 
 def _emit(payload: dict[str, Any]) -> None:

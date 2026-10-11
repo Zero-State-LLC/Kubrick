@@ -12,4 +12,4 @@ sys.path.insert(0, _SRC)
 from kubrick.runtime.telemetry_cli import main  # noqa: E402
 
 if __name__ == "__main__":
-    main()
+    raise SystemExit(main())

@@ -17,13 +17,15 @@ kubrick do telemetry --action disable --scope usage
 kubrick do telemetry --action disable
 ```
 
-`preview` displays only allowlisted queued events. If transmission is not configured or a prior send failed, this lets the operator inspect the remaining local queue before running an explicit `flush`. When an approved endpoint and token are configured, usage events trigger a bounded send attempt at the end of the command; the explicit feedback action also queues its fixed event and attempts a send. Feedback requires a pattern ID present in the local corpus and one fixed vote (`useful`, `mixed`, or `not_useful`). It accepts no free text. Normal usage instrumentation excludes `check` and `telemetry` actions and does not record in CI.
+`preview` displays only allowlisted queued events. If transmission is not configured or a prior send failed, this lets the operator inspect the remaining local queue before running an explicit `flush`. When an approved endpoint and token are configured, usage events trigger a bounded send attempt at the end of the command; the explicit feedback action also queues its fixed event and attempts a send. Feedback requires a pattern ID in the frozen catalog for the installed Kubrick version and one fixed vote (`useful`, `mixed`, or `not_useful`). Locally added pattern files are excluded. It accepts no free text. Normal usage instrumentation excludes `check` and `telemetry` actions and does not record in CI.
 
 ## Event contract
 
 Each event follows `schemas/usage-telemetry-event-v1.schema.json`. The fixed fields are schema version, random event UUID, UTC day, Kubrick version, Python minor version, OS family, event type, manifest-allowlisted intent/action, coarse result/reason code and duration bucket, plus nullable pattern ID and fixed user vote. No stable install, user, or project identifier is generated.
 
 The local outbox is SQLite at the OS per-user state location: Linux `$XDG_STATE_HOME/kubrick/telemetry` (or `~/.local/state/kubrick/telemetry`), macOS `~/Library/Application Support/Kubrick/telemetry`, and Windows `%LOCALAPPDATA%/Kubrick/telemetry`. POSIX directory/database modes are `0700`/`0600`; Windows uses the local profile's ACL. The queue is bounded to 500 events / 1 MiB, with a 4 KiB event limit and 20-event / 32 KiB request limit.
+
+The installed release's feedback allowlist is stored at `references/telemetry-catalogs/<version>.json`; runtime reads only the exact manifest-version file and never scans local pattern JSON files. When previewing or flushing, a queued event that no longer validates against the installed event contract is discarded individually, so it cannot block later valid events. A release that lacks a matching feedback catalog accepts no feedback pattern IDs.
 
 ## Network gate
 
@@ -41,6 +43,6 @@ The draft recommends direct Cloudflare Worker-to-R2 writes with daily aggregatio
 
 The proposed limit is 500 accepted batches per UTC day, with at most 20 events and 32 KiB per request. This is not a billing cap. The service would need edge throttling, billing alerts, and an emergency disable control. The draft proposes 30-day raw retention and 13-month aggregate retention. A queued event may remain in raw storage for about 62 days from its event day, and lifecycle deletion is not exact-time.
 
-The proposed 30-day acceptance window and storage-retention periods apply to a future collector; they do not describe current client queue expiry. The local client outbox has count and size bounds but currently no age-based expiry, so pending events can be retried indefinitely while consent remains enabled and delivery stays configured.
+The proposed 30-day acceptance window and storage-retention periods apply to a future collector; they do not describe current client queue expiry. The local client outbox has count and size bounds but currently no age-based expiry, so valid pending events can be retried indefinitely while consent remains enabled and delivery stays configured. Contract-incompatible entries are discarded individually when the queue is read.
 
 Before enabling an endpoint, the owner must approve the account and jurisdiction, abuse controls, provider-side source-IP processing and notice, budget, retention, access, logging, and incident response. The client also needs a separate change to remove its bearer-token requirement. Feedback IDs must come from the catalog shipped with the reported Kubrick version, not locally added patterns.
