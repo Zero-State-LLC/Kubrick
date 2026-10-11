@@ -2,7 +2,6 @@
 """Unit tests for the v0.16 canonical production engine."""
 from __future__ import annotations
 
-import json
 import sys
 import tempfile
 from pathlib import Path
@@ -11,7 +10,6 @@ ROOT = Path(__file__).resolve().parent.parent
 sys.path.insert(0, str(ROOT / "scripts"))
 
 from production_engine import (  # noqa: E402
-    ProductionEngine,
     ProductionRequest,
     ProductionSurface,
     ProductionValidator,

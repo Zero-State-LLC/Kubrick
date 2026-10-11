@@ -13,7 +13,7 @@ PY = sys.executable
 BRIEF = ROOT / "examples/authority-transfer-storyboard/brief.yaml"
 sys.path.insert(0, str(ROOT / "scripts"))
 
-from provider_capabilities import check_video_adapt, capabilities_for  # noqa: E402
+from provider_capabilities import capabilities_for, check_video_adapt  # noqa: E402
 
 
 def run(args: list[str]) -> subprocess.CompletedProcess[str]:

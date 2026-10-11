@@ -1,7 +1,12 @@
 #!/usr/bin/env python3
 from __future__ import annotations
-import json, subprocess, sys, tempfile
+
+import json
+import subprocess
+import sys
+import tempfile
 from pathlib import Path
+
 try:
     import yaml
 except ImportError:
