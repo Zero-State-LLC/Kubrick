@@ -10,13 +10,15 @@ Also:
   kubrick aliases
   <legacy-command> [flags]   # soft aliases via intent_router
 """
+
 from __future__ import annotations
 
 import os
 import subprocess
 import sys
+import time
 
-from kubrick.paths import SCRIPTS, SKILL_ROOT
+from kubrick.paths import SCRIPTS, SKILL_ROOT, telemetry_state_dir
 
 ROOT = SKILL_ROOT
 PY = sys.executable
@@ -25,6 +27,7 @@ FIRST_CLASS_PRODUCTION_SURFACES = {"design", "script", "image", "video"}
 import kubrick.runtime.caller_paths as caller_paths  # noqa: E402
 import kubrick.runtime.intent_router as ir  # noqa: E402
 import kubrick.runtime.runtime_deps as runtime_deps  # noqa: E402
+import kubrick.runtime.telemetry as telemetry  # noqa: E402
 from kubrick.runtime.diagnostics import abort, diagnostic  # noqa: E402
 
 
@@ -70,13 +73,16 @@ def _pin_caller_cwd() -> None:
         os.environ["KUBRICK_CALLER_CWD"] = os.getcwd()
 
 
-def _child_env() -> dict[str, str]:
-    """Record the caller's cwd before the child runs with cwd=ROOT (#62, #82).
+def _child_env(*, include_telemetry_token: bool = False) -> dict[str, str]:
+    """Prepare a child environment while isolating the telemetry credential.
 
     Artifact placement and relative path flags read ``KUBRICK_CALLER_CWD``.
-    Path policy still keys off ``KUBRICK_PROJECT_DIR``.
+    Path policy still keys off ``KUBRICK_PROJECT_DIR``. Only the dedicated
+    telemetry adapter receives ``KUBRICK_TELEMETRY_TOKEN``.
     """
     env = dict(os.environ)
+    if not include_telemetry_token:
+        env.pop("KUBRICK_TELEMETRY_TOKEN", None)
     if not env.get("KUBRICK_CALLER_CWD"):
         env["KUBRICK_CALLER_CWD"] = os.getcwd()
     return env
@@ -112,11 +118,41 @@ def _execution_argv(call: ir.IntentCall) -> list[str]:
     flag so the implementation never has to infer operator intent.
     """
     argv = list(call.argv)
+    if call.intent == "telemetry":
+        argv = ["--action", call.action, *argv]
     if call.script.name == "generate_design_spec.py":
         return argv
     if call.intent in FIRST_CLASS_PRODUCTION_SURFACES:
         argv = ["--surface-action", call.action, *argv]
     return argv
+
+
+def _record_usage_best_effort(
+    call: ir.IntentCall, return_code: int, duration_seconds: float
+) -> None:
+    """Record only resolved action metadata; telemetry cannot change dispatch."""
+    if call.intent in {"check", "telemetry"}:
+        return
+    if os.environ.get("CI", "").strip().lower() in {"1", "true", "yes"}:
+        return
+    allowed_actions = {
+        intent: frozenset(spec.actions) for intent, spec in ir.INTENT_REGISTRY.items()
+    }
+    try:
+        telemetry.record_usage_event(
+            telemetry_state_dir(),
+            intent=call.intent,
+            action=call.action,
+            return_code=return_code,
+            duration_seconds=duration_seconds,
+            kubrick_version=ir.MANIFEST["version"],
+            allowed_actions=allowed_actions,
+            endpoint=os.environ.get("KUBRICK_TELEMETRY_ENDPOINT"),
+            bearer_token=os.environ.get("KUBRICK_TELEMETRY_TOKEN"),
+        )
+    except Exception:
+        # Opt-in telemetry is best effort and must never change Kubrick's result.
+        return
 
 
 def _top_help(argv: list[str]) -> bool:
@@ -168,8 +204,10 @@ def _validate_sugar(argv: list[str]) -> list[str]:
 
 
 def _bare_surface(argv: list[str]) -> list[str]:
-    bare = bool(argv) and argv[0] in FIRST_CLASS_PRODUCTION_SURFACES and (
-        len(argv) == 1 or (not argv[1].startswith("-") and argv[1] != "do")
+    bare = (
+        bool(argv)
+        and argv[0] in FIRST_CLASS_PRODUCTION_SURFACES
+        and (len(argv) == 1 or (not argv[1].startswith("-") and argv[1] != "do"))
     )
     if not bare:
         return argv
@@ -209,9 +247,7 @@ def _wizard(argv: list[str]) -> bool:
 
 def _do_help(argv: list[str]) -> bool:
     if not (
-        len(argv) >= 2
-        and argv[0] == "do"
-        and any(tok in {"-h", "--help"} for tok in argv[2:])
+        len(argv) >= 2 and argv[0] == "do" and any(tok in {"-h", "--help"} for tok in argv[2:])
     ):
         return False
     try:
@@ -243,6 +279,7 @@ def _dispatch(argv: list[str]) -> None:
             sys.stdout.write(ir.format_top_level_help())
             raise SystemExit(0)
         _abort_router(error)
+        raise SystemExit(error.exit_code)
     if call.legacy_name and not _is_agent() and os.environ.get("KUBRICK_QUIET") != "1":
         print(
             f"note: `{call.legacy_name}` is a legacy alias; "
@@ -252,12 +289,18 @@ def _dispatch(argv: list[str]) -> None:
     if call.intent == "check" and call.action == "smoke":
         _dispatch_smoke(call)
     runtime_deps.check_action(ir.MANIFEST, call.intent, call.action)
-    env = _child_env()
-    result = subprocess.run(
-        [PY, str(call.script), *_prepared_argv(_execution_argv(call), env)],
-        cwd=ROOT,
-        env=env,
-    )
+    env = _child_env(include_telemetry_token=call.intent == "telemetry")
+    started = time.monotonic()
+    try:
+        result = subprocess.run(
+            [PY, str(call.script), *_prepared_argv(_execution_argv(call), env)],
+            cwd=ROOT,
+            env=env,
+        )
+    except (OSError, subprocess.SubprocessError):
+        _record_usage_best_effort(call, 1, max(0.0, time.monotonic() - started))
+        raise
+    _record_usage_best_effort(call, result.returncode, max(0.0, time.monotonic() - started))
     raise SystemExit(result.returncode)
 
 

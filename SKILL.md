@@ -87,6 +87,7 @@ terminal(command="python3 ${HERMES_SKILL_DIR}/scripts/kubrick.py do retrieve --b
 terminal(command="python3 ${HERMES_SKILL_DIR}/scripts/kubrick.py do adapt --action provider --provider flux --packet packet.yaml --output adapted.yaml", timeout=120)
 terminal(command="python3 ${HERMES_SKILL_DIR}/scripts/kubrick.py do visual --action closed-loop --expected expected.yaml --observation-input observed.yaml --out out/qa", timeout=180)
 terminal(command="python3 ${HERMES_SKILL_DIR}/scripts/kubrick.py do check --action smoke", timeout=120)
+terminal(command="python3 ${HERMES_SKILL_DIR}/scripts/kubrick.py do telemetry --action status", timeout=60)
 ```
 
 Use `help <intent>`, `recipe <name>`, and `aliases` on the same entrypoint for
@@ -126,6 +127,7 @@ Prefer the wizard when unsure; use `do <intent>` when flags are already known.
 - `adapt`: Build neutral packets and provider-specific syntax
 - `visual`: Normalize, compare, correct, and govern visual QA
 - `learn`: Record outcomes and produce proposal-only evolution
+- `telemetry`: Inspect or control separate default-off usage and quality-feedback consent; view local pending events
 - `check`: Validate the skill, corpus, artifacts, hub sync, and repeatability
 - `operate`: Run graph and ledger operators
 - `mcp`: Serve the optional MCP adapter
@@ -233,6 +235,7 @@ For deeper rules, load only the reference needed for the task with `read_file` o
 - `references/hermes-model-adapters.md` for provider translation
 - `references/hermes-visual-qa.md` for differential correction
 - `references/corpus-usage.md` for retrieval and cultural boundaries
+- `references/telemetry.md` for opt-in metrics, consent scopes, and network/privacy controls
 - `references/design-specification-compiler.md` for design compilation
 - `references/continuity-forge-integration.md` for optional handoff
 

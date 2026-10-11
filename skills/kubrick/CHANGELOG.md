@@ -2,6 +2,11 @@
 
 ## [Unreleased]
 
+### Added
+
+- Default-off usage and quality-feedback telemetry with separate consent scopes and a bounded local outbox. Best-effort HTTPS delivery occurs only with consent and configured endpoint/token; no collector or production endpoint is included.
+- `references/telemetry.md` documents current client behavior and the design-only collector proposal.
+
 ## [0.27.15] - 2026-10-10
 
 ### Added
