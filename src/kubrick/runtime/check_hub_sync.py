@@ -46,6 +46,7 @@ COMPARE_ROOTS = [
 
 EXCLUDE_DIR_NAMES = {
     "__pycache__",
+    ".venv",
     ".pytest_cache",
     ".mypy_cache",
     ".ruff_cache",

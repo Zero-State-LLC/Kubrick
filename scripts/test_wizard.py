@@ -14,6 +14,7 @@ ROOT = Path(__file__).resolve().parent.parent
 SCRIPTS = ROOT / "scripts"
 sys.path.insert(0, str(SCRIPTS))
 
+import intent_router as ir  # noqa: E402
 from kubrick_wizard import (  # noqa: E402
     ANSWERS_SCHEMA,
     WizardError,
@@ -22,7 +23,6 @@ from kubrick_wizard import (  # noqa: E402
     resolve_plan,
     validate_answers,
 )
-import intent_router as ir  # noqa: E402
 
 REG = ir.INTENT_REGISTRY
 

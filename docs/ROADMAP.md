@@ -141,3 +141,7 @@ question beat the split one), a second labeled set so lock wording is not
 tuned on the set that scores it, let `lock_carriers` count a start frame as
 a carrier only when this gate passed, and reuse the same crop and embedding
 in live take QC.
+
+## Planned work
+
+- [#150](https://github.com/Zero-State-LLC/Kubrick/issues/150) tracks the owner decisions required before implementing a telemetry collector. The current telemetry client stays default-off, and no collector, production endpoint, or deployment is approved. See [`references/telemetry.md`](../references/telemetry.md) for current client behavior and the design proposal.

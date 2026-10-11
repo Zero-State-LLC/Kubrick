@@ -13,7 +13,12 @@ from pathlib import Path
 ROOT = Path(__file__).resolve().parent.parent
 
 
-def run(installer: Path, hermes_home: Path, *args: str, expect: int = 0) -> subprocess.CompletedProcess[str]:
+def run(
+    installer: Path,
+    hermes_home: Path,
+    *args: str,
+    expect: int = 0,
+) -> subprocess.CompletedProcess[str]:
     env = dict(os.environ, HERMES_HOME=str(hermes_home))
     result = subprocess.run(
         ["bash", str(installer), *args],

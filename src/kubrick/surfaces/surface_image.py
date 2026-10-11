@@ -262,7 +262,8 @@ def image_adapt(packet_text: str | None, project_id: str, provider: str) -> dict
             meta["status"] = "NOT_COMPUTABLE"
             meta["authority"] = "NOT_COMPUTABLE"
             meta["not_computable"] = ["provider_semantic_preservation"]
-    except Exception as exc:  # noqa: BLE001; surface must fail closed, not crash
+    # Fail closed if provider-preservation checks raise.
+    except Exception as exc:
         meta["status"] = "NOT_COMPUTABLE"
         meta["authority"] = "NOT_COMPUTABLE"
         meta["diagnostic"] = {"code": "ADAPTER_NOT_COMPUTABLE", "message": str(exc)}

@@ -269,7 +269,7 @@ def test_video_qa_dimensions() -> None:
 
 
 def test_provider_capability_helpers() -> None:
-    from provider_capabilities import check_video_adapt, check_image_adapt, capabilities_for
+    from provider_capabilities import capabilities_for, check_image_adapt, check_video_adapt
 
     assert check_image_adapt("flux") is None
     assert check_video_adapt("flux") is not None

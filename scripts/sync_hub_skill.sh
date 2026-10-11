@@ -10,6 +10,7 @@ copy_tree() {
     rsync -a --delete \
       --exclude '.git/' \
       --exclude '.github/' \
+      --exclude '.venv/' \
       --exclude 'skills/' \
       --exclude 'out/' \
       --exclude 'dist/' \
@@ -27,11 +28,24 @@ copy_tree() {
       --exclude 'tests/' \
       "${ROOT}/" "${DEST}/"
   else
+    sync_tmp="$(mktemp -d "${TMPDIR:-/tmp}/kubrick-hub-sync.XXXXXX")"
+    restore_preserved_venv() {
+      if [[ -d "${sync_tmp}/preserved-venv" && ! -e "${DEST}/.venv" ]]; then
+        mkdir -p "${DEST}"
+        mv "${sync_tmp}/preserved-venv" "${DEST}/.venv"
+      fi
+      rm -rf "${sync_tmp}"
+    }
+    trap restore_preserved_venv EXIT
+    if [[ -d "${DEST}/.venv" ]]; then
+      mv "${DEST}/.venv" "${sync_tmp}/preserved-venv"
+    fi
     rm -rf "${DEST}"
     mkdir -p "${DEST}"
     tar -C "${ROOT}" \
       --exclude '.git' \
       --exclude '.github' \
+      --exclude '.venv' \
       --exclude 'skills' \
       --exclude 'out' \
       --exclude 'dist' \
@@ -47,6 +61,11 @@ copy_tree() {
       --exclude 'scripts/package_optional_skill.sh' \
       --exclude 'scripts/sync_hub_skill.sh' \
       -cf - . | tar -C "${DEST}" -xf -
+    if [[ -d "${sync_tmp}/preserved-venv" ]]; then
+      mv "${sync_tmp}/preserved-venv" "${DEST}/.venv"
+    fi
+    rm -rf "${sync_tmp}"
+    trap - EXIT
   fi
 }
 
