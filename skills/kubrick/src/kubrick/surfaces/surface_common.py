@@ -148,7 +148,8 @@ def _extract_brief_fields(brief: str | None, evidence: str | None) -> dict[str, 
         loaded = yaml.safe_load(blob)
         if isinstance(loaded, dict):
             parsed = loaded
-    except Exception:  # noqa: BLE001; fall back to line parsing
+    # Fall back to line parsing if YAML parsing fails.
+    except Exception:
         parsed = None
 
     if parsed is not None:
