@@ -211,21 +211,21 @@ Checked against `SECURITY.md`, `references/telemetry.md`, and the accepted inten
 
 ## Sources
 
-[1] https://www.rfc-editor.org/rfc/rfc8252 — IETF RFC 8252: OAuth 2.0 for Native Apps
-[2] https://developers.cloudflare.com/r2/reference/durability — Cloudflare R2: Durability
-[3] https://developers.cloudflare.com/r2/reference/consistency — Cloudflare R2: Consistency model
-[4] https://developers.cloudflare.com/r2/buckets/object-lifecycles — Cloudflare R2: Object lifecycles
-[5] https://developers.cloudflare.com/r2/reference/data-location — Cloudflare R2: Data location
-[6] https://developers.cloudflare.com/workers/wrangler/configuration — Cloudflare Workers: Wrangler observability configuration
-[7] https://developers.cloudflare.com/workers/observability/logs — Cloudflare Workers: Logs
-[8] https://developers.cloudflare.com/workers/configuration/cron-triggers — Cloudflare Workers: Cron Triggers
-[9] https://developers.cloudflare.com/workers/platform/limits — Cloudflare Workers: Limits
-[10] https://developers.cloudflare.com/workers/platform/pricing — Cloudflare Workers: Pricing
-[11] https://developers.cloudflare.com/r2/pricing — Cloudflare R2: Pricing
-[12] https://developers.cloudflare.com/queues/reference/delivery-guarantees — Cloudflare Queues: Delivery guarantees
-[13] https://developers.cloudflare.com/workers/observability/pricing — Cloudflare Workers: Observability pricing
-[14] https://docs.databricks.com/aws/en/ingestion/cloud-object-storage/auto-loader — Databricks: What is Auto Loader?
-[15] https://docs.databricks.com/aws/en/connect/unity-catalog/cloud-storage/external-locations-r2 — Databricks: Connect to a Cloudflare R2 external location
-[16] https://developers.cloudflare.com/r2/platform/limits/ — Cloudflare R2: Limits
-[17] https://docs.databricks.com/aws/en/ingestion/cloud-object-storage/auto-loader/unity-catalog — Databricks: Auto Loader with Unity Catalog
-[18] https://docs.databricks.com/aws/en/ingestion/cloud-object-storage/auto-loader/file-detection-modes — Databricks: Compare Auto Loader file detection modes
+[1] https://www.rfc-editor.org/rfc/rfc8252: IETF RFC 8252, OAuth 2.0 for Native Apps
+[2] https://developers.cloudflare.com/r2/reference/durability: Cloudflare R2, Durability
+[3] https://developers.cloudflare.com/r2/reference/consistency: Cloudflare R2, Consistency model
+[4] https://developers.cloudflare.com/r2/buckets/object-lifecycles: Cloudflare R2, Object lifecycles
+[5] https://developers.cloudflare.com/r2/reference/data-location: Cloudflare R2, Data location
+[6] https://developers.cloudflare.com/workers/wrangler/configuration: Cloudflare Workers, Wrangler observability configuration
+[7] https://developers.cloudflare.com/workers/observability/logs: Cloudflare Workers, Logs
+[8] https://developers.cloudflare.com/workers/configuration/cron-triggers: Cloudflare Workers, Cron Triggers
+[9] https://developers.cloudflare.com/workers/platform/limits: Cloudflare Workers, Limits
+[10] https://developers.cloudflare.com/workers/platform/pricing: Cloudflare Workers, Pricing
+[11] https://developers.cloudflare.com/r2/pricing: Cloudflare R2, Pricing
+[12] https://developers.cloudflare.com/queues/reference/delivery-guarantees: Cloudflare Queues, Delivery guarantees
+[13] https://developers.cloudflare.com/workers/observability/pricing: Cloudflare Workers, Observability pricing
+[14] https://docs.databricks.com/aws/en/ingestion/cloud-object-storage/auto-loader: Databricks, What is Auto Loader?
+[15] https://docs.databricks.com/aws/en/connect/unity-catalog/cloud-storage/external-locations-r2: Databricks, Connect to a Cloudflare R2 external location
+[16] https://developers.cloudflare.com/r2/platform/limits/: Cloudflare R2, Limits
+[17] https://docs.databricks.com/aws/en/ingestion/cloud-object-storage/auto-loader/unity-catalog: Databricks, Auto Loader with Unity Catalog
+[18] https://docs.databricks.com/aws/en/ingestion/cloud-object-storage/auto-loader/file-detection-modes: Databricks, Compare Auto Loader file detection modes

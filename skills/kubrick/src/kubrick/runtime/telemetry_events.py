@@ -253,7 +253,7 @@ def validate_event(
         raise TelemetryError("REASON_CODE_INVALID")
     if event_type == "usage":
         if result == "success":
-            valid_reason_codes = {None}
+            valid_reason_codes: set[str | None] = {None}
         elif result == "failure":
             valid_reason_codes = {code[1] for code in EXIT_RESULTS.values() if code[0] == "failure"}
             valid_reason_codes.add(OTHER_EXIT_RESULT[1])

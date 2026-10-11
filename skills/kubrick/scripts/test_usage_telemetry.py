@@ -8,7 +8,7 @@ import uuid
 from pathlib import Path
 
 import pytest
-from jsonschema import Draft202012Validator
+from jsonschema import Draft202012Validator  # type: ignore[import-untyped]
 
 ROOT = Path(__file__).resolve().parent.parent
 sys.path.insert(0, str(ROOT / "src"))
@@ -256,11 +256,8 @@ def test_flush_is_disabled_and_rejects_non_https_without_network(
     )
     handler = telemetry._NoRedirectHandler()
     original = telemetry.urlrequest.Request("https://collector.example/events")
-    assert (
-        handler.redirect_request(
-            original, object(), 302, "Found", {}, "http://untrusted.example/events"
-        )
-        is None
+    handler.redirect_request(
+        original, object(), 302, "Found", {}, "http://untrusted.example/events"
     )
 
 
@@ -374,7 +371,9 @@ def test_flush_removes_events_only_after_durable_acceptance(
     assert request.get_method() == "POST"
     assert request.get_header("Authorization") == "Bearer synthetic-test-token"
     assert request.get_header("User-agent") == "KubrickTelemetry/1"
-    assert captured["timeout"] <= 1
+    timeout = captured["timeout"]
+    assert isinstance(timeout, (int, float))
+    assert timeout <= 1
     assert set(body) == {"schema_version", "events"}
     assert body["events"] == [event]
     assert result.status == "accepted"
