@@ -84,11 +84,8 @@ def spend_estimate(
     ):
         return _not_computable_estimate()
     if any(
-        isinstance(seconds, (int, float))
-        and not isinstance(seconds, bool)
-        and not _is_finite_number(seconds)
+        not _is_finite_number(item.get("generated_seconds"))
         for item in rows
-        for seconds in (item.get("generated_seconds"),)
     ):
         return _not_computable_estimate()
     shots: list[dict[str, object]] = []
