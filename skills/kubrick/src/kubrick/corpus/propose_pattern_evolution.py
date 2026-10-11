@@ -54,8 +54,11 @@ def build(
     forge_bundles: list[dict[str, Any]],
 ) -> dict[str, Any]:
     matching = [r for r in receipts if receipt_matches(r, pattern_id)]
-    forge_hits = [(b, forge_matches(b, pattern_id)) for b in forge_bundles]
-    forge_hits = [(b, hit) for b, hit in forge_hits if hit is not None]
+    forge_hits: list[tuple[dict[str, Any], dict[str, Any]]] = []
+    for bundle in forge_bundles:
+        hit = forge_matches(bundle, pattern_id)
+        if hit is not None:
+            forge_hits.append((bundle, hit))
 
     if not matching and not forge_hits:
         raise SystemExit("no supplied receipt or forge bundle references the requested pattern")
@@ -226,14 +229,15 @@ def build(
         "graph_validity": avg_graph,
     }
 
+    evidence_sources: dict[str, list[str]] = {
+        "use_receipts": [r.get("receipt_id", "unknown") for r in matching],
+        "forge_bundles": [b.get("bundle_id", "unknown") for b, _ in forge_hits],
+        "source_projects": sorted(set(source_projects)),
+    }
     evolution_receipt = {
         "schema_version": "1.0.0",
         "pattern_id": pattern_id,
-        "evidence_sources": {
-            "use_receipts": [r.get("receipt_id", "unknown") for r in matching],
-            "forge_bundles": [b.get("bundle_id", "unknown") for b, _ in forge_hits],
-            "source_projects": sorted(set(source_projects)),
-        },
+        "evidence_sources": evidence_sources,
         "multi_signal_scores": {
             "confidence_evidence": multi_signal["confidence_evidence"],
             "mutation_success": multi_signal["mutation_success"],
@@ -275,8 +279,8 @@ def build(
     proposal = {
         "schema_version": "1.0.0",
         "pattern_id": pattern_id,
-        "evidence_receipts": evolution_receipt["evidence_sources"]["use_receipts"]
-        or evolution_receipt["evidence_sources"]["forge_bundles"],
+        "evidence_receipts": evidence_sources["use_receipts"]
+        or evidence_sources["forge_bundles"],
         "proposed_changes": {
             "confidence_delta": delta,
             "add_misuse_risks": sorted(set(misuse)),
