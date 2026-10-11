@@ -2,9 +2,7 @@
   "schema_version": "1.0.0",
   "ruff": {
     "scripts/test_adapter_preservation.py": 7,
-    "scripts/test_diagnostics.py": 1,
     "scripts/test_golden_v016.py": 5,
-    "scripts/test_installer.py": 1,
     "scripts/test_intent_router.py": 2,
     "scripts/test_outcome_governance.py": 11,
     "scripts/test_production_engine.py": 2,
