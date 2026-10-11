@@ -158,7 +158,10 @@ def test_end_to_end_surfaces() -> None:
         assert proc.returncode == 0, (proc.stdout, proc.stderr)
         adapted_data = json.loads(adapted.read_text(encoding="utf-8"))
         report = adapted_data["result"]["preservation_report"]
-        assert report.get("critical_invariants_preserved") is True or report.get("status") == "VALID"
+        assert (
+            report.get("critical_invariants_preserved") is True
+            or report.get("status") == "VALID"
+        )
 
         for artifact, schema in (
             (design_receipt, "schemas/design-revision-receipt.schema.json"),
