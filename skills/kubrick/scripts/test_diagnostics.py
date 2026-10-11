@@ -80,7 +80,15 @@ def _not_computable_is_exit_4_and_embedded() -> bool:
         out = root / "compile"
         brief.write_text(yaml.safe_dump(source, sort_keys=False), encoding="utf-8")
         result = subprocess.run(
-            [PY, str(ROOT / "scripts/kubrick.py"), "compile", "--brief", str(brief), "--out", str(out)],
+            [
+                PY,
+                str(ROOT / "scripts/kubrick.py"),
+                "compile",
+                "--brief",
+                str(brief),
+                "--out",
+                str(out),
+            ],
             cwd=ROOT,
             text=True,
             capture_output=True,
